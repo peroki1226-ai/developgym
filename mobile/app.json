@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "GymFinder",
+    "slug": "gymfinder",
+    "version": "1.0.0",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.gymfinder.mobile"
+    },
+    "plugins": ["expo-status-bar"]
+  }
+}

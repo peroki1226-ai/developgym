@@ -41,7 +41,7 @@
 | **TASK-003** | 共有ダッシュボード（`DEV_STATE.md`）の整備 | Antigravity | `DONE` | `LGTM` |
 | **TASK-004** | 引継ぎメッセージブロック（Handoff Block）ルールの導入 | Antigravity | `DONE` | `LGTM` |
 | **TASK-005** | **【方針転換】Web開発即時中断 & モバイルアプリ（Expo）移行方針の決定** | ユーザー / Antigravity | `DONE` | `LGTM` (Web凍結・Mobile全集中) |
-| **TASK-006** | `mobile/` のプロジェクト構成 & ネイティブ画面（Tabs / Navigation）の設計・実装 | Codex | `TODO` | - |
+| **TASK-006** | `mobile/` のプロジェクト構成 & ネイティブ画面（Tabs / Navigation）の設計・実装 | Codex | `IN REVIEW` | 5タブ実装・型チェック・2テスト・両OSバンドル成功。実機レビュー待ち |
 | **TASK-007** | モバイル版でのジム検索 & メニューマッチ率（92%）ネイティブコンポーネント実装 | Codex | `TODO` | - |
 
 > **ステータスの種類**:  
@@ -91,3 +91,17 @@
    - ③ **Home タブ**: 所有器具登録、器具なし自重トレーニングモード、ジム器具の代替種目（Alternative）自動提案
    - ④ **Diet タブ**: 体重推移グラフ、摂取カロリー＆PFCバランス、AI食事写真スキャン推定、減量メニュー
    - ⑤ **My Page タブ**: 今日のトレーニングサマリー、ジム・自宅統合履歴、お気に入りジム、ユーザー投稿（器具写真・スペック修正・レビュー）
+
+
+### [TASK-006] Expoネイティブ5タブ構成（Codex）
+- **状態**: `[IN REVIEW]`
+- **実装**: React NavigationによるGyms / Training / Home / Diet / My Page。上・左右のSafe Areaと下端ナビゲーションのinsets、黒・白・プラチナの共通UI、スクロールとアクセシビリティラベルを整備。
+- **構成**: `mobile/src/components`、`screens`、`data`、共有状態に分割。既存の器具ガイド3種目を保持。Trainingの入力検証付き記録・Homeの器具選択/自重記録・Gymsのお気に入りをMy Pageに反映。
+- **環境**: Expo SDK 51から58へ更新。SDK同梱互換情報に合わせReact 19.3 / RN 0.88へ整合。ロックファイル・strict TypeScript・起動READMEを追加。Webファイルは変更なし。
+- **検証**: `npm run typecheck`成功。Jest 2件成功（実ナビゲーターの5タブ切替、状態共有、検索空状態、不正入力）。iOS/AndroidのMetro/Hermesバンドル生成成功。Expo互換チェックはofflineモードで成功（APIオンライン検証はネットワーク制限により未実施）。
+- **境界**: Gymsの店舗・92%はサンプル（計算はTASK-007）。Dietグラフ/PFCもサンプル。AI・投稿は準備中を明示。記録/お気に入りは起動中のみ。全12種目図解・永続化・API連携は未実装。
+- **レビュー依頼**: iPhoneのExpo Go SDK58でノッチ/Dynamic Island、ホームバー、文字拡大、横向き、VoiceOverとAndroidの戻る操作。実機・ネイティブコンパイルは本環境では未検証。クラウドからiPhoneへの到達経路は別途必要。
+
+- **起動確認**: Metro起動とiOS用Expo manifest取得に成功（SDK58 / launchAssetあり）。書込不可のホームはExpo CLIのシェル指定の設定先とXDG cacheを`/tmp`へ変更して解決。
+
+- **再提出対応**: Antigravityの `[Changes Requested]`（未プッシュによるレビュー保留）を受領。TASK-006の全変更をコミットし、`origin/main` へ公開して再レビューを依頼する。コード内容の追加変更なし。ステータスは `[IN REVIEW]` を維持。

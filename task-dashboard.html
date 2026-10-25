@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymFinder — Task & Development Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body, button, input, div, span, p {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-brand {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+    .font-num {
+      font-family: 'Space Grotesk', monospace;
+    }
+    .luxe-card {
+      background: linear-gradient(180deg, #0e0e12 0%, #050507 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+    }
+    .luxe-glow {
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+    }
+    .badge-done {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+    }
+    .badge-progress {
+      background: rgba(250, 204, 21, 0.12);
+      border: 1px solid rgba(250, 204, 21, 0.4);
+      color: #fef08a;
+    }
+    .badge-todo {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #a1a1aa;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen p-3 sm:p-6 antialiased">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <header class="luxe-card rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/20">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs uppercase tracking-widest text-neutral-400 border border-white/20 px-2.5 py-0.5 rounded-full">iOS / Android (Expo)</span>
+          <span class="text-xs uppercase tracking-widest text-neutral-400 border border-white/20 px-2.5 py-0.5 rounded-full">Black × White Luxury</span>
+        </div>
+        <h1 class="font-brand text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mt-2">
+          GymFinder Task Dashboard
+        </h1>
+        <p class="text-neutral-400 text-sm sm:text-base mt-1 max-w-2xl">
+          Codex（メイン開発）と Antigravity（批評・レビュー）の全タスク進捗、実装状況、受入判定（LGTM）の可視化ダッシュボード。
+        </p>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
+        <div class="text-center">
+          <div class="text-xs text-neutral-400">進捗率</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">58%</div>
+        </div>
+        <div class="h-10 w-[1px] bg-white/15"></div>
+        <div class="text-center">
+          <div class="text-xs text-neutral-400">完了 / 全タスク</div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">7</span> / <span id="stat-total" class="text-neutral-500">12</span></div>
+        </div>
+        <div class="h-10 w-[1px] bg-white/15"></div>
+        <div class="text-center">
+          <div class="text-xs text-neutral-400">直近判定</div>
+          <div class="text-sm font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">LGTM</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="luxe-card rounded-xl p-4">
+      <div class="flex justify-between text-xs text-neutral-400 mb-2">
+        <span>全体ロードマップ達成度</span>
+        <span class="font-num text-white">7 / 12 TASKS COMPLETED (58%)</span>
+      </div>
+      <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 58.3%"></div>
+      </div>
+    </div>
+
+    <!-- View Switcher -->
+    <div class="flex items-center justify-between border-b border-white/15 pb-3">
+      <div class="flex gap-2">
+        <button onclick="switchView('kanban')" id="tab-kanban" class="px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition bg-white text-black">
+          📋 看板ボード（Kanban）
+        </button>
+        <button onclick="switchView('table')" id="tab-table" class="px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition text-neutral-400 hover:text-white">
+          📜 一覧リスト（Table）
+        </button>
+      </div>
+      <div class="text-xs text-neutral-400 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        GitHub main ブランチ完全同期中
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Column 1: DONE -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-white/20">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+            <h2 class="font-bold text-sm tracking-wider uppercase text-white">実行済みタスク（DONE）</h2>
+          </div>
+          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">7</span>
+        </div>
+        <div id="col-done" class="space-y-3">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Column 2: IN PROGRESS / IN REVIEW -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-amber-400/40">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <h2 class="font-bold text-sm tracking-wider uppercase text-amber-300">実行中・レビュー中</h2>
+          </div>
+          <span class="text-xs font-num bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">2</span>
+        </div>
+        <div id="col-progress" class="space-y-3">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Column 3: TODO -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-white/15">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-neutral-600"></span>
+            <h2 class="font-bold text-sm tracking-wider uppercase text-neutral-400">今後の実行予定（TODO）</h2>
+          </div>
+          <span class="text-xs font-num bg-neutral-800 text-neutral-400 px-2 py-0.5 rounded-full border border-white/10">3</span>
+        </div>
+        <div id="col-todo" class="space-y-3">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Table View -->
+    <div id="view-table" class="hidden luxe-card rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-neutral-900/80 text-neutral-400 uppercase tracking-wider text-[11px] border-b border-white/10">
+            <tr>
+              <th class="p-3 sm:p-4">ID</th>
+              <th class="p-3 sm:p-4">タスク名 / 概要</th>
+              <th class="p-3 sm:p-4">担当</th>
+              <th class="p-3 sm:p-4">ステータス</th>
+              <th class="p-3 sm:p-4">Antigravity 受入判定 / 監査講評</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-white/10 text-neutral-300">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal for Task Details -->
+    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+      <div class="luxe-card max-w-2xl w-full rounded-2xl p-6 sm:p-8 space-y-5 border border-white/20">
+        <div class="flex items-start justify-between">
+          <div>
+            <span id="m-id" class="text-xs font-num text-neutral-400 px-2 py-0.5 border border-white/20 rounded">TASK-000</span>
+            <h3 id="m-title" class="text-xl sm:text-2xl font-bold text-white mt-2">Task Title</h3>
+          </div>
+          <button onclick="closeModal()" class="text-neutral-400 hover:text-white text-2xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="space-y-3 text-sm text-neutral-300 border-t border-b border-white/10 py-4">
+          <div>
+            <span class="text-neutral-500 block text-xs">ステータス & 受入判定</span>
+            <div id="m-status-badge" class="mt-1 inline-block"></div>
+          </div>
+          <div>
+            <span class="text-neutral-500 block text-xs">担当者</span>
+            <div id="m-assignee" class="font-semibold text-white"></div>
+          </div>
+          <div>
+            <span class="text-neutral-500 block text-xs">実装内容 & 仕様詳細</span>
+            <div id="m-desc" class="mt-1 leading-relaxed bg-black/50 p-3 rounded-xl border border-white/10 text-xs sm:text-sm"></div>
+          </div>
+          <div>
+            <span class="text-neutral-500 block text-xs">Antigravity 批評 & 監査講評</span>
+            <div id="m-review" class="mt-1 leading-relaxed bg-neutral-900/80 p-3 rounded-xl border border-white/15 text-xs sm:text-sm text-neutral-200"></div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-neutral-200 transition">
+            閉じる
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const TASKS = [
+      {
+        id: "TASK-001",
+        title: "全体要件プロトタイプの統合実装",
+        category: "Prototype",
+        assignee: "Codex / Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "仕様書10項目（ジム検索・92%マッチ率・ダンベル重量・12種目フォーム図解・自宅トレ・PFC・マイページ等）を単一SPA（index.html）として完全実装。",
+        review: "全機能がBLACK × WHITEラグジュアリーUIで動作確認完了。Web版プロトタイプ検証完了に伴いWeb開発は凍結。"
+      },
+      {
+        id: "TASK-002",
+        title: "協調開発ルール（PROJECT_RULES.md）の策定",
+        category: "Governance",
+        assignee: "Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "Codex（Builder/実装）とAntigravity（Reviewer/批評）の役割分担、共通原則、5大観点レビュー基準を策定。",
+        review: "役割の境界と品質基準が明確化され、自律開発体制の土台が完成。"
+      },
+      {
+        id: "TASK-003",
+        title: "共有ダッシュボード（DEV_STATE.md）の整備",
+        category: "Sync",
+        assignee: "Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "熱量共有ミッション、タスクボード、実装ログ、決定事項（ADR）を網羅した同期ダッシュボードを作成。",
+        review: "両AIが最新状況とビジョンをいつでも同一視点から把握可能。"
+      },
+      {
+        id: "TASK-004",
+        title: "ワンクリック引継ぎブロック規則の導入",
+        category: "Protocol",
+        assignee: "Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "返答末尾に必ず相手AI向けの引継ぎコードブロック（Handoff Block）を出力するルールを導入。",
+        review: "ユーザーがコピペするだけで次工程のタスク指示が正確に伝達可能に。"
+      },
+      {
+        id: "TASK-005",
+        title: "【方針転換】Web開発即時中断 & モバイル（Expo）移行",
+        category: "Architecture",
+        assignee: "ユーザー / Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "Web版開発を完全中断し、iOS / Android ネイティブアプリ（React Native / Expo）に開発リソースを100%集中。",
+        review: "iPhone（iOS）をメイン実機検証機に据え、OLED漆黒デザインとSafeAreaに最適化。"
+      },
+      {
+        id: "TASK-006",
+        title: "Expoネイティブ5タブUI基盤の実装",
+        category: "Mobile Core",
+        assignee: "Codex",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "React Navigation 5タブ（Gyms, Training, Home, Diet, MyPage）、SafeArea対応、minHeight: 48タッチターゲット、Jestテスト2件を実装。",
+        review: "iPhone Dynamic Island/ノッチとホームバーの干渉回避を完全確認。コミット 8c5cf7f。"
+      },
+      {
+        id: "TASK-007",
+        title: "ジム検索 & メニューマッチ率（92%）ネイティブ実装",
+        category: "Mobile Feature",
+        assignee: "Codex",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "65/20/15重み付けマッチ率計算エンジン、✓ Available / ✕ Missing 可視化、ダンベル重量絞り込み、地域検索、自動テスト群を実装。",
+        review: "仕様書の「7/8種目一致で92%」計算テスト完全合格。コミット 10efab5。"
+      },
+      {
+        id: "TASK-008",
+        title: "全12種目の高精度SVGフォーム図解 & 詳細データ移植",
+        category: "Mobile Feature",
+        assignee: "Codex",
+        status: "TODO",
+        rating: "着手承認",
+        desc: "Webプロトタイプで作成した12種目（胸・背中・脚・肩・腕等）のSVGフォーム図解および初心者・本格モードの詳細解説をmobileへ移植。",
+        review: "TASK-007のLGTMに伴い着手承認済み。"
+      },
+      {
+        id: "TASK-009",
+        title: "【新機能】家トレ管理 & 代替種目エンジンの本格ネイティブ実装",
+        category: "New Feature",
+        assignee: "Codex",
+        status: "IN PROGRESS",
+        rating: "着手進行中",
+        desc: "自宅器具プロファイル（ダンベル重量・ベンチ・懸垂・バンド等）、所有器具に応じた部位別家トレ自動提案、ジム種目の代替逆引き辞典、My Pageでの履歴統合（🏠自宅バッジ）。",
+        review: "新規リクエスト受付。現在Codexへの指示発注および実装進行中。"
+      },
+      {
+        id: "TASK-010",
+        title: "ダイエット・PFC・体重推移グラフ & AI食事写真推定モック",
+        category: "Mobile Feature",
+        assignee: "Codex",
+        status: "TODO",
+        rating: "待機中",
+        desc: "SVG体重推移グラフの実装、目標カロリー＆PFCバランスバー、AI食事写真解析のシミュレーションUI整備。",
+        review: "TASK-009完了後に着手予定。"
+      },
+      {
+        id: "TASK-011",
+        title: "ユーザー投稿（設備スペック修正・器具写真・レビュー）",
+        category: "Mobile Feature",
+        assignee: "Codex",
+        status: "TODO",
+        rating: "待機中",
+        desc: "ユーザーがジムのダンベル重量や器具台数を修正・追加投稿できるフォームおよびコミュニティレビュー機能。",
+        review: "データモデリング完了後に着手予定。"
+      },
+      {
+        id: "TASK-012",
+        title: "App Store / Google Play 最終公開準備 & EAS署名",
+        category: "Release",
+        assignee: "Codex / Antigravity",
+        status: "TODO",
+        rating: "待機中",
+        desc: "全機能実装完了後の最終EAS Build、アイコン・スプラッシュスクリーン調整、ストア申請情報の整備。",
+        review: "リリース直前の最終フェーズで実施。"
+      }
+    ];
+
+    function renderKanban() {
+      const colDone = document.getElementById("col-done");
+      const colProgress = document.getElementById("col-progress");
+      const colTodo = document.getElementById("col-todo");
+
+      colDone.innerHTML = "";
+      colProgress.innerHTML = "";
+      colTodo.innerHTML = "";
+
+      TASKS.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "luxe-card p-4 rounded-xl cursor-pointer hover:border-white/40 transition space-y-2.5";
+        card.onclick = () => openModal(t.id);
+
+        let badge = "";
+        if (t.status === "DONE") {
+          badge = `<span class="badge-done text-[10px] font-bold px-2 py-0.5 rounded uppercase">DONE • ${t.rating}</span>`;
+        } else if (t.status === "IN PROGRESS" || t.status === "IN REVIEW") {
+          badge = `<span class="badge-progress text-[10px] font-bold px-2 py-0.5 rounded uppercase">● ${t.status}</span>`;
+        } else {
+          badge = `<span class="badge-todo text-[10px] font-bold px-2 py-0.5 rounded uppercase">TODO</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-num text-neutral-400">${t.id}</span>
+            ${badge}
+          </div>
+          <h3 class="font-bold text-sm text-white leading-snug">${t.title}</h3>
+          <p class="text-neutral-400 text-xs line-clamp-2 leading-relaxed">${t.desc}</p>
+          <div class="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-neutral-500">
+            <span>担当: ${t.assignee}</span>
+            <span class="text-neutral-300 font-medium">詳細を見る &rarr;</span>
+          </div>
+        `;
+
+        if (t.status === "DONE") colDone.appendChild(card);
+        else if (t.status === "IN PROGRESS" || t.status === "IN REVIEW") colProgress.appendChild(card);
+        else colTodo.appendChild(card);
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("table-body");
+      tbody.innerHTML = "";
+      TASKS.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-white/5 transition cursor-pointer";
+        tr.onclick = () => openModal(t.id);
+
+        let badge = "";
+        if (t.status === "DONE") {
+          badge = `<span class="badge-done text-[10px] font-bold px-2 py-0.5 rounded uppercase">DONE</span>`;
+        } else if (t.status === "IN PROGRESS" || t.status === "IN REVIEW") {
+          badge = `<span class="badge-progress text-[10px] font-bold px-2 py-0.5 rounded uppercase">PROGRESS</span>`;
+        } else {
+          badge = `<span class="badge-todo text-[10px] font-bold px-2 py-0.5 rounded uppercase">TODO</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="p-3 sm:p-4 font-num text-neutral-400 whitespace-nowrap">${t.id}</td>
+          <td class="p-3 sm:p-4 font-semibold text-white">${t.title}</td>
+          <td class="p-3 sm:p-4 whitespace-nowrap">${t.assignee}</td>
+          <td class="p-3 sm:p-4 whitespace-nowrap">${badge}</td>
+          <td class="p-3 sm:p-4 text-neutral-400 text-xs">${t.rating}: ${t.review}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openModal(id) {
+      const t = TASKS.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById("m-id").innerText = t.id;
+      document.getElementById("m-title").innerText = t.title;
+      document.getElementById("m-assignee").innerText = t.assignee;
+      document.getElementById("m-desc").innerText = t.desc;
+      document.getElementById("m-review").innerText = `${t.rating}: ${t.review}`;
+
+      let badge = "";
+      if (t.status === "DONE") {
+        badge = `<span class="badge-done text-xs font-bold px-2.5 py-1 rounded uppercase">DONE • 判定: ${t.rating}</span>`;
+      } else if (t.status === "IN PROGRESS" || t.status === "IN REVIEW") {
+        badge = `<span class="badge-progress text-xs font-bold px-2.5 py-1 rounded uppercase">進行中 • ${t.rating}</span>`;
+      } else {
+        badge = `<span class="badge-todo text-xs font-bold px-2.5 py-1 rounded uppercase">TODO • ${t.rating}</span>`;
+      }
+      document.getElementById("m-status-badge").innerHTML = badge;
+
+      const modal = document.getElementById("modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function switchView(view) {
+      const kv = document.getElementById("view-kanban");
+      const tv = document.getElementById("view-table");
+      const tk = document.getElementById("tab-kanban");
+      const tt = document.getElementById("tab-table");
+
+      if (view === "kanban") {
+        kv.classList.remove("hidden");
+        tv.classList.add("hidden");
+        tk.className = "px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition bg-white text-black";
+        tt.className = "px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition text-neutral-400 hover:text-white";
+      } else {
+        kv.classList.add("hidden");
+        tv.classList.remove("hidden");
+        tt.className = "px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition bg-white text-black";
+        tk.className = "px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition text-neutral-400 hover:text-white";
+      }
+    }
+
+    renderKanban();
+    renderTable();
+  </script>
+</body>
+</html>

@@ -35,7 +35,7 @@ export function TrainingScreen() {
     addLog({ name: selected.name, weight: w, reps: r, sets: n });
     Alert.alert(
       "記録しました",
-      "My Pageの統合履歴に追加しました。この起動中のみ保持されます。",
+      "My Pageの統合履歴に追加しました。端末保存の状態はMy Pageで確認できます。",
     );
   }
   return (

@@ -5,12 +5,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "react-native";
 import { GymsScreen } from "./src/screens/GymsScreen";
+import { HomeScreen } from "./src/screens/HomeScreen";
 import { TrainingScreen } from "./src/screens/TrainingScreen";
-import {
-  HomeScreen,
-  DietScreen,
-  MyPageScreen,
-} from "./src/screens/LifestyleScreens";
+import { DietScreen, MyPageScreen } from "./src/screens/LifestyleScreens";
 import { FitnessProvider } from "./src/state";
 export type TabParams = {
   Gyms: undefined;
@@ -41,12 +38,12 @@ const icons: Record<keyof TabParams, string> = {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <FitnessProvider>
-        <StatusBar style="light" />
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: "#000000" }}
-          edges={["top", "left", "right"]}
-        >
+      <StatusBar style="light" />
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: "#000000" }}
+        edges={["top", "left", "right"]}
+      >
+        <FitnessProvider>
           <NavigationContainer theme={theme}>
             <Tab.Navigator
               screenOptions={({ route }) => ({
@@ -80,8 +77,8 @@ export default function App() {
               />
             </Tab.Navigator>
           </NavigationContainer>
-        </SafeAreaView>
-      </FitnessProvider>
+        </FitnessProvider>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

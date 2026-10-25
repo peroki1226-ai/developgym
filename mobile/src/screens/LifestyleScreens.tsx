@@ -1,70 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Alert, Text, View } from "react-native";
 import Svg, { Polyline } from "react-native-svg";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
 import { gyms } from "../domain/matching";
-export function HomeScreen() {
-  const [equipment, setEquipment] = useState<string[]>([]);
-  const { addLog } = useFitness();
-  const options = ["ダンベル", "トレーニングバンド", "ベンチ"];
-  const exercise = equipment.includes("ダンベル")
-    ? "ダンベルスクワット"
-    : "自重スクワット";
-  return (
-    <Page
-      title="Your space. Your pace."
-      subtitle="自宅を、あなた専用のトレーニング空間に。"
-    >
-      <Card>
-        <Heading>所有器具</Heading>
-        <Body>未選択なら器具なし・自重モード。</Body>
-        <View style={s.row}>
-          {options.map((item) => (
-            <Button
-              key={item}
-              title={item}
-              selected={equipment.includes(item)}
-              onPress={() =>
-                setEquipment((old) =>
-                  old.includes(item)
-                    ? old.filter((x) => x !== item)
-                    : [...old, item],
-                )
-              }
-            />
-          ))}
-        </View>
-      </Card>
-      <Card>
-        <Body>ALTERNATIVE / 下半身</Body>
-        <Heading>レッグプレスの代替種目</Heading>
-        <Text style={s.number}>{exercise}</Text>
-        <Body>
-          膝とつま先の向きをそろえ、痛みのない範囲で。10回 ×
-          3セットを目安に調整してください。
-        </Body>
-        <Body>
-          {equipment.includes("トレーニングバンド")
-            ? "バンドを使った横歩きも追加できます。"
-            : "器具なしでも、ゆっくり下ろすことで負荷を調整できます。"}
-        </Body>
-        <Button
-          title="自重スクワット 10回 × 3を記録"
-          onPress={() => {
-            addLog({
-              name: "自宅 / 自重スクワット",
-              weight: 0,
-              reps: 10,
-              sets: 3,
-            });
-            Alert.alert("記録しました", "My Pageで確認できます。");
-          }}
-        />
-      </Card>
-    </Page>
-  );
-}
 export function DietScreen() {
   return (
     <Page
@@ -122,28 +61,41 @@ export function DietScreen() {
   );
 }
 export function MyPageScreen() {
-  const { logs, favorites } = useFitness();
+  const { logs, favorites, storageStatus } = useFitness();
   return (
     <Page
       title="Made by you."
       subtitle="ジムでも、自宅でも。すべての積み重ねをひとつに。"
     >
-      <Body>記録・お気に入りはアプリ起動中のみ保持されます。</Body>
+      <Body>記録・お気に入り・自宅器具はこの端末に保存します。</Body>
       <Card>
-        <Body>THIS SESSION</Body>
+        <Body>統合履歴 / 合計セット</Body>
         <Text style={s.number}>
           {logs.reduce((sum, log) => sum + log.sets, 0)}{" "}
           <Text style={{ fontSize: 16 }}>sets</Text>
         </Text>
+        <Body>
+          {storageStatus === "saved"
+            ? "端末に保存済み"
+            : storageStatus === "saving"
+              ? "端末に保存中…"
+              : "保存に失敗しています。再試行してください。"}
+        </Body>
         <Heading>トレーニング統合履歴</Heading>
         {logs.length ? (
           logs.map((log) => (
             <View key={log.id}>
+              <Body>{log.location === "home" ? "🏠 自宅" : "ジム"}</Body>
               <Body>
                 {log.date} / {log.name}
               </Body>
               <Body>
-                {log.weight}kg × {log.reps}回 × {log.sets}セット
+                {log.loadType === "bodyweight"
+                  ? "自重"
+                  : log.loadType === "band"
+                    ? "バンド"
+                    : `${log.weight}kg${log.loadType === "dumbbell" ? "（片手）" : ""}`}{" "}
+                × {log.reps}回 × {log.sets}セット
               </Body>
             </View>
           ))

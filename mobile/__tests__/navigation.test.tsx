@@ -18,7 +18,10 @@ test("five tabs navigate, favorites and workout logs survive tab changes", async
   await fireEvent.press(screen.getByRole("button", { name: /Home/ }));
   expect(await screen.findByText("Your space. Your pace.")).toBeTruthy();
   await fireEvent.press(screen.getByText("ダンベル"));
-  expect(screen.getByText("ダンベルスクワット")).toBeTruthy();
+  await fireEvent.press(screen.getByText("脚"));
+  expect(
+    screen.getByRole("button", { name: "ダンベルスクワット" }),
+  ).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: /Diet/ }));
   expect(await screen.findByText("Nourish your progress.")).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));

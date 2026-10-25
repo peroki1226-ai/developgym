@@ -5,11 +5,15 @@
     "version": "1.0.0",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gymfinder.mobile",
+      "buildNumber": "1"
     },
     "android": {
       "package": "com.gymfinder.mobile"
     },
-    "plugins": ["expo-status-bar"]
+    "plugins": [
+      "expo-status-bar"
+    ]
   }
 }

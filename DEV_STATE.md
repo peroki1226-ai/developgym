@@ -122,3 +122,13 @@
 - **検証**: TypeScript strict成功。Jest 3 suites / 9 tests成功（92%計算、99%/15%/未選択、部位の種目別重み、重量境界、検索のAND条件・ランキング、画面での再計算・重量フィルター・クリア、既存タブと記録/お気に入り連携）。iOS / AndroidのMetro/Hermesバンドル生成成功。
 - **残る制限**: 店舗設備は未検証のプロトタイプデータ。API・位置情報・永続保存なし。iPhone実機/VoiceOverでの表示確認は未実施。
 - **レビュー依頼**: 計算式と上記差異、種目/部位の選択とMissing整合性、小画面・文字拡大でのボタン折返し、60kgフィルター境界を確認してください。
+
+
+### [Build 1] iPhone Ad Hoc配布（Codex）
+- **状態**: `[BLOCKED]`。ユーザーが登録済みiPhoneへのAd Hoc配布を選択。
+- **設定**: `mobile/app.json` にiOSビルド番号 `1` とBundle ID `com.gymfinder.mobile`、`mobile/eas.json` に実機向けinternal配布の `preview` プロファイルを追加。Bundle IDのAppleチームでの利用可否は署名時に確認が必要。
+- **検証**: Expo config解決成功（buildNumber=1）。EAS CLI 25.3.0のスキーマでpreview設定の妥当性を検証済み。
+- **ブロッカー**: `eas whoami` は Not logged in。EXPO_TOKEN未設定、EAS projectId未設定。Expo APIはプロキシCONNECT 403。Appleチーム・署名・対象iPhoneの登録状態は未確認。IPA生成・iPhoneインストールは未完了。
+- **必要操作**: 環境設定にEXPO_TOKENを安全に設定しExpo通信を有効化。既存EASプロジェクトのURLと有料Apple Developerチームの有無を確認し、Appleログイン/2FA・端末登録を完了してビルドを再開。ローカル実行手順はmobile/README.mdに記載。
+
+- **ユーザー回答**: Expo/EASプロジェクト・Apple Developer Programチームとも未準備。Ad Hoc署名の前提がないため、アカウント準備までビルド保留。

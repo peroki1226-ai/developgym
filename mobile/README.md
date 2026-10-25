@@ -50,3 +50,23 @@ EXPO_NO_TELEMETRY=1 npx expo export --platform ios --platform android --max-work
 UIの重量指定は片手あたり0（指定なし）/20/40/60/90kg以上の必須フィルターです。検索語・地域とAND条件で絞り込み、マッチ率順に並べます。該当なしでも条件外の店舗を代替表示しません。「検索をクリア」は検索語・地域・重量のみをリセットして種目/部位選択を保持します。選択状態は起動中のみです。
 
 テスト9件: 既存ナビゲーション2件、検索/種目選択の画面操作2件、計算・重複・重量境界・絞り込み・ランキングの単体テスト5件。
+
+## Build 1 / iPhoneへのAd Hoc配布
+
+`app.json` は `version: 1.0.0`、`ios.buildNumber: 1`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.gymfinder.mobile` は仮設定で、既存Apple App IDがある場合はそのIDに合わせてください。Expo/EASプロジェクトとの紐付け・Apple署名は未完了です。
+
+Apple Developer Programの有料チームとExpoアカウントが必要です。認証できる作業端末で次を実行します。Appleログイン/2FAは本人がCLIの案内に沿って操作し、パスワードやトークンをGitやチャットへ保存しないでください。
+
+```sh
+cd mobile
+npx eas-cli@25.3.0 login
+# 既存のGymFinderプロジェクトがあればそれを選択する
+npx eas-cli@25.3.0 init
+# 対象iPhoneが未登録なら案内URLをiPhoneのSafariで開き、UDIDを登録する
+npx eas-cli@25.3.0 device:create
+npx eas-cli@25.3.0 build --platform ios --profile preview
+```
+
+プロビジョニングプロファイルの端末リストに対象iPhoneが含まれることを確認してください。ビルド成功後、EASのビルド詳細ページのInstall/QRをiPhoneのSafariで開いてインストールします。既存のEAS署名がある場合は再利用できます。配布にはリリースビルドのJSが含まれ、Metro常時起動は不要です。配布リンクの発行だけでは端末へのインストール完了とは扱いません。
+
+クラウドで継続する場合は、環境設定にExpo API用の `EXPO_TOKEN` を安全に設定し、`api.expo.dev` / `expo.dev` への通信を許可します。必要なアップロード先等が追加で拒否された場合は、実際に報告された宛先を確認して追加します。EASプロジェクトとApple署名がまだない場合、上記の初回連携が先に必要です。

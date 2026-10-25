@@ -3,7 +3,7 @@ import { Alert, Text, View } from "react-native";
 import Svg, { Polyline } from "react-native-svg";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
-import { gyms } from "./GymsScreen";
+import { gyms } from "../domain/matching";
 export function HomeScreen() {
   const [equipment, setEquipment] = useState<string[]>([]);
   const { addLog } = useFitness();

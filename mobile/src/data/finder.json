@@ -1,0 +1,337 @@
+{
+  "menus": [
+    {
+      "id": "m-bench",
+      "name": "Barbell Bench Press",
+      "part": "chest-mid",
+      "reqEquip": "power-rack"
+    },
+    {
+      "id": "m-incline-db",
+      "name": "Heavy Incline Dumbbell Press",
+      "part": "chest-upper",
+      "reqEquip": "dumbbell-heavy"
+    },
+    {
+      "id": "m-incline-smith",
+      "name": "Incline Smith Machine Press",
+      "part": "chest-upper",
+      "reqEquip": "incline-smith"
+    },
+    {
+      "id": "m-cable-cross",
+      "name": "Cable Crossover Fly",
+      "part": "chest-mid",
+      "reqEquip": "cable-machine"
+    },
+    {
+      "id": "m-pec-fly",
+      "name": "Pec Deck Fly & Rear Delt",
+      "part": "chest-mid",
+      "reqEquip": "pec-fly"
+    },
+    {
+      "id": "m-deadlift",
+      "name": "Barbell Deadlift & Rack Pull",
+      "part": "back-thick",
+      "reqEquip": "power-rack"
+    },
+    {
+      "id": "m-lat-mag",
+      "name": "Wide-Grip Lat Pulldown",
+      "part": "back-width",
+      "reqEquip": "lat-pulldown"
+    },
+    {
+      "id": "m-seated-row",
+      "name": "Seated Cable Row",
+      "part": "back-thick",
+      "reqEquip": "seated-row"
+    },
+    {
+      "id": "m-cable-lat",
+      "name": "Cable Lateral Raise",
+      "part": "delt-front-mid",
+      "reqEquip": "cable-machine"
+    },
+    {
+      "id": "m-face-pull",
+      "name": "Rope Face Pull",
+      "part": "delt-rear",
+      "reqEquip": "cable-machine"
+    },
+    {
+      "id": "m-pushdown",
+      "name": "Cable Triceps Pushdown & Curl",
+      "part": "biceps-triceps",
+      "reqEquip": "cable-machine"
+    },
+    {
+      "id": "m-squat",
+      "name": "Barbell Back Squat",
+      "part": "quads",
+      "reqEquip": "power-rack"
+    },
+    {
+      "id": "m-hack-squat",
+      "name": "45° Linear Hack Squat",
+      "part": "quads",
+      "reqEquip": "hack-squat"
+    },
+    {
+      "id": "m-leg-press",
+      "name": "45° Sled Leg Press",
+      "part": "quads",
+      "reqEquip": "leg-press"
+    },
+    {
+      "id": "m-rdl",
+      "name": "Romanian Deadlift (RDL)",
+      "part": "ham-glute",
+      "reqEquip": "power-rack"
+    },
+    {
+      "id": "m-hip-thrust",
+      "name": "Smith Machine Hip Thrust",
+      "part": "ham-glute",
+      "reqEquip": "incline-smith"
+    }
+  ],
+  "parts": [
+    {
+      "id": "chest-upper",
+      "name": "Upper Pectorals",
+      "group": "chest"
+    },
+    {
+      "id": "chest-mid",
+      "name": "Mid & Lower Chest",
+      "group": "chest"
+    },
+    {
+      "id": "back-width",
+      "name": "Latissimus Dorsi (Width)",
+      "group": "back"
+    },
+    {
+      "id": "back-thick",
+      "name": "Traps & Mid-Back (Depth)",
+      "group": "back"
+    },
+    {
+      "id": "delt-front-mid",
+      "name": "Anterior & Lateral Delts",
+      "group": "shoulder"
+    },
+    {
+      "id": "delt-rear",
+      "name": "Posterior Deltoids",
+      "group": "shoulder"
+    },
+    {
+      "id": "biceps-triceps",
+      "name": "Biceps & Triceps",
+      "group": "arm"
+    },
+    {
+      "id": "quads",
+      "name": "Quadriceps (Front Thigh)",
+      "group": "legs"
+    },
+    {
+      "id": "ham-glute",
+      "name": "Hamstrings & Glutes",
+      "group": "legs"
+    },
+    {
+      "id": "abs-core",
+      "name": "Abdominals & Obliques",
+      "group": "abs"
+    }
+  ],
+  "equipment": [
+    {
+      "id": "chest-press",
+      "name": "Chest Press Machine",
+      "brand": "Technogym",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "pec-fly",
+      "name": "Pec Fly & Rear Delt",
+      "brand": "Life Fitness",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "shoulder-press",
+      "name": "Shoulder Press Machine",
+      "brand": "Hammer Strength",
+      "bodyPart": "shoulder"
+    },
+    {
+      "id": "lat-pulldown",
+      "name": "Lat Pulldown Tower",
+      "brand": "Prime Fitness USA",
+      "bodyPart": "back"
+    },
+    {
+      "id": "seated-row",
+      "name": "Seated Low Row",
+      "brand": "Cybex",
+      "bodyPart": "back"
+    },
+    {
+      "id": "abdominal-crunch",
+      "name": "Abdominal Crunch",
+      "brand": "Technogym",
+      "bodyPart": "abs"
+    },
+    {
+      "id": "leg-press",
+      "name": "45° Sled Leg Press",
+      "brand": "Cybex",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "hack-squat",
+      "name": "45° Hack Squat",
+      "brand": "Arsenal Strength",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "power-rack",
+      "name": "Power Rack (Squat & Bench)",
+      "brand": "Hammer Strength / Eleiko",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "incline-smith",
+      "name": "Incline Smith Machine",
+      "brand": "Matrix Fitness",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "cable-machine",
+      "name": "Dual Adjustable Pulley",
+      "brand": "Life Fitness",
+      "bodyPart": "arm"
+    },
+    {
+      "id": "dumbbell-heavy",
+      "name": "Heavy Dumbbells & Bench",
+      "brand": "Ivanko / Rogue",
+      "bodyPart": "arm"
+    }
+  ],
+  "gyms": [
+    {
+      "id": "gold",
+      "name": "Gold's Gym Shibuya Tokyo",
+      "area": "Shibuya, Tokyo",
+      "region": "tokyo",
+      "maxDumbbellKg": 60,
+      "dumbbellRange": "1kg – 60kg Full Set (Ivanko & PowerBlock)",
+      "spec": "4 Power Racks (Hammer Strength) / Arsenal Hack Squat / 2 Dual Cables",
+      "installed": [
+        "chest-press",
+        "pec-fly",
+        "shoulder-press",
+        "lat-pulldown",
+        "seated-row",
+        "abdominal-crunch",
+        "leg-press",
+        "hack-squat",
+        "power-rack",
+        "incline-smith",
+        "cable-machine",
+        "dumbbell-heavy"
+      ]
+    },
+    {
+      "id": "anytime",
+      "name": "Anytime Fitness Shibuya Koen-dori",
+      "area": "Shibuya, Tokyo",
+      "region": "tokyo",
+      "maxDumbbellKg": 40,
+      "dumbbellRange": "1kg – 40kg Set (Life Fitness Urethane)",
+      "spec": "2 Hammer Strength Racks / 1 Smith Machine / Life Fitness DAP",
+      "installed": [
+        "chest-press",
+        "pec-fly",
+        "shoulder-press",
+        "lat-pulldown",
+        "seated-row",
+        "abdominal-crunch",
+        "leg-press",
+        "power-rack",
+        "incline-smith",
+        "cable-machine",
+        "dumbbell-heavy"
+      ]
+    },
+    {
+      "id": "compact",
+      "name": "chocoZAP Shibuya Ekimae",
+      "area": "Shibuya, Tokyo",
+      "region": "tokyo",
+      "maxDumbbellKg": 0,
+      "dumbbellRange": "No Free Dumbbells (Selectorized Machines Only)",
+      "spec": "7 Beginner Pin-Loaded Machines / Street Shoes OK",
+      "installed": [
+        "chest-press",
+        "pec-fly",
+        "shoulder-press",
+        "lat-pulldown",
+        "seated-row",
+        "abdominal-crunch",
+        "leg-press"
+      ]
+    },
+    {
+      "id": "global-la",
+      "name": "Gold's Gym Venice (The Mecca)",
+      "area": "Venice Beach, Los Angeles (USA)",
+      "region": "global",
+      "maxDumbbellKg": 90,
+      "dumbbellRange": "2kg – 90kg (200 lbs) Pro Custom Dumbbells",
+      "spec": "12 Racks / Panatta & Arsenal Machines / Outdoor Pit",
+      "installed": [
+        "chest-press",
+        "pec-fly",
+        "shoulder-press",
+        "lat-pulldown",
+        "seated-row",
+        "abdominal-crunch",
+        "leg-press",
+        "hack-squat",
+        "power-rack",
+        "incline-smith",
+        "cable-machine",
+        "dumbbell-heavy"
+      ]
+    },
+    {
+      "id": "global-ldn",
+      "name": "Gymbox Farringdon & Soho London",
+      "area": "Soho, London (UK)",
+      "region": "global",
+      "maxDumbbellKg": 60,
+      "dumbbellRange": "2kg – 60kg Eleiko & Watson Dumbbells",
+      "spec": "6 Eleiko Olympic Platforms / Hammer Strength & Watson",
+      "installed": [
+        "chest-press",
+        "pec-fly",
+        "shoulder-press",
+        "lat-pulldown",
+        "seated-row",
+        "abdominal-crunch",
+        "leg-press",
+        "hack-squat",
+        "power-rack",
+        "incline-smith",
+        "cable-machine",
+        "dumbbell-heavy"
+      ]
+    }
+  ]
+}

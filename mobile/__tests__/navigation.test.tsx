@@ -25,7 +25,7 @@ test("five tabs navigate, favorites and workout logs survive tab changes", async
   expect(await screen.findByText("Made by you.")).toBeTruthy();
   expect(screen.getByText("20kg × 10回 × 3セット")).toBeTruthy();
   expect(
-    screen.getByText("ATLAS / TOKYO / 東京・渋谷（サンプル）"),
+    screen.getByText("Gold's Gym Shibuya Tokyo / Shibuya, Tokyo（サンプル）"),
   ).toBeTruthy();
 });
 
@@ -35,7 +35,7 @@ test("search has an empty state and invalid training input is rejected", async (
   await fireEvent.changeText(screen.getByLabelText("ジム検索"), "不存在");
   expect(screen.getByText("該当するジムがありません")).toBeTruthy();
   await fireEvent.press(screen.getByText("検索をクリア"));
-  expect(screen.getByText("ATLAS / TOKYO")).toBeTruthy();
+  expect(screen.getByText("Gold's Gym Shibuya Tokyo")).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: /Training/ }));
   await screen.findByText("Move with intent.");
   await fireEvent.changeText(screen.getByLabelText("重量kg"), "-1");

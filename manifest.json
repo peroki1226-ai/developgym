@@ -1,0 +1,10 @@
+{
+  "name": "Gym Finder - 旅先ジム％診断＆器具ガイド",
+  "short_name": "Gym Finder",
+  "description": "筋トレ初心者からボディビルダーまで使えるジム器具図鑑・AIカメラ判定・店舗マップ・トレ記録アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#ef4444",
+  "orientation": "portrait"
+}

@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GymFinder — Monochrome Luxury Super-App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body, button, input, a, span, div, p, svg text {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      letter-spacing: 0.01em;
+    }
+    .font-brand {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      letter-spacing: 0.03em;
+    }
+    .font-num {
+      font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.03em;
+    }
+    .luxe-shell {
+      background:
+        radial-gradient(ellipse 80% 24% at 50% 0%, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 75%),
+        linear-gradient(180deg, #08080a 0%, #020203 100%);
+      box-shadow:
+        0 30px 80px -15px rgba(0, 0, 0, 0.95),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+    }
+    .luxe-card-top {
+      background:
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 55%),
+        linear-gradient(165deg, #151518 0%, #09090b 55%, #040405 100%);
+      box-shadow:
+        0 20px 50px -15px rgba(255, 255, 255, 0.12),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+    }
+    .luxe-card {
+      background: linear-gradient(180deg, #0d0d10 0%, #050507 100%);
+      box-shadow:
+        0 14px 34px -12px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+    }
+    .luxe-inset {
+      background: #020203;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9);
+    }
+    .luxe-white-glow {
+      box-shadow: 0 0 22px rgba(255, 255, 255, 0.22);
+    }
+  </style>
+</head>
+<body class="bg-black text-white antialiased p-2 sm:p-4">
+  <div id="app-root" class="max-w-xl mx-auto luxe-shell text-white rounded-3xl border border-white/20 overflow-hidden"></div>
+  <script>
+const DATA = {
+  basicMuscles: [
+    { id: "chest", name: "Chest" },
+    { id: "back", name: "Back" },
+    { id: "shoulder", name: "Shoulders" },
+    { id: "arm", name: "Arms" },
+    { id: "legs", name: "Legs & Glutes" },
+    { id: "abs", name: "Abs & Core" }
+  ],
+
+  proMuscles: [
+    { id: "chest-upper", name: "Upper Pectorals", group: "chest" },
+    { id: "chest-mid", name: "Mid & Lower Chest", group: "chest" },
+    { id: "back-width", name: "Latissimus Dorsi (Width)", group: "back" },
+    { id: "back-thick", name: "Traps & Mid-Back (Depth)", group: "back" },
+    { id: "delt-front-mid", name: "Anterior & Lateral Delts", group: "shoulder" },
+    { id: "delt-rear", name: "Posterior Deltoids", group: "shoulder" },
+    { id: "biceps-triceps", name: "Biceps & Triceps", group: "arm" },
+    { id: "quads", name: "Quadriceps (Front Thigh)", group: "legs" },
+    { id: "ham-glute", name: "Hamstrings & Glutes", group: "legs" },
+    { id: "abs-core", name: "Abdominals & Obliques", group: "abs" }
+  ],
+
+  proMenus: [
+    { id: "m-bench", name: "Barbell Bench Press", part: "chest-mid", reqEquip: "power-rack" },
+    { id: "m-incline-db", name: "Heavy Incline Dumbbell Press", part: "chest-upper", reqEquip: "dumbbell-heavy" },
+    { id: "m-incline-smith", name: "Incline Smith Machine Press", part: "chest-upper", reqEquip: "incline-smith" },
+    { id: "m-cable-cross", name: "Cable Crossover Fly", part: "chest-mid", reqEquip: "cable-machine" },
+    { id: "m-pec-fly", name: "Pec Deck Fly & Rear Delt", part: "chest-mid", reqEquip: "pec-fly" },
+    { id: "m-deadlift", name: "Barbell Deadlift & Rack Pull", part: "back-thick", reqEquip: "power-rack" },
+    { id: "m-lat-mag", name: "Wide-Grip Lat Pulldown", part: "back-width", reqEquip: "lat-pulldown" },
+    { id: "m-seated-row", name: "Seated Cable Row", part: "back-thick", reqEquip: "seated-row" },
+    { id: "m-cable-lat", name: "Cable Lateral Raise", part: "delt-front-mid", reqEquip: "cable-machine" },
+    { id: "m-face-pull", name: "Rope Face Pull", part: "delt-rear", reqEquip: "cable-machine" },
+    { id: "m-pushdown", name: "Cable Triceps Pushdown & Curl", part: "biceps-triceps", reqEquip: "cable-machine" },
+    { id: "m-squat", name: "Barbell Back Squat", part: "quads", reqEquip: "power-rack" },
+    { id: "m-hack-squat", name: "45° Linear Hack Squat", part: "quads", reqEquip: "hack-squat" },
+    { id: "m-leg-press", name: "45° Sled Leg Press", part: "quads", reqEquip: "leg-press" },
+    { id: "m-rdl", name: "Romanian Deadlift (RDL)", part: "ham-glute", reqEquip: "power-rack" },
+    { id: "m-hip-thrust", name: "Smith Machine Hip Thrust", part: "ham-glute", reqEquip: "incline-smith" }
+  ],
+
+  equipments: [
+    {
+      id: "chest-press",
+      name: "Chest Press Machine",
+      brand: "Technogym",
+      model: "Selection 900 Chest Press",
+      units: 2,
+      maxLoad: "130kg Stack",
+      zone: "chest",
+      bodyPart: "chest",
+      partLabel: "Chest",
+      homeAlt: "Deficit Push-up / Resistance Band Chest Press",
+      seat: "Adjust seat so handles align with mid-chest",
+      howTo: "Keep shoulder blades retracted against pad and press forward smoothly.",
+      weight: "Men 30kg / Women 15kg",
+      pro: "Retract scapulae, arch slightly, and control the eccentric stretch."
+    },
+    {
+      id: "pec-fly",
+      name: "Pec Fly & Rear Delt",
+      brand: "Life Fitness",
+      model: "Insignia Series Fly / Rear Delt",
+      units: 2,
+      maxLoad: "135kg Stack",
+      zone: "chest",
+      bodyPart: "chest",
+      partLabel: "Chest & Rear Delts",
+      homeAlt: "Dumbbell Floor Fly / Banded Hug Fly",
+      seat: "Set seat so arms sweep horizontally at shoulder level",
+      howTo: "With slightly bent elbows, bring handles together in a wide hugging arc.",
+      weight: "Men 25kg / Women 10kg",
+      pro: "Hold peak contraction for 1 full second to maximize inner chest activation."
+    },
+    {
+      id: "shoulder-press",
+      name: "Shoulder Press Machine",
+      brand: "Hammer Strength",
+      model: "MTS Iso-Lateral Shoulder Press",
+      units: 2,
+      maxLoad: "140kg Stack",
+      zone: "chest",
+      bodyPart: "shoulder",
+      partLabel: "Shoulders",
+      homeAlt: "Pike Push-up / Dumbbell Overhead Press",
+      seat: "Adjust seat so handles start right at ear level",
+      howTo: "Press handles straight overhead without locking out elbows.",
+      weight: "Men 20kg / Women 10kg",
+      pro: "Keep forearms vertical and stop just before lockout to keep tension on delts."
+    },
+    {
+      id: "lat-pulldown",
+      name: "Lat Pulldown Tower",
+      brand: "Prime Fitness USA",
+      model: "Evolution Lat Pulldown + MAG Grips",
+      units: 3,
+      maxLoad: "150kg Stack",
+      zone: "back",
+      bodyPart: "back",
+      partLabel: "Back Width",
+      homeAlt: "Pull-up Bar Chin-ups / Doorway Towel Row",
+      seat: "Lock thighs firmly under the roller pad",
+      howTo: "Lift chest slightly and pull the bar down smoothly toward your collarbone.",
+      weight: "Men 35kg / Women 15kg",
+      pro: "Depress shoulder blades first and drive elbows down toward your hips."
+    },
+    {
+      id: "seated-row",
+      name: "Seated Low Row",
+      brand: "Cybex",
+      model: "Prestige VRS Seated Row",
+      units: 2,
+      maxLoad: "140kg Stack",
+      zone: "back",
+      bodyPart: "back",
+      partLabel: "Back Thickness",
+      homeAlt: "One-Arm Dumbbell Row / Band Seated Row",
+      seat: "Brace feet on platform with knees slightly bent",
+      howTo: "Sit tall and pull the handle straight back toward your navel.",
+      weight: "Men 30kg / Women 15kg",
+      pro: "Stretch lats forward on the negative, then squeeze shoulder blades together."
+    },
+    {
+      id: "abdominal-crunch",
+      name: "Abdominal Crunch",
+      brand: "Technogym",
+      model: "Biocircuit Abdominal Crunch",
+      units: 2,
+      maxLoad: "100kg Stack",
+      zone: "back",
+      bodyPart: "abs",
+      partLabel: "Abdominals",
+      homeAlt: "Ab Roller Kneeling Rollout / Hollow Body Crunch",
+      seat: "Place chest or hands comfortably against the upper pad",
+      howTo: "Exhale and curl your ribcage downward toward your pelvis.",
+      weight: "Men 25kg / Women 15kg",
+      pro: "Focus on spinal flexion rather than hip flexion; pause at full contraction."
+    },
+    {
+      id: "leg-press",
+      name: "45° Sled Leg Press",
+      brand: "Cybex",
+      model: "Plate-Loaded 45° Squat Press",
+      units: 2,
+      maxLoad: "450kg Plates",
+      zone: "legs",
+      bodyPart: "legs",
+      partLabel: "Quads & Glutes",
+      homeAlt: "Bulgarian Split Squat / Tempo Pistol Squat",
+      seat: "Keep lower back and hips flat against the angled backrest",
+      howTo: "Place feet shoulder-width apart and push the platform diagonally upward.",
+      weight: "Men 80kg / Women 40kg",
+      pro: "Lower foot placement targets Quads; higher foot placement targets Glutes & Hamstrings."
+    },
+    {
+      id: "hack-squat",
+      name: "45° Hack Squat",
+      brand: "Arsenal Strength",
+      model: "Reloaded Linear Hack Squat",
+      units: 1,
+      maxLoad: "400kg Plates",
+      zone: "legs",
+      bodyPart: "legs",
+      partLabel: "Quadriceps",
+      homeAlt: "Heel-Elevated Goblet Squat / Sissy Squat",
+      seat: "Brace shoulders snug under pads and release safety handles",
+      howTo: "Descend along the 45° rails until knees reach 90°, then drive back up.",
+      weight: "40kg – 120kg Plates",
+      pro: "Locks torso stability so you can push Quadriceps to true muscular failure safely."
+    },
+    {
+      id: "power-rack",
+      name: "Power Rack (Squat & Bench)",
+      brand: "Hammer Strength / Eleiko",
+      model: "HD Elite Power Rack + IWF Bar",
+      units: 4,
+      maxLoad: "350kg Olympic",
+      zone: "free",
+      bodyPart: "legs",
+      partLabel: "Full Body (Big 3)",
+      homeAlt: "Dumbbell Squat & Floor Press / Backpack Weighted Squat",
+      seat: "Set safety bars 3cm below your deepest range of motion",
+      howTo: "Perform Barbell Squats, Bench Presses, and Deadlifts inside the safety cage.",
+      weight: "20kg Olympic Bar + Plates",
+      pro: "Essential foundation for progressive overload on heavy compound lifts."
+    },
+    {
+      id: "incline-smith",
+      name: "Incline Smith Machine",
+      brand: "Matrix Fitness",
+      model: "Magnum Counter-Balanced Smith",
+      units: 2,
+      maxLoad: "240kg Plates",
+      zone: "free",
+      bodyPart: "chest",
+      partLabel: "Upper Chest & Glutes",
+      homeAlt: "Feet-Elevated Push-up / Single-Leg Hip Thrust",
+      seat: "Set adjustable bench between 30° and 45° incline",
+      howTo: "Rotate bar to unhook, lower toward upper chest, and press along fixed rails.",
+      weight: "Bar + Plates",
+      pro: "Fixed bar path eliminates balance fatigue, allowing pure focus on Upper Pectorals."
+    },
+    {
+      id: "cable-machine",
+      name: "Dual Adjustable Pulley",
+      brand: "Life Fitness",
+      model: "Signature Cable Motion DAP",
+      units: 2,
+      maxLoad: "95kg × 2 Stacks",
+      zone: "free",
+      bodyPart: "arm",
+      partLabel: "Chest, Delts & Arms",
+      homeAlt: "Resistance Band Crossover, Lateral Raise & Pushdown",
+      seat: "Pull pin to slide pulley carriages to any height",
+      howTo: "Keep elbows tucked for pushdowns or sweep wide for chest crossovers.",
+      weight: "Men 15kg / Women 5kg",
+      pro: "Provides constant tension through the entire range of motion for lateral raises & flies."
+    },
+    {
+      id: "dumbbell-heavy",
+      name: "Heavy Dumbbells & Bench",
+      brand: "Ivanko / Rogue",
+      model: "Urethane Pro Dumbbells + 6 Adj. Benches",
+      units: 6,
+      maxLoad: "60kg Pair Max",
+      zone: "free",
+      bodyPart: "arm",
+      partLabel: "Chest, Shoulders & Arms",
+      homeAlt: "Adjustable Home Dumbbells / Diamond Push-ups",
+      seat: "Set bench backrest angle to match your target exercise",
+      howTo: "Select an appropriate dumbbell pair and press or curl without momentum.",
+      weight: "Up to 50kg – 60kg Pairs",
+      pro: "Crucial for deep stretch hypertrophy on Incline Presses, Flies, and Rows."
+    }
+  ],
+
+  gyms: [
+    {
+      id: "gold",
+      region: "tokyo",
+      cityLabel: "Shibuya, Tokyo",
+      name: "Gold's Gym Shibuya Tokyo",
+      websiteUrl: "https://www.goldsgym.jp/shop/13120",
+      mapQuery: "Gold's Gym Shibuya Tokyo",
+      address: "Cocoti Bldg 9F, 1-23-16 Shibuya, Tokyo",
+      hours: "Mon–Sat 07:00–23:30 / Sun 09:00–20:00",
+      walk: "4 min walk (350m)",
+      rating: "4.8 ★★★★★ (428)",
+      fee: "Visitor ¥2,750 / Monthly ¥14,300",
+      maxDumbbellKg: 60,
+      dumbbellRange: "1kg – 60kg Full Set (Ivanko & PowerBlock)",
+      spec: "4 Power Racks (Hammer Strength) / Arsenal Hack Squat / 2 Dual Cables",
+      areaPos: { x: 74, y: 26 },
+      routePath: "M 50 54 L 50 26 L 74 26",
+      installed: ["chest-press", "pec-fly", "shoulder-press", "lat-pulldown", "seated-row", "abdominal-crunch", "leg-press", "hack-squat", "power-rack", "incline-smith", "cable-machine", "dumbbell-heavy"],
+      reviews: [
+        { user: "K. Takahashi (Pro Lifter)", stars: "★★★★★", text: "Ivanko dumbbells up to 60kg and 4 Hammer Strength racks. Best hypertrophy environment in Shibuya." },
+        { user: "Alex M. (Traveler)", stars: "★★★★★", text: "Day pass was super easy at reception. MAG grips available for all lat pulldown towers." }
+      ]
+    },
+    {
+      id: "anytime",
+      region: "tokyo",
+      cityLabel: "Shibuya, Tokyo",
+      name: "Anytime Fitness Shibuya Koen-dori",
+      websiteUrl: "https://www.anytimefitness.co.jp/shibuyakoendori/",
+      mapQuery: "Anytime Fitness Shibuya Koen-dori",
+      address: "B1F, 2-1 Udagawa-cho, Shibuya, Tokyo",
+      hours: "24 Hours / 365 Days (Global Key Fob)",
+      walk: "2 min walk (180m)",
+      rating: "4.3 ★★★★☆ (195)",
+      fee: "Trial ¥1,980 / Monthly ¥9,680",
+      maxDumbbellKg: 40,
+      dumbbellRange: "1kg – 40kg Set (Life Fitness Urethane)",
+      spec: "2 Hammer Strength Racks / 1 Smith Machine / Life Fitness DAP",
+      areaPos: { x: 24, y: 30 },
+      routePath: "M 50 54 L 24 54 L 24 30",
+      installed: ["chest-press", "pec-fly", "shoulder-press", "lat-pulldown", "seated-row", "abdominal-crunch", "leg-press", "power-rack", "incline-smith", "cable-machine", "dumbbell-heavy"],
+      reviews: [
+        { user: "Y. Sato", stars: "★★★★☆", text: "Open 24/7 with 40kg dumbbells and two power racks. Quietest after 10 PM." }
+      ]
+    },
+    {
+      id: "compact",
+      region: "tokyo",
+      cityLabel: "Shibuya, Tokyo",
+      name: "chocoZAP Shibuya Ekimae",
+      websiteUrl: "https://chocozap.jp/",
+      mapQuery: "chocoZAP Shibuya",
+      address: "2F, 2-6 Dogenzaka, Shibuya, Tokyo",
+      hours: "24 Hours / 365 Days (App QR Entry)",
+      walk: "1 min walk (90m)",
+      rating: "3.9 ★★★★☆ (84)",
+      fee: "Flat Rate ¥3,278 / mo",
+      maxDumbbellKg: 0,
+      dumbbellRange: "No Free Dumbbells (Selectorized Machines Only)",
+      spec: "7 Beginner Pin-Loaded Machines / Street Shoes OK",
+      areaPos: { x: 30, y: 78 },
+      routePath: "M 50 54 L 50 78 L 30 78",
+      installed: ["chest-press", "pec-fly", "shoulder-press", "lat-pulldown", "seated-row", "abdominal-crunch", "leg-press"],
+      reviews: [
+        { user: "M. Suzuki (Beginner)", stars: "★★★★☆", text: "Great for quick 15-minute machine circuits on my way home from work." }
+      ]
+    },
+    {
+      id: "global-la",
+      region: "global",
+      cityLabel: "Venice Beach, Los Angeles (USA)",
+      name: "Gold's Gym Venice (The Mecca)",
+      websiteUrl: "https://www.goldsgym.com/venice/",
+      mapQuery: "Gold's Gym Venice California",
+      address: "360 Hampton Dr, Venice, CA 90291, USA",
+      hours: "Mon–Fri 05:00–23:00 / Wknd 06:00–21:00",
+      walk: "Travel Destination · 5 min from Venice Beach",
+      rating: "4.9 ★★★★★ (3,120)",
+      fee: "Day Pass $40 / Weekly Travel Pass $110",
+      maxDumbbellKg: 90,
+      dumbbellRange: "2kg – 90kg (200 lbs) Pro Custom Dumbbells",
+      spec: "12 Racks / Panatta & Arsenal Machines / Outdoor Pit",
+      areaPos: { x: 82, y: 40 },
+      routePath: "M 50 54 L 82 54 L 82 40",
+      installed: ["chest-press", "pec-fly", "shoulder-press", "lat-pulldown", "seated-row", "abdominal-crunch", "leg-press", "hack-squat", "power-rack", "incline-smith", "cable-machine", "dumbbell-heavy"],
+      reviews: [
+        { user: "T. Yamada (Travel Mode)", stars: "★★★★★", text: "Every Panatta, Prime, and Arsenal machine imaginable. 100% match for any pro routine." }
+      ]
+    },
+    {
+      id: "global-ldn",
+      region: "global",
+      cityLabel: "Soho, London (UK)",
+      name: "Gymbox Farringdon & Soho London",
+      websiteUrl: "https://gymbox.com/",
+      mapQuery: "Gymbox Soho London",
+      address: "12a Leather Ln, London EC1N 7SS, UK",
+      hours: "Mon–Fri 06:00–22:30 / Wknd 08:00–20:00",
+      hoursShort: "06:00–22:30",
+      walk: "Travel Destination · 3 min from Station",
+      rating: "4.7 ★★★★★ (890)",
+      fee: "Day Pass £25",
+      maxDumbbellKg: 60,
+      dumbbellRange: "2kg – 60kg Eleiko & Watson Dumbbells",
+      spec: "6 Eleiko Olympic Platforms / Hammer Strength & Watson",
+      areaPos: { x: 64, y: 74 },
+      routePath: "M 50 54 L 64 54 L 64 74",
+      installed: ["chest-press", "pec-fly", "shoulder-press", "lat-pulldown", "seated-row", "abdominal-crunch", "leg-press", "hack-squat", "power-rack", "incline-smith", "cable-machine", "dumbbell-heavy"],
+      reviews: [
+        { user: "C. Davies", stars: "★★★★★", text: "Watson dumbbells and Eleiko competition racks in central London." }
+      ]
+    }
+  ],
+
+  homeGearCatalog: [
+    { id: "hg-db", name: "Adjustable Dumbbells" },
+    { id: "hg-pullup", name: "Doorway Pull-up Bar" },
+    { id: "hg-band", name: "Resistance Bands" },
+    { id: "hg-bench", name: "Foldable Bench" },
+    { id: "hg-roller", name: "Ab Roller" },
+    { id: "hg-kb", name: "Kettlebell" }
+  ],
+
+  homeWorkouts: [
+    { id: "hw-1", name: "Deficit Tempo Push-ups", part: "Chest & Triceps", reqGear: [], sets: "4 Sets × 15 Reps", altFor: "Chest Press Machine" },
+    { id: "hw-2", name: "Bulgarian Split Squat", part: "Quads & Glutes", reqGear: [], sets: "3 Sets × 12 Reps / leg", altFor: "45° Sled Leg Press" },
+    { id: "hw-3", name: "Inverted Table / Towel Row", part: "Back Width & Depth", reqGear: [], sets: "4 Sets × 12 Reps", altFor: "Seated Low Row" },
+    { id: "hw-4", name: "Dumbbell Incline / Floor Press", part: "Upper & Mid Chest", reqGear: ["hg-db"], sets: "4 Sets × 10–12 Reps", altFor: "Incline Smith Machine" },
+    { id: "hw-5", name: "Strict Chin-ups & Wide Pull-ups", part: "Latissimus Dorsi", reqGear: ["hg-pullup"], sets: "4 Sets × Max Reps", altFor: "Lat Pulldown Tower" },
+    { id: "hw-6", name: "Banded Lateral Raise & Face Pull", part: "Lateral & Rear Delts", reqGear: ["hg-band"], sets: "4 Sets × 18 Reps", altFor: "Dual Adjustable Pulley" },
+    { id: "hw-7", name: "Ab Roller Kneeling Rollouts", part: "Rectus Abdominis & Core", reqGear: ["hg-roller"], sets: "3 Sets × 12 Reps", altFor: "Abdominal Crunch" }
+  ]
+};
+
+(function () {
+  const state = {
+    tab: "finder", // "finder" | "guide" | "home" | "diet" | "mypage"
+    mode: "pro", // "beginner" | "pro"
+    regionFilter: "all", // "all" | "tokyo" | "global"
+    searchKeyword: "",
+    mapType: "satellite", // "roadmap" | "satellite"
+    basicMuscles: ["chest", "legs"],
+    basicEquips: ["chest-press", "leg-press"],
+    proSelectedParts: ["chest-upper", "quads"],
+    proSelectedMenus: ["m-incline-db", "m-incline-smith", "m-hack-squat", "m-squat"],
+    reqDumbbellKg: 40,
+    customMenuInput: "",
+    customMenus: [],
+    selectedGymId: "gold",
+    favoriteGymIds: ["gold", "global-la"],
+    mapZoom: 1,
+    activeEquipId: "dumbbell-heavy",
+    guideFilter: "all",
+    workoutGoal: "hypertrophy", // "hypertrophy" | "strength" | "diet" | "health"
+    workoutDuration: 45, // 15 | 30 | 45 | 60
+    logExercise: "Heavy Incline Dumbbell Press",
+    logWeight: 32,
+    logReps: 10,
+    logSets: 4,
+    logLocation: "Gym",
+    workoutHistory: [
+      { id: "w-1", date: "Today · 18:40", location: "Gym (Gold's Shibuya)", exercise: "Heavy Incline Dumbbell Press", detail: "36kg × 10 reps × 4 sets", volume: 1440 },
+      { id: "w-2", date: "Today · 19:05", location: "Gym (Gold's Shibuya)", exercise: "45° Linear Hack Squat", detail: "120kg × 10 reps × 4 sets", volume: 4800 },
+      { id: "w-3", date: "Yesterday", location: "Home Workout", exercise: "Strict Chin-ups & Deficit Push-ups", detail: "Bodyweight × 15 reps × 4 sets", volume: 900 }
+    ],
+    ownedHomeGear: ["hg-db", "hg-pullup", "hg-band", "hg-roller"],
+    bodyweightOnly: false,
+    currentWeight: 72.4,
+    targetWeight: 67.0,
+    weightInput: "72.4",
+    weightHistory: [
+      { label: "W1", kg: 74.8 },
+      { label: "W2", kg: 74.1 },
+      { label: "W3", kg: 73.5 },
+      { label: "W4", kg: 72.9 },
+      { label: "Now", kg: 72.4 }
+    ],
+    calorieGoal: 2150,
+    pfcGoal: { p: 165, f: 55, c: 230 },
+    meals: [
+      { id: "ml-1", type: "Breakfast", name: "Oats, Whey Isolate & Espresso", kcal: 440, p: 42, f: 9, c: 48 },
+      { id: "ml-2", type: "Lunch", name: "Grilled Chicken Breast & Jasmine Rice", kcal: 620, p: 58, f: 11, c: 72 },
+      { id: "ml-3", type: "Post-Workout", name: "WPI Protein Shake & Banana", kcal: 240, p: 32, f: 2, c: 24 }
+    ],
+    mealNameInput: "",
+    mealKcalInput: "",
+    mealPInput: "",
+    mealFInput: "",
+    mealCInput: "",
+    aiPhotoStatus: "",
+    reviewGymId: "gold",
+    reviewAuthor: "",
+    reviewText: "",
+    reviewEquipNote: "",
+    wearableConnected: true,
+    aiCoachActive: false
+  };
+
+  function inferEquipFromText(text) {
+    const t = text.toLowerCase();
+    if (t.includes("hack") || t.includes("ハック")) return "hack-squat";
+    if (t.includes("smith") || t.includes("thrust") || t.includes("スミス")) return "incline-smith";
+    if (t.includes("cable") || t.includes("pushdown") || t.includes("cross") || t.includes("ケーブル")) return "cable-machine";
+    if (t.includes("dumbbell") || t.includes("db") || t.includes("curl") || t.includes("raise") || t.includes("ダンベル")) return "dumbbell-heavy";
+    if (t.includes("lat") || t.includes("pulldown") || t.includes("pull") || t.includes("ラット")) return "lat-pulldown";
+    if (t.includes("row") || t.includes("ロー")) return "seated-row";
+    if (t.includes("leg press") || t.includes("calf") || t.includes("レッグ")) return "leg-press";
+    if (t.includes("pec") || t.includes("fly") || t.includes("ペック")) return "pec-fly";
+    if (t.includes("chest") || t.includes("チェスト")) return "chest-press";
+    if (t.includes("shoulder") || t.includes("ショルダー")) return "shoulder-press";
+    if (t.includes("ab") || t.includes("crunch") || t.includes("腹")) return "abdominal-crunch";
+    return "power-rack";
+  }
+
+  function calcMatch(gym) {
+    if (state.mode === "pro") {
+      const activeMenus = [
+        ...DATA.proMenus.filter((m) => state.proSelectedMenus.includes(m.id)),
+        ...state.customMenus
+      ];
+      const partEquipIds = DATA.proMenus
+        .filter((m) => state.proSelectedParts.includes(m.part))
+        .map((m) => m.reqEquip);
+
+      const canDoMenus = [];
+      const cannotDoMenus = [];
+      activeMenus.forEach((m) => {
+        if (gym.installed.includes(m.reqEquip)) canDoMenus.push(m.name);
+        else cannotDoMenus.push(m.name);
+      });
+
+      const menuRatio = activeMenus.length > 0 ? canDoMenus.length / activeMenus.length : 1;
+      const partRatio = partEquipIds.length > 0 ? partEquipIds.filter((id) => gym.installed.includes(id)).length / partEquipIds.length : 1;
+
+      const dbOk = state.reqDumbbellKg === 0 || gym.maxDumbbellKg >= state.reqDumbbellKg;
+      if (!dbOk) {
+        cannotDoMenus.push(`Required Dumbbells (${state.reqDumbbellKg}kg+) — Gym Max: ${gym.maxDumbbellKg > 0 ? `${gym.maxDumbbellKg}kg` : "None"}`);
+      }
+
+      let pct = Math.round((menuRatio * 0.65 + partRatio * 0.20 + (dbOk ? 0.15 : 0)) * 100);
+      if (cannotDoMenus.length === 0 && activeMenus.length > 0 && partRatio === 1 && dbOk) pct = 99;
+      return {
+        pct: Math.max(15, pct),
+        canDoMenus,
+        cannotDoMenus,
+        dbOk
+      };
+    } else {
+      const muscleIds = DATA.equipments.filter((e) => state.basicMuscles.includes(e.bodyPart)).map((e) => e.id);
+      const wanted = state.basicEquips;
+      const hitWanted = wanted.filter((id) => gym.installed.includes(id));
+      const missWanted = wanted.filter((id) => !gym.installed.includes(id)).map((id) => DATA.equipments.find((e) => e.id === id)?.name);
+
+      const dbOk = state.reqDumbbellKg === 0 || gym.maxDumbbellKg >= state.reqDumbbellKg;
+      if (!dbOk) {
+        missWanted.push(`Dumbbells ${state.reqDumbbellKg}kg+ (Max ${gym.maxDumbbellKg > 0 ? `${gym.maxDumbbellKg}kg` : "None"})`);
+      }
+
+      const wantedRatio = wanted.length > 0 ? hitWanted.length / wanted.length : 1;
+      const muscleRatio = muscleIds.length > 0 ? muscleIds.filter((id) => gym.installed.includes(id)).length / muscleIds.length : 1;
+
+      let pct = Math.round((wantedRatio * 0.6 + muscleRatio * 0.25 + (dbOk ? 0.15 : 0)) * 100);
+      if (missWanted.length === 0 && muscleRatio === 1 && dbOk) pct = 98;
+      return {
+        pct: Math.max(20, pct),
+        canDoMenus: hitWanted.map((id) => DATA.equipments.find((e) => e.id === id)?.name),
+        cannotDoMenus: missWanted,
+        dbOk
+      };
+    }
+  }
+
+  // ★All 12 Exercise Form & Trajectory Diagrams with Cursive English Annotations
+  function renderExerciseDiagram(equipId) {
+    const scenes = {
+      "chest-press": {
+        caption: "Keep your back flat against the pad and press forward horizontally at chest level.",
+        muscleTag: "Pectoralis Major (Full Chest)",
+        svg: `
+          <rect x="18" y="16" width="12" height="72" rx="2" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+          <line x1="20" y1="28" x2="28" y2="28" stroke="#64748b" stroke-width="1.5"/>
+          <line x1="20" y1="36" x2="28" y2="36" stroke="#64748b" stroke-width="1.5"/>
+          <line x1="20" y1="44" x2="28" y2="44" stroke="#64748b" stroke-width="1.5"/>
+          <line x1="12" y1="88" x2="125" y2="88" stroke="#334155" stroke-width="3"/>
+          <rect x="42" y="30" width="6" height="36" rx="3" fill="#334155" stroke="#94a3b8" stroke-width="1.2"/>
+          <rect x="44" y="65" width="22" height="5" rx="2.5" fill="#334155" stroke="#94a3b8" stroke-width="1.2"/>
+          <line x1="52" y1="70" x2="52" y2="88" stroke="#475569" stroke-width="3"/>
+          <circle cx="56" cy="27" r="6.5" fill="#f8fafc"/>
+          <line x1="54" y1="35" x2="54" y2="63" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="59" cy="44" rx="5.5" ry="6.5" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>
+          <polyline points="54,63 74,64 78,86" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="56,42 48,48 66,45" fill="none" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="2 2"/>
+          <line x1="57" y1="42" x2="88" y2="42" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="65" y1="18" x2="89" y2="42" stroke="#60a5fa" stroke-width="2.5"/>
+          <circle cx="89" cy="42" r="3.5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.2"/>
+          <path d="M 70 32 L 106 32" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="106,28 114,32 106,36" fill="#60a5fa"/>
+          <text x="64" y="25" fill="#93c5fd" font-size="9" font-weight="bold">Press Forward</text>
+        `,
+        body: "chest"
+      },
+      "pec-fly": {
+        caption: "Keep a soft bend in your elbows and sweep your arms together in a wide hugging arc.",
+        muscleTag: "Inner Pectorals & Cleavage",
+        svg: `
+          <rect x="44" y="16" width="32" height="8" rx="3" fill="#334155" stroke="#64748b" stroke-width="1.2"/>
+          <ellipse cx="60" cy="36" rx="18" ry="9" fill="#cbd5e1"/>
+          <circle cx="60" cy="34" r="7.5" fill="#f8fafc"/>
+          <path d="M 46 41 Q 60 50 74 41" fill="none" stroke="#2563eb" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 42 36 Q 22 46 26 62" fill="none" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="3 2" stroke-linecap="round"/>
+          <path d="M 78 36 Q 98 46 94 62" fill="none" stroke="#94a3b8" stroke-width="3.5" stroke-dasharray="3 2" stroke-linecap="round"/>
+          <path d="M 43 38 Q 42 62 56 74" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+          <path d="M 77 38 Q 78 62 64 74" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="56" cy="74" r="3" fill="#3b82f6"/>
+          <circle cx="64" cy="74" r="3" fill="#3b82f6"/>
+          <path d="M 24 66 Q 36 82 52 80" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="50,76 57,80 50,84" fill="#60a5fa"/>
+          <path d="M 96 66 Q 84 82 68 80" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="70,76 63,80 70,84" fill="#60a5fa"/>
+          <text x="30" y="13" fill="#93c5fd" font-size="9" font-weight="bold">Sweep Arms in an Arc</text>
+        `,
+        body: "chest"
+      },
+      "shoulder-press": {
+        caption: "Start with handles at ear height and press straight up overhead.",
+        muscleTag: "Deltoids (Full Shoulders)",
+        svg: `
+          <line x1="15" y1="88" x2="115" y2="88" stroke="#334155" stroke-width="3"/>
+          <line x1="36" y1="34" x2="42" y2="68" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+          <line x1="42" y1="68" x2="64" y2="68" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="52" cy="36" r="6.5" fill="#f8fafc"/>
+          <line x1="50" y1="43" x2="52" y2="65" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <polyline points="52,65 70,66 74,86" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="53" cy="45" r="5.5" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>
+          <polyline points="53,45 64,48 64,35" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="2 2"/>
+          <line x1="53" y1="45" x2="58" y2="16" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="58" cy="15" r="3.5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.2"/>
+          <line x1="78" y1="50" x2="78" y2="18" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="74,20 78,11 82,20" fill="#60a5fa"/>
+          <text x="83" y="34" fill="#93c5fd" font-size="8.5" font-weight="bold">Press Up</text>
+        `,
+        body: "shoulder"
+      },
+      "lat-pulldown": {
+        caption: "Lock your thighs under the pad, lift your chest, and pull the bar to your collarbone.",
+        muscleTag: "Latissimus Dorsi (Back Width)",
+        svg: `
+          <rect x="86" y="10" width="12" height="78" rx="2" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+          <line x1="48" y1="12" x2="92" y2="12" stroke="#64748b" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="54" y1="12" x2="54" y2="38" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="2 2"/>
+          <rect x="44" y="64" width="22" height="5" rx="2" fill="#334155"/>
+          <circle cx="62" cy="57" r="4" fill="#1e293b" stroke="#60a5fa" stroke-width="1.5"/>
+          <circle cx="44" cy="33" r="6" fill="#f8fafc"/>
+          <line x1="45" y1="40" x2="50" y2="63" stroke="#f8fafc" stroke-width="6.5" stroke-linecap="round"/>
+          <path d="M 42 42 L 48 58 L 40 55 Z" fill="#2563eb" stroke="#60a5fa" stroke-width="1.2"/>
+          <polyline points="50,63 68,63 70,86" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="44" y1="20" x2="64" y2="20" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+          <line x1="44" y1="38" x2="64" y2="38" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
+          <polyline points="46,43 54,38" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+          <line x1="24" y1="16" x2="24" y2="44" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="20,42 24,50 28,42" fill="#60a5fa"/>
+          <text x="6" y="60" fill="#93c5fd" font-size="8.5" font-weight="bold">Pull to Chest</text>
+        `,
+        body: "back"
+      },
+      "seated-row": {
+        caption: "Brace your feet on the platform, sit tall, and row the handle straight to your waist.",
+        muscleTag: "Lats & Rhomboids (Back Depth)",
+        svg: `
+          <rect x="92" y="22" width="12" height="66" rx="2" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+          <line x1="15" y1="88" x2="112" y2="88" stroke="#334155" stroke-width="3"/>
+          <line x1="76" y1="68" x2="80" y2="86" stroke="#64748b" stroke-width="3.5"/>
+          <line x1="92" y1="54" x2="48" y2="54" stroke="#60a5fa" stroke-width="1.8" stroke-dasharray="2 2"/>
+          <rect x="28" y="66" width="20" height="5" rx="2" fill="#334155"/>
+          <circle cx="38" cy="32" r="6" fill="#f8fafc"/>
+          <line x1="38" y1="39" x2="38" y2="65" stroke="#f8fafc" stroke-width="6.5" stroke-linecap="round"/>
+          <rect x="32" y="42" width="6" height="16" rx="3" fill="#2563eb" stroke="#60a5fa" stroke-width="1.2"/>
+          <polyline points="38,65 58,68 76,75" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="38,44 30,54 46,54" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="47" cy="54" r="3" fill="#3b82f6"/>
+          <line x1="78" y1="42" x2="52" y2="42" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="54,38 46,42 54,46" fill="#60a5fa"/>
+          <text x="48" y="34" fill="#93c5fd" font-size="8.5" font-weight="bold">Row to Waist</text>
+        `,
+        body: "back"
+      },
+      "abdominal-crunch": {
+        caption: "Curl your upper spine downward toward your pelvis while contracting your abs.",
+        muscleTag: "Rectus Abdominis (Six-Pack)",
+        svg: `
+          <line x1="15" y1="88" x2="115" y2="88" stroke="#334155" stroke-width="3"/>
+          <rect x="40" y="32" width="6" height="36" rx="3" fill="#334155"/>
+          <rect x="42" y="66" width="22" height="5" rx="2" fill="#334155"/>
+          <line x1="50" y1="64" x2="50" y2="36" stroke="#94a3b8" stroke-width="4.5" stroke-dasharray="2 2" stroke-linecap="round"/>
+          <path d="M 50 64 Q 56 46 68 42" fill="none" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="72" cy="38" r="6" fill="#f8fafc"/>
+          <path d="M 55 60 Q 60 52 64 47" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+          <polyline points="50,65 68,66 72,86" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M 54 22 Q 78 22 84 44" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="80,43 85,51 88,42" fill="#60a5fa"/>
+          <text x="46" y="18" fill="#93c5fd" font-size="8.5" font-weight="bold">Curl Ribcage Down</text>
+        `,
+        body: "abs"
+      },
+      "leg-press": {
+        caption: "Keep your hips flat against the seat and drive the 45° footplate upward.",
+        muscleTag: "Quadriceps & Glutes",
+        svg: `
+          <line x1="12" y1="88" x2="118" y2="88" stroke="#334155" stroke-width="3"/>
+          <line x1="22" y1="48" x2="40" y2="74" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+          <line x1="40" y1="74" x2="56" y2="70" stroke="#475569" stroke-width="5" stroke-linecap="round"/>
+          <line x1="56" y1="76" x2="106" y2="26" stroke="#334155" stroke-width="3"/>
+          <line x1="78" y1="32" x2="92" y2="48" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="28" cy="40" r="6" fill="#f8fafc"/>
+          <line x1="31" y1="46" x2="43" y2="69" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <polyline points="43,69 52,48 76,42" fill="none" stroke="#94a3b8" stroke-width="4" stroke-dasharray="2 2"/>
+          <polyline points="43,69 64,54 83,41" fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="45" y1="67" x2="62" y2="55" stroke="#2563eb" stroke-width="6" stroke-linecap="round"/>
+          <line x1="66" y1="28" x2="90" y2="12" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="87,9 96,8 92,16" fill="#60a5fa"/>
+          <text x="40" y="20" fill="#93c5fd" font-size="8.5" font-weight="bold">Drive Sled Up 45°</text>
+        `,
+        body: "legs"
+      },
+      "hack-squat": {
+        caption: "Rest shoulders under the pads, squat deep along the 45° rail, and drive up.",
+        muscleTag: "Quadriceps (Front Thigh Focus)",
+        svg: `
+          <line x1="12" y1="88" x2="118" y2="88" stroke="#334155" stroke-width="3"/>
+          <line x1="26" y1="82" x2="92" y2="18" stroke="#475569" stroke-width="4"/>
+          <line x1="22" y1="66" x2="40" y2="86" stroke="#64748b" stroke-width="5" stroke-linecap="round"/>
+          <line x1="58" y1="48" x2="82" y2="24" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="84" cy="18" r="5.5" fill="#f8fafc"/>
+          <line x1="78" y1="24" x2="58" y2="44" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <polyline points="58,44 42,48 32,74" fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="57" y1="44" x2="43" y2="48" stroke="#2563eb" stroke-width="6.5" stroke-linecap="round"/>
+          <line x1="70" y1="64" x2="94" y2="40" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="90,38 99,35 96,44" fill="#60a5fa"/>
+          <text x="52" y="76" fill="#93c5fd" font-size="8.5" font-weight="bold">Slide Along 45° Rail</text>
+        `,
+        body: "legs"
+      },
+      "power-rack": {
+        caption: "Set the safety bars to height and move the barbell in a vertical path.",
+        muscleTag: "Full Body Compound (Big 3)",
+        svg: `
+          <rect x="24" y="12" width="72" height="76" fill="none" stroke="#475569" stroke-width="3"/>
+          <line x1="24" y1="56" x2="96" y2="56" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 2"/>
+          <line x1="16" y1="34" x2="104" y2="34" stroke="#f8fafc" stroke-width="3"/>
+          <rect x="20" y="25" width="5" height="18" rx="1.5" fill="#2563eb" stroke="#93c5fd" stroke-width="1"/>
+          <rect x="95" y="25" width="5" height="18" rx="1.5" fill="#2563eb" stroke="#93c5fd" stroke-width="1"/>
+          <circle cx="60" cy="24" r="5.5" fill="#f8fafc"/>
+          <line x1="60" y1="30" x2="54" y2="54" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <polyline points="54,54 68,64 60,86" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="54" y1="54" x2="67" y2="63" stroke="#2563eb" stroke-width="6" stroke-linecap="round"/>
+          <line x1="82" y1="50" x2="82" y2="20" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="78,22 82,14 86,22" fill="#60a5fa"/>
+          <text x="27" y="52" fill="#93c5fd" font-size="8" font-weight="bold">Safety Bars</text>
+        `,
+        body: "legs"
+      },
+      "incline-smith": {
+        caption: "Set bench to a 30°–45° incline and press the guided bar from upper chest.",
+        muscleTag: "Upper Pectorals & Glutes",
+        svg: `
+          <line x1="12" y1="88" x2="118" y2="88" stroke="#334155" stroke-width="3"/>
+          <line x1="64" y1="10" x2="68" y2="88" stroke="#64748b" stroke-width="3"/>
+          <line x1="34" y1="46" x2="62" y2="70" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+          <line x1="62" y1="70" x2="78" y2="66" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="40" cy="39" r="5.5" fill="#f8fafc"/>
+          <line x1="44" y1="44" x2="62" y2="66" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="52" cy="48" rx="6" ry="4" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>
+          <polyline points="62,66 78,66 84,86" fill="none" stroke="#cbd5e1" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="52" y1="48" x2="65" y2="24" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="65" cy="24" r="4.5" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"/>
+          <line x1="80" y1="48" x2="78" y2="18" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="74,20 78,12 82,20" fill="#60a5fa"/>
+          <text x="12" y="24" fill="#93c5fd" font-size="8.5" font-weight="bold">30° Bench + Fixed Rail</text>
+        `,
+        body: "chest"
+      },
+      "cable-machine": {
+        caption: "Set left & right pulleys and bring cables together under constant tension.",
+        muscleTag: "Chest, Deltoids & Arms",
+        svg: `
+          <rect x="14" y="12" width="8" height="76" rx="2" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+          <rect x="98" y="12" width="8" height="76" rx="2" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+          <line x1="22" y1="22" x2="52" y2="54" stroke="#60a5fa" stroke-width="2" stroke-dasharray="2 2"/>
+          <line x1="98" y1="22" x2="68" y2="54" stroke="#60a5fa" stroke-width="2" stroke-dasharray="2 2"/>
+          <circle cx="60" cy="28" r="6" fill="#f8fafc"/>
+          <rect x="52" y="36" width="16" height="24" rx="4" fill="#f8fafc"/>
+          <rect x="53" y="38" width="14" height="9" rx="2" fill="#2563eb" stroke="#60a5fa" stroke-width="1.2"/>
+          <line x1="56" y1="60" x2="54" y2="86" stroke="#cbd5e1" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="64" y1="60" x2="66" y2="86" stroke="#cbd5e1" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="52" y1="40" x2="54" y2="55" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+          <line x1="68" y1="40" x2="66" y2="55" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M 32 42 Q 44 58 54 58" fill="none" stroke="#3b82f6" stroke-width="2.2"/>
+          <path d="M 88 42 Q 76 58 66 58" fill="none" stroke="#3b82f6" stroke-width="2.2"/>
+          <text x="28" y="18" fill="#93c5fd" font-size="8.5" font-weight="bold">Squeeze Cables to Center</text>
+        `,
+        body: "chest"
+      },
+      "dumbbell-heavy": {
+        caption: "Adjust bench angle, lower dumbbells for a deep stretch, and press upward.",
+        muscleTag: "Chest, Shoulders & Arms",
+        svg: `
+          <line x1="12" y1="88" x2="118" y2="88" stroke="#334155" stroke-width="3"/>
+          <line x1="32" y1="48" x2="58" y2="70" stroke="#334155" stroke-width="6" stroke-linecap="round"/>
+          <line x1="58" y1="70" x2="76" y2="68" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="38" cy="40" r="5.5" fill="#f8fafc"/>
+          <line x1="42" y1="45" x2="58" y2="66" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="50" cy="49" rx="5.5" ry="4" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>
+          <polyline points="58,66 76,68 82,86" fill="none" stroke="#cbd5e1" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="50" y1="49" x2="56" y2="24" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+          <rect x="48" y="19" width="16" height="6" rx="2" fill="#3b82f6" stroke="#ffffff" stroke-width="1.2"/>
+          <path d="M 70 46 Q 70 28 64 20" fill="none" stroke="#3b82f6" stroke-width="2.5"/>
+          <polygon points="61,23 62,14 68,20" fill="#60a5fa"/>
+          <text x="64" y="36" fill="#93c5fd" font-size="8.5" font-weight="bold">Deep Stretch &amp; Press</text>
+        `,
+        body: "arm"
+      }
+    };
+
+    const s = scenes[equipId] || scenes["chest-press"];
+    const monoSvg = s.svg
+      .replace(/#2563eb|#3b82f6/g, "#ffffff")
+      .replace(/#60a5fa|#93c5fd/g, "#d4d4d8")
+      .replace(/#1e293b/g, "#18181b")
+      .replace(/#334155/g, "#27272a")
+      .replace(/#475569|#64748b/g, "#52525b")
+      .replace(/#94a3b8|#cbd5e1/g, "#a1a1aa");
+    const isChest = s.body === "chest";
+    const isBack = s.body === "back";
+    const isShoulder = s.body === "shoulder";
+    const isArm = s.body === "arm";
+    const isLegs = s.body === "legs";
+    const isAbs = s.body === "abs";
+
+    return `
+      <div class="luxe-inset border border-white/15 rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-300">Form &amp; Trajectory</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-semibold text-white">${s.muscleTag}</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 items-center">
+          <div class="col-span-2 bg-black border border-white/10 rounded-xl p-1.5">
+            <svg viewBox="0 0 120 96" class="w-full h-28">
+              ${monoSvg}
+            </svg>
+          </div>
+
+          <div class="bg-black border border-white/10 rounded-xl p-1.5 flex flex-col items-center justify-center">
+            <svg viewBox="0 0 60 96" class="w-full h-24">
+              <circle cx="30" cy="12" r="6" fill="#52525b"/>
+              <circle cx="16" cy="25" r="4.5" fill="${isShoulder ? "#ffffff" : "#27272a"}" stroke="${isShoulder ? "#ffffff" : "none"}" stroke-width="1.2"/>
+              <circle cx="44" cy="25" r="4.5" fill="${isShoulder ? "#ffffff" : "#27272a"}" stroke="${isShoulder ? "#ffffff" : "none"}" stroke-width="1.2"/>
+              <rect x="20" y="21" width="20" height="12" rx="3" fill="${isChest || isBack ? "#ffffff" : "#27272a"}" stroke="${isChest || isBack ? "#d4d4d8" : "none"}" stroke-width="1.2"/>
+              <polygon points="18,26 22,44 20,44" fill="${isBack ? "#e4e4e7" : "#27272a"}"/>
+              <polygon points="42,26 38,44 40,44" fill="${isBack ? "#e4e4e7" : "#27272a"}"/>
+              <rect x="22" y="34" width="16" height="15" rx="2" fill="${isAbs ? "#ffffff" : "#18181b"}" stroke="${isAbs ? "#ffffff" : "#3f3f46"}" stroke-width="1"/>
+              <rect x="11" y="30" width="5" height="18" rx="2.5" fill="${isArm || isChest || isBack ? "#d4d4d8" : "#27272a"}"/>
+              <rect x="44" y="30" width="5" height="18" rx="2.5" fill="${isArm || isChest || isBack ? "#d4d4d8" : "#27272a"}"/>
+              <rect x="20" y="51" width="8" height="24" rx="3.5" fill="${isLegs ? "#ffffff" : "#27272a"}" stroke="${isLegs ? "#d4d4d8" : "none"}" stroke-width="1.2"/>
+              <rect x="32" y="51" width="8" height="24" rx="3.5" fill="${isLegs ? "#ffffff" : "#27272a"}" stroke="${isLegs ? "#d4d4d8" : "none"}" stroke-width="1.2"/>
+              <rect x="21" y="76" width="6" height="15" rx="2.5" fill="${isLegs ? "#d4d4d8" : "#18181b"}"/>
+              <rect x="33" y="76" width="6" height="15" rx="2.5" fill="${isLegs ? "#d4d4d8" : "#18181b"}"/>
+            </svg>
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-300">White = Target</span>
+          </div>
+        </div>
+
+        <div class="text-xs font-medium text-neutral-200 bg-neutral-950 border border-white/10 rounded-xl px-3 py-2">
+          ${s.caption}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderInlineFloorMap(gym) {
+    const eq = DATA.equipments.find((e) => e.id === state.activeEquipId) || DATA.equipments[0];
+    const highlightedEquips =
+      state.mode === "pro"
+        ? [
+            ...DATA.proMenus.filter((m) => state.proSelectedMenus.includes(m.id)).map((m) => m.reqEquip),
+            ...state.customMenus.map((m) => m.reqEquip)
+          ]
+        : state.basicEquips;
+
+    function zoneBox(title, zoneKey) {
+      const items = DATA.equipments.filter((e) => e.zone === zoneKey);
+      return `
+        <div class="bg-black/90 border border-white/10 rounded-xl p-3 space-y-2">
+          <div class="text-[11px] uppercase tracking-[0.14em] font-semibold text-neutral-400">${title}</div>
+          <div class="grid grid-cols-1 gap-1.5">
+            ${items.map((item) => {
+              const has = gym.installed.includes(item.id);
+              const active = state.activeEquipId === item.id;
+              const wanted = highlightedEquips.includes(item.id);
+              const dbLabel = item.id === "dumbbell-heavy"
+                ? (gym.maxDumbbellKg > 0 ? ` (Max ${gym.maxDumbbellKg}kg)` : " (None)")
+                : "";
+              return `
+                <button onclick="window.gf.pickMapEquip('${item.id}')" class="px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center justify-between border transition ${
+                  active
+                    ? "bg-white text-black border-white luxe-white-glow"
+                    : has
+                      ? "bg-neutral-900/90 border-white/15 text-neutral-100 hover:border-white/50"
+                      : "bg-black border-white/5 text-neutral-600 line-through"
+                }">
+                  <div class="text-left">
+                    <div>${item.name}<span class="${active ? "text-neutral-700" : "text-neutral-400"} ml-1">${dbLabel}</span></div>
+                    <div class="text-[10px] ${active ? "text-neutral-700" : "text-neutral-400"} font-normal">${item.brand} · ${item.model} (${has ? `${item.units} Units · ${item.maxLoad}` : "Not Installed"})</div>
+                  </div>
+                  ${wanted && has ? `<span class="px-1.5 py-0.5 rounded ${active ? "bg-black text-white" : "bg-white text-black"} text-[10px] font-bold">★</span>` : ""}
+                </button>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="pt-4 mt-3 border-t border-white/15 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.18em] text-neutral-400 font-semibold">Equipment Specs &amp; Floor Plan</div>
+            <div class="text-sm font-semibold text-white mt-0.5">${gym.name} — Maker, Model &amp; Units</div>
+          </div>
+          <span class="text-xs text-neutral-400">★ = Selected</span>
+        </div>
+
+        <div class="luxe-inset border border-white/15 rounded-2xl p-3 space-y-2">
+          ${zoneBox("Free Weights & Cables", "free")}
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            ${zoneBox("Chest & Shoulders", "chest")}
+            ${zoneBox("Back & Core", "back")}
+            ${zoneBox("Legs & Glutes", "legs")}
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs text-center pt-0.5">
+            <div class="bg-neutral-900 border border-white/15 rounded-lg py-1.5 font-medium text-white">Entrance &amp; Reception</div>
+            <div class="bg-black border border-white/10 rounded-lg py-1.5 text-neutral-400">Lockers &amp; Showers</div>
+          </div>
+        </div>
+
+        <div class="bg-neutral-950 border border-white/30 rounded-2xl p-4 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="font-brand text-lg font-bold text-white">${eq.name}</span>
+              <div class="text-[11px] text-neutral-300">${eq.brand} — ${eq.model} · <span class="text-white font-semibold">${eq.units} Units · ${eq.maxLoad}</span></div>
+            </div>
+            <span class="text-xs text-neutral-300 border border-white/15 px-2.5 py-0.5 rounded-full">${eq.weight}</span>
+          </div>
+          ${renderExerciseDiagram(eq.id)}
+          <div class="space-y-1 text-xs pt-0.5">
+            <p class="text-white font-semibold">▸ Setup: <span class="font-normal text-neutral-300">${eq.seat}</span></p>
+            <p class="text-white font-semibold">▸ Form: <span class="font-normal text-neutral-300">${state.mode === "pro" ? eq.pro : eq.howTo}</span></p>
+            <p class="text-white font-semibold">▸ Home Alternative: <span class="font-normal text-neutral-300">${eq.homeAlt}</span></p>
+          </div>
+        </div>
+
+        <div class="luxe-inset border border-white/15 rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] uppercase tracking-[0.16em] text-neutral-400 font-semibold">Verified Member Reviews (${gym.reviews.length})</span>
+            <button onclick="window.gf.setTab('mypage')" class="text-[11px] text-white underline">+ Post Review / Edit Specs</button>
+          </div>
+          ${gym.reviews.map((rv) => `
+            <div class="bg-black border border-white/10 rounded-lg p-2.5 text-xs space-y-0.5">
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-white">${rv.user}</span>
+                <span class="text-neutral-300">${rv.stars}</span>
+              </div>
+              <p class="text-neutral-400">${rv.text}</p>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGoogleMapSection(ranked) {
+    const activeItem = ranked.find((r) => r.gym.id === state.selectedGymId) || ranked[0];
+    const activeGym = activeItem.gym;
+    const isSat = state.mapType === "satellite";
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeGym.mapQuery)}`;
+
+    const mapBackgroundSvg = isSat
+      ? `
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full">
+          <defs>
+            <radialGradient id="satEarth" cx="50%" cy="50%" r="75%">
+              <stop offset="0%" stop-color="#17171a" />
+              <stop offset="60%" stop-color="#0e0e11" />
+              <stop offset="100%" stop-color="#070709" />
+            </radialGradient>
+          </defs>
+          <rect width="100" height="100" fill="url(#satEarth)" />
+          <rect x="4" y="6" width="32" height="30" rx="2" fill="#18181b" />
+          <circle cx="12" cy="14" r="4" fill="#27272a" />
+          <circle cx="20" cy="18" r="5" fill="#232326" />
+          <circle cx="28" cy="13" r="3.5" fill="#2e2e32" />
+          <circle cx="15" cy="26" r="4.5" fill="#27272a" />
+          <rect x="55" y="10" width="38" height="32" fill="#050507" />
+          <rect x="53" y="8" width="38" height="32" fill="#27272a" stroke="#52525b" stroke-width="0.5" />
+          <rect x="56" y="11" width="14" height="10" fill="#3f3f46" />
+          <rect x="73" y="11" width="15" height="12" fill="#52525b" />
+          <rect x="56" y="24" width="32" height="12" fill="#1f1f23" />
+          <rect x="9" y="61" width="34" height="31" fill="#050507" />
+          <rect x="7" y="59" width="34" height="31" fill="#27272a" stroke="#52525b" stroke-width="0.5" />
+          <rect x="10" y="62" width="12" height="12" fill="#3f3f46" />
+          <rect x="25" y="62" width="13" height="24" fill="#52525b" />
+          <rect x="57" y="61" width="36" height="30" fill="#050507" />
+          <rect x="55" y="59" width="36" height="30" fill="#27272a" stroke="#52525b" stroke-width="0.5" />
+          <rect x="58" y="62" width="29" height="10" fill="#3f3f46" />
+          <rect x="58" y="75" width="18" height="11" fill="#18181b" />
+          <line x1="0" y1="54" x2="100" y2="54" stroke="#18181b" stroke-width="7" />
+          <line x1="50" y1="0" x2="50" y2="100" stroke="#18181b" stroke-width="7" />
+          <line x1="0" y1="54" x2="100" y2="54" stroke="#52525b" stroke-width="0.4" stroke-dasharray="2 2" />
+          <line x1="50" y1="0" x2="50" y2="100" stroke="#52525b" stroke-width="0.4" stroke-dasharray="2 2" />
+          <line x1="24" y1="0" x2="24" y2="100" stroke="#141417" stroke-width="3.5" />
+          <line x1="74" y1="0" x2="74" y2="100" stroke="#141417" stroke-width="3.5" />
+          <line x1="0" y1="26" x2="100" y2="26" stroke="#141417" stroke-width="3.5" />
+          <line x1="0" y1="78" x2="100" y2="78" stroke="#141417" stroke-width="3.5" />
+          <path d="${activeGym.routePath}" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      `
+      : `
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full">
+          <rect width="100" height="100" fill="#09090b" />
+          <rect x="6" y="8" width="28" height="26" rx="3" fill="#121215" stroke="#27272a" stroke-width="0.4" />
+          <rect x="54" y="8" width="38" height="32" rx="2" fill="#121215" stroke="#27272a" stroke-width="0.4" />
+          <rect x="8" y="60" width="34" height="32" rx="2" fill="#121215" stroke="#27272a" stroke-width="0.4" />
+          <rect x="56" y="60" width="36" height="30" rx="2" fill="#121215" stroke="#27272a" stroke-width="0.4" />
+          <line x1="0" y1="54" x2="100" y2="54" stroke="#27272a" stroke-width="6" />
+          <line x1="50" y1="0" x2="50" y2="100" stroke="#27272a" stroke-width="6" />
+          <line x1="24" y1="0" x2="24" y2="100" stroke="#18181b" stroke-width="3" />
+          <line x1="74" y1="0" x2="74" y2="100" stroke="#18181b" stroke-width="3" />
+          <line x1="0" y1="26" x2="100" y2="26" stroke="#18181b" stroke-width="3" />
+          <line x1="0" y1="78" x2="100" y2="78" stroke="#18181b" stroke-width="3" />
+          <line x1="44" y1="0" x2="44" y2="100" stroke="#52525b" stroke-width="1" stroke-dasharray="3 2" />
+          <path d="${activeGym.routePath}" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="${activeGym.routePath}" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="2 3" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      `;
+
+    return `
+      <div class="luxe-card border border-white/15 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 bg-black/90 border-b border-white/10 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="px-2.5 py-0.5 rounded bg-white text-black text-[10px] uppercase tracking-widest font-bold">Google Maps</span>
+            <span class="text-xs font-medium text-neutral-200 truncate">${activeGym.name}</span>
+          </div>
+
+          <div class="flex items-center gap-1 bg-neutral-950 p-0.5 rounded-lg border border-white/15 shrink-0">
+            <button
+              onclick="window.gf.setMapType('roadmap')"
+              class="px-2.5 py-1 rounded-md text-xs font-semibold transition ${
+                !isSat ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }"
+            >
+              Roadmap
+            </button>
+            <button
+              onclick="window.gf.setMapType('satellite')"
+              class="px-2.5 py-1 rounded-md text-xs font-semibold transition ${
+                isSat ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }"
+            >
+              Satellite
+            </button>
+          </div>
+        </div>
+
+        <div class="relative w-full h-52 bg-black overflow-hidden select-none">
+          <div class="w-full h-full transition-transform duration-300" style="transform: scale(${state.mapZoom}); transform-origin: center center;">
+            ${mapBackgroundSvg}
+
+            <div style="left: 16%; top: 15%;" class="absolute text-[10px] uppercase tracking-wider text-neutral-400 font-semibold pointer-events-none">Miyashita Park</div>
+            <div style="left: 50%; top: 68%;" class="absolute -translate-x-1/2 px-2 py-0.5 bg-black/90 border border-white/20 rounded text-[10px] text-white font-medium pointer-events-none">Shibuya Sta.</div>
+
+            <div style="left: 50%; top: 54%;" class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+              <div class="w-3.5 h-3.5 rounded-full bg-white border-2 border-black shadow ring-4 ring-white/30"></div>
+              <span class="mt-1 px-1.5 py-0.5 rounded bg-black/90 text-[10px] font-semibold text-white border border-white/25">You</span>
+            </div>
+
+            ${ranked.map(({ gym, match }, i) => {
+              const isSelected = activeGym.id === gym.id;
+              return `
+                <button
+                  onclick="window.gf.selectGym('${gym.id}')"
+                  style="left: ${gym.areaPos.x}%; top: ${gym.areaPos.y}%;"
+                  class="absolute -translate-x-1/2 -translate-y-full flex flex-col items-center transition ${
+                    isSelected ? "scale-105 z-20" : "opacity-80 hover:opacity-100 z-10"
+                  }"
+                >
+                  <div class="px-2.5 py-1 rounded-lg border shadow-xl text-left ${
+                    isSelected
+                      ? "bg-white border-white text-black luxe-white-glow"
+                      : "bg-black/95 border-white/25 text-neutral-200"
+                  }">
+                    <div class="text-[10px] font-bold leading-none">#0${i + 1} · ${match.pct}%</div>
+                    <div class="text-[11px] font-semibold truncate max-w-[110px] mt-0.5">${gym.name.split(" ")[0]}</div>
+                  </div>
+                  <div class="w-2 h-2 rotate-45 -mt-1 ${isSelected ? "bg-white border-r border-b border-white" : "bg-black border-r border-b border-white/25"}"></div>
+                </button>
+              `;
+            }).join("")}
+          </div>
+
+          <div class="absolute right-2.5 bottom-2.5 flex flex-col bg-neutral-950 border border-white/20 rounded-lg overflow-hidden">
+            <button onclick="window.gf.zoom(0.2)" class="px-2.5 py-1 text-xs font-semibold text-white hover:bg-neutral-800 border-b border-white/10">+</button>
+            <button onclick="window.gf.zoom(-0.2)" class="px-2.5 py-1 text-xs font-semibold text-white hover:bg-neutral-800">−</button>
+          </div>
+        </div>
+
+        <div class="px-4 py-3 bg-black/95 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="text-neutral-400">
+            <span class="font-semibold text-white">${activeGym.name}</span> · ${activeGym.walk}
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              href="${activeGym.websiteUrl}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-3 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black font-semibold transition"
+            >
+              Website ↗
+            </a>
+            <a
+              href="${googleMapsUrl}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-3 py-1.5 rounded-lg bg-black border border-white/25 hover:border-white text-white font-semibold transition"
+            >
+              Google Maps ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFinder() {
+    const filteredGyms = DATA.gyms.filter((g) => {
+      if (state.regionFilter !== "all" && g.region !== state.regionFilter) return false;
+      if (state.searchKeyword.trim()) {
+        const q = state.searchKeyword.toLowerCase();
+        return (
+          g.name.toLowerCase().includes(q) ||
+          g.cityLabel.toLowerCase().includes(q) ||
+          g.spec.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+    const ranked = (filteredGyms.length > 0 ? filteredGyms : DATA.gyms)
+      .map((g) => ({ gym: g, match: calcMatch(g) }))
+      .sort((a, b) => b.match.pct - a.match.pct);
+
+    const locationBar = `
+      <div class="luxe-card rounded-2xl p-4 border border-white/15 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Global &amp; Local Concierge</div>
+            <div class="font-brand text-xl font-bold text-white">Location &amp; Travel Destination</div>
+          </div>
+          <div class="flex gap-1 bg-black p-1 rounded-xl border border-white/15">
+            ${[
+              { id: "all", label: "All Global (5)" },
+              { id: "tokyo", label: "📍 Shibuya (Current)" },
+              { id: "global", label: "✈️ Travel (LA / London)" }
+            ].map((r) => `
+              <button onclick="window.gf.setRegion('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                state.regionFilter === r.id ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }">${r.label}</button>
+            `).join("")}
+          </div>
+        </div>
+        <input
+          type="text"
+          value="${state.searchKeyword}"
+          oninput="window.gf.setSearchKeyword(this.value)"
+          placeholder="Search city, gym name, or equipment brand (e.g. Venice, Hammer Strength, Shibuya)..."
+          class="w-full luxe-inset border border-white/15 focus:border-white rounded-xl px-3.5 py-2 text-xs text-white outline-none"
+        />
+      </div>
+    `;
+
+    const inputSection =
+      state.mode === "pro"
+        ? `
+          <div class="luxe-card rounded-2xl p-5 space-y-4 border border-white/15">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Bespoke Selection</div>
+                <div class="font-brand text-xl font-bold text-white">Pro Specification</div>
+              </div>
+              <button onclick="window.gf.clearPro()" class="px-3 py-1 rounded-lg border border-white/15 text-xs text-neutral-400 hover:text-white hover:border-white/40 transition">Reset</button>
+            </div>
+
+            <div class="space-y-2">
+              <div class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">01 / Target Muscles</div>
+              <div class="flex flex-wrap gap-1.5">
+                ${DATA.proMuscles.map((m) => {
+                  const on = state.proSelectedParts.includes(m.id);
+                  return `<button onclick="window.gf.toggleProPart('${m.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                    on ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/10 text-neutral-400 hover:text-white hover:border-white/30"
+                  }">${m.name}</button>`;
+                }).join("")}
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-3 border-t border-white/10">
+              <div class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">02 / Exercises</div>
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  value="${state.customMenuInput}"
+                  oninput="window.gf.setCustomInput(this.value)"
+                  onkeydown="if(event.key==='Enter') window.gf.addCustomMenu()"
+                  placeholder="Add custom exercise (e.g. Incline Press)..."
+                  class="flex-1 luxe-inset border border-white/15 focus:border-white rounded-lg px-3 py-2 text-xs text-white outline-none transition"
+                />
+                <button onclick="window.gf.addCustomMenu()" class="px-4 py-2 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-bold shrink-0 transition">
+                  + Add
+                </button>
+              </div>
+
+              ${
+                state.customMenus.length > 0
+                  ? `<div class="flex flex-wrap gap-1.5 pt-1">
+                      ${state.customMenus.map((cm) => `
+                        <button onclick="window.gf.removeCustomMenu('${cm.id}')" class="px-2.5 py-1 rounded-md bg-white text-black text-xs font-semibold">
+                          ${cm.name} ✕
+                        </button>
+                      `).join("")}
+                    </div>`
+                  : ""
+              }
+
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${DATA.proMenus
+                  .filter((m) => state.proSelectedParts.length === 0 || state.proSelectedParts.includes(m.part))
+                  .map((m) => {
+                    const on = state.proSelectedMenus.includes(m.id);
+                    return `<button onclick="window.gf.toggleProMenu('${m.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                      on ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/10 text-neutral-300 hover:border-white/35"
+                    }">${on ? "✓ " : "+ "}${m.name}</button>`;
+                  }).join("")}
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-3 border-t border-white/10">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">03 / Max Dumbbell Weight</span>
+                <span class="text-white font-semibold">${state.reqDumbbellKg === 0 ? "Any Weight" : `${state.reqDumbbellKg}kg+`}</span>
+              </div>
+              <div class="grid grid-cols-5 gap-1.5">
+                ${[
+                  { kg: 0, label: "Any" },
+                  { kg: 20, label: "20kg+" },
+                  { kg: 30, label: "30kg+" },
+                  { kg: 40, label: "40kg+" },
+                  { kg: 50, label: "50kg+" }
+                ].map((d) => {
+                  const on = state.reqDumbbellKg === d.kg;
+                  return `<button onclick="window.gf.setReqDumbbell(${d.kg})" class="py-2 rounded-lg text-xs font-semibold border transition ${
+                    on ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/10 text-neutral-400 hover:text-white"
+                  }">${d.label}</button>`;
+                }).join("")}
+              </div>
+            </div>
+          </div>
+        `
+        : `
+          <div class="luxe-card rounded-2xl p-5 space-y-4 border border-white/15">
+            <div class="space-y-2">
+              <div class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">01 / Body Parts</div>
+              <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                ${DATA.basicMuscles.map((m) => {
+                  const on = state.basicMuscles.includes(m.id);
+                  return `<button onclick="window.gf.toggleBasicMuscle('${m.id}')" class="py-2 rounded-lg text-xs font-semibold border transition ${
+                    on ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/10 text-neutral-400 hover:text-white hover:border-white/30"
+                  }">${m.name}</button>`;
+                }).join("")}
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-3 border-t border-white/10">
+              <div class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">02 / Equipment</div>
+              <div class="flex flex-wrap gap-1.5">
+                ${DATA.equipments.map((e) => {
+                  const on = state.basicEquips.includes(e.id);
+                  return `<button onclick="window.gf.toggleBasicEquip('${e.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                    on ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/10 text-neutral-300 hover:border-white/35"
+                  }">${on ? "✓ " : ""}${e.name}</button>`;
+                }).join("")}
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-3 border-t border-white/10">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">03 / Dumbbell Weight</span>
+                <span class="text-white font-semibold">${state.reqDumbbellKg === 0 ? "Any Weight" : `${state.reqDumbbellKg}kg+`}</span>
+              </div>
+              <div class="grid grid-cols-5 gap-1.5">
+                ${[
+                  { kg: 0, label: "Any" },
+                  { kg: 10, label: "10kg+" },
+                  { kg: 20, label: "20kg+" },
+                  { kg: 30, label: "30kg+" },
+                  { kg: 40, label: "40kg+" }
+                ].map((d) => {
+                  const on = state.reqDumbbellKg === d.kg;
+                  return `<button onclick="window.gf.setReqDumbbell(${d.kg})" class="py-2 rounded-lg text-xs font-semibold border transition ${
+                    on ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/10 text-neutral-400 hover:text-white"
+                  }">${d.label}</button>`;
+                }).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+
+    return `
+      <div class="p-4 sm:p-5 space-y-5">
+        ${locationBar}
+        ${inputSection}
+
+        ${renderGoogleMapSection(ranked)}
+
+        <div class="space-y-3.5">
+          <div class="flex items-end justify-between px-1 pt-1">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Ranked by Menu Match %</div>
+              <div class="font-brand text-2xl font-bold text-white leading-tight">Matching Gyms (${ranked.length})</div>
+            </div>
+            <span class="text-[11px] uppercase tracking-widest text-neutral-300 border border-white/15 px-2.5 py-1 rounded-full">${state.regionFilter === "global" ? "Global Travel" : state.regionFilter === "tokyo" ? "Shibuya" : "Worldwide"}</span>
+          </div>
+          ${ranked.map(({ gym, match }, i) => {
+            const isExpanded = state.selectedGymId === gym.id;
+            const isTop = i === 0;
+            const isFav = state.favoriteGymIds.includes(gym.id);
+            return `
+              <div class="${isTop ? "luxe-card-top border-white/45" : "luxe-card border-white/15"} border rounded-2xl p-5 space-y-3.5 transition">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-widest font-bold ${
+                        isTop ? "bg-white text-black" : "bg-white/10 text-neutral-300 border border-white/15"
+                      }">
+                        #0${i + 1} ${isTop ? "Best Match" : "Selected"}
+                      </span>
+                      <span class="text-xs text-neutral-300 font-medium">${gym.rating}</span>
+                      <button onclick="window.gf.toggleFavoriteGym('${gym.id}')" class="px-2 py-0.5 rounded-full text-xs border transition ${
+                        isFav ? "bg-white text-black border-white font-bold" : "bg-black text-neutral-400 border-white/15 hover:text-white"
+                      }">${isFav ? "♥ Saved" : "♡ Save"}</button>
+                    </div>
+                    <div class="font-brand text-2xl font-bold text-white mt-1.5 leading-snug">${gym.name}</div>
+                    <div class="text-xs text-neutral-400 mt-0.5">${gym.address} · <span class="text-neutral-200">${gym.hours}</span></div>
+                  </div>
+
+                  <div class="text-right shrink-0 luxe-inset border ${isTop ? "border-white/35" : "border-white/15"} rounded-xl px-3.5 py-2.5">
+                    <div class="text-[10px] uppercase tracking-widest text-neutral-400 font-semibold">Menu Match</div>
+                    <div class="font-num text-3xl leading-none font-bold text-white mt-1">${match.pct}<span class="text-sm text-neutral-400 ml-0.5">%</span></div>
+                  </div>
+                </div>
+
+                <div class="w-full h-1 bg-black rounded-full overflow-hidden border border-white/10">
+                  <div class="h-full bg-gradient-to-r from-neutral-500 via-neutral-200 to-white" style="width: ${match.pct}%"></div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div class="luxe-inset border ${gym.maxDumbbellKg >= 50 ? "border-white/35" : "border-white/10"} rounded-xl p-2.5">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Dumbbell Max</div>
+                    <div class="font-semibold text-white mt-0.5">${gym.dumbbellRange}</div>
+                  </div>
+                  <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Maker &amp; Racks</div>
+                    <div class="font-semibold text-white mt-0.5">${gym.spec}</div>
+                  </div>
+                  <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Access</div>
+                    <div class="font-semibold text-white mt-0.5">${gym.walk}</div>
+                  </div>
+                  <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
+                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Fee &amp; Pass</div>
+                    <div class="font-semibold text-white mt-0.5">${gym.fee}</div>
+                  </div>
+                </div>
+
+                <div class="luxe-inset border border-white/10 rounded-xl p-2.5 text-xs space-y-1">
+                  ${
+                    match.canDoMenus.length > 0
+                      ? `<div class="text-neutral-200"><span class="text-white font-semibold">✓ Available Menu: </span>${match.canDoMenus.join(" · ")}</div>`
+                      : ""
+                  }
+                  ${
+                    match.cannotDoMenus.length > 0
+                      ? `<div class="text-neutral-500">✕ Missing Equipment / Exercises: ${match.cannotDoMenus.join(" · ")}</div>`
+                      : `<div class="text-white font-semibold">★ 100% Equipped for All Selected Exercises &amp; Dumbbell Weights</div>`
+                  }
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/10">
+                  <div class="flex items-center gap-2">
+                    <a
+                      href="${gym.websiteUrl}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="px-3.5 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-bold transition"
+                    >
+                      Official Website ↗
+                    </a>
+                    <a
+                      href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(gym.mapQuery)}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="px-3 py-1.5 rounded-lg bg-black border border-white/20 hover:border-white text-white text-xs font-medium transition"
+                    >
+                      Directions ↗
+                    </a>
+                  </div>
+                  <button
+                    onclick="window.gf.selectGym('${gym.id}')"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                      isExpanded
+                        ? "bg-white text-black border-white"
+                        : "bg-black text-white border-white/30 hover:border-white"
+                    }"
+                  >
+                    ${isExpanded ? "Close Specs &amp; Map ▲" : "Specs, Reviews &amp; Floor Map ▼"}
+                  </button>
+                </div>
+
+                ${isExpanded ? renderInlineFloorMap(gym) : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGuide() {
+    const list = DATA.equipments.filter((e) => state.guideFilter === "all" || e.bodyPart === state.guideFilter);
+    const goalMeta = {
+      hypertrophy: { label: "Hypertrophy (筋肥大)", scheme: "8–12 Reps × 4 Sets · 90s Rest · Controlled Eccentric" },
+      strength: { label: "Strength (筋力向上)", scheme: "3–6 Reps × 5 Sets · 180s Rest · Heavy Compound Focus" },
+      diet: { label: "Fat Loss & Diet (ダイエット)", scheme: "15–20 Reps × 3–4 Supersets · 45s Rest · High Metabolic Burn" },
+      health: { label: "Health & Wellness (健康維持)", scheme: "12–15 Reps × 2–3 Sets · 60s Rest · Full Range Mobility" }
+    }[state.workoutGoal];
+
+    return `
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">01 / Workout Builder</div>
+              <div class="font-brand text-xl font-bold text-white">Goal, Level &amp; Session Time</div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-white text-black text-[10px] uppercase tracking-widest font-bold">${state.mode === "pro" ? "Pro Mode" : "Beginner"}</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            ${[
+              { id: "hypertrophy", name: "Hypertrophy" },
+              { id: "strength", name: "Strength" },
+              { id: "diet", name: "Fat Loss / Diet" },
+              { id: "health", name: "Wellness" }
+            ].map((g) => `
+              <button onclick="window.gf.setGoal('${g.id}')" class="py-2 rounded-lg text-xs font-semibold border transition ${
+                state.workoutGoal === g.id ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/15 text-neutral-400 hover:text-white"
+              }">${g.name}</button>
+            `).join("")}
+          </div>
+
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <span class="text-xs text-neutral-400">Session Duration:</span>
+            <div class="flex gap-1.5">
+              ${[15, 30, 45, 60].map((min) => `
+                <button onclick="window.gf.setDuration(${min})" class="px-3 py-1 rounded-lg text-xs font-semibold border transition ${
+                  state.workoutDuration === min ? "bg-white text-black border-white" : "bg-black text-neutral-400 border-white/15 hover:text-white"
+                }">${min === 60 ? "60m+" : `${min}m`}</button>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="luxe-inset border border-white/10 rounded-xl p-2.5 text-xs text-neutral-200">
+            <span class="text-white font-semibold">Recommended Protocol (${state.workoutDuration} min · ${goalMeta.label}):</span> ${goalMeta.scheme}
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/25 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">02 / Live Workout Logger</div>
+              <div class="font-brand text-xl font-bold text-white">Record Weight, Reps &amp; Sets</div>
+            </div>
+            <span class="text-xs text-neutral-400">${state.workoutHistory.length} Logged</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+            <select onchange="window.gf.setLogField('logExercise', this.value)" class="sm:col-span-2 luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none">
+              ${DATA.proMenus.map((m) => `<option value="${m.name}" ${state.logExercise === m.name ? "selected" : ""}>${m.name}</option>`).join("")}
+              ${DATA.homeWorkouts.map((hw) => `<option value="${hw.name}" ${state.logExercise === hw.name ? "selected" : ""}>[Home] ${hw.name}</option>`).join("")}
+            </select>
+            <div class="flex items-center luxe-inset border border-white/15 rounded-lg px-2.5 py-1.5">
+              <span class="text-neutral-400 mr-1.5">Kg</span>
+              <input type="number" value="${state.logWeight}" oninput="window.gf.setLogField('logWeight', this.value)" class="w-full bg-transparent text-white font-bold outline-none text-right" />
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="flex items-center luxe-inset border border-white/15 rounded-lg px-2 py-1.5">
+                <span class="text-neutral-400 mr-1">R</span>
+                <input type="number" value="${state.logReps}" oninput="window.gf.setLogField('logReps', this.value)" class="w-full bg-transparent text-white font-bold outline-none text-right" />
+              </div>
+              <div class="flex items-center luxe-inset border border-white/15 rounded-lg px-2 py-1.5">
+                <span class="text-neutral-400 mr-1">S</span>
+                <input type="number" value="${state.logSets}" oninput="window.gf.setLogField('logSets', this.value)" class="w-full bg-transparent text-white font-bold outline-none text-right" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex gap-1.5 text-xs">
+              <button onclick="window.gf.setLogField('logLocation', 'Gym')" class="px-2.5 py-1 rounded border ${state.logLocation === 'Gym' ? 'bg-white text-black border-white font-semibold' : 'bg-black text-neutral-400 border-white/15'}">🏋️ Gym</button>
+              <button onclick="window.gf.setLogField('logLocation', 'Home')" class="px-2.5 py-1 rounded border ${state.logLocation === 'Home' ? 'bg-white text-black border-white font-semibold' : 'bg-black text-neutral-400 border-white/15'}">🏠 Home</button>
+            </div>
+            <button onclick="window.gf.addWorkoutLog()" class="px-4 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-bold transition luxe-white-glow">
+              + Save to Workout Log
+            </button>
+          </div>
+        </div>
+
+        <div class="flex gap-1.5 overflow-x-auto pb-1">
+          <button onclick="window.gf.setFilter('all')" class="shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${state.guideFilter === "all" ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/15 text-neutral-400 hover:text-white"}">All Equipment (12)</button>
+          ${DATA.basicMuscles.map((m) => `
+            <button onclick="window.gf.setFilter('${m.id}')" class="shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${state.guideFilter === m.id ? "bg-white border-white text-black luxe-white-glow" : "bg-black border-white/15 text-neutral-400 hover:text-white"}">${m.name}</button>
+          `).join("")}
+        </div>
+
+        <div class="space-y-3.5">
+          ${list.map((eq) => `
+            <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="font-brand text-xl font-bold text-white">${eq.name}</span>
+                  <div class="text-[11px] text-neutral-400">${eq.brand} · ${eq.model} · <span class="text-white font-semibold">${eq.units} Units · ${eq.maxLoad}</span></div>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white text-[11px] font-semibold">${eq.partLabel}</span>
+              </div>
+              ${renderExerciseDiagram(eq.id)}
+              <div class="text-xs text-white font-semibold">▸ Setup: <span class="font-normal text-neutral-300">${eq.seat}</span></div>
+              <div class="text-xs text-white font-semibold">▸ Form: <span class="font-normal text-neutral-300">${state.mode === "pro" ? eq.pro : eq.howTo}</span></div>
+              <div class="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-white/10">
+                <span>Suggested Load: ${eq.weight}</span>
+                <span class="text-neutral-300">Home Alt: ${eq.homeAlt}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderHomeWorkout() {
+    const activeGear = state.bodyweightOnly ? [] : state.ownedHomeGear;
+    const recommendedHome = DATA.homeWorkouts.filter((hw) =>
+      hw.reqGear.length === 0 || hw.reqGear.some((g) => activeGear.includes(g))
+    );
+
+    return `
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Home Gym Concierge</div>
+              <div class="font-brand text-2xl font-bold text-white">Register Home Equipment</div>
+            </div>
+            <button
+              onclick="window.gf.toggleBodyweightOnly()"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                state.bodyweightOnly ? "bg-white text-black border-white luxe-white-glow" : "bg-black text-neutral-300 border-white/20 hover:border-white"
+              }"
+            >
+              ${state.bodyweightOnly ? "✓ Bodyweight Only Mode" : "Switch to Bodyweight Only"}
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            ${DATA.homeGearCatalog.map((item) => {
+              const on = !state.bodyweightOnly && state.ownedHomeGear.includes(item.id);
+              return `
+                <button
+                  onclick="window.gf.toggleHomeGear('${item.id}')"
+                  class="px-3 py-2 rounded-xl text-xs font-semibold border text-left transition ${
+                    on ? "bg-white text-black border-white luxe-white-glow" : "bg-black text-neutral-400 border-white/10 hover:text-white"
+                  }"
+                >
+                  ${on ? "✓ " : "+ "}${item.name}
+                </button>
+              `;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Tailored to Your Home Gear</div>
+              <div class="font-brand text-xl font-bold text-white">Recommended Home Menus (${recommendedHome.length})</div>
+            </div>
+            <span class="text-xs text-neutral-400">Unified with Gym Log</span>
+          </div>
+
+          <div class="space-y-2.5">
+            ${recommendedHome.map((hw) => `
+              <div class="luxe-inset border border-white/15 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-white">${hw.name}</span>
+                    <span class="px-2 py-0.5 rounded bg-white/10 text-[10px] text-neutral-200 font-semibold">${hw.part}</span>
+                  </div>
+                  <div class="text-xs text-neutral-400">${hw.sets} · <span class="text-neutral-300">Replaces: ${hw.altFor}</span></div>
+                </div>
+                <button
+                  onclick="window.gf.quickLogHome('${hw.name}', '${hw.sets}')"
+                  class="px-3 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-black text-xs font-bold transition"
+                >
+                  + Log Home Set
+                </button>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Gym-to-Home Conversion</div>
+            <div class="font-brand text-xl font-bold text-white">Alternative Exercise Matrix</div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            ${DATA.equipments.slice(0, 8).map((eq) => `
+              <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
+                <div class="text-neutral-400">${eq.name}</div>
+                <div class="text-white font-semibold mt-0.5">➔ ${eq.homeAlt}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDiet() {
+    const totals = state.meals.reduce(
+      (acc, m) => ({
+        kcal: acc.kcal + m.kcal,
+        p: acc.p + m.p,
+        f: acc.f + m.f,
+        c: acc.c + m.c
+      }),
+      { kcal: 0, p: 0, f: 0, c: 0 }
+    );
+    const kcalPct = Math.min(100, Math.round((totals.kcal / state.calorieGoal) * 100));
+    const pPct = Math.min(100, Math.round((totals.p / state.pfcGoal.p) * 100));
+    const fPct = Math.min(100, Math.round((totals.f / state.pfcGoal.f) * 100));
+    const cPct = Math.min(100, Math.round((totals.c / state.pfcGoal.c) * 100));
+
+    const pts = state.weightHistory.map((w, idx) => {
+      const x = 15 + idx * (90 / Math.max(1, state.weightHistory.length - 1));
+      const y = 52 - ((w.kg - 65) / 12) * 40;
+      return `${x},${Math.max(8, Math.min(54, y)).toFixed(1)}`;
+    }).join(" ");
+
+    return `
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Body Composition</div>
+              <div class="font-brand text-2xl font-bold text-white">Weight &amp; Target Trajectory</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <input
+                type="number"
+                step="0.1"
+                value="${state.weightInput}"
+                oninput="window.gf.setLogField('weightInput', this.value)"
+                class="w-20 luxe-inset border border-white/20 rounded-lg px-2.5 py-1 text-xs font-bold text-white text-right outline-none"
+              />
+              <button onclick="window.gf.updateWeight()" class="px-3 py-1 rounded-lg bg-white text-black text-xs font-bold">+ Log Kg</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-400">Current Weight</div>
+              <div class="font-num text-xl font-bold text-white mt-0.5">${state.currentWeight} kg</div>
+            </div>
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-400">Target Weight</div>
+              <div class="font-num text-xl font-bold text-white mt-0.5">${state.targetWeight} kg</div>
+            </div>
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-400">Remaining</div>
+              <div class="font-num text-xl font-bold text-white mt-0.5">${(state.currentWeight - state.targetWeight).toFixed(1)} kg</div>
+            </div>
+          </div>
+
+          <div class="luxe-inset border border-white/10 rounded-xl p-3">
+            <svg viewBox="0 0 120 62" class="w-full h-24">
+              <line x1="10" y1="48" x2="110" y2="48" stroke="#3f3f46" stroke-width="0.6" stroke-dasharray="2 2" />
+              <text x="12" y="45" fill="#a1a1aa" font-size="4.5">Target ${state.targetWeight}kg</text>
+              <polyline points="${pts}" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              ${state.weightHistory.map((w, idx) => {
+                const x = 15 + idx * (90 / Math.max(1, state.weightHistory.length - 1));
+                const y = Math.max(8, Math.min(54, 52 - ((w.kg - 65) / 12) * 40));
+                return `
+                  <circle cx="${x}" cy="${y}" r="2.2" fill="#ffffff" />
+                  <text x="${x - 4}" y="${y - 4}" fill="#ffffff" font-size="4.8" font-weight="bold">${w.kg}</text>
+                  <text x="${x - 3}" y="58" fill="#71717a" font-size="4.5">${w.label}</text>
+                `;
+              }).join("")}
+            </svg>
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Daily Nutrition</div>
+              <div class="font-brand text-2xl font-bold text-white">Calories &amp; PFC Balance</div>
+            </div>
+            <div class="text-right">
+              <div class="font-num text-2xl font-bold text-white">${totals.kcal} <span class="text-xs text-neutral-400 font-normal">/ ${state.calorieGoal} kcal</span></div>
+            </div>
+          </div>
+
+          <div class="w-full h-1.5 bg-black rounded-full overflow-hidden border border-white/15">
+            <div class="h-full bg-white" style="width: ${kcalPct}%"></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <div class="luxe-inset border border-white/10 rounded-xl p-2.5 space-y-1">
+              <div class="flex justify-between text-neutral-400"><span>Protein (P)</span><span class="text-white font-bold">${totals.p}g / ${state.pfcGoal.p}g</span></div>
+              <div class="w-full h-1 bg-neutral-900 rounded-full overflow-hidden"><div class="h-full bg-white" style="width:${pPct}%"></div></div>
+            </div>
+            <div class="luxe-inset border border-white/10 rounded-xl p-2.5 space-y-1">
+              <div class="flex justify-between text-neutral-400"><span>Fat (F)</span><span class="text-white font-bold">${totals.f}g / ${state.pfcGoal.f}g</span></div>
+              <div class="w-full h-1 bg-neutral-900 rounded-full overflow-hidden"><div class="h-full bg-white" style="width:${fPct}%"></div></div>
+            </div>
+            <div class="luxe-inset border border-white/10 rounded-xl p-2.5 space-y-1">
+              <div class="flex justify-between text-neutral-400"><span>Carbs (C)</span><span class="text-white font-bold">${totals.c}g / ${state.pfcGoal.c}g</span></div>
+              <div class="w-full h-1 bg-neutral-900 rounded-full overflow-hidden"><div class="h-full bg-white" style="width:${cPct}%"></div></div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
+            <button onclick="window.gf.aiPhotoEstimate()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-neutral-200 text-black text-xs font-bold transition luxe-white-glow">
+              📷 AI Meal Photo Estimate (Auto Calorie &amp; PFC)
+            </button>
+            <button onclick="window.gf.quickAddMeal('Salmon & Avocado Poke Bowl', 540, 44, 18, 52)" class="px-3 py-2 rounded-xl bg-black border border-white/20 hover:border-white text-white text-xs font-semibold transition">
+              + Quick Log: Salmon Bowl (540 kcal)
+            </button>
+          </div>
+          ${state.aiPhotoStatus ? `<div class="text-xs text-white bg-neutral-900 border border-white/25 rounded-xl px-3 py-2">${state.aiPhotoStatus}</div>` : ""}
+
+          <div class="space-y-1.5 pt-1">
+            ${state.meals.map((m) => `
+              <div class="luxe-inset border border-white/10 rounded-xl px-3 py-2 flex items-center justify-between text-xs">
+                <div>
+                  <span class="text-[10px] uppercase tracking-wider text-neutral-400 mr-2">${m.type}</span>
+                  <span class="font-semibold text-white">${m.name}</span>
+                </div>
+                <div class="text-neutral-300 font-num">${m.kcal} kcal <span class="text-neutral-500 ml-1">(P:${m.p}g F:${m.f}g C:${m.c}g)</span></div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-2.5">
+          <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Fat-Loss &amp; Metabolic Conditioning</div>
+          <div class="font-brand text-xl font-bold text-white">Diet &amp; Fat-Burn Exercise Menu</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="luxe-inset border border-white/10 rounded-xl p-3">
+              <div class="font-bold text-white">🔥 15% Incline Walk + Hack Squat Superset</div>
+              <div class="text-neutral-400 mt-0.5">Est. Burn: 420 kcal · Preserves lean muscle mass while cutting</div>
+            </div>
+            <div class="luxe-inset border border-white/10 rounded-xl p-3">
+              <div class="font-bold text-white">⚡ Full-Body Cable &amp; Kettlebell HIIT</div>
+              <div class="text-neutral-400 mt-0.5">Est. Burn: 380 kcal · 40s Work / 20s Rest × 20 mins</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMyPage() {
+    const totals = state.meals.reduce((acc, m) => ({ kcal: acc.kcal + m.kcal, p: acc.p + m.p }), { kcal: 0, p: 0 });
+    const favGyms = DATA.gyms.filter((g) => state.favoriteGymIds.includes(g.id));
+
+    return `
+      <div class="p-4 sm:p-5 space-y-4">
+        <div class="luxe-card-top border border-white/40 rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-300 font-semibold">Personal Concierge Dashboard</div>
+              <div class="font-brand text-2xl font-bold text-white">My Page &amp; Goal Progress</div>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-white text-black text-xs font-bold">Goal 82% Achieved</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase text-neutral-400">Today's Sets</div>
+              <div class="font-num text-lg font-bold text-white mt-0.5">${state.workoutHistory.length} Sessions</div>
+            </div>
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase text-neutral-400">Calories / P</div>
+              <div class="font-num text-lg font-bold text-white mt-0.5">${totals.kcal} kcal · ${totals.p}g P</div>
+            </div>
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase text-neutral-400">Weight</div>
+              <div class="font-num text-lg font-bold text-white mt-0.5">${state.currentWeight} ➔ ${state.targetWeight}kg</div>
+            </div>
+            <div class="luxe-inset border border-white/15 rounded-xl p-2.5">
+              <div class="text-[10px] uppercase text-neutral-400">Wearable Sync</div>
+              <div class="font-semibold text-white mt-0.5">${state.wearableConnected ? "⌚ Apple Watch Live" : "Disconnected"}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="font-brand text-xl font-bold text-white">Unified Workout History (Gym &amp; Home)</div>
+            <span class="text-xs text-neutral-400">All Platforms Synced</span>
+          </div>
+          <div class="space-y-2 text-xs">
+            ${state.workoutHistory.map((w) => `
+              <div class="luxe-inset border border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-white">${w.exercise}</div>
+                  <div class="text-neutral-400 mt-0.5">${w.date} · <span class="text-neutral-200">${w.location}</span></div>
+                </div>
+                <div class="text-right">
+                  <div class="font-semibold text-white">${w.detail}</div>
+                  <div class="text-[10px] text-neutral-400">Vol: ${w.volume} kg</div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="font-brand text-xl font-bold text-white">♥ Favorite Gyms (${favGyms.length})</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            ${favGyms.map((g) => `
+              <div class="luxe-inset border border-white/15 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-white">${g.name}</div>
+                  <div class="text-neutral-400">${g.cityLabel} · Max DB ${g.maxDumbbellKg}kg</div>
+                </div>
+                <button onclick="window.gf.selectGym('${g.id}'); window.gf.setTab('finder');" class="px-2.5 py-1 rounded bg-white text-black font-bold">Open</button>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Community Verification (#9)</div>
+            <div class="font-brand text-xl font-bold text-white">Post Gym Review, Equipment Photo &amp; Spec Update</div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <select onchange="window.gf.setLogField('reviewGymId', this.value)" class="luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none">
+              ${DATA.gyms.map((g) => `<option value="${g.id}" ${state.reviewGymId === g.id ? "selected" : ""}>${g.name}</option>`).join("")}
+            </select>
+            <input
+              type="text"
+              value="${state.reviewEquipNote}"
+              oninput="window.gf.setLogField('reviewEquipNote', this.value)"
+              placeholder="Equipment update (e.g. Added Panatta Hack Squat, 2 Units)"
+              class="luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none"
+            />
+          </div>
+          <div class="flex gap-2 text-xs">
+            <input
+              type="text"
+              value="${state.reviewText}"
+              oninput="window.gf.setLogField('reviewText', this.value)"
+              placeholder="Write review or attach equipment photo note..."
+              class="flex-1 luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none"
+            />
+            <button onclick="window.gf.submitUserPost()" class="px-4 py-2 rounded-lg bg-white text-black font-bold shrink-0">+ Submit Post</button>
+          </div>
+        </div>
+
+        <div class="luxe-card border border-white/25 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Next-Gen Ecosystem (#10)</div>
+              <div class="font-brand text-xl font-bold text-white">AI Coach, Wearable Sync &amp; Global Travel</div>
+            </div>
+            <button onclick="window.gf.toggleAiCoach()" class="px-3 py-1.5 rounded-lg bg-white text-black text-xs font-bold luxe-white-glow">
+              ✨ Generate AI Plan
+            </button>
+          </div>
+          ${
+            state.aiCoachActive
+              ? `<div class="luxe-inset border border-white/30 rounded-xl p-3 text-xs space-y-1 text-neutral-200">
+                  <div class="text-white font-bold">🤖 AI Coach Recommendation (Based on 72.4kg &amp; Hypertrophy Goal):</div>
+                  <div>• Training: Today focus on Upper Pectorals (Incline DB 36kg × 4 sets) at Gold's Gym Shibuya (99% Match).</div>
+                  <div>• Nutrition: Remaining 850 kcal today — Recommended dinner: 220g Grilled Sirloin + 180g Rice (P:52g / F:16g / C:64g).</div>
+                  <div>• Wearable: Apple Watch HR Recovery optimal (Resting HR 54 bpm).</div>
+                </div>`
+              : `<div class="text-xs text-neutral-400">iOS / Android / Web Cross-Platform · AI Workout &amp; Meal Coach · Multi-Language &amp; Global Travel Pass Ready.</div>`
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  function render() {
+    const root = document.getElementById("app-root");
+    const body =
+      state.tab === "finder"
+        ? renderFinder()
+        : state.tab === "guide"
+          ? renderGuide()
+          : state.tab === "home"
+            ? renderHomeWorkout()
+            : state.tab === "diet"
+              ? renderDiet()
+              : renderMyPage();
+
+    root.innerHTML = `
+      <div class="px-5 py-4 bg-black/95 border-b border-white/15 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center font-brand font-bold text-base shadow">GF</div>
+          <div>
+            <div class="font-brand text-2xl font-bold text-white leading-none">Gym Finder</div>
+            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold mt-1">BLACK × WHITE · iOS / Android / Web</div>
+          </div>
+        </div>
+        <div class="flex bg-neutral-950 p-0.5 rounded-xl border border-white/15">
+          <button
+            onclick="window.gf.setMode('beginner')"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              state.mode === "beginner" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+            }"
+          >
+            Beginner
+          </button>
+          <button
+            onclick="window.gf.setMode('pro')"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              state.mode === "pro" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+            }"
+          >
+            Pro
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-5 bg-black border-b border-white/15 p-1.5 gap-1">
+        <button onclick="window.gf.setTab('finder')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "finder" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Gyms (%)</button>
+        <button onclick="window.gf.setTab('guide')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Training</button>
+        <button onclick="window.gf.setTab('home')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Home Gym</button>
+        <button onclick="window.gf.setTab('diet')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Diet &amp; PFC</button>
+        <button onclick="window.gf.setTab('mypage')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">My Page</button>
+      </div>
+
+      <div>${body}</div>
+    `;
+  }
+
+  window.gf = {
+    setTab(t) { state.tab = t; render(); },
+    setMode(m) { state.mode = m; render(); },
+    setRegion(r) { state.regionFilter = r; render(); },
+    setSearchKeyword(v) { state.searchKeyword = v; render(); },
+    setMapType(type) { state.mapType = type; render(); },
+    selectGym(gymId) {
+      state.selectedGymId = gymId;
+      render();
+    },
+    toggleFavoriteGym(gymId) {
+      state.favoriteGymIds = state.favoriteGymIds.includes(gymId)
+        ? state.favoriteGymIds.filter((id) => id !== gymId)
+        : [...state.favoriteGymIds, gymId];
+      render();
+    },
+    zoom(delta) {
+      state.mapZoom = Math.min(1.8, Math.max(0.8, +(state.mapZoom + delta).toFixed(2)));
+      render();
+    },
+    toggleBasicMuscle(id) {
+      state.basicMuscles = state.basicMuscles.includes(id) ? state.basicMuscles.filter((x) => x !== id) : [...state.basicMuscles, id];
+      render();
+    },
+    toggleBasicEquip(id) {
+      state.basicEquips = state.basicEquips.includes(id) ? state.basicEquips.filter((x) => x !== id) : [...state.basicEquips, id];
+      state.activeEquipId = id;
+      render();
+    },
+    toggleProPart(id) {
+      state.proSelectedParts = state.proSelectedParts.includes(id)
+        ? state.proSelectedParts.filter((x) => x !== id)
+        : [...state.proSelectedParts, id];
+      render();
+    },
+    toggleProMenu(id) {
+      state.proSelectedMenus = state.proSelectedMenus.includes(id)
+        ? state.proSelectedMenus.filter((x) => x !== id)
+        : [...state.proSelectedMenus, id];
+      const menuObj = DATA.proMenus.find((m) => m.id === id);
+      if (menuObj) state.activeEquipId = menuObj.reqEquip;
+      render();
+    },
+    setCustomInput(v) {
+      state.customMenuInput = v;
+    },
+    addCustomMenu() {
+      const val = state.customMenuInput.trim();
+      if (!val) return;
+      const eqId = inferEquipFromText(val);
+      state.customMenus.push({
+        id: "cm-" + Date.now(),
+        name: val,
+        reqEquip: eqId
+      });
+      state.activeEquipId = eqId;
+      state.customMenuInput = "";
+      render();
+    },
+    removeCustomMenu(id) {
+      state.customMenus = state.customMenus.filter((m) => m.id !== id);
+      render();
+    },
+    setReqDumbbell(kg) {
+      state.reqDumbbellKg = kg;
+      state.activeEquipId = "dumbbell-heavy";
+      render();
+    },
+    clearPro() {
+      state.proSelectedParts = [];
+      state.proSelectedMenus = [];
+      state.customMenus = [];
+      state.reqDumbbellKg = 0;
+      render();
+    },
+    pickMapEquip(id) {
+      state.activeEquipId = id;
+      render();
+    },
+    setFilter(f) {
+      state.guideFilter = f;
+      render();
+    },
+    setGoal(g) {
+      state.workoutGoal = g;
+      render();
+    },
+    setDuration(min) {
+      state.workoutDuration = min;
+      render();
+    },
+    setLogField(key, val) {
+      state[key] = val;
+    },
+    addWorkoutLog() {
+      const w = Number(state.logWeight) || 0;
+      const r = Number(state.logReps) || 10;
+      const s = Number(state.logSets) || 3;
+      state.workoutHistory.unshift({
+        id: "w-" + Date.now(),
+        date: "Just Now",
+        location: state.logLocation === "Home" ? "Home Workout" : "Gym Session",
+        exercise: state.logExercise,
+        detail: `${w > 0 ? `${w}kg` : "Bodyweight"} × ${r} reps × ${s} sets`,
+        volume: (w || 40) * r * s
+      });
+      render();
+    },
+    toggleHomeGear(id) {
+      state.bodyweightOnly = false;
+      state.ownedHomeGear = state.ownedHomeGear.includes(id)
+        ? state.ownedHomeGear.filter((g) => g !== id)
+        : [...state.ownedHomeGear, id];
+      render();
+    },
+    toggleBodyweightOnly() {
+      state.bodyweightOnly = !state.bodyweightOnly;
+      render();
+    },
+    quickLogHome(name, setsLabel) {
+      state.workoutHistory.unshift({
+        id: "w-" + Date.now(),
+        date: "Just Now",
+        location: "Home Workout",
+        exercise: name,
+        detail: setsLabel,
+        volume: 850
+      });
+      render();
+    },
+    updateWeight() {
+      const val = parseFloat(state.weightInput);
+      if (isNaN(val) || val <= 20) return;
+      state.currentWeight = +val.toFixed(1);
+      state.weightHistory.push({ label: "New", kg: state.currentWeight });
+      if (state.weightHistory.length > 6) state.weightHistory.shift();
+      render();
+    },
+    quickAddMeal(name, kcal, p, f, c) {
+      state.meals.push({ id: "ml-" + Date.now(), type: "Dinner", name, kcal, p, f, c });
+      render();
+    },
+    aiPhotoEstimate() {
+      state.meals.push({
+        id: "ml-" + Date.now(),
+        type: "📷 AI Photo",
+        name: "AI Scanned: Grilled Steak, Brown Rice & Broccoli",
+        kcal: 580,
+        p: 52,
+        f: 16,
+        c: 55
+      });
+      state.aiPhotoStatus = "✓ AI Vision analyzed meal photo: Estimated 580 kcal (P: 52g / F: 16g / C: 55g) added to log.";
+      render();
+    },
+    submitUserPost() {
+      const gym = DATA.gyms.find((g) => g.id === state.reviewGymId) || DATA.gyms[0];
+      const text = state.reviewText.trim() || "Verified equipment condition & clean floor layout.";
+      const equipNote = state.reviewEquipNote.trim();
+      gym.reviews.unshift({
+        user: "You (Verified Contributor)",
+        stars: "★★★★★",
+        text: equipNote ? `[Equipment Spec Update: ${equipNote}] ${text}` : text
+      });
+      if (equipNote) {
+        gym.spec = `${gym.spec} / ${equipNote}`;
+      }
+      state.reviewText = "";
+      state.reviewEquipNote = "";
+      state.selectedGymId = gym.id;
+      state.tab = "finder";
+      render();
+    },
+    toggleAiCoach() {
+      state.aiCoachActive = !state.aiCoachActive;
+      render();
+    }
+  };
+
+  render();
+})();
+  </script>
+</body>
+</html>

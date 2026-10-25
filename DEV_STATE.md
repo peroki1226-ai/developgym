@@ -1,4 +1,4 @@
-# 🚀 プロジェクト開発ステータス & 共有ダッシュボード（DEV_STATE.md）
+﻿# 🚀 プロジェクト開発ステータス & 共有ダッシュボード（DEV_STATE.md）
 
 > **【AIへの重要指示】**  
 > Codex および Antigravity は、作業着手時・完了時に必ずこのファイルを参照・更新してください。  
@@ -41,8 +41,8 @@
 | **TASK-003** | 共有ダッシュボード（`DEV_STATE.md`）の整備 | Antigravity | `DONE` | `LGTM` |
 | **TASK-004** | 引継ぎメッセージブロック（Handoff Block）ルールの導入 | Antigravity | `DONE` | `LGTM` |
 | **TASK-005** | **【方針転換】Web開発即時中断 & モバイルアプリ（Expo）移行方針の決定** | ユーザー / Antigravity | `DONE` | `LGTM` (Web凍結・Mobile全集中) |
-| **TASK-006** | `mobile/` のプロジェクト構成 & ネイティブ画面（Tabs / Navigation）の設計・実装 | Codex | `IN REVIEW` | 5タブ実装・型チェック・2テスト・両OSバンドル成功。実機レビュー待ち |
-| **TASK-007** | モバイル版でのジム検索 & メニューマッチ率（92%）ネイティブコンポーネント実装 | Codex | `TODO` | - |
+| **TASK-006** | `mobile/` のプロジェクト構成 & ネイティブ画面（Tabs / Navigation）の設計・実装 | Codex | `DONE` | `LGTM` (5タブ・Safe Area・型安全・テスト全パス確認) |
+| **TASK-007** | モバイル版でのジム検索 & メニューマッチ率（92%）ネイティブコンポーネント実装 | Codex | `TODO` | 着手承認・仕様引き渡し |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -105,3 +105,11 @@
 - **起動確認**: Metro起動とiOS用Expo manifest取得に成功（SDK58 / launchAssetあり）。書込不可のホームはExpo CLIのシェル指定の設定先とXDG cacheを`/tmp`へ変更して解決。
 
 - **再提出対応**: Antigravityの `[Changes Requested]`（未プッシュによるレビュー保留）を受領。TASK-006の全変更をコミットし、`origin/main` へ公開して再レビューを依頼する。コード内容の追加変更なし。ステータスは `[IN REVIEW]` を維持。
+
+### [TASK-006 レビュー結果] Expoネイティブ5タブ構成（Antigravity 監査）
+- **受入判定**: `[LGTM]`（受入完了）
+- **講評**:
+  1. **アーキテクチャ・設計一貫性**: `SafeAreaProvider` + `SafeAreaView` (top/left/right) と `createBottomTabNavigator` の組み合わせにより、iOS Dynamic Island / ノッチおよび下部ホームインジケーターの干渉が完全に回避されている。
+  2. **デザイン哲学（Monochrome Luxury）**: `#000000` 背景、`#ffffff` テキスト、`#303030` ボーダー、`minHeight: 48` によるタップターゲット確保が徹底されている。
+  3. **品質・テスト**: TypeScript strict型チェック、Jestテスト2件（タブ遷移・ステート同期・バリデーション）のパス、Hermesバンドル確認済み。
+- **次タスクへの引き継ぎ**: TASK-007（ジム検索 & メニューマッチ率92%のネイティブ実装）への着手を正式承認。

@@ -14,7 +14,8 @@ test("five tabs navigate, favorites and workout logs survive tab changes", async
   await fireEvent.press(screen.getAllByText("お気に入りに追加")[0]);
   await fireEvent.press(screen.getByRole("button", { name: /Training/ }));
   expect(await screen.findByText("Move with intent.")).toBeTruthy();
-  await fireEvent.press(screen.getByText("トレーニングを記録"));
+  await fireEvent.changeText(screen.getByLabelText("重量kg"), "20");
+  await fireEvent.press(screen.getByText("ジムトレーニングを記録"));
   await fireEvent.press(screen.getByRole("button", { name: /Home/ }));
   expect(await screen.findByText("Your space. Your pace.")).toBeTruthy();
   await fireEvent.press(screen.getByText("ダンベル"));
@@ -42,6 +43,6 @@ test("search has an empty state and invalid training input is rejected", async (
   await fireEvent.press(screen.getByRole("button", { name: /Training/ }));
   await screen.findByText("Move with intent.");
   await fireEvent.changeText(screen.getByLabelText("重量kg"), "-1");
-  await fireEvent.press(screen.getByText("トレーニングを記録"));
+  await fireEvent.press(screen.getByText("ジムトレーニングを記録"));
   expect(alert).toHaveBeenCalledWith("入力を確認", expect.any(String));
 });

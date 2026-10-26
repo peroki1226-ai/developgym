@@ -7,7 +7,8 @@ import { Text } from "react-native";
 import { GymsScreen } from "./src/screens/GymsScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { TrainingScreen } from "./src/screens/TrainingScreen";
-import { DietScreen, MyPageScreen } from "./src/screens/LifestyleScreens";
+import { MyPageScreen } from "./src/screens/LifestyleScreens";
+import { DietScreen } from "./src/screens/DietScreen";
 import { FitnessProvider } from "./src/state";
 export type TabParams = {
   Gyms: undefined;

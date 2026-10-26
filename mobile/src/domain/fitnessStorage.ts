@@ -1,3 +1,4 @@
+import { DietData, initialDiet, isDietData } from "./nutrition";
 import { defaultHomeProfile, homeGear, HomeProfile } from "./homeTraining";
 export type Workout = {
   id: string;
@@ -10,14 +11,17 @@ export type Workout = {
   loadType: "bodyweight" | "dumbbell" | "band" | "weight";
 };
 export type FitnessData = {
-  version: 1;
+  version: 2;
+  diet: DietData;
   logs: Workout[];
   favorites: string[];
   homeProfile: HomeProfile;
 };
+// Keep the v1 key so existing installations can be migrated in place after validation.
 export const FITNESS_STORAGE_KEY = "@gymfinder/fitness/v1";
 export const initialFitnessData = (): FitnessData => ({
-  version: 1,
+  version: 2,
+  diet: initialDiet(),
   logs: [],
   favorites: [],
   homeProfile: { ...defaultHomeProfile, gear: [] },
@@ -31,7 +35,7 @@ export function decodeFitnessData(raw: string | null): FitnessData {
   const d: unknown = JSON.parse(raw);
   if (
     !record(d) ||
-    d.version !== 1 ||
+    (d.version !== 1 && d.version !== 2) ||
     !Array.isArray(d.logs) ||
     !d.logs.every(
       (l) =>
@@ -58,5 +62,11 @@ export function decodeFitnessData(raw: string | null): FitnessData {
     typeof d.homeProfile.bodyweightOnly !== "boolean"
   )
     throw new Error("Invalid fitness storage");
-  return d as FitnessData;
+  if (d.version === 2 && !isDietData(d.diet))
+    throw new Error("Invalid diet storage");
+  return {
+    ...d,
+    version: 2,
+    diet: d.version === 1 ? initialDiet() : d.diet,
+  } as FitnessData;
 }

@@ -9,6 +9,7 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View } from "react-native";
 import { Body, Button } from "./components/ui";
+import { DietData, Meal, WeightEntry, upsertWeight } from "./domain/nutrition";
 import { HomeProfile } from "./domain/homeTraining";
 import {
   decodeFitnessData,
@@ -21,6 +22,13 @@ export type { Workout } from "./domain/fitnessStorage";
 type NewWorkout = Omit<Workout, "id" | "date" | "location" | "loadType"> &
   Partial<Pick<Workout, "location" | "loadType">>;
 type State = {
+  diet: DietData;
+  setDietGoals: (
+    goals: Pick<DietData, "targetWeightKg" | "calorieGoal">,
+  ) => void;
+  addWeight: (entry: WeightEntry) => void;
+  addMeal: (entry: Omit<Meal, "id">) => void;
+  removeMeal: (id: string) => void;
   logs: Workout[];
   addLog: (log: NewWorkout) => void;
   favorites: string[];
@@ -103,6 +111,36 @@ export function FitnessProvider({ children }: PropsWithChildren) {
   return (
     <Context.Provider
       value={{
+        diet: data.diet,
+        setDietGoals: (goals) =>
+          setData((old) => ({ ...old, diet: { ...old.diet, ...goals } })),
+        addWeight: (entry) =>
+          setData((old) => ({
+            ...old,
+            diet: {
+              ...old.diet,
+              weights: upsertWeight(old.diet.weights, entry),
+            },
+          })),
+        addMeal: (entry) =>
+          setData((old) => ({
+            ...old,
+            diet: {
+              ...old.diet,
+              meals: [
+                ...old.diet.meals,
+                { ...entry, id: `${Date.now()}-${Math.random()}` },
+              ],
+            },
+          })),
+        removeMeal: (id) =>
+          setData((old) => ({
+            ...old,
+            diet: {
+              ...old.diet,
+              meals: old.diet.meals.filter((m) => m.id !== id),
+            },
+          })),
         logs: data.logs,
         favorites: data.favorites,
         homeProfile: data.homeProfile,

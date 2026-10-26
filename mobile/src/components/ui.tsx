@@ -53,15 +53,18 @@ export function Button({
   title,
   onPress,
   selected = false,
+  disabled = false,
 }: {
   title: string;
   onPress: () => void;
   selected?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         s.button,

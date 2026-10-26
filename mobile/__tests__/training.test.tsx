@@ -41,48 +41,49 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
   });
 
   test("toggles between Beginner and Pro Mode and displays SVG diagrams", async () => {
-    render(
+    await render(
       <FitnessProvider>
         <TrainingScreen />
       </FitnessProvider>,
     );
 
     expect(await screen.findByText("Move with intent.")).toBeTruthy();
-    expect(screen.getByText("チェストプレス")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "チェストプレス" })).toBeTruthy();
     expect(screen.getByText("シート・器具のセッティング")).toBeTruthy();
 
     // Toggle to Pro Mode
-    fireEvent.press(screen.getByText("⚡ 本格モード（生体力学）"));
+    await fireEvent.press(screen.getByText("⚡ 本格モード（生体力学）"));
     expect(screen.getByText("生体力学（Biomechanics）")).toBeTruthy();
     expect(screen.getByText("ビルダーの極意（Builder Tip）")).toBeTruthy();
 
     // Filter by Back
-    fireEvent.press(screen.getByText("背中"));
-    expect(screen.getByText("ラットプルダウン")).toBeTruthy();
+    await fireEvent.press(screen.getByText("背中"));
+    expect(screen.getByRole("button", { name: "ラットプルダウン" })).toBeTruthy();
 
     // Filter by Legs
-    fireEvent.press(screen.getByText("脚"));
-    expect(screen.getByText("45° レッグプレスマシン")).toBeTruthy();
+    await fireEvent.press(screen.getByText("脚"));
+    expect(screen.getByRole("button", { name: "45° レッグプレスマシン" })).toBeTruthy();
   });
 
   test("validates workout input and logs gym session", async () => {
     const alert = jest.spyOn(Alert, "alert");
-    render(
+    await render(
       <FitnessProvider>
         <TrainingScreen />
       </FitnessProvider>,
     );
 
+    await screen.findByText("Move with intent.");
     // Invalid input
-    fireEvent.changeText(screen.getByLabelText("重量kg"), "-5");
-    fireEvent.press(screen.getByText("ジムトレーニングを記録"));
+    await fireEvent.changeText(screen.getByLabelText("重量kg"), "-5");
+    await fireEvent.press(screen.getByText("ジムトレーニングを記録"));
     expect(alert).toHaveBeenCalledWith("入力を確認", expect.any(String));
 
     // Valid input
-    fireEvent.changeText(screen.getByLabelText("重量kg"), "45");
-    fireEvent.changeText(screen.getByLabelText("回数"), "10");
-    fireEvent.changeText(screen.getByLabelText("セット数"), "3");
-    fireEvent.press(screen.getByText("ジムトレーニングを記録"));
+    await fireEvent.changeText(screen.getByLabelText("重量kg"), "45");
+    await fireEvent.changeText(screen.getByLabelText("回数"), "10");
+    await fireEvent.changeText(screen.getByLabelText("セット数"), "3");
+    await fireEvent.press(screen.getByText("ジムトレーニングを記録"));
     expect(alert).toHaveBeenCalledWith("記録しました", expect.any(String));
   });
 });

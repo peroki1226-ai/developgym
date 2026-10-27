@@ -53,7 +53,7 @@ UIの重量指定は片手あたり0（指定なし）/20/40/60/90kg以上の必
 
 ## Build 1 / iPhoneへのAd Hoc配布
 
-`app.json` は `version: 1.0.0`、`ios.buildNumber: 1`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.gymfinder.mobile` は仮設定で、既存Apple App IDがある場合はそのIDに合わせてください。Expo/EASプロジェクトとの紐付け・Apple署名は未完了です。
+`app.json` は `version: 1.0.0`、`ios.buildNumber: 1`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.peroki.gymfinder` はユーザー指定です。Apple側での所有・登録は未確認です。Expo/EASプロジェクトとの紐付け・Apple署名は未完了です。
 
 Apple Developer Programの有料チームとExpoアカウントが必要です。認証できる作業端末で次を実行します。Appleログイン/2FAは本人がCLIの案内に沿って操作し、パスワードやトークンをGitやチャットへ保存しないでください。
 
@@ -112,3 +112,17 @@ Gymsの各カードの「投稿する」、またはMy Pageの「あなたの投
 検証は全52テスト（15件追加）と型チェック・両OSバンドル。写真/ファイルAPIはテストではモックです。iPhoneの実カメラ・権限・コピー・再起動復元はExpo Goで別途実機レビューしてください。
 
 企画の背景・将来構想・レビュー論点は `../docs/GYMFINDER_PROPOSAL.md` を参照してください。
+
+
+## TASK-012: ストア公開準備
+
+表示名GymFinder、Bundle ID / applicationId `com.peroki.gymfinder`、version 1.0.0。preview（Ad Hoc/APK）とproduction（App Store/AAB）のEAS設定、アプリ/ストア用アイコン、黒背景スプラッシュ、掲載文案・プライバシーポリシードラフトを追加しました。EAS remote署名を利用する設定ですが、アカウント認証や署名済みビルドはまだ完了していません。
+
+```sh
+npm run assets:generate
+npm run release:check
+npm run typecheck
+npm test -- --watch=false
+```
+
+詳細は [公開・署名手順](store/RELEASE.md) と [掲載文案](store/metadata.ja.json)、[ポリシードラフト](store/PRIVACY_POLICY_DRAFT.ja.md) を参照。スプラッシュ・権限・起動アイコンの最終確認は、Expo Goとは別に署名済みreleaseビルドで行ってください。実機スクリーンショットや公開サポート/ポリシーURLは未準備です。

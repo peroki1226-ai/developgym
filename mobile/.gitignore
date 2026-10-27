@@ -1,0 +1,11 @@
+# Signing credentials stay in EAS or a secure location outside the checkout.
+credentials.json
+*.p12
+*.p8
+*.mobileprovision
+*.jks
+*.keystore
+*.key
+service-account*.json
+google-services.json
+GoogleService-Info.plist

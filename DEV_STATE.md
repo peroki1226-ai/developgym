@@ -46,7 +46,8 @@
 | **TASK-008** | 全12種目の高精度SVGフォーム図解 & 初心者/本格モード詳細データの移植 | Antigravity | `DONE` | `LGTM` (全12種目SVGベクトル軌道図解・初心者/本格モード・6部位フィルター・テスト完備) |
 | **TASK-009** | 家トレ管理 & 代替種目エンジンの本格ネイティブ実装 | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-010** | ダイエット・PFC・体重推移グラフ & AI食事写真推定モック | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
-| **TASK-011** | ユーザー投稿（設備スペック修正・器具写真・レビュー） | Codex | `IN REVIEW` | 設備修正・写真・星評価・即時反映・v3移行。52テスト/両OSバンドル成功 |
+| **TASK-011** | ユーザー投稿（設備スペック修正・器具写真・レビュー） | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
+| **TASK-012** | App Store / Google Play 最終公開準備 & EAS署名設定 | Codex | `IN REVIEW` | 公開設定・アセット・EASプロファイル検証済み。署名/提出は認証等の準備後 |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -223,3 +224,14 @@
   2. **リアルタイム反映（`community.ts`）**: 投稿したスペック修正が即座にジム検索・重量フィルター・マッチ率計算に反映されるリアクティブ構造。
   3. **品質・テスト**: 自動テスト52件すべてがパスし、型安全・ストレージ整合性が完璧に担保されている。
 - **次タスクへの引き継ぎ**: 最終タスク **TASK-012（App Store / Google Play ストア最終公開・EAS署名準備）** の着手を承認。
+
+### [TASK-012] ストア公開準備 & EAS署名設定（Codex）
+- **状態**: `[IN REVIEW]`（設定・素材の準備をレビュー待ち。署名・ストア提出・公開は未実施）
+- **メタデータ**: GymFinder / 1.0.0、iOS Bundle ID・Android applicationIdを `com.peroki.gymfinder` へ統一。iOS buildNumber / Android versionCodeは1。初回の番号がストアで使用済みかはアカウント準備後に確認。
+- **アセット**: オリジナルのダンベル/サーチマークをSVGから生成。1024px非透過アイコン、1024px透過adaptive/monochrome・スプラッシュ、Google Play 512pxアイコン・1024×500 feature graphic。編集元と生成スクリプト、寸法/アルファ/設定を検証するrelease:checkを追加。
+- **EAS**: preview=internal（iOS実機Ad Hoc・Android APK）、production=store（iOS実機・Android AAB）。Node 24.19.0、credentialsSource=remote、local版番号・自動増分なし。実アカウントのUUID・Team ID・鍵を推測せず未設定のまま。署名ファイルのGit/EAS除外設定を追加。
+- **権限**: カメラ/写真用途を日本語で明示。マイクを除外。Android CAMERAを明示し、広範なストレージ/メディア読取り・録音・overlayをmanifest merger削除指定。写真選択はシステムPhoto Pickerを使用。expo-splash-screen / expo-system-uiをSDK互換版で導入し、黒テーマとスプラッシュの設定警告を解消。
+- **検証**: release:check、EAS CLIスキーマ、TypeScript strict、Jest 11 suites / 52 tests（失敗・スキップ0）、iOS/Android Metro/Hermesバンドル成功。元チェックアウトを変更しない一時フォルダーでexpo prebuild --clean --no-install --platform allも成功。生成された両OSの識別子、iOSダークモード/用途説明、Android権限指定、アイコン・スプラッシュ実ファイルを確認。ネイティブコンパイル・署名は別工程。
+- **掲載素材**: store/metadata.ja.json、PRIVACY_POLICY_DRAFT.ja.md、RELEASE.mdを追加。現行の検証用店舗・固定値写真モック・端末内投稿を偽らない説明。実機スクリーンショット、公開サポート窓口・ポリシーURL、運営者情報は未確定。iPad対応維持のためiPad素材も必要。
+- **外部前提**: eas whoami=Not logged in、EXPO_TOKEN未設定/保存済みbindingなし、projectId未登録。Expo APIは到達可能（以前のCONNECT 403は解消）。既存のEXPO_TOKEN要件を再利用し、重複要求は追加していない。Apple/Googleのアカウント・アプリ登録/署名は未確認。
+- **次の手順**: EASプロジェクト連携・本人による署名登録後にpreview/productionビルド、実機確認・スクリーンショット、ストア提出。設定準備と公開完了を区別し、審査・公開の成功は主張しない。

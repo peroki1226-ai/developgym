@@ -4,12 +4,24 @@ import React, {
   useContext,
   useEffect,
   useRef,
+  useMemo,
   useState,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View } from "react-native";
 import { Body, Button } from "./components/ui";
 import { DietData, Meal, WeightEntry, upsertWeight } from "./domain/nutrition";
+import {
+  applySpecs,
+  CommunityData,
+  SpecPost,
+  ReviewPost,
+  PhotoPost,
+  validateSpec,
+  validateReview,
+  isCommunityData,
+} from "./domain/community";
+import { gyms, Gym } from "./domain/matching";
 import { HomeProfile } from "./domain/homeTraining";
 import {
   decodeFitnessData,
@@ -22,6 +34,13 @@ export type { Workout } from "./domain/fitnessStorage";
 type NewWorkout = Omit<Workout, "id" | "date" | "location" | "loadType"> &
   Partial<Pick<Workout, "location" | "loadType">>;
 type State = {
+  community: CommunityData;
+  gymCatalog: Gym[];
+  addSpec: (
+    post: Omit<SpecPost, "id" | "createdAt" | "previousMaxDumbbellKg">,
+  ) => void;
+  addReview: (post: Omit<ReviewPost, "id" | "createdAt">) => void;
+  addPhoto: (post: Omit<PhotoPost, "id" | "createdAt">) => void;
   diet: DietData;
   setDietGoals: (
     goals: Pick<DietData, "targetWeightKg" | "calorieGoal">,
@@ -85,6 +104,14 @@ export function FitnessProvider({ children }: PropsWithChildren) {
       active = false;
     };
   }, [data, ready, retry]);
+  const gymCatalog = useMemo(
+    () => applySpecs(gyms, data.community.specs),
+    [data.community.specs],
+  );
+  const meta = () => ({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    createdAt: new Date().toISOString(),
+  });
   if (!ready)
     return (
       <View
@@ -111,6 +138,59 @@ export function FitnessProvider({ children }: PropsWithChildren) {
   return (
     <Context.Provider
       value={{
+        community: data.community,
+        gymCatalog,
+        addSpec: (post) => {
+          const gym = gymCatalog.find((g) => g.id === post.gymId);
+          const error = gym
+            ? validateSpec(
+                gym,
+                post.maxDumbbellKg,
+                post.equipmentIds,
+                post.note,
+              )
+            : "Unknown gym";
+          if (error) throw new Error(error);
+          const entry = {
+            ...post,
+            ...meta(),
+            previousMaxDumbbellKg: gym!.maxDumbbellKg,
+          };
+          setData((old) => ({
+            ...old,
+            community: {
+              ...old.community,
+              specs: [...old.community.specs, entry],
+            },
+          }));
+        },
+        addReview: (post) => {
+          if (
+            !gyms.some((g) => g.id === post.gymId) ||
+            validateReview(post.rating, post.comment)
+          )
+            throw new Error("Invalid review");
+          const entry = { ...post, ...meta(), comment: post.comment.trim() };
+          setData((old) => ({
+            ...old,
+            community: {
+              ...old.community,
+              reviews: [...old.community.reviews, entry],
+            },
+          }));
+        },
+        addPhoto: (post) => {
+          const entry = { ...post, ...meta(), caption: post.caption.trim() };
+          if (!isCommunityData({ specs: [], reviews: [], photos: [entry] }))
+            throw new Error("Invalid photo");
+          setData((old) => ({
+            ...old,
+            community: {
+              ...old.community,
+              photos: [...old.community.photos, entry],
+            },
+          }));
+        },
         diet: data.diet,
         setDietGoals: (goals) =>
           setData((old) => ({ ...old, diet: { ...old.diet, ...goals } })),

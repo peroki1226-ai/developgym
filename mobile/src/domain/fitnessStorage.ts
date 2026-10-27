@@ -1,3 +1,4 @@
+import { CommunityData, initialCommunity, isCommunityData } from "./community";
 import { DietData, initialDiet, isDietData } from "./nutrition";
 import { defaultHomeProfile, homeGear, HomeProfile } from "./homeTraining";
 export type Workout = {
@@ -11,7 +12,8 @@ export type Workout = {
   loadType: "bodyweight" | "dumbbell" | "band" | "weight";
 };
 export type FitnessData = {
-  version: 2;
+  version: 3;
+  community: CommunityData;
   diet: DietData;
   logs: Workout[];
   favorites: string[];
@@ -20,7 +22,8 @@ export type FitnessData = {
 // Keep the v1 key so existing installations can be migrated in place after validation.
 export const FITNESS_STORAGE_KEY = "@gymfinder/fitness/v1";
 export const initialFitnessData = (): FitnessData => ({
-  version: 2,
+  version: 3,
+  community: initialCommunity(),
   diet: initialDiet(),
   logs: [],
   favorites: [],
@@ -35,7 +38,7 @@ export function decodeFitnessData(raw: string | null): FitnessData {
   const d: unknown = JSON.parse(raw);
   if (
     !record(d) ||
-    (d.version !== 1 && d.version !== 2) ||
+    (d.version !== 1 && d.version !== 2 && d.version !== 3) ||
     !Array.isArray(d.logs) ||
     !d.logs.every(
       (l) =>
@@ -62,11 +65,14 @@ export function decodeFitnessData(raw: string | null): FitnessData {
     typeof d.homeProfile.bodyweightOnly !== "boolean"
   )
     throw new Error("Invalid fitness storage");
-  if (d.version === 2 && !isDietData(d.diet))
+  if (d.version !== 1 && !isDietData(d.diet))
     throw new Error("Invalid diet storage");
+  if (d.version === 3 && !isCommunityData(d.community))
+    throw new Error("Invalid community storage");
   return {
     ...d,
-    version: 2,
+    version: 3,
+    community: d.version === 3 ? d.community : initialCommunity(),
     diet: d.version === 1 ? initialDiet() : d.diet,
   } as FitnessData;
 }

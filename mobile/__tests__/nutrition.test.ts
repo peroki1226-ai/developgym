@@ -1,3 +1,4 @@
+import { initialCommunity } from "../src/domain/community";
 import {
   dailyTotals,
   initialDiet,
@@ -79,7 +80,7 @@ test("date and numeric validation reject rollover, blank, negative and non-finit
   for (const n of ["", "-1", "Infinity", "NaN", "1e2", "401"])
     expect(parseNumber(n, 20, 400)).toBeNull();
 });
-test("v1 migrates to v2 preserving workouts, home profile and favorites without invented diet logs", () => {
+test("v1 migrates to latest schema preserving workouts, home profile and favorites without invented diet logs", () => {
   const { diet, ...base } = initialFitnessData();
   const old = { ...base, version: 1 };
   old.favorites = ["gold"];
@@ -97,7 +98,12 @@ test("v1 migrates to v2 preserving workouts, home profile and favorites without 
     },
   ];
   const migrated = decodeFitnessData(JSON.stringify(old));
-  expect(migrated).toEqual({ ...old, version: 2, diet: initialDiet() });
+  expect(migrated).toEqual({
+    ...old,
+    version: 3,
+    diet: initialDiet(),
+    community: initialCommunity(),
+  });
   expect(decodeFitnessData(JSON.stringify(migrated))).toEqual(migrated);
 });
 test("v2 validation rejects corrupt diet data, duplicates and future schemas without resetting it", () => {
@@ -111,7 +117,7 @@ test("v2 validation rejects corrupt diet data, duplicates and future schemas wit
   };
   expect(decodeFitnessData(JSON.stringify(valid))).toEqual(valid);
   for (const data of [
-    { ...valid, version: 3 },
+    { ...valid, version: 4 },
     { ...valid, diet: undefined },
     { ...valid, diet: { ...valid.diet, calorieGoal: 0 } },
     {

@@ -1,10 +1,12 @@
-import React from "react";
-import { Alert, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Text, View } from "react-native";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
-import { gyms } from "../domain/matching";
+import { GymContributionForm, GymPosts } from "../components/GymCommunity";
 export function MyPageScreen() {
-  const { logs, favorites, storageStatus } = useFitness();
+  const { logs, favorites, storageStatus, gymCatalog, community } =
+    useFitness();
+  const [selectedGym, setSelectedGym] = useState(gymCatalog[0].id);
   return (
     <Page
       title="Made by you."
@@ -52,7 +54,7 @@ export function MyPageScreen() {
       <Card>
         <Heading>お気に入りジム</Heading>
         {favorites.length ? (
-          gyms
+          gymCatalog
             .filter((g) => favorites.includes(g.id))
             .map((g) => (
               <Body key={g.id}>
@@ -64,19 +66,23 @@ export function MyPageScreen() {
         )}
       </Card>
       <Card>
-        <Heading>あなたの知識を、みんなへ。</Heading>
+        <Heading>あなたの投稿</Heading>
         <Body>
-          器具メーカー・ダンベル重量・設備写真の投稿機能は準備中です。
+          設備修正 {community.specs.length}件 / 写真 {community.photos.length}件
+          / レビュー {community.reviews.length}件
         </Body>
-        <Button
-          title="設備スペック投稿について"
-          onPress={() =>
-            Alert.alert(
-              "準備中",
-              "投稿フォームとサーバー保存は今後のタスクで実装します。",
-            )
-          }
-        />
+        <View style={s.row}>
+          {gymCatalog.map((g) => (
+            <Button
+              key={g.id}
+              title={`投稿先: ${g.name}`}
+              selected={selectedGym === g.id}
+              onPress={() => setSelectedGym(g.id)}
+            />
+          ))}
+        </View>
+        <GymPosts gymId={selectedGym} />
+        <GymContributionForm key={selectedGym} gymId={selectedGym} />
       </Card>
     </Page>
   );

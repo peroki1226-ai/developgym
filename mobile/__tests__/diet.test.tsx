@@ -192,7 +192,7 @@ test("v1 data migrates in the real provider and retains workouts, profile and fa
   await fireEvent.press(button("食事を保存"));
   await waitFor(async () => {
     const d = JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!);
-    expect(d.version).toBe(2);
+    expect(d.version).toBe(3);
     expect(d.diet.meals).toHaveLength(1);
     expect(d.favorites).toEqual(["gold"]);
     expect(d.homeProfile.gear).toEqual(["band"]);

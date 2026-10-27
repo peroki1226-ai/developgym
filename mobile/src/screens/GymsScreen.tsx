@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { Body, Button, Card, Field, Heading, Page, s } from "../components/ui";
 import { equipmentName, findGyms, menus, parts } from "../domain/matching";
+import { GymContributionForm, GymPosts } from "../components/GymCommunity";
 import { useFitness } from "../state";
 const toggle = (items: string[], id: string) =>
   items.includes(id) ? items.filter((x) => x !== id) : [...items, id];
@@ -18,14 +19,15 @@ export function GymsScreen() {
   const [requiredKg, setRequiredKg] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showParts, setShowParts] = useState(false);
-  const { favorites, toggleFavorite } = useFitness();
+  const [postingGym, setPostingGym] = useState<string | null>(null);
+  const { favorites, toggleFavorite, gymCatalog } = useFitness();
   const preferences = useMemo(
     () => ({ menuIds, partIds, requiredDumbbellKg: requiredKg }),
     [menuIds, partIds, requiredKg],
   );
   const results = useMemo(
-    () => findGyms(preferences, query, region, requiredKg),
-    [preferences, query, region, requiredKg],
+    () => findGyms(preferences, query, region, requiredKg, gymCatalog),
+    [preferences, query, region, requiredKg, gymCatalog],
   );
   function reset() {
     setQuery("");
@@ -178,6 +180,18 @@ export function GymsScreen() {
             selected={favorites.includes(g.id)}
             onPress={() => toggleFavorite(g.id)}
           />
+          <GymPosts gymId={g.id} />
+          <Button
+            title={
+              postingGym === g.id
+                ? `${g.name}の投稿フォームを閉じる`
+                : `${g.name}に投稿する`
+            }
+            onPress={() => setPostingGym(postingGym === g.id ? null : g.id)}
+          />
+          {postingGym === g.id && (
+            <GymContributionForm key={g.id} gymId={g.id} />
+          )}
         </Card>
       ))}
       {!results.length && (

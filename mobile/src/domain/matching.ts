@@ -72,9 +72,10 @@ export function findGyms(
   query = "",
   region = "all",
   minimumDumbbellKg = 0,
+  catalog: readonly Gym[] = gyms,
 ) {
   const q = query.normalize("NFKC").trim().toLowerCase();
-  return gyms
+  return catalog
     .filter(
       (g) =>
         (region === "all" || g.region === region) &&

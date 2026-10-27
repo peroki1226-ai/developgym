@@ -130,7 +130,7 @@ test("unknown gyms, unsafe paths, duplicate IDs and invalid stored posts are rej
     expect(isCommunityData({ ...initialCommunity(), specs })).toBe(false);
   const data = initialFitnessData();
   expect(() =>
-    decodeFitnessData(JSON.stringify({ ...data, version: 4 })),
+    decodeFitnessData(JSON.stringify({ ...data, version: 5 })),
   ).toThrow();
   expect(() =>
     decodeFitnessData(

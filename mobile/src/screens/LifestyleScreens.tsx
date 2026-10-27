@@ -1,82 +1,108 @@
-﻿import React, { useState } from "react";
+import { EQUIPMENTS } from "../data/equipment";
+import { homeExercises } from "../domain/homeTraining";
+import { useI18n } from "../i18n";
+import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
 import { GymContributionForm, GymPosts } from "../components/GymCommunity";
+const systemExerciseNames = new Set(
+  [...EQUIPMENTS, ...homeExercises].map((item) => item.name),
+);
 export function MyPageScreen() {
+  const { t, formatDate } = useI18n();
   const { logs, favorites, storageStatus, gymCatalog, community } =
     useFitness();
   const [selectedGym, setSelectedGym] = useState(gymCatalog[0].id);
   return (
     <Page
       title="Made by you."
-      subtitle="ジムでも、自宅でも。すべての積み重ねをひとつに。"
+      subtitle={t("ジムでも、自宅でも。すべての積み重ねをひとつに。")}
     >
-      <Body>記録・お気に入り・自宅器具はこの端末に保存します。</Body>
-      <Body>🌐 言語: 日本語 / English 両対応（画面・種目名の日英併記）</Body>
+      <Body>{t("記録・お気に入り・自宅器具はこの端末に保存します。")}</Body>
+      <Body>{t("🌐 言語は画面上部のボタンで切り替えられます。")}</Body>
       <Card>
-        <Body>統合履歴 / 合計セット</Body>
+        <Body>{t("統合履歴 / 合計セット")}</Body>
         <Text style={s.number}>
           {logs.reduce((sum, log) => sum + log.sets, 0)}{" "}
-          <Text style={{ fontSize: 16 }}>sets</Text>
+          <Text
+            style={{
+              fontSize: 16,
+            }}
+          >
+            sets
+          </Text>
         </Text>
         <Body>
           {storageStatus === "saved"
-            ? "端末に保存済み"
+            ? t("端末に保存済み")
             : storageStatus === "saving"
-              ? "端末に保存中…"
-              : "保存に失敗しています。再試行してください。"}
+              ? t("端末に保存中…")
+              : t("保存に失敗しています。再試行してください。")}
         </Body>
-        <Heading>トレーニング統合履歴</Heading>
+        <Heading>{t("トレーニング統合履歴")}</Heading>
         {logs.length ? (
           logs.map((log) => (
             <View key={log.id}>
-              <Body>{log.location === "home" ? "🏠 自宅" : "ジム"}</Body>
+              <Body>{log.location === "home" ? t("🏠 自宅") : t("ジム")}</Body>
               <Body>
-                {log.date} / {log.name}
+                {formatDate(log.date)} /{" "}
+                {systemExerciseNames.has(log.name) ? t(log.name) : log.name}
               </Body>
               <Body>
                 {log.loadType === "bodyweight"
-                  ? "自重"
+                  ? t("自重")
                   : log.loadType === "band"
-                    ? "バンド"
-                    : `${log.weight}kg${log.loadType === "dumbbell" ? "（片手）" : ""}`}{" "}
-                × {log.reps}回 × {log.sets}セット
+                    ? t("バンド")
+                    : `${log.weight}kg${log.loadType === "dumbbell" ? t("（片手）") : ""}`}{" "}
+                × {log.reps}
+                {t("回 × ")}
+                {log.sets}
+                {t("セット")}
               </Body>
             </View>
           ))
         ) : (
           <Body>
-            まだ記録がありません。Training または Home
-            で最初のセットを記録しましょう。
+            {t(
+              "まだ記録がありません。Training または Home で最初のセットを記録しましょう。",
+            )}
           </Body>
         )}
       </Card>
       <Card>
-        <Heading>お気に入りジム</Heading>
+        <Heading>{t("お気に入りジム")}</Heading>
         {favorites.length ? (
           gymCatalog
             .filter((g) => favorites.includes(g.id))
             .map((g) => (
               <Body key={g.id}>
-                {g.name} / {g.area}（サンプル）
+                {g.name} / {g.area}
+                {t("（サンプル）")}
               </Body>
             ))
         ) : (
-          <Body>Gyms タブからお気に入りを追加できます。</Body>
+          <Body>{t("Gyms タブからお気に入りを追加できます。")}</Body>
         )}
       </Card>
       <Card>
-        <Heading>あなたの投稿</Heading>
+        <Heading>{t("あなたの投稿")}</Heading>
         <Body>
-          設備修正 {community.specs.length}件 / 写真 {community.photos.length}件
-          / レビュー {community.reviews.length}件
+          {t("設備修正 ")}
+          {community.specs.length}
+          {t("件 / 写真 ")}
+          {community.photos.length}
+          {t("件 / レビュー ")}
+          {community.reviews.length}
+          {t("件")}
         </Body>
         <View style={s.row}>
           {gymCatalog.map((g) => (
             <Button
               key={g.id}
-              title={`投稿先: ${g.name}`}
+              title={t("投稿先: {0}", {
+                "0": g.name,
+              })}
               selected={selectedGym === g.id}
               onPress={() => setSelectedGym(g.id)}
             />

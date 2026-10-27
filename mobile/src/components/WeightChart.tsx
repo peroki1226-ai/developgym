@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import React from "react";
 import { View } from "react-native";
 import Svg, { Circle, Line, Polyline, Text as SvgText } from "react-native-svg";
@@ -10,13 +11,22 @@ export function WeightChart({
   weights: WeightEntry[];
   target: number | null;
 }) {
+  const { t } = useI18n();
   const chart = weightChart(weights, target);
-  if (!chart) return <Body>体重を記録すると推移グラフが表示されます。</Body>;
+  if (!chart)
+    return <Body>{t("体重を記録すると推移グラフが表示されます。")}</Body>;
   const { entries, points } = chart;
   return (
     <View
       accessible
-      accessibilityLabel={`体重推移 ${entries.length}件。${entries[0].date} ${entries[0].kg}kgから${entries[entries.length - 1].date} ${entries[entries.length - 1].kg}kg。目標${target === null ? "未設定" : `${target}kg`}`}
+      accessibilityLabel={t("体重推移 {0}件。{1} {2}kgから{3} {4}kg。目標{5}", {
+        "0": entries.length,
+        "1": entries[0].date,
+        "2": entries[0].kg,
+        "3": entries[entries.length - 1].date,
+        "4": entries[entries.length - 1].kg,
+        "5": target === null ? t("未設定") : `${target}kg`,
+      })}
     >
       <Svg width="100%" height={190} viewBox="0 0 320 180">
         <SvgText x={4} y={12} fontSize={9} fill="#d4d4d8">
@@ -43,7 +53,8 @@ export function WeightChart({
               fill="#d4d4d8"
               fontSize={10}
             >
-              目標 {target}kg
+              {t("目標 ")}
+              {target}kg
             </SvgText>
           </>
         )}
@@ -71,7 +82,11 @@ export function WeightChart({
           {entries[entries.length - 1].date.slice(5)}
         </SvgText>
       </Svg>
-      <Body>直近{entries.length}記録 / 点線は目標体重</Body>
+      <Body>
+        {t("直近")}
+        {entries.length}
+        {t("記録 / 点線は目標体重")}
+      </Body>
     </View>
   );
 }

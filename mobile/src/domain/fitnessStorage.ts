@@ -1,3 +1,4 @@
+import { Language, isLanguage } from "../i18n";
 import { CommunityData, initialCommunity, isCommunityData } from "./community";
 import { DietData, initialDiet, isDietData } from "./nutrition";
 import { defaultHomeProfile, homeGear, HomeProfile } from "./homeTraining";
@@ -12,7 +13,8 @@ export type Workout = {
   loadType: "bodyweight" | "dumbbell" | "band" | "weight";
 };
 export type FitnessData = {
-  version: 3;
+  version: 4;
+  language: Language;
   community: CommunityData;
   diet: DietData;
   logs: Workout[];
@@ -22,7 +24,8 @@ export type FitnessData = {
 // Keep the v1 key so existing installations can be migrated in place after validation.
 export const FITNESS_STORAGE_KEY = "@gymfinder/fitness/v1";
 export const initialFitnessData = (): FitnessData => ({
-  version: 3,
+  version: 4,
+  language: "ja",
   community: initialCommunity(),
   diet: initialDiet(),
   logs: [],
@@ -38,7 +41,10 @@ export function decodeFitnessData(raw: string | null): FitnessData {
   const d: unknown = JSON.parse(raw);
   if (
     !record(d) ||
-    (d.version !== 1 && d.version !== 2 && d.version !== 3) ||
+    (d.version !== 1 &&
+      d.version !== 2 &&
+      d.version !== 3 &&
+      d.version !== 4) ||
     !Array.isArray(d.logs) ||
     !d.logs.every(
       (l) =>
@@ -67,12 +73,14 @@ export function decodeFitnessData(raw: string | null): FitnessData {
     throw new Error("Invalid fitness storage");
   if (d.version !== 1 && !isDietData(d.diet))
     throw new Error("Invalid diet storage");
-  if (d.version === 3 && !isCommunityData(d.community))
+  if ((d.version === 3 || d.version === 4) && !isCommunityData(d.community))
     throw new Error("Invalid community storage");
   return {
     ...d,
-    version: 3,
-    community: d.version === 3 ? d.community : initialCommunity(),
+    version: 4,
+    language: d.version === 4 && isLanguage(d.language) ? d.language : "ja",
+    community:
+      d.version === 3 || d.version === 4 ? d.community : initialCommunity(),
     diet: d.version === 1 ? initialDiet() : d.diet,
   } as FitnessData;
 }

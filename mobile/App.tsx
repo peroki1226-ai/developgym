@@ -1,4 +1,5 @@
-﻿import React from "react";
+import { useI18n } from "./src/i18n";
+import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -45,41 +46,61 @@ export default function App() {
         edges={["top", "left", "right"]}
       >
         <FitnessProvider>
-          <NavigationContainer theme={theme}>
-            <Tab.Navigator
-              screenOptions={({ route }) => ({
-                headerShown: false,
-                tabBarActiveTintColor: "#ffffff",
-                tabBarInactiveTintColor: "#a1a1aa",
-                tabBarStyle: {
-                  backgroundColor: "#000000",
-                  borderTopColor: "#303030",
-                },
-                tabBarItemStyle: { minHeight: 48 },
-                tabBarLabelStyle: { fontSize: 10 },
-                tabBarIcon: ({ color }) => (
-                  <Text
-                    style={{ color, fontSize: 24 }}
-                    accessibilityElementsHidden
-                  >
-                    {icons[route.name]}
-                  </Text>
-                ),
-              })}
-            >
-              <Tab.Screen name="Gyms" component={GymsScreen} options={{ tabBarLabel: "ジム (Gyms)" }} />
-              <Tab.Screen name="Training" component={TrainingScreen} options={{ tabBarLabel: "トレーニング (Training)" }} />
-              <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: "家トレ (Home)" }} />
-              <Tab.Screen name="Diet" component={DietScreen} options={{ tabBarLabel: "食事 (Diet)" }} />
-              <Tab.Screen
-                name="MyPage"
-                component={MyPageScreen}
-                options={{ title: "My Page", tabBarLabel: "マイページ (My Page)" }}
-              />
-            </Tab.Navigator>
-          </NavigationContainer>
+          <AppNavigator />
         </FitnessProvider>
       </SafeAreaView>
     </SafeAreaProvider>
+  );
+}
+
+function AppNavigator() {
+  const { t } = useI18n();
+  return (
+    <NavigationContainer theme={theme}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarActiveTintColor: "#ffffff",
+          tabBarInactiveTintColor: "#a1a1aa",
+          tabBarStyle: {
+            backgroundColor: "#000000",
+            borderTopColor: "#303030",
+          },
+          tabBarItemStyle: { minHeight: 48 },
+          tabBarLabelStyle: { fontSize: 10 },
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 24 }} accessibilityElementsHidden>
+              {icons[route.name]}
+            </Text>
+          ),
+        })}
+      >
+        <Tab.Screen
+          name="Gyms"
+          component={GymsScreen}
+          options={{ tabBarLabel: t("ジム (Gyms)") }}
+        />
+        <Tab.Screen
+          name="Training"
+          component={TrainingScreen}
+          options={{ tabBarLabel: t("トレーニング (Training)") }}
+        />
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ tabBarLabel: t("家トレ (Home)") }}
+        />
+        <Tab.Screen
+          name="Diet"
+          component={DietScreen}
+          options={{ tabBarLabel: t("食事 (Diet)") }}
+        />
+        <Tab.Screen
+          name="MyPage"
+          component={MyPageScreen}
+          options={{ title: "My Page", tabBarLabel: t("マイページ (My Page)") }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }

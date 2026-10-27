@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import React, { PropsWithChildren } from "react";
 import {
   Pressable,
@@ -27,6 +28,7 @@ export function Page({
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
     >
+      <LanguageSwitch />
       <Text style={s.brand}>GYMFINDER / YOUR DAILY STANDARD</Text>
       <Text accessibilityRole="header" style={s.title}>
         {title}
@@ -34,6 +36,27 @@ export function Page({
       <Text style={s.subtitle}>{subtitle}</Text>
       {children}
     </ScrollView>
+  );
+}
+export function LanguageSwitch() {
+  const { language, setLanguage, t } = useI18n();
+  return (
+    <View
+      accessibilityRole="toolbar"
+      accessibilityLabel={t("言語 / Language")}
+      style={[s.row, { justifyContent: "flex-end" }]}
+    >
+      <Button
+        title="🇯🇵 日本語"
+        selected={language === "ja"}
+        onPress={() => setLanguage("ja")}
+      />
+      <Button
+        title="🇺🇸 English"
+        selected={language === "en"}
+        onPress={() => setLanguage("en")}
+      />
+    </View>
   );
 }
 export function Card({ children }: PropsWithChildren) {

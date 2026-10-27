@@ -100,7 +100,7 @@ test("v1 migrates to latest schema preserving workouts, home profile and favorit
   const migrated = decodeFitnessData(JSON.stringify(old));
   expect(migrated).toEqual({
     ...old,
-    version: 3,
+    version: 4,
     diet: initialDiet(),
     community: initialCommunity(),
   });
@@ -117,7 +117,7 @@ test("v2 validation rejects corrupt diet data, duplicates and future schemas wit
   };
   expect(decodeFitnessData(JSON.stringify(valid))).toEqual(valid);
   for (const data of [
-    { ...valid, version: 4 },
+    { ...valid, version: 5 },
     { ...valid, diet: undefined },
     { ...valid, diet: { ...valid.diet, calorieGoal: 0 } },
     {

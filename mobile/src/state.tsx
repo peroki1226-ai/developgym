@@ -1,3 +1,4 @@
+import { Language, isLanguage, LocaleProvider, translate } from "./i18n";
 import React, {
   createContext,
   PropsWithChildren,
@@ -34,6 +35,8 @@ export type { Workout } from "./domain/fitnessStorage";
 type NewWorkout = Omit<Workout, "id" | "date" | "location" | "loadType"> &
   Partial<Pick<Workout, "location" | "loadType">>;
 type State = {
+  language: Language;
+  setLanguage: (language: Language) => void;
   community: CommunityData;
   gymCatalog: Gym[];
   addSpec: (
@@ -65,6 +68,11 @@ export function FitnessProvider({ children }: PropsWithChildren) {
   const [retry, setRetry] = useState(0);
   const [storageStatus, setStorageStatus] =
     useState<State["storageStatus"]>("saving");
+  const t = (message: string) => translate(data.language, message);
+  const setLanguage = (language: Language) => {
+    if (!isLanguage(language)) throw new Error("Unsupported language");
+    setData((old) => (old.language === language ? old : { ...old, language }));
+  };
   const queue = useRef<Promise<void>>(Promise.resolve());
   useEffect(() => {
     let active = true;
@@ -114,153 +122,167 @@ export function FitnessProvider({ children }: PropsWithChildren) {
   });
   if (!ready)
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#000000",
-          padding: 24,
-          justifyContent: "center",
-        }}
-      >
-        <Body>
-          {loadError
-            ? "保存データを読み込めませんでした。データは上書きしていません。"
-            : "保存データを読み込み中…"}
-        </Body>
-        {loadError && (
-          <Button
-            title="読み込みを再試行"
-            onPress={() => setReload((n) => n + 1)}
-          />
-        )}
-      </View>
+      <LocaleProvider language={data.language} setLanguage={setLanguage}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "#000000",
+            padding: 24,
+            justifyContent: "center",
+          }}
+        >
+          <Body>
+            {loadError
+              ? t(
+                  "保存データを読み込めませんでした。データは上書きしていません。",
+                )
+              : t("保存データを読み込み中…")}
+          </Body>
+          {loadError && (
+            <Button
+              title={t("読み込みを再試行")}
+              onPress={() => setReload((n) => n + 1)}
+            />
+          )}
+        </View>
+      </LocaleProvider>
     );
   return (
-    <Context.Provider
-      value={{
-        community: data.community,
-        gymCatalog,
-        addSpec: (post) => {
-          const gym = gymCatalog.find((g) => g.id === post.gymId);
-          const error = gym
-            ? validateSpec(
-                gym,
-                post.maxDumbbellKg,
-                post.equipmentIds,
-                post.note,
-              )
-            : "Unknown gym";
-          if (error) throw new Error(error);
-          const entry = {
-            ...post,
-            ...meta(),
-            previousMaxDumbbellKg: gym!.maxDumbbellKg,
-          };
-          setData((old) => ({
-            ...old,
-            community: {
-              ...old.community,
-              specs: [...old.community.specs, entry],
-            },
-          }));
-        },
-        addReview: (post) => {
-          if (
-            !gyms.some((g) => g.id === post.gymId) ||
-            validateReview(post.rating, post.comment)
-          )
-            throw new Error("Invalid review");
-          const entry = { ...post, ...meta(), comment: post.comment.trim() };
-          setData((old) => ({
-            ...old,
-            community: {
-              ...old.community,
-              reviews: [...old.community.reviews, entry],
-            },
-          }));
-        },
-        addPhoto: (post) => {
-          const entry = { ...post, ...meta(), caption: post.caption.trim() };
-          if (!isCommunityData({ specs: [], reviews: [], photos: [entry] }))
-            throw new Error("Invalid photo");
-          setData((old) => ({
-            ...old,
-            community: {
-              ...old.community,
-              photos: [...old.community.photos, entry],
-            },
-          }));
-        },
-        diet: data.diet,
-        setDietGoals: (goals) =>
-          setData((old) => ({ ...old, diet: { ...old.diet, ...goals } })),
-        addWeight: (entry) =>
-          setData((old) => ({
-            ...old,
-            diet: {
-              ...old.diet,
-              weights: upsertWeight(old.diet.weights, entry),
-            },
-          })),
-        addMeal: (entry) =>
-          setData((old) => ({
-            ...old,
-            diet: {
-              ...old.diet,
-              meals: [
-                ...old.diet.meals,
-                { ...entry, id: `${Date.now()}-${Math.random()}` },
-              ],
-            },
-          })),
-        removeMeal: (id) =>
-          setData((old) => ({
-            ...old,
-            diet: {
-              ...old.diet,
-              meals: old.diet.meals.filter((m) => m.id !== id),
-            },
-          })),
-        logs: data.logs,
-        favorites: data.favorites,
-        homeProfile: data.homeProfile,
-        storageStatus,
-        setHomeProfile: (homeProfile) =>
-          setData((old) => ({ ...old, homeProfile })),
-        addLog: (log) =>
-          setData((old) => ({
-            ...old,
-            logs: [
-              {
-                ...log,
-                id: `${Date.now()}-${Math.random()}`,
-                date: new Date().toLocaleDateString("ja-JP"),
-                location: log.location ?? "gym",
-                loadType:
-                  log.loadType ?? (log.weight === 0 ? "bodyweight" : "weight"),
+    <LocaleProvider language={data.language} setLanguage={setLanguage}>
+      <Context.Provider
+        value={{
+          language: data.language,
+          setLanguage,
+          community: data.community,
+          gymCatalog,
+          addSpec: (post) => {
+            const gym = gymCatalog.find((g) => g.id === post.gymId);
+            const error = gym
+              ? validateSpec(
+                  gym,
+                  post.maxDumbbellKg,
+                  post.equipmentIds,
+                  post.note,
+                )
+              : "Unknown gym";
+            if (error) throw new Error(error);
+            const entry = {
+              ...post,
+              ...meta(),
+              previousMaxDumbbellKg: gym!.maxDumbbellKg,
+            };
+            setData((old) => ({
+              ...old,
+              community: {
+                ...old.community,
+                specs: [...old.community.specs, entry],
               },
-              ...old.logs,
-            ],
-          })),
-        toggleFavorite: (id) =>
-          setData((old) => ({
-            ...old,
-            favorites: old.favorites.includes(id)
-              ? old.favorites.filter((x) => x !== id)
-              : [...old.favorites, id],
-          })),
-      }}
-    >
-      {storageStatus === "error" && (
-        <View style={{ backgroundColor: "#000000", padding: 16 }}>
-          <Body>
-            端末への保存に失敗しました。現在の変更は再起動すると失われる可能性があります。
-          </Body>
-          <Button title="保存を再試行" onPress={() => setRetry((n) => n + 1)} />
-        </View>
-      )}
-      {children}
-    </Context.Provider>
+            }));
+          },
+          addReview: (post) => {
+            if (
+              !gyms.some((g) => g.id === post.gymId) ||
+              validateReview(post.rating, post.comment)
+            )
+              throw new Error("Invalid review");
+            const entry = { ...post, ...meta(), comment: post.comment.trim() };
+            setData((old) => ({
+              ...old,
+              community: {
+                ...old.community,
+                reviews: [...old.community.reviews, entry],
+              },
+            }));
+          },
+          addPhoto: (post) => {
+            const entry = { ...post, ...meta(), caption: post.caption.trim() };
+            if (!isCommunityData({ specs: [], reviews: [], photos: [entry] }))
+              throw new Error("Invalid photo");
+            setData((old) => ({
+              ...old,
+              community: {
+                ...old.community,
+                photos: [...old.community.photos, entry],
+              },
+            }));
+          },
+          diet: data.diet,
+          setDietGoals: (goals) =>
+            setData((old) => ({ ...old, diet: { ...old.diet, ...goals } })),
+          addWeight: (entry) =>
+            setData((old) => ({
+              ...old,
+              diet: {
+                ...old.diet,
+                weights: upsertWeight(old.diet.weights, entry),
+              },
+            })),
+          addMeal: (entry) =>
+            setData((old) => ({
+              ...old,
+              diet: {
+                ...old.diet,
+                meals: [
+                  ...old.diet.meals,
+                  { ...entry, id: `${Date.now()}-${Math.random()}` },
+                ],
+              },
+            })),
+          removeMeal: (id) =>
+            setData((old) => ({
+              ...old,
+              diet: {
+                ...old.diet,
+                meals: old.diet.meals.filter((m) => m.id !== id),
+              },
+            })),
+          logs: data.logs,
+          favorites: data.favorites,
+          homeProfile: data.homeProfile,
+          storageStatus,
+          setHomeProfile: (homeProfile) =>
+            setData((old) => ({ ...old, homeProfile })),
+          addLog: (log) =>
+            setData((old) => ({
+              ...old,
+              logs: [
+                {
+                  ...log,
+                  id: `${Date.now()}-${Math.random()}`,
+                  date: new Date().toISOString(),
+                  location: log.location ?? "gym",
+                  loadType:
+                    log.loadType ??
+                    (log.weight === 0 ? "bodyweight" : "weight"),
+                },
+                ...old.logs,
+              ],
+            })),
+          toggleFavorite: (id) =>
+            setData((old) => ({
+              ...old,
+              favorites: old.favorites.includes(id)
+                ? old.favorites.filter((x) => x !== id)
+                : [...old.favorites, id],
+            })),
+        }}
+      >
+        {storageStatus === "error" && (
+          <View style={{ backgroundColor: "#000000", padding: 16 }}>
+            <Body>
+              {t(
+                "端末への保存に失敗しました。現在の変更は再起動すると失われる可能性があります。",
+              )}
+            </Body>
+            <Button
+              title={t("保存を再試行")}
+              onPress={() => setRetry((n) => n + 1)}
+            />
+          </View>
+        )}
+        {children}
+      </Context.Provider>
+    </LocaleProvider>
   );
 }
 export function useFitness() {

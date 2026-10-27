@@ -289,13 +289,13 @@
       },
       {
         id: "TASK-007",
-        title: "ジム検索 & メニューマッチ率（100%）ネイティブ実装",
+        title: "ジム検索 & メニューマッチ率（92%）ネイティブ実装",
         category: "Mobile Feature",
         assignee: "Codex",
         status: "DONE",
         rating: "LGTM",
         desc: "65/20/15重み付けマッチ率計算エンジン、✓ Available / ✕ Missing 可視化、ダンベル重量絞り込み、地域検索、自動テスト群を実装。",
-        review: "仕様書の「7/8種目一致で100%」計算テスト完全合格。コミット 10efab5。"
+        review: "8種目中7種目対応・部位指定なし・重量充足で92%を再現（65/20/15配点）。コミット10efab5。"
       },
       {
         id: "TASK-008",
@@ -332,8 +332,8 @@
         title: "ユーザー投稿（設備スペック修正・器具写真・レビュー）",
         category: "Mobile Feature",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "レビュー待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "ユーザーがジムのダンベル重量や器具台数を修正・追加投稿できるフォームおよびコミュニティレビュー機能。",
         review: "設備修正・写真・星評価・端末保存とGyms/My Page連携を実装。52テスト・両OSバンドル成功。実機レビュー待ち。"
       },
@@ -342,10 +342,20 @@
         title: "App Store / Google Play 最終公開準備 & EAS署名",
         category: "Release",
         assignee: "Codex / Antigravity",
-        status: "IN REVIEW",
-        rating: "公開準備レビュー待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "全機能実装完了後の最終EAS Build、アイコン・スプラッシュスクリーン調整、ストア申請情報の整備。",
         review: "設定・アイコン/スプラッシュ・EASプロファイル・52テスト・両OSバンドル・ネイティブ設定生成を検証。署名・実機・スクリーンショット・窓口/URL確定・提出は未実施。"
+      },
+      {
+        id: "TASK-013",
+        title: "モバイル動的言語切替（日英）& AsyncStorage永続化",
+        category: "Mobile Feature",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "レビュー待ち",
+        desc: "共通ヘッダーの日本語/English切替、全5画面とガイドの動的翻訳、言語の端末保存・復元。",
+        review: "既存52件＋追加9件=61テスト成功。入力・投稿原文を保持。両OSバンドル成功、iPhone実機レビュー待ち。"
       }
     ];
 

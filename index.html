@@ -429,6 +429,13 @@ const DATA = {
 
 (function () {
   const state = {
+    lang: (function () {
+      try {
+        return localStorage.getItem("gf_lang") || "ja";
+      } catch (e) {
+        return "ja";
+      }
+    })(),
     tab: "finder", // "finder" | "guide" | "home" | "diet" | "mypage"
     mode: "pro", // "beginner" | "pro"
     regionFilter: "all", // "all" | "tokyo" | "global"
@@ -1805,6 +1812,36 @@ const DATA = {
             <div>
               <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-300 font-semibold">Personal Concierge Dashboard</div>
               <div class="font-brand text-2xl font-bold text-white">My Page &amp; Goal Progress</div>
+        </div>
+        <!-- Language Settings -->
+        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Language Setting / 言語設定</div>
+              <div class="font-brand text-xl font-bold text-white">${state.lang === "ja" ? "表示言語の切り替え" : "Language Preferences"}</div>
+            </div>
+            <span class="text-xs text-neutral-300 font-semibold px-2.5 py-1 rounded-full border border-white/20">${state.lang === "ja" ? "🇯🇵 日本語" : "🇺🇸 English"}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button
+              onclick="window.gf.setLang('ja')"
+              class="py-2.5 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 ${
+                state.lang === "ja" ? "bg-white text-black border-white shadow" : "bg-black text-neutral-400 border-white/15 hover:text-white"
+              }"
+            >
+              <span>🇯🇵</span> 日本語 (Japanese)
+            </button>
+            <button
+              onclick="window.gf.setLang('en')"
+              class="py-2.5 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-1.5 ${
+                state.lang === "en" ? "bg-white text-black border-white shadow" : "bg-black text-neutral-400 border-white/15 hover:text-white"
+              }"
+            >
+              <span>🇺🇸</span> English (英語)
+            </button>
+          </div>
+        </div>
+        <div class="hidden">
             </div>
             <span class="px-3 py-1 rounded-full bg-white text-black text-xs font-bold">Goal 82% Achieved</span>
           </div>
@@ -1941,32 +1978,56 @@ const DATA = {
             <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold mt-1">BLACK × WHITE · iOS / Android / Web</div>
           </div>
         </div>
-        <div class="flex bg-neutral-950 p-0.5 rounded-xl border border-white/15">
-          <button
-            onclick="window.gf.setMode('beginner')"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              state.mode === "beginner" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
-            }"
-          >
-            Beginner
-          </button>
-          <button
-            onclick="window.gf.setMode('pro')"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              state.mode === "pro" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
-            }"
-          >
-            Pro
-          </button>
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <!-- Mode (初級 / プロ) -->
+          <div class="flex bg-neutral-950 p-0.5 rounded-xl border border-white/15">
+            <button
+              onclick="window.gf.setMode('beginner')"
+              class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                state.mode === "beginner" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }"
+            >
+              ${state.lang === "ja" ? "初級" : "Beginner"}
+            </button>
+            <button
+              onclick="window.gf.setMode('pro')"
+              class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                state.mode === "pro" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }"
+            >
+              ${state.lang === "ja" ? "プロ" : "Pro"}
+            </button>
+          </div>
+          <!-- Language (JP / EN) -->
+          <div class="flex bg-neutral-950 p-0.5 rounded-xl border border-white/15">
+            <button
+              onclick="window.gf.setLang('ja')"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                state.lang === "ja" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }"
+              title="日本語 (Japanese)"
+            >
+              日
+            </button>
+            <button
+              onclick="window.gf.setLang('en')"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                state.lang === "en" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }"
+              title="English"
+            >
+              EN
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="grid grid-cols-5 bg-black border-b border-white/15 p-1.5 gap-1">
-        <button onclick="window.gf.setTab('finder')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "finder" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Gyms (%)</button>
-        <button onclick="window.gf.setTab('guide')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Training</button>
-        <button onclick="window.gf.setTab('home')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Home Gym</button>
-        <button onclick="window.gf.setTab('diet')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Diet &amp; PFC</button>
-        <button onclick="window.gf.setTab('mypage')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">マイページ</button>
+        <button onclick="window.gf.setTab('finder')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "finder" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "ジム検索" : "Gyms (%)"}</button>
+        <button onclick="window.gf.setTab('guide')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "フォーム図解" : "Training"}</button>
+        <button onclick="window.gf.setTab('home')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "家トレ" : "Home Gym"}</button>
+        <button onclick="window.gf.setTab('diet')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "食事管理" : "Diet & PFC"}</button>
+        <button onclick="window.gf.setTab('mypage')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "マイページ" : "My Page"}</button>
       </div>
 
       <div>${body}</div>
@@ -1974,6 +2035,13 @@ const DATA = {
   }
 
   window.gf = {
+    setLang(l) {
+      state.lang = l;
+      try {
+        localStorage.setItem("gf_lang", l);
+      } catch (e) {}
+      render();
+    },
     setTab(t) { state.tab = t; render(); },
     setMode(m) { state.mode = m; render(); },
     setRegion(r) { state.regionFilter = r; render(); },

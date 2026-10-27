@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
@@ -13,6 +13,7 @@ export function MyPageScreen() {
       subtitle="ジムでも、自宅でも。すべての積み重ねをひとつに。"
     >
       <Body>記録・お気に入り・自宅器具はこの端末に保存します。</Body>
+      <Body>🌐 言語: 日本語 / English 両対応（画面・種目名の日英併記）</Body>
       <Card>
         <Body>統合履歴 / 合計セット</Body>
         <Text style={s.number}>

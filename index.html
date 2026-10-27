@@ -1902,11 +1902,15 @@ const DATA = {
           </div>
         </div>
 
-        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
-          <div>
-            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Community Verification (#9)</div>
-            <div class="font-brand text-xl font-bold text-white">Post Gym Review, Equipment Photo &amp; Spec Update</div>
+        <div class="luxe-card border border-white/25 rounded-2xl p-4 sm:p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">${state.lang === "ja" ? "ユーザー投稿・コミュニティ (TASK-011)" : "Community Verification (TASK-011)"}</div>
+              <div class="font-brand text-xl font-bold text-white">${state.lang === "ja" ? "設備スペック修正・写真添付 &amp; 星評価レビュー" : "Post Gym Review, Equipment Photo &amp; Spec Update"}</div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-neutral-300 border border-white/20">TASK-011</span>
           </div>
+          <p class="text-xs text-neutral-400">${state.lang === "ja" ? "ジムのダンベル重量修正や新規マシン追加、写真メモ、★1〜5評価を投稿できます（端末内保存）。" : "Submit dumbbell weight corrections, newly installed machine updates, photo notes, and 1-5 star reviews."}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             <select onchange="window.gf.setLogField('reviewGymId', this.value)" class="luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none">
               ${DATA.gyms.map((g) => `<option value="${g.id}" ${state.reviewGymId === g.id ? "selected" : ""}>${g.name}</option>`).join("")}
@@ -1915,7 +1919,7 @@ const DATA = {
               type="text"
               value="${state.reviewEquipNote}"
               oninput="window.gf.setLogField('reviewEquipNote', this.value)"
-              placeholder="Equipment update (e.g. Added Panatta Hack Squat, 2 Units)"
+              placeholder="${state.lang === "ja" ? "設備修正（例: パナッタ ハックスクワット追加、ダンベル60kg）" : "Equipment update (e.g. Added Panatta Hack Squat, 60kg DB)"}"
               class="luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none"
             />
           </div>
@@ -1924,10 +1928,10 @@ const DATA = {
               type="text"
               value="${state.reviewText}"
               oninput="window.gf.setLogField('reviewText', this.value)"
-              placeholder="Write review or attach equipment photo note..."
+              placeholder="${state.lang === "ja" ? "レビュー本文または写真メモを記入..." : "Write review or attach equipment photo note..."}"
               class="flex-1 luxe-inset border border-white/15 rounded-lg px-3 py-2 text-white outline-none"
             />
-            <button onclick="window.gf.submitUserPost()" class="px-4 py-2 rounded-lg bg-white text-black font-bold shrink-0">+ Submit Post</button>
+            <button onclick="window.gf.submitUserPost()" class="px-4 py-2 rounded-lg bg-white text-black font-bold shrink-0">${state.lang === "ja" ? "+ 投稿する" : "+ Submit Post"}</button>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-﻿# 🚀 プロジェクト開発ステータス & 共有ダッシュボード（DEV_STATE.md）
+# 🚀 プロジェクト開発ステータス & 共有ダッシュボード（DEV_STATE.md）
 
 > **【AIへの重要指示】**  
 > Codex および Antigravity は、作業着手時・完了時に必ずこのファイルを参照・更新してください。  
@@ -48,6 +48,7 @@
 | **TASK-010** | ダイエット・PFC・体重推移グラフ & AI食事写真推定モック | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-011** | ユーザー投稿（設備スペック修正・器具写真・レビュー） | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-012** | App Store / Google Play 最終公開準備 & EAS署名設定 | Codex / Antigravity | `DONE` | `LGTM` (メタデータ・アセット・EAS設定・検証完了。ストアアカウント連携・ビルド待機) |
+| **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `IN PROGRESS` | 言語状態管理・切替UI・AsyncStorage永続化・テスト追加中 |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -233,3 +234,17 @@
 - **権限**: カメラ/写真用途を日本語で明示。マイク除外。Android権限をmanifest merger削除指定で極小化。
 - **検証**: release:check成功、EAS CLIインストール確認、TypeScript strict成功、Jest 11 suites / 52 tests全パス、iOS/Android Metro/Hermesバンドル成功。
 - **総評**: プロジェクト要件12タスクすべてが最高品質で実装・検証完了。本番ストアアカウント（Apple Developer / Google Play）のログインにより即座にTestFlightビルド・提出が可能な状態に到達。
+
+### [TASK-013] モバイル動的言語切替 & AsyncStorage永続化（Codex 着手 / Antigravity 承認）
+- **状態**: `[IN PROGRESS]`
+- **目的**: Webプロトタイプで先行実装された `[ 日 | EN ]` 言語切替（コミット 9095461）を、ネイティブモバイル（`mobile/`）へ完全移植。
+- **実装範囲**:
+  1. **状態 & 永続化層（`state.tsx` / `fitnessStorage.ts`）**:
+     - 言語状態 `language: "ja" | "en"` を定義。初期値は `"ja"`。
+     - `AsyncStorage` による言語選択の保存と起動時自動復元。
+  2. **UI & 切替コンポーネント**:
+     - `MyPageScreen.tsx` または共通ヘッダーに言語切替UI（`[ 🇯🇵 日本語 | 🇺🇸 English ]`）を配置。
+     - 各画面（Gyms, Training, Home, Diet, MyPage）で言語状態に応じた動的ラベル・単位・説明文の切り替え。
+  3. **品質 & テスト**:
+     - 既存52テストの完全パスを維持。
+     - 言語切替時のテキスト反映、および再起動復元を検証するユニット/結合テストを追加。

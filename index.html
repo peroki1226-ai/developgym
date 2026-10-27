@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,50 +57,50 @@
   <script>
 const DATA = {
   basicMuscles: [
-    { id: "chest", name: "Chest" },
-    { id: "back", name: "Back" },
-    { id: "shoulder", name: "Shoulders" },
-    { id: "arm", name: "Arms" },
-    { id: "legs", name: "Legs & Glutes" },
-    { id: "abs", name: "Abs & Core" }
+    { id: "chest", name: "胸 (Chest)" },
+    { id: "back", name: "背中 (Back)" },
+    { id: "shoulder", name: "肩 (Shoulders)" },
+    { id: "arm", name: "腕 (Arms)" },
+    { id: "legs", name: "脚・臀部 (Legs & Glutes)" },
+    { id: "abs", name: "腹筋・体幹 (Abs & Core)" }
   ],
 
   proMuscles: [
-    { id: "chest-upper", name: "Upper Pectorals", group: "chest" },
-    { id: "chest-mid", name: "Mid & Lower Chest", group: "chest" },
-    { id: "back-width", name: "Latissimus Dorsi (Width)", group: "back" },
-    { id: "back-thick", name: "Traps & Mid-Back (Depth)", group: "back" },
-    { id: "delt-front-mid", name: "Anterior & Lateral Delts", group: "shoulder" },
-    { id: "delt-rear", name: "Posterior Deltoids", group: "shoulder" },
-    { id: "biceps-triceps", name: "Biceps & Triceps", group: "arm" },
-    { id: "quads", name: "Quadriceps (Front Thigh)", group: "legs" },
-    { id: "ham-glute", name: "Hamstrings & Glutes", group: "legs" },
-    { id: "abs-core", name: "Abdominals & Obliques", group: "abs" }
+    { id: "chest-upper", name: "大胸筋上部 (Upper Chest)", group: "chest" },
+    { id: "chest-mid", name: "大胸筋中・下部 (Mid/Lower Chest)", group: "chest" },
+    { id: "back-width", name: "広背筋・背中の広がり (Back Width)", group: "back" },
+    { id: "back-thick", name: "僧帽筋・背中の厚み (Back Thickness)", group: "back" },
+    { id: "delt-front-mid", name: "三角筋前・側部 (Front/Side Delts)", group: "shoulder" },
+    { id: "delt-rear", name: "三角筋後部 (Rear Delts)", group: "shoulder" },
+    { id: "biceps-triceps", name: "上腕二頭・三頭筋 (Arms)", group: "arm" },
+    { id: "quads", name: "大腿四頭筋 (Quads)", group: "legs" },
+    { id: "ham-glute", name: "ハムストリング・臀筋 (Hamstrings & Glutes)", group: "legs" },
+    { id: "abs-core", name: "腹直筋・腹斜筋 (Abs & Obliques)", group: "abs" }
   ],
 
   proMenus: [
-    { id: "m-bench", name: "Barbell Bench Press", part: "chest-mid", reqEquip: "power-rack" },
-    { id: "m-incline-db", name: "Heavy Incline Dumbbell Press", part: "chest-upper", reqEquip: "dumbbell-heavy" },
-    { id: "m-incline-smith", name: "Incline Smith Machine Press", part: "chest-upper", reqEquip: "incline-smith" },
-    { id: "m-cable-cross", name: "Cable Crossover Fly", part: "chest-mid", reqEquip: "cable-machine" },
-    { id: "m-pec-fly", name: "Pec Deck Fly & Rear Delt", part: "chest-mid", reqEquip: "pec-fly" },
-    { id: "m-deadlift", name: "Barbell Deadlift & Rack Pull", part: "back-thick", reqEquip: "power-rack" },
-    { id: "m-lat-mag", name: "Wide-Grip Lat Pulldown", part: "back-width", reqEquip: "lat-pulldown" },
-    { id: "m-seated-row", name: "Seated Cable Row", part: "back-thick", reqEquip: "seated-row" },
-    { id: "m-cable-lat", name: "Cable Lateral Raise", part: "delt-front-mid", reqEquip: "cable-machine" },
-    { id: "m-face-pull", name: "Rope Face Pull", part: "delt-rear", reqEquip: "cable-machine" },
-    { id: "m-pushdown", name: "Cable Triceps Pushdown & Curl", part: "biceps-triceps", reqEquip: "cable-machine" },
-    { id: "m-squat", name: "Barbell Back Squat", part: "quads", reqEquip: "power-rack" },
-    { id: "m-hack-squat", name: "45° Linear Hack Squat", part: "quads", reqEquip: "hack-squat" },
-    { id: "m-leg-press", name: "45° Sled Leg Press", part: "quads", reqEquip: "leg-press" },
-    { id: "m-rdl", name: "Romanian Deadlift (RDL)", part: "ham-glute", reqEquip: "power-rack" },
-    { id: "m-hip-thrust", name: "Smith Machine Hip Thrust", part: "ham-glute", reqEquip: "incline-smith" }
+    { id: "m-bench", name: "ベンチプレス (Barbell Bench Press)", part: "chest-mid", reqEquip: "power-rack" },
+    { id: "m-incline-db", name: "インクラインダンベルプレス (Incline DB Press)", part: "chest-upper", reqEquip: "dumbbell-heavy" },
+    { id: "m-incline-smith", name: "インクラインスミスプレス (Incline Smith Press)", part: "chest-upper", reqEquip: "incline-smith" },
+    { id: "m-cable-cross", name: "ケーブルクロスオーバー (Cable Fly)", part: "chest-mid", reqEquip: "cable-machine" },
+    { id: "m-pec-fly", name: "ペックフライ＆リアデルト (Pec Fly)", part: "chest-mid", reqEquip: "pec-fly" },
+    { id: "m-deadlift", name: "デッドリフト (Deadlift / Rack Pull)", part: "back-thick", reqEquip: "power-rack" },
+    { id: "m-lat-mag", name: "ラットプルダウン (Lat Pulldown)", part: "back-width", reqEquip: "lat-pulldown" },
+    { id: "m-seated-row", name: "シーテッドケーブルロー (Seated Row)", part: "back-thick", reqEquip: "seated-row" },
+    { id: "m-cable-lat", name: "ケーブルサイドレイズ (Lateral Raise)", part: "delt-front-mid", reqEquip: "cable-machine" },
+    { id: "m-face-pull", name: "ロープフェイスプル (Face Pull)", part: "delt-rear", reqEquip: "cable-machine" },
+    { id: "m-pushdown", name: "プッシュダウン＆アームカール (Triceps/Biceps)", part: "biceps-triceps", reqEquip: "cable-machine" },
+    { id: "m-squat", name: "バックスクワット (Back Squat)", part: "quads", reqEquip: "power-rack" },
+    { id: "m-hack-squat", name: "45° ハックスクワット (Hack Squat)", part: "quads", reqEquip: "hack-squat" },
+    { id: "m-leg-press", name: "45° レッグプレス (Leg Press)", part: "quads", reqEquip: "leg-press" },
+    { id: "m-rdl", name: "ルーマニアンデッドリフト (RDL)", part: "ham-glute", reqEquip: "power-rack" },
+    { id: "m-hip-thrust", name: "ヒップスラスト (Hip Thrust)", part: "ham-glute", reqEquip: "incline-smith" }
   ],
 
   equipments: [
     {
       id: "chest-press",
-      name: "Chest Press Machine",
+      name: "チェストプレスマシン (Chest Press)",
       brand: "Technogym",
       model: "Selection 900 Chest Press",
       units: 2,
@@ -116,7 +116,7 @@ const DATA = {
     },
     {
       id: "pec-fly",
-      name: "Pec Fly & Rear Delt",
+      name: "ペックフライ＆リアデルト (Pec Fly & Rear Delt)",
       brand: "Life Fitness",
       model: "Insignia Series Fly / Rear Delt",
       units: 2,
@@ -132,7 +132,7 @@ const DATA = {
     },
     {
       id: "shoulder-press",
-      name: "Shoulder Press Machine",
+      name: "ショルダープレスマシン (Shoulder Press)",
       brand: "Hammer Strength",
       model: "MTS Iso-Lateral Shoulder Press",
       units: 2,
@@ -148,7 +148,7 @@ const DATA = {
     },
     {
       id: "lat-pulldown",
-      name: "Lat Pulldown Tower",
+      name: "ラットプルダウン (Lat Pulldown)",
       brand: "Prime Fitness USA",
       model: "Evolution Lat Pulldown + MAG Grips",
       units: 3,
@@ -164,7 +164,7 @@ const DATA = {
     },
     {
       id: "seated-row",
-      name: "Seated Low Row",
+      name: "シーテッドロー (Seated Low Row)",
       brand: "Cybex",
       model: "Prestige VRS Seated Row",
       units: 2,
@@ -180,7 +180,7 @@ const DATA = {
     },
     {
       id: "abdominal-crunch",
-      name: "Abdominal Crunch",
+      name: "アブドミナルクランチ (Ab Crunch)",
       brand: "Technogym",
       model: "Biocircuit Abdominal Crunch",
       units: 2,
@@ -196,7 +196,7 @@ const DATA = {
     },
     {
       id: "leg-press",
-      name: "45° Sled Leg Press",
+      name: "45° レッグプレス (Sled Leg Press)",
       brand: "Cybex",
       model: "Plate-Loaded 45° Squat Press",
       units: 2,
@@ -244,7 +244,7 @@ const DATA = {
     },
     {
       id: "incline-smith",
-      name: "Incline Smith Machine",
+      name: "インクラインスミスマシン (Smith Machine)",
       brand: "Matrix Fitness",
       model: "Magnum Counter-Balanced Smith",
       units: 2,
@@ -1209,7 +1209,7 @@ const DATA = {
             </div>
 
             <div class="space-y-2 pt-3 border-t border-white/10">
-              <div class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">02 / Exercises</div>
+              <div class="text-[11px] uppercase tracking-[0.15em] font-semibold text-neutral-400">02 / やりたい種目の選択</div>
               <div class="flex gap-2">
                 <input
                   type="text"
@@ -1329,8 +1329,8 @@ const DATA = {
         <div class="space-y-3.5">
           <div class="flex items-end justify-between px-1 pt-1">
             <div>
-              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Ranked by Menu Match %</div>
-              <div class="font-brand text-2xl font-bold text-white leading-tight">Matching Gyms (${ranked.length})</div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">メニュー適合率 順 (Ranked by Match %)</div>
+              <div class="font-brand text-2xl font-bold text-white leading-tight">適合ジム一覧 (Matching Gyms) (${ranked.length})</div>
             </div>
             <span class="text-[11px] uppercase tracking-widest text-neutral-300 border border-white/15 px-2.5 py-1 rounded-full">${state.regionFilter === "global" ? "Global Travel" : state.regionFilter === "tokyo" ? "Shibuya" : "Worldwide"}</span>
           </div>
@@ -1358,7 +1358,7 @@ const DATA = {
                   </div>
 
                   <div class="text-right shrink-0 luxe-inset border ${isTop ? "border-white/35" : "border-white/15"} rounded-xl px-3.5 py-2.5">
-                    <div class="text-[10px] uppercase tracking-widest text-neutral-400 font-semibold">Menu Match</div>
+                    <div class="text-[10px] uppercase tracking-widest text-neutral-400 font-semibold">適合率 (Match)</div>
                     <div class="font-num text-3xl leading-none font-bold text-white mt-1">${match.pct}<span class="text-sm text-neutral-400 ml-0.5">%</span></div>
                   </div>
                 </div>
@@ -1394,7 +1394,7 @@ const DATA = {
                   }
                   ${
                     match.cannotDoMenus.length > 0
-                      ? `<div class="text-neutral-500">✕ Missing Equipment / Exercises: ${match.cannotDoMenus.join(" · ")}</div>`
+                      ? `<div class="text-neutral-500">✕ 不足している設備 (Missing) / Exercises: ${match.cannotDoMenus.join(" · ")}</div>`
                       : `<div class="text-white font-semibold">★ 100% Equipped for All Selected Exercises &amp; Dumbbell Weights</div>`
                   }
                 </div>
@@ -1966,7 +1966,7 @@ const DATA = {
         <button onclick="window.gf.setTab('guide')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Training</button>
         <button onclick="window.gf.setTab('home')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Home Gym</button>
         <button onclick="window.gf.setTab('diet')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">Diet &amp; PFC</button>
-        <button onclick="window.gf.setTab('mypage')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">My Page</button>
+        <button onclick="window.gf.setTab('mypage')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">マイページ</button>
       </div>
 
       <div>${body}</div>

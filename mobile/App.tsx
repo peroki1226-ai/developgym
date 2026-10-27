@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -67,14 +67,14 @@ export default function App() {
                 ),
               })}
             >
-              <Tab.Screen name="Gyms" component={GymsScreen} />
-              <Tab.Screen name="Training" component={TrainingScreen} />
-              <Tab.Screen name="Home" component={HomeScreen} />
-              <Tab.Screen name="Diet" component={DietScreen} />
+              <Tab.Screen name="Gyms" component={GymsScreen} options={{ tabBarLabel: "ジム (Gyms)" }} />
+              <Tab.Screen name="Training" component={TrainingScreen} options={{ tabBarLabel: "トレーニング (Training)" }} />
+              <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: "家トレ (Home)" }} />
+              <Tab.Screen name="Diet" component={DietScreen} options={{ tabBarLabel: "食事 (Diet)" }} />
               <Tab.Screen
                 name="MyPage"
                 component={MyPageScreen}
-                options={{ title: "My Page" }}
+                options={{ title: "My Page", tabBarLabel: "マイページ (My Page)" }}
               />
             </Tab.Navigator>
           </NavigationContainer>

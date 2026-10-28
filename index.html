@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>GymFinder — Monochrome Luxury Super-App</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -803,7 +803,8 @@ const DATA = {
       }
     })(),
     tab: "finder", // "finder" | "guide" | "home" | "diet" | "mypage"
-    mode: "pro", // "beginner" | "pro"
+    mode: "beginner", // "beginner" | "pro"
+    showFilter: false,
     regionFilter: "all", // "all" | "tokyo" | "global"
     searchKeyword: "",
     mapType: "satellite", // "roadmap" | "satellite"
@@ -1529,31 +1530,28 @@ const DATA = {
       .sort((a, b) => b.match.pct - a.match.pct);
 
     const locationBar = `
-      <div class="luxe-card rounded-2xl p-4 border border-white/15 space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Global &amp; Local Concierge</div>
-            <div class="font-brand text-xl font-bold text-white">Location &amp; Travel Destination</div>
-          </div>
-          <div class="flex gap-1 bg-black p-1 rounded-xl border border-white/15">
-            ${[
-              { id: "all", label: "All Global (5)" },
-              { id: "tokyo", label: "📍 Shibuya (Current)" },
-              { id: "global", label: "✈️ Travel (LA / London)" }
-            ].map((r) => `
-              <button onclick="window.gf.setRegion('${r.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
-                state.regionFilter === r.id ? "bg-white text-black" : "text-neutral-400 hover:text-white"
-              }">${r.label}</button>
-            `).join("")}
-          </div>
+      <div class="space-y-3">
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">🔍</span>
+          <input
+            type="text"
+            value="${state.searchKeyword}"
+            oninput="window.gf.setSearchKeyword(this.value)"
+            placeholder="${state.lang === 'ja' ? 'ジム名、エリア、設備で検索（例: 渋谷、ゴールドジム）...' : 'Search gym, area, brand...'}"
+            class="w-full bg-neutral-900/90 border border-white/15 focus:border-white rounded-2xl pl-11 pr-4 py-3 text-sm text-white outline-none transition placeholder-neutral-500 shadow-inner"
+          />
         </div>
-        <input
-          type="text"
-          value="${state.searchKeyword}"
-          oninput="window.gf.setSearchKeyword(this.value)"
-          placeholder="Search city, gym name, or equipment brand (e.g. Venice, Hammer Strength, Shibuya)..."
-          class="w-full luxe-inset border border-white/15 focus:border-white rounded-xl px-3.5 py-2 text-xs text-white outline-none"
-        />
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+          ${[
+            { id: "all", label: state.lang === "ja" ? "すべて (5)" : "All (5)" },
+            { id: "tokyo", label: state.lang === "ja" ? "📍 渋谷 (現在地)" : "📍 Shibuya" },
+            { id: "global", label: state.lang === "ja" ? "✈️ 海外 (LA / ロンドン)" : "✈️ Travel" }
+          ].map((r) => `
+            <button onclick="window.gf.setRegion('${r.id}')" class="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition border ${
+              state.regionFilter === r.id ? "bg-white text-black border-white shadow font-bold" : "bg-neutral-950 text-neutral-400 border-white/10 hover:text-white"
+            }">${r.label}</button>
+          `).join("")}
+        </div>
       </div>
     `;
 
@@ -1692,12 +1690,23 @@ const DATA = {
           </div>
         `;
 
-    return `
-      <div class="p-4 sm:p-5 space-y-5">
-        ${locationBar}
-        ${inputSection}
+    const filterToggleBtn = `
+      <button onclick="window.gf.toggleFilter()" class="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-white/20 bg-neutral-950/80 hover:bg-neutral-900 text-xs font-semibold text-neutral-300 hover:text-white transition shadow">
+        <span class="flex items-center gap-2">
+          <span>⚙️</span>
+          <span>${state.lang === 'ja' ? '詳細条件で絞り込む (部位・ダンベル重量)' : 'Filter by Target Muscles & Dumbbells'}</span>
+          ${(state.reqDumbbellKg > 0 || state.proSelectedParts.length > 0) ? `<span class="px-2 py-0.5 rounded-full bg-white text-black font-bold text-[10px]">${state.lang === "ja" ? "設定中" : "Active"}</span>` : ''}
+        </span>
+        <span class="text-neutral-400 font-bold">${state.showFilter ? (state.lang === 'ja' ? '閉じる ▲' : 'Close ▲') : (state.lang === 'ja' ? '設定する ▼' : 'Open ▼')}</span>
+      </button>
+    `;
 
-        ${renderGoogleMapSection(ranked)}
+    return `
+      <div class="p-4 sm:p-5 space-y-4">
+        ${locationBar}
+        ${filterToggleBtn}
+        ${state.showFilter ? inputSection : ""}
+        ${state.showFilter ? renderGoogleMapSection(ranked) : ""}
 
         <div class="space-y-3.5">
           <div class="flex items-end justify-between px-1 pt-1">
@@ -1712,67 +1721,53 @@ const DATA = {
             const isTop = i === 0;
             const isFav = state.favoriteGymIds.includes(gym.id);
             return `
-              <div class="${isTop ? "luxe-card-top border-white/45" : "luxe-card border-white/15"} border rounded-2xl p-5 space-y-3.5 transition">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-widest font-bold ${
-                        isTop ? "bg-white text-black" : "bg-white/10 text-neutral-300 border border-white/15"
-                      }">
-                        #0${i + 1} ${isTop ? "Best Match" : "Selected"}
+              <div class="${isTop ? "bg-gradient-to-b from-neutral-900 to-black border-white/35" : "bg-neutral-950/80 border-white/15"} border rounded-2xl p-4 sm:p-5 space-y-3.5 transition hover:border-white/30 shadow-lg">
+                <!-- Header: Name, Score & Favorite -->
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-1 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isTop ? "bg-white text-black" : "bg-white/10 text-neutral-300 border border-white/10"}">
+                        ${isTop ? (state.lang === "ja" ? "★ 一番おすすめ" : "★ Top Match") : "#0" + (i + 1)}
                       </span>
-                      <span class="text-xs text-neutral-300 font-medium">${gym.rating}</span>
+                      <span class="text-xs text-neutral-400 font-medium">${gym.rating}</span>
                       <button onclick="window.gf.toggleFavoriteGym('${gym.id}')" class="px-2 py-0.5 rounded-full text-xs border transition ${
                         isFav ? "bg-white text-black border-white font-bold" : "bg-black text-neutral-400 border-white/15 hover:text-white"
-                      }">${isFav ? "♥ Saved" : "♡ Save"}</button>
+                      }">${isFav ? "♥" : "♡"}</button>
                     </div>
-                    <div class="font-brand text-2xl font-bold text-white mt-1.5 leading-snug">${gym.name}</div>
-                    <div class="text-xs text-neutral-400 mt-0.5">${gym.address} · <span class="text-neutral-200">${gym.hours}</span></div>
+                    <div class="font-brand text-xl sm:text-2xl font-bold text-white tracking-wide leading-snug">${gym.name}</div>
+                    <div class="text-xs text-neutral-400 flex items-center gap-2">
+                      <span>${gym.address}</span>
+                      <span>·</span>
+                      <span class="text-neutral-300">${gym.walk}</span>
+                    </div>
                   </div>
 
-                  <div class="text-right shrink-0 luxe-inset border ${isTop ? "border-white/35" : "border-white/15"} rounded-xl px-3.5 py-2.5">
-                    <div class="text-[10px] uppercase tracking-widest text-neutral-400 font-semibold">適合率 (Match)</div>
-                    <div class="font-num text-3xl leading-none font-bold text-white mt-1">${match.pct}<span class="text-sm text-neutral-400 ml-0.5">%</span></div>
+                  <!-- Match Score Badge -->
+                  <div class="text-center shrink-0 bg-neutral-900 border ${isTop ? "border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.15)]" : "border-white/15"} rounded-2xl px-3.5 py-2">
+                    <div class="text-[10px] text-neutral-400 font-semibold tracking-wider">${state.lang === 'ja' ? '適合率' : 'MATCH'}</div>
+                    <div class="font-num text-2xl sm:text-3xl font-bold text-white leading-none mt-0.5">${match.pct}<span class="text-xs text-neutral-400 font-normal">%</span></div>
                   </div>
                 </div>
 
-                <div class="w-full h-1 bg-black rounded-full overflow-hidden border border-white/10">
-                  <div class="h-full bg-gradient-to-r from-neutral-500 via-neutral-200 to-white" style="width: ${match.pct}%"></div>
+                <!-- Key Specs Pills -->
+                <div class="flex flex-wrap gap-1.5 text-xs">
+                  <span class="px-2.5 py-1 rounded-lg bg-neutral-900 border border-white/10 text-white font-medium">🏋️ ${gym.dumbbellRange}</span>
+                  <span class="px-2.5 py-1 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300">${gym.spec.split('/')[0].trim()}</span>
+                  <span class="px-2.5 py-1 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300">⏰ ${gym.hours}</span>
+                  <span class="px-2.5 py-1 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300">💴 ${gym.fee}</span>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                  <div class="luxe-inset border ${gym.maxDumbbellKg >= 50 ? "border-white/35" : "border-white/10"} rounded-xl p-2.5">
-                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Dumbbell Max</div>
-                    <div class="font-semibold text-white mt-0.5">${gym.dumbbellRange}</div>
-                  </div>
-                  <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
-                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Maker &amp; Racks</div>
-                    <div class="font-semibold text-white mt-0.5">${gym.spec}</div>
-                  </div>
-                  <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
-                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Access</div>
-                    <div class="font-semibold text-white mt-0.5">${gym.walk}</div>
-                  </div>
-                  <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
-                    <div class="text-[10px] uppercase tracking-wider text-neutral-400">Fee &amp; Pass</div>
-                    <div class="font-semibold text-white mt-0.5">${gym.fee}</div>
-                  </div>
-                </div>
-
-                <div class="luxe-inset border border-white/10 rounded-xl p-2.5 text-xs space-y-1">
+                <!-- Match Summary Box -->
+                <div class="rounded-xl bg-neutral-900/60 border border-white/10 p-2.5 text-xs space-y-1">
                   ${
-                    match.canDoMenus.length > 0
-                      ? `<div class="text-neutral-200"><span class="text-white font-semibold">✓ Available Menu: </span>${match.canDoMenus.join(" · ")}</div>`
-                      : ""
-                  }
-                  ${
-                    match.cannotDoMenus.length > 0
-                      ? `<div class="text-neutral-500">✕ 不足している設備 (Missing) / Exercises: ${match.cannotDoMenus.join(" · ")}</div>`
-                      : `<div class="text-white font-semibold">★ 100% Equipped for All Selected Exercises &amp; Dumbbell Weights</div>`
+                    match.cannotDoMenus.length === 0
+                      ? `<div class="text-white font-semibold flex items-center gap-1.5"><span class="text-white">✓</span> ${state.lang === 'ja' ? '選択した全種目・ダンベル重量に100%適合' : '100% Equipped for All Selected Exercises'}</div>`
+                      : `<div class="text-neutral-300"><span class="text-white font-semibold">${t("availableMenu")} </span>${match.canDoMenus.join(" · ")}</div>
+                         <div class="text-neutral-400 text-[11px]"><span class="text-neutral-500">${t("missingMenu")} </span>${match.cannotDoMenus.join(" · ")}</div>`
                   }
                 </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/10">
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
                   <div class="flex items-center gap-2">
                     <a
                       href="${gym.websiteUrl}"
@@ -2361,87 +2356,73 @@ const DATA = {
               : renderMyPage();
 
     root.innerHTML = `
-      <div class="px-5 py-4 bg-black/95 border-b border-white/15 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-white text-black flex items-center justify-center font-brand font-bold text-base shadow">GF</div>
+      <!-- Sleek Minimalist Header -->
+      <header style="padding-top: calc(0.75rem + env(safe-area-inset-top, 0px))" class="px-4 py-3 bg-neutral-950/95 backdrop-blur-md border-b border-white/10 flex items-center justify-between sticky top-0 z-40">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center font-brand font-bold text-sm shadow">GF</div>
           <div>
-            <div class="font-brand text-2xl font-bold text-white leading-none">Gym Finder</div>
-            <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold mt-1">BLACK × WHITE · iOS / Android / Web</div>
+            <div class="font-brand text-xl font-bold text-white tracking-wide leading-none">GymFinder</div>
+            <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-semibold mt-0.5">Luxury Fitness Super-App</div>
           </div>
         </div>
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <!-- Mode & Language Switchers -->
-        <div class="flex items-center gap-2">
-          <!-- Beginner / Pro mode -->
-          <div class="flex bg-neutral-950 p-1 rounded-xl border border-white/20">
-            <button
-              onclick="window.gf.setMode('beginner')"
-              class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                state.mode === "beginner" ? "bg-white text-black shadow font-bold" : "text-neutral-400 hover:text-white"
-              }"
-            >
-              ${t("beginner")}
-            </button>
-            <button
-              onclick="window.gf.setMode('pro')"
-              class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                state.mode === "pro" ? "bg-white text-black shadow font-bold" : "text-neutral-400 hover:text-white"
-              }"
-            >
-              ${t("pro")}
-            </button>
-          </div>
 
-          <!-- 2-Language Switcher (日本語 / English) -->
-          <div class="flex bg-neutral-950 p-1 rounded-xl border border-white/30">
-            <button
-              onclick="window.gf.setLang('ja')"
-              class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
-                state.lang === "ja" ? "bg-white text-black shadow-md" : "text-neutral-400 hover:text-white"
-              }"
-            >
-              🇯🇵 日
-            </button>
-            <button
-              onclick="window.gf.setLang('en')"
-              class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
-                state.lang === "en" ? "bg-white text-black shadow-md" : "text-neutral-400 hover:text-white"
-              }"
-            >
-              🇺🇸 EN
-            </button>
-          </div>
+        <div class="flex items-center gap-1.5">
+          <!-- One-touch Mode Toggle -->
+          <button
+            onclick="window.gf.setMode('${state.mode === "beginner" ? "pro" : "beginner"}')"
+            class="px-2.5 py-1 rounded-full text-[11px] font-bold border transition shadow-sm ${
+              state.mode === 'pro' ? 'bg-white text-black border-white' : 'bg-neutral-900 text-neutral-300 border-white/20 hover:text-white'
+            }"
+          >
+            ${state.mode === 'pro' ? '⚡ PRO' : (state.lang === 'ja' ? '🔰 かんたん' : '🔰 Easy')}
+          </button>
+
+          <!-- One-touch Language Toggle -->
+          <button
+            onclick="window.gf.setLang('${state.lang === "ja" ? "en" : "ja"}')"
+            class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-neutral-900 text-neutral-300 border border-white/20 hover:text-white transition"
+          >
+            ${state.lang === 'ja' ? '🇯🇵 日' : '🇺🇸 EN'}
+          </button>
         </div>
-      </div>
+      </header>
 
-      <div class="grid grid-cols-5 bg-black border-b border-white/15 p-1.5 gap-1">
-        <button onclick="window.gf.setTab('finder')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "finder" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
-          <span>◎</span>
-          <span>${t("tabFinder")}</span>
-        </button>
-        <button onclick="window.gf.setTab('guide')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
-          <span>▥</span>
-          <span>${t("tabGuide")}</span>
-        </button>
-        <button onclick="window.gf.setTab('home')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
-          <span>⌂</span>
-          <span>${t("tabHome")}</span>
-        </button>
-        <button onclick="window.gf.setTab('diet')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
-          <span>◒</span>
-          <span>${t("tabDiet")}</span>
-        </button>
-        <button onclick="window.gf.setTab('mypage')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
-          <span>○</span>
-          <span>${t("tabMyPage")}</span>
-        </button>
-      </div>
+      <!-- Main Screen Body with bottom padding for navigation -->
+      <main style="padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px))">
+        ${body}
+      </main>
 
-      <div>${body}</div>
+      <!-- Sleek Floating Bottom Navigation Bar (iOS Tab Bar Style) -->
+      <nav style="padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px))" class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto bg-neutral-950/95 backdrop-blur-lg border-t border-white/10 px-2 py-2 flex items-center justify-around z-50 shadow-2xl">
+        ${[
+          { id: "finder", icon: "🔍", label: state.lang === 'ja' ? "ジム検索" : "Gyms" },
+          { id: "guide", icon: "🏋️", label: state.lang === 'ja' ? "フォーム" : "Guide" },
+          { id: "home", icon: "🏠", label: state.lang === 'ja' ? "家トレ" : "Home" },
+          { id: "diet", icon: "🥗", label: state.lang === 'ja' ? "食事管理" : "Diet" },
+          { id: "mypage", icon: "👤", label: state.lang === 'ja' ? "マイ" : "My Page" }
+        ].map((tab) => `
+          <button
+            onclick="window.gf.setTab('${tab.id}')"
+            class="flex-1 min-h-[48px] py-1 flex flex-col items-center gap-0.5 rounded-xl transition ${
+              state.tab === tab.id
+                ? "text-white font-bold"
+                : "text-neutral-500 hover:text-neutral-300"
+            }"
+          >
+            <span class="text-lg leading-none transition transform ${state.tab === tab.id ? "scale-110" : "opacity-70"}">${tab.icon}</span>
+            <span class="text-[10px] tracking-tight ${state.tab === tab.id ? "text-white font-bold" : "text-neutral-400"}">${tab.label}</span>
+            ${state.tab === tab.id ? '<span class="w-1 h-1 rounded-full bg-white mt-0.5"></span>' : '<span class="w-1 h-1 mt-0.5"></span>'}
+          </button>
+        `).join("")}
+      </nav>
     `;
   }
 
   window.gf = {
+    toggleFilter() {
+      state.showFilter = !state.showFilter;
+      render();
+    },
     setLang(l) {
       state.lang = l;
       try {

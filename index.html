@@ -55,6 +55,372 @@
 <body class="bg-black text-white antialiased p-2 sm:p-4">
   <div id="app-root" class="max-w-xl mx-auto luxe-shell text-white rounded-3xl border border-white/20 overflow-hidden"></div>
   <script>
+
+const I18N_DICT = {
+  ja: {
+    brandSubtitle: "BLACK × WHITE · iOS / Android / Web 2言語対応",
+    beginner: "🔰 初心者モード",
+    pro: "⚡ プロ（生体力学）",
+    tabFinder: "ジム検索",
+    tabGuide: "フォーム図解",
+    tabHome: "家トレ",
+    tabDiet: "食事管理",
+    tabMyPage: "マイページ",
+    langName: "🇯🇵 日本語",
+    switchLangPrompt: "Englishに切り替え",
+    // Finder
+    conciergeTitle: "現在地・渡航先ジム検索",
+    conciergeSub: "GLOBAL & LOCAL CONCIERGE",
+    searchPlaceholder: "都市名、ジム名、設備ブランド（例: 渋谷、ゴールドジム、Hammer Strength）で検索...",
+    allGlobal: "全世界 (All)",
+    shibuya: "📍 渋谷 (現在地)",
+    travel: "✈️ 海外 (LA / ロンドン)",
+    proSpecTitle: "プロ仕様・カスタム条件設定",
+    reset: "条件リセット",
+    targetMuscles: "01 / 鍛えたい部位を選択",
+    selectExercises: "02 / やりたい種目を選択",
+    addCustomPlaceholder: "カスタム種目を追加（例: インクラインダンベルプレス）...",
+    add: "+ 追加",
+    requiredDbWeight: "03 / 必要なダンベル最大重量",
+    noLimit: "指定なし",
+    kgOrMore: "kg 以上",
+    filterRegion: "04 / エリアで絞り込み",
+    matchingGyms: "適合ジム一覧",
+    rankedByMatch: "メニュー適合率 順",
+    menuMatch: "適合率",
+    bestMatch: "最適ジム",
+    selected: "選択中",
+    availableMenu: "✓ 実施可能な種目:",
+    missingMenu: "✕ 不足している設備 / 種目:",
+    allEquipped: "★ 選択したすべての種目・ダンベル重量に対応",
+    officialWebsite: "公式サイト ↗",
+    directions: "ルート案内 ↗",
+    specsAndMapOpen: "設備詳細・レビュー・フロア図 ▼",
+    specsAndMapClose: "閉じる ▲",
+    equipSpecsTitle: "器具スペック & フロアマップ",
+    makerAndUnits: "— メーカー・型番・台数",
+    selectedStar: "★ = 選択種目の器具",
+    verifiedReviews: "メンバーレビュー",
+    postReviewBtn: "+ レビュー投稿 / 設備修正",
+    // Guide
+    formGuideTitle: "12種目 フォーム軌道図解 & 生体力学",
+    formGuideSub: "VECTOR TRAJECTORY & BIOMECHANICS",
+    setup: "▸ セットアップ:",
+    formExecution: "▸ 正しいフォーム:",
+    commonMistakes: "▸ よくあるNG:",
+    homeAlt: "▸ 自宅での代替種目:",
+    recWeight: "▸ 推奨初期重量:",
+    proBiomechanics: "▸ 生体力学プロ解説:",
+    proAnatomy: "▸ ターゲット筋群・解剖学:",
+    quickLog: "この種目をトレーニング記録に追加",
+    weightKg: "重量 (kg)",
+    repsCount: "回数 (Reps)",
+    setsCount: "セット数 (Sets)",
+    saveLogBtn: "✓ トレーニングを記録する",
+    // Home
+    homeTitle: "自宅トレーニング管理 & 代替種目",
+    homeSub: "HOME GEAR & GYM ALTERNATIVE",
+    homeProfile: "所有器具プロファイル",
+    maxDbWeight: "所有ダンベル最大重量 (片手kg):",
+    saveProfileBtn: "プロファイルを保存",
+    recHomeWorkouts: "器具に応じたおすすめ家トレ",
+    // Diet
+    dietTitle: "食事カロリー・PFC & 体重推移",
+    dietSub: "NUTRITION & WEIGHT TRACKER",
+    dailyTarget: "1日の摂取目標 & カロリー推移",
+    calorieGoal: "目標カロリー:",
+    weightTrend: "体重推移グラフ (Weight Trend)",
+    photoScanTitle: "AI食事写真スキャナー（モック）",
+    scanBtn: "📷 食事写真を解析する",
+    todayMeals: "今日の食事記録",
+    addMealBtn: "+ 食事を追加",
+    // My Page
+    myPageTitle: "マイページ & 統合ダッシュボード",
+    myPageSub: "PERSONAL CONCIERGE DASHBOARD",
+    goalAchieved: "目標達成度 82%",
+    totalSessions: "セッション数",
+    caloriesP: "カロリー / タンパク質",
+    currentWeight: "現在の体重",
+    wearableSync: "ウェアラブル連携",
+    unifiedHistory: "トレーニング統合履歴（ジム & 自宅）",
+    favoriteGyms: "お気に入りジム",
+    communityTitle: "ユーザー投稿・コミュニティ (TASK-011)",
+    communitySub: "ジム設備スペック修正・写真添付 & 星評価レビュー",
+    communityDesc: "ジムのダンベル重量修正や新規マシン追加、写真メモ、★1〜5評価を投稿できます（端末内保存）。",
+    specUpdatePlaceholder: "設備修正（例: パナッタ ハックスクワット追加、ダンベル60kg）",
+    reviewPlaceholder: "レビュー本文または写真メモを記入...",
+    submitPostBtn: "+ 投稿する",
+    langSettingTitle: "表示言語の切り替え / Language",
+    langSettingSub: "日本語 / English をワンタップで切り替えられます"
+  },
+  en: {
+    brandSubtitle: "BLACK × WHITE · iOS / Android / Web Bilingual",
+    beginner: "🔰 Beginner",
+    pro: "⚡ Pro Biomechanics",
+    tabFinder: "Gym Search",
+    tabGuide: "Form Guide",
+    tabHome: "Home Workout",
+    tabDiet: "Diet Tracker",
+    tabMyPage: "My Page",
+    langName: "🇺🇸 English",
+    switchLangPrompt: "Switch to 日本語",
+    // Finder
+    conciergeTitle: "Location & Travel Destination Gym Search",
+    conciergeSub: "GLOBAL & LOCAL CONCIERGE",
+    searchPlaceholder: "Search city, gym name, or equipment brand (e.g. Shibuya, Gold's Gym, Hammer Strength)...",
+    allGlobal: "All Global (5)",
+    shibuya: "📍 Shibuya (Current)",
+    travel: "✈️ Travel (LA / London)",
+    proSpecTitle: "Pro Specification & Custom Criteria",
+    reset: "Reset Filters",
+    targetMuscles: "01 / Target Muscle Zone",
+    selectExercises: "02 / Select Exercises",
+    addCustomPlaceholder: "Add custom exercise (e.g. Incline DB Press)...",
+    add: "+ Add",
+    requiredDbWeight: "03 / Max Dumbbell Weight Required",
+    noLimit: "No Minimum",
+    kgOrMore: "kg+",
+    filterRegion: "04 / Filter by Region",
+    matchingGyms: "Matching Gyms",
+    rankedByMatch: "Ranked by Menu Match %",
+    menuMatch: "Menu Match",
+    bestMatch: "Best Match",
+    selected: "Selected",
+    availableMenu: "✓ Available Exercises:",
+    missingMenu: "✕ Missing Equipment / Exercises:",
+    allEquipped: "★ 100% Equipped for All Selected Exercises & Dumbbells",
+    officialWebsite: "Official Website ↗",
+    directions: "Directions ↗",
+    specsAndMapOpen: "Specs, Reviews & Floor Map ▼",
+    specsAndMapClose: "Close Specs & Map ▲",
+    equipSpecsTitle: "Equipment Specs & Floor Plan",
+    makerAndUnits: "— Maker, Model & Units",
+    selectedStar: "★ = Required for selected menu",
+    verifiedReviews: "Verified Member Reviews",
+    postReviewBtn: "+ Post Review / Edit Specs",
+    // Guide
+    formGuideTitle: "12 Exercises Form Trajectory & Biomechanics",
+    formGuideSub: "VECTOR TRAJECTORY & BIOMECHANICS",
+    setup: "▸ Setup & Seat:",
+    formExecution: "▸ Proper Execution Form:",
+    commonMistakes: "▸ Common Mistakes:",
+    homeAlt: "▸ Home Alternative:",
+    recWeight: "▸ Recommended Initial Weight:",
+    proBiomechanics: "▸ Biomechanics Pro Tip:",
+    proAnatomy: "▸ Target Muscle Anatomy:",
+    quickLog: "Add this exercise to workout log",
+    weightKg: "Weight (kg)",
+    repsCount: "Reps",
+    setsCount: "Sets",
+    saveLogBtn: "✓ Record Workout Set",
+    // Home
+    homeTitle: "Home Workout & Alternative Exercises",
+    homeSub: "HOME GEAR & GYM ALTERNATIVE",
+    homeProfile: "Home Equipment Profile",
+    maxDbWeight: "Max Dumbbell Weight Owned (per hand kg):",
+    saveProfileBtn: "Save Gear Profile",
+    recHomeWorkouts: "Recommended Home Workouts",
+    // Diet
+    dietTitle: "Daily Calories, PFC & Weight Trend",
+    dietSub: "NUTRITION & WEIGHT TRACKER",
+    dailyTarget: "Daily Calorie Target & Breakdown",
+    calorieGoal: "Calorie Goal:",
+    weightTrend: "Weight Trend Chart",
+    photoScanTitle: "AI Meal Photo Scanner (Mock)",
+    scanBtn: "📷 Scan Meal Photo",
+    todayMeals: "Today's Meals",
+    addMealBtn: "+ Add Meal",
+    // My Page
+    myPageTitle: "My Page & Unified Dashboard",
+    myPageSub: "PERSONAL CONCIERGE DASHBOARD",
+    goalAchieved: "Goal 82% Achieved",
+    totalSessions: "Sessions",
+    caloriesP: "Calories / Protein",
+    currentWeight: "Current Weight",
+    wearableSync: "Wearable Sync",
+    unifiedHistory: "Unified Workout History (Gym & Home)",
+    favoriteGyms: "Favorite Gyms",
+    communityTitle: "Community Verification (TASK-011)",
+    communitySub: "Post Gym Review, Equipment Photo & Spec Update",
+    communityDesc: "Submit dumbbell weight corrections, newly installed machine updates, photo notes, and 1-5 star reviews (locally stored).",
+    specUpdatePlaceholder: "Equipment update (e.g. Added Panatta Hack Squat, 60kg DB)",
+    reviewPlaceholder: "Write review or attach equipment photo note...",
+    submitPostBtn: "+ Submit Post",
+    langSettingTitle: "Language Preferences / 言語設定",
+    langSettingSub: "Switch between 日本語 / English with one click"
+  }
+};
+
+
+const EQUIP_DICT = {
+  "chest-press": {
+    "name_ja": "チェストプレスマシン",
+    "name_en": "Chest Press Machine",
+    "seat_ja": "シート高さを調整し、グリップが胸の中央の高さになるように合わせる",
+    "seat_en": "Adjust seat so handles align with mid-chest",
+    "howTo_ja": "肩甲骨を寄せて胸を張り、前方にスムーズに押し出します。",
+    "howTo_en": "Keep shoulder blades retracted against pad and press forward smoothly.",
+    "pro_ja": "肩甲骨の寄せを維持し、胸筋が最大限ストレッチされる位置までコントロールして戻す。",
+    "pro_en": "Retract scapulae, arch slightly, and control the eccentric stretch.",
+    "homeAlt_ja": "デフィシット・腕立て伏せ / トレーニングチューブプレス",
+    "homeAlt_en": "Deficit Push-up / Resistance Band Chest Press"
+  },
+  "pec-fly": {
+    "name_ja": "ペックフライ＆リアデルト",
+    "name_en": "Pec Fly & Rear Delt",
+    "seat_ja": "グリップが肩の水平ラインと一致する高さに座面を合わせる",
+    "seat_en": "Set seat so arms sweep horizontally at shoulder level",
+    "howTo_ja": "肘を軽く曲げた状態で、大きな円を描くように両手を正面で合わせます。",
+    "howTo_en": "With slightly bent elbows, bring handles together in a wide hugging arc.",
+    "pro_ja": "最大収縮時に1秒静止し、大胸筋内側の緊張をピークに高める。",
+    "pro_en": "Hold peak contraction for 1 full second to maximize inner chest activation.",
+    "homeAlt_ja": "ダンベルフロアフライ / チューブフライ",
+    "homeAlt_en": "Dumbbell Floor Fly / Banded Hug Fly"
+  },
+  "shoulder-press": {
+    "name_ja": "ショルダープレスマシン",
+    "name_en": "Shoulder Press Machine",
+    "seat_ja": "グリップが耳の高さからスタートするようにシートを調整",
+    "seat_en": "Adjust seat so handles start right at ear level",
+    "howTo_ja": "肘を完全ロックさせず、頭上に向かって真っ直ぐ押し上げます。",
+    "howTo_en": "Press handles straight overhead without locking out elbows.",
+    "pro_ja": "前腕を垂直に保ち、トップ手前で止めて三角筋への負荷を逃がさない。",
+    "pro_en": "Keep forearms vertical and stop just before lockout to keep tension on delts.",
+    "homeAlt_ja": "パイクプッシュアップ / ダンベルショルダープレス",
+    "homeAlt_en": "Pike Push-up / Dumbbell Overhead Press"
+  },
+  "lat-pulldown": {
+    "name_ja": "ラットプルダウン",
+    "name_en": "Lat Pulldown Tower",
+    "seat_ja": "大腿部をパッドの下にしっかりと固定する",
+    "seat_en": "Lock thighs firmly under the roller pad",
+    "howTo_ja": "胸を軽く張り、バーを鎖骨に向かって引き下げます。",
+    "howTo_en": "Lift chest slightly and pull the bar down smoothly toward your collarbone.",
+    "pro_ja": "肩甲骨を下制させてから引き、肘を腰に向かって引き込む。",
+    "pro_en": "Depress shoulder blades first and drive elbows down toward your hips.",
+    "homeAlt_ja": "懸垂（チンニング）/ タオルドアローイング",
+    "homeAlt_en": "Pull-up Bar Chin-ups / Doorway Towel Row"
+  },
+  "seated-row": {
+    "name_ja": "シーテッドロー",
+    "name_en": "Seated Low Row",
+    "seat_ja": "膝を軽く曲げてフットプレートに足を固定する",
+    "seat_en": "Brace feet on platform with knees slightly bent",
+    "howTo_ja": "背筋を伸ばし、ハンドルをおへそに向かって引き寄せます。",
+    "howTo_en": "Sit tall and pull the handle straight back toward your navel.",
+    "pro_ja": "戻す際に広背筋を前に伸ばし、引く際に肩甲骨を寄せて最大収縮。",
+    "pro_en": "Stretch lats forward on the negative, then squeeze shoulder blades together.",
+    "homeAlt_ja": "ワンハンド・ダンベルロー / チューブローイング",
+    "homeAlt_en": "One-Arm Dumbbell Row / Band Seated Row"
+  },
+  "abdominal-crunch": {
+    "name_ja": "アブドミナルクランチ",
+    "name_en": "Abdominal Crunch",
+    "seat_ja": "上部パッドに胸または手を自然に当てて固定する",
+    "seat_en": "Place chest or hands comfortably against the upper pad",
+    "howTo_ja": "息を吐きながら肋骨を骨盤に近づけるように丸め込みます。",
+    "howTo_en": "Exhale and curl your ribcage downward toward your pelvis.",
+    "pro_ja": "股関節ではなく脊柱の屈曲を意識し、収縮点で1秒静止する。",
+    "pro_en": "Focus on spinal flexion rather than hip flexion; pause at full contraction.",
+    "homeAlt_ja": "腹筋ローラー / ホローボディクランチ",
+    "homeAlt_en": "Ab Roller Kneeling Rollout / Hollow Body Crunch"
+  },
+  "leg-press": {
+    "name_ja": "45° スレッジレッグプレス",
+    "name_en": "45° Sled Leg Press",
+    "seat_ja": "シートの角度を背中が浮かない位置に調整する",
+    "seat_en": "Set backrest so lower back stays flat against pad",
+    "howTo_ja": "肩幅で足を置き、膝が90度になるまで深く下ろして押し戻します。",
+    "howTo_en": "Place feet shoulder-width, lower sled until knees bend 90 degrees.",
+    "pro_ja": "踵重心で押し、トップで膝をロックさせずに大腿四頭筋の負荷をキープ。",
+    "pro_en": "Drive through heels and avoid locking knees at the top.",
+    "homeAlt_ja": "ブルガリアンスクワット / ダンベルゴブレットスクワット",
+    "homeAlt_en": "Bulgarian Split Squat / Goblet Squat"
+  },
+  "seated-leg-curl": {
+    "name_ja": "シーテッドレッグカール",
+    "name_en": "Seated Leg Curl",
+    "seat_ja": "膝関節の回転軸とマシンの回転軸が一致するように合わせる",
+    "seat_en": "Align knee joint axis with machine pivot point",
+    "howTo_ja": "腿パッドで大腿部をロックし、踵を座面の下へ巻き込むように引きます。",
+    "howTo_en": "Lock thigh pad down firmly and curl heels downward toward seat.",
+    "pro_ja": "足首を背屈（つま先を上げる）させてハムストリングの収縮を高める。",
+    "pro_en": "Dorsiflex ankles slightly to increase hamstring activation.",
+    "homeAlt_ja": "バランスボール・レッグカール / チューブレッグカール",
+    "homeAlt_en": "Swiss Ball Leg Curl / Banded Prone Curl"
+  },
+  "leg-extension": {
+    "name_ja": "レッグエクステンション",
+    "name_en": "Leg Extension",
+    "seat_ja": "足首パッドが足首の付け根に当たる位置に調整する",
+    "seat_en": "Position shin pad right above front of ankles",
+    "howTo_ja": "背もたれに密着して座り、膝を真っ直ぐ伸ばして爪先を上に上げます。",
+    "howTo_en": "Hold handles, extend knees smoothly until legs are straight.",
+    "pro_ja": "トップで1秒キープして大腿四頭筋（特に内側広筋）を最大収縮。",
+    "pro_en": "Pause 1 full second at full extension to peak VMO tension.",
+    "homeAlt_ja": "シシースクワット / チューブレッグエクステンション",
+    "homeAlt_en": "Bodyweight Sissy Squat / Banded Knee Extension"
+  },
+  "hack-squat": {
+    "name_ja": "45° リニアハックスクワット",
+    "name_en": "45° Linear Hack Squat",
+    "seat_ja": "肩パッドの下に肩を入れ、背中全体をパッドに密着させる",
+    "seat_en": "Position shoulders under pads with full back flush",
+    "howTo_ja": "安全バーを解除し、腿が平行になるまで深くしゃがんで押し上げます。",
+    "howTo_en": "Release safety handles, squat until thighs are parallel.",
+    "pro_ja": "足幅をやや狭めに置き、大腿四頭筋の外側（外側広筋）に強いストレッチ。",
+    "pro_en": "Narrow stance places emphasis on the sweep of the vastus lateralis.",
+    "homeAlt_ja": "ダンベルフロントスクワット / ウォールシット",
+    "homeAlt_en": "Dumbbell Front Squat / Wall Sit"
+  },
+  "incline-smith": {
+    "name_ja": "インクラインスミスマシン",
+    "name_en": "Incline Smith Machine",
+    "seat_ja": "ベンチ角度を30〜45度に設定し、バーが鎖骨の真上に下りる位置に配置",
+    "seat_en": "Set bench to 30-45 degrees, align bar directly over upper chest",
+    "howTo_ja": "手首を返してフックを外し、鎖骨上部に向かってゆっくり下ろして押し上げます。",
+    "howTo_en": "Unrack bar, lower smoothly toward collarbone, press upward.",
+    "pro_ja": "軌道が固定されているため、肩の怪我を防ぎ大胸筋上部へアイソレート。",
+    "pro_en": "Fixed vertical path allows safe overload on clavicular pectorals.",
+    "homeAlt_ja": "インクライン・プッシュアップ / チューブインクラインプレス",
+    "homeAlt_en": "Feet-Elevated Decline Push-up / Band Incline Press"
+  },
+  "cable-machine": {
+    "name_ja": "デュアルケーブルマシン",
+    "name_en": "Dual Adjustable Pulley",
+    "seat_ja": "プーリーの高さを胸、肩、または腰の高さにセットする",
+    "seat_en": "Adjust dual pulleys to desired height on column",
+    "howTo_ja": "ハンドルを握り、目的の筋群の収縮方向に沿ってケーブルを引きます。",
+    "howTo_en": "Grip attachments and pull along target muscular lines.",
+    "pro_ja": "全可動域にわたって重力に依存しない一定のテンションがかかり続ける。",
+    "pro_en": "Continuous constant tension throughout both concentric and eccentric.",
+    "homeAlt_ja": "マルチアングル・トレーニングチューブ",
+    "homeAlt_en": "Multi-Angle Resistance Band Setup"
+  }
+};
+
+function getEqName(item) {
+  if (!item) return "";
+  const lang = (window.gfState && window.gfState.lang) || "ja";
+  const d = EQUIP_DICT[item.id];
+  if (d) return lang === "ja" ? d.name_ja : d.name_en;
+  return item.name;
+}
+
+function getEqProp(item, prop) {
+  if (!item) return "";
+  const lang = (window.gfState && window.gfState.lang) || "ja";
+  const d = EQUIP_DICT[item.id];
+  if (d && d[prop + "_" + lang]) return d[prop + "_" + lang];
+  return item[prop] || "";
+}
+
+function t(key) {
+  const lang = (window.gfState && window.gfState.lang) || (localStorage.getItem("gf_lang") || "ja");
+  const dict = I18N_DICT[lang] || I18N_DICT.ja;
+  return dict[key] !== undefined ? dict[key] : (I18N_DICT.en[key] || key);
+}
+
 const DATA = {
   basicMuscles: [
     { id: "chest", name: "胸 (Chest)" },
@@ -428,7 +794,7 @@ const DATA = {
 };
 
 (function () {
-  const state = {
+  const state = window.gfState = {
     lang: (function () {
       try {
         return localStorage.getItem("gf_lang") || "ja";
@@ -911,7 +1277,7 @@ const DATA = {
                       : "bg-black border-white/5 text-neutral-600 line-through"
                 }">
                   <div class="text-left">
-                    <div>${item.name}<span class="${active ? "text-neutral-700" : "text-neutral-400"} ml-1">${dbLabel}</span></div>
+                    <div>${getEqName(item)}<span class="${active ? "text-neutral-700" : "text-neutral-400"} ml-1">${dbLabel}</span></div>
                     <div class="text-[10px] ${active ? "text-neutral-700" : "text-neutral-400"} font-normal">${item.brand} · ${item.model} (${has ? `${item.units} Units · ${item.maxLoad}` : "Not Installed"})</div>
                   </div>
                   ${wanted && has ? `<span class="px-1.5 py-0.5 rounded ${active ? "bg-black text-white" : "bg-white text-black"} text-[10px] font-bold">★</span>` : ""}
@@ -951,16 +1317,16 @@ const DATA = {
         <div class="bg-neutral-950 border border-white/30 rounded-2xl p-4 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="font-brand text-lg font-bold text-white">${eq.name}</span>
+              <span class="font-brand text-lg font-bold text-white">${getEqName(eq)}</span>
               <div class="text-[11px] text-neutral-300">${eq.brand} — ${eq.model} · <span class="text-white font-semibold">${eq.units} Units · ${eq.maxLoad}</span></div>
             </div>
             <span class="text-xs text-neutral-300 border border-white/15 px-2.5 py-0.5 rounded-full">${eq.weight}</span>
           </div>
           ${renderExerciseDiagram(eq.id)}
           <div class="space-y-1 text-xs pt-0.5">
-            <p class="text-white font-semibold">▸ Setup: <span class="font-normal text-neutral-300">${eq.seat}</span></p>
-            <p class="text-white font-semibold">▸ Form: <span class="font-normal text-neutral-300">${state.mode === "pro" ? eq.pro : eq.howTo}</span></p>
-            <p class="text-white font-semibold">▸ Home Alternative: <span class="font-normal text-neutral-300">${eq.homeAlt}</span></p>
+            <p class="text-white font-semibold">▸ Setup: <span class="font-normal text-neutral-300">${getEqProp(eq, "seat")}</span></p>
+            <p class="text-white font-semibold">▸ Form: <span class="font-normal text-neutral-300">${state.mode === "pro" ? getEqProp(eq, "pro") : getEqProp(eq, "howTo")}</span></p>
+            <p class="text-white font-semibold">▸ Home Alternative: <span class="font-normal text-neutral-300">${getEqProp(eq, "homeAlt")}</span></p>
           </div>
         </div>
 
@@ -1548,17 +1914,17 @@ const DATA = {
             <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <span class="font-brand text-xl font-bold text-white">${eq.name}</span>
+                  <span class="font-brand text-xl font-bold text-white">${getEqName(eq)}</span>
                   <div class="text-[11px] text-neutral-400">${eq.brand} · ${eq.model} · <span class="text-white font-semibold">${eq.units} Units · ${eq.maxLoad}</span></div>
                 </div>
                 <span class="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white text-[11px] font-semibold">${eq.partLabel}</span>
               </div>
               ${renderExerciseDiagram(eq.id)}
-              <div class="text-xs text-white font-semibold">▸ Setup: <span class="font-normal text-neutral-300">${eq.seat}</span></div>
-              <div class="text-xs text-white font-semibold">▸ Form: <span class="font-normal text-neutral-300">${state.mode === "pro" ? eq.pro : eq.howTo}</span></div>
+              <div class="text-xs text-white font-semibold">▸ Setup: <span class="font-normal text-neutral-300">${getEqProp(eq, "seat")}</span></div>
+              <div class="text-xs text-white font-semibold">▸ Form: <span class="font-normal text-neutral-300">${state.mode === "pro" ? getEqProp(eq, "pro") : getEqProp(eq, "howTo")}</span></div>
               <div class="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-white/10">
                 <span>Suggested Load: ${eq.weight}</span>
-                <span class="text-neutral-300">Home Alt: ${eq.homeAlt}</span>
+                <span class="text-neutral-300">Home Alt: ${getEqProp(eq, "homeAlt")}</span>
               </div>
             </div>
           `).join("")}
@@ -1601,7 +1967,7 @@ const DATA = {
                     on ? "bg-white text-black border-white luxe-white-glow" : "bg-black text-neutral-400 border-white/10 hover:text-white"
                   }"
                 >
-                  ${on ? "✓ " : "+ "}${item.name}
+                  ${on ? "✓ " : "+ "}${getEqName(item)}
                 </button>
               `;
             }).join("")}
@@ -1646,8 +2012,8 @@ const DATA = {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             ${DATA.equipments.slice(0, 8).map((eq) => `
               <div class="luxe-inset border border-white/10 rounded-xl p-2.5">
-                <div class="text-neutral-400">${eq.name}</div>
-                <div class="text-white font-semibold mt-0.5">➔ ${eq.homeAlt}</div>
+                <div class="text-neutral-400">${getEqName(eq)}</div>
+                <div class="text-white font-semibold mt-0.5">➔ ${getEqProp(eq, "homeAlt")}</div>
               </div>
             `).join("")}
           </div>
@@ -1814,12 +2180,33 @@ const DATA = {
               <div class="font-brand text-2xl font-bold text-white">My Page &amp; Goal Progress</div>
         </div>
         <!-- Language Settings -->
-        <div class="luxe-card border border-white/15 rounded-2xl p-4 sm:p-5 space-y-3">
+        <div class="luxe-card border border-white/30 rounded-2xl p-4 sm:p-5 space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">Language Setting / 言語設定</div>
-              <div class="font-brand text-xl font-bold text-white">${state.lang === "ja" ? "表示言語の切り替え" : "Language Preferences"}</div>
+              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">${t("langSettingTitle")}</div>
+              <div class="font-brand text-xl font-bold text-white">${t("langSettingSub")}</div>
             </div>
+            <span class="text-xs text-neutral-200 font-bold px-3 py-1 rounded-full border border-white/30 bg-neutral-900">${t("langName")}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <button
+              onclick="window.gf.setLang('ja')"
+              class="py-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${
+                state.lang === "ja" ? "bg-white text-black border-white shadow-lg" : "bg-black text-neutral-400 border-white/20 hover:text-white"
+              }"
+            >
+              <span class="text-base">🇯🇵</span> 日本語 (Japanese)
+            </button>
+            <button
+              onclick="window.gf.setLang('en')"
+              class="py-3 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 ${
+                state.lang === "en" ? "bg-white text-black border-white shadow-lg" : "bg-black text-neutral-400 border-white/20 hover:text-white"
+              }"
+            >
+              <span class="text-base">🇺🇸</span> English (英語)
+            </button>
+          </div>
+        </div>
             <span class="text-xs text-neutral-300 font-semibold px-2.5 py-1 rounded-full border border-white/20">${state.lang === "ja" ? "🇯🇵 日本語" : "🇺🇸 English"}</span>
           </div>
           <div class="grid grid-cols-2 gap-2 pt-1">
@@ -1983,55 +2370,71 @@ const DATA = {
           </div>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <!-- Mode (初級 / プロ) -->
-          <div class="flex bg-neutral-950 p-0.5 rounded-xl border border-white/15">
+          <!-- Mode & Language Switchers -->
+        <div class="flex items-center gap-2">
+          <!-- Beginner / Pro mode -->
+          <div class="flex bg-neutral-950 p-1 rounded-xl border border-white/20">
             <button
               onclick="window.gf.setMode('beginner')"
               class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                state.mode === "beginner" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+                state.mode === "beginner" ? "bg-white text-black shadow font-bold" : "text-neutral-400 hover:text-white"
               }"
             >
-              ${state.lang === "ja" ? "初級" : "Beginner"}
+              ${t("beginner")}
             </button>
             <button
               onclick="window.gf.setMode('pro')"
               class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                state.mode === "pro" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+                state.mode === "pro" ? "bg-white text-black shadow font-bold" : "text-neutral-400 hover:text-white"
               }"
             >
-              ${state.lang === "ja" ? "プロ" : "Pro"}
+              ${t("pro")}
             </button>
           </div>
-          <!-- Language (JP / EN) -->
-          <div class="flex bg-neutral-950 p-0.5 rounded-xl border border-white/15">
+
+          <!-- 2-Language Switcher (日本語 / English) -->
+          <div class="flex bg-neutral-950 p-1 rounded-xl border border-white/30">
             <button
               onclick="window.gf.setLang('ja')"
-              class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
-                state.lang === "ja" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                state.lang === "ja" ? "bg-white text-black shadow-md" : "text-neutral-400 hover:text-white"
               }"
-              title="日本語 (Japanese)"
             >
-              日
+              🇯🇵 日
             </button>
             <button
               onclick="window.gf.setLang('en')"
-              class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${
-                state.lang === "en" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                state.lang === "en" ? "bg-white text-black shadow-md" : "text-neutral-400 hover:text-white"
               }"
-              title="English"
             >
-              EN
+              🇺🇸 EN
             </button>
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-5 bg-black border-b border-white/15 p-1.5 gap-1">
-        <button onclick="window.gf.setTab('finder')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "finder" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "ジム検索" : "Gyms (%)"}</button>
-        <button onclick="window.gf.setTab('guide')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "フォーム図解" : "Training"}</button>
-        <button onclick="window.gf.setTab('home')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "家トレ" : "Home Gym"}</button>
-        <button onclick="window.gf.setTab('diet')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "食事管理" : "Diet & PFC"}</button>
-        <button onclick="window.gf.setTab('mypage')" class="py-2 rounded-xl text-[11px] font-semibold transition ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">${state.lang === "ja" ? "マイページ" : "My Page"}</button>
+        <button onclick="window.gf.setTab('finder')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "finder" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
+          <span>◎</span>
+          <span>${t("tabFinder")}</span>
+        </button>
+        <button onclick="window.gf.setTab('guide')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "guide" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
+          <span>▥</span>
+          <span>${t("tabGuide")}</span>
+        </button>
+        <button onclick="window.gf.setTab('home')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "home" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
+          <span>⌂</span>
+          <span>${t("tabHome")}</span>
+        </button>
+        <button onclick="window.gf.setTab('diet')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "diet" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
+          <span>◒</span>
+          <span>${t("tabDiet")}</span>
+        </button>
+        <button onclick="window.gf.setTab('mypage')" class="py-2.5 rounded-xl text-[11px] font-bold transition flex flex-col items-center gap-0.5 ${state.tab === "mypage" ? "bg-white text-black luxe-white-glow" : "text-neutral-400 hover:text-white"}">
+          <span>○</span>
+          <span>${t("tabMyPage")}</span>
+        </button>
       </div>
 
       <div>${body}</div>

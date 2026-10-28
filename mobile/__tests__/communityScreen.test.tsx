@@ -2,7 +2,7 @@ import React from "react";
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FS from "expo-file-system/legacy";
-import { PermissionStatus } from "expo-modules-core";
+import { PermissionStatus } from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   fireEvent,

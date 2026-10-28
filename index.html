@@ -865,6 +865,8 @@ const DATA = {
     aiCoachActive: false
   };
 
+  let searchComposing = false;
+
   function inferEquipFromText(text) {
     const t = text.toLowerCase();
     if (t.includes("hack") || t.includes("ハック")) return "hack-squat";
@@ -1512,7 +1514,7 @@ const DATA = {
     `;
   }
 
-  function renderFinder() {
+  function getRankedGyms() {
     const filteredGyms = DATA.gyms.filter((g) => {
       if (state.regionFilter !== "all" && g.region !== state.regionFilter) return false;
       if (state.searchKeyword.trim()) {
@@ -1525,18 +1527,23 @@ const DATA = {
       }
       return true;
     });
-    const ranked = (filteredGyms.length > 0 ? filteredGyms : DATA.gyms)
+    return (filteredGyms.length > 0 ? filteredGyms : DATA.gyms)
       .map((g) => ({ gym: g, match: calcMatch(g) }))
       .sort((a, b) => b.match.pct - a.match.pct);
+  }
+
+  function renderFinder() {
+    const ranked = getRankedGyms();
 
     const locationBar = `
       <div class="space-y-3">
         <div class="relative">
           <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">🔍</span>
           <input
+            id="search-keyword-input"
             type="text"
-            value="${state.searchKeyword}"
-            oninput="window.gf.setSearchKeyword(this.value)"
+            value="${state.searchKeyword.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]))}"
+            oninput="window.gf.setSearchKeyword(this.value, event.isComposing)"
             placeholder="${state.lang === 'ja' ? 'ジム名、エリア、設備で検索（例: 渋谷、ゴールドジム）...' : 'Search gym, area, brand...'}"
             class="w-full bg-neutral-900/90 border border-white/15 focus:border-white rounded-2xl pl-11 pr-4 py-3 text-sm text-white outline-none transition placeholder-neutral-500 shadow-inner"
           />
@@ -1706,17 +1713,24 @@ const DATA = {
         ${locationBar}
         ${filterToggleBtn}
         ${state.showFilter ? inputSection : ""}
-        ${state.showFilter ? renderGoogleMapSection(ranked) : ""}
+        <div id="gym-list-container" class="space-y-3.5">
+          ${renderRankedGymList(ranked)}
+        </div>
+      </div>
+    `;
+  }
 
-        <div class="space-y-3.5">
-          <div class="flex items-end justify-between px-1 pt-1">
-            <div>
-              <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">メニュー適合率 順 (Ranked by Match %)</div>
-              <div class="font-brand text-2xl font-bold text-white leading-tight">適合ジム一覧 (Matching Gyms) (${ranked.length})</div>
-            </div>
-            <span class="text-[11px] uppercase tracking-widest text-neutral-300 border border-white/15 px-2.5 py-1 rounded-full">${state.regionFilter === "global" ? "Global Travel" : state.regionFilter === "tokyo" ? "Shibuya" : "Worldwide"}</span>
-          </div>
-          ${ranked.map(({ gym, match }, i) => {
+  function renderRankedGymList(ranked) {
+    return `
+      ${state.showFilter ? renderGoogleMapSection(ranked) : ""}
+      <div class="flex items-end justify-between px-1 pt-1">
+        <div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-semibold">${state.lang === 'ja' ? 'メニュー適合率 順' : 'Ranked by Match %'}</div>
+          <div class="font-brand text-2xl font-bold text-white leading-tight">${state.lang === 'ja' ? '適合ジム一覧' : 'Matching Gyms'} (${ranked.length})</div>
+        </div>
+        <span class="text-[11px] uppercase tracking-widest text-neutral-300 border border-white/15 px-2.5 py-1 rounded-full">${state.regionFilter === "global" ? "Global Travel" : state.regionFilter === "tokyo" ? "Shibuya" : "Worldwide"}</span>
+      </div>
+      ${ranked.map(({ gym, match }, i) => {
             const isExpanded = state.selectedGymId === gym.id;
             const isTop = i === 0;
             const isFav = state.favoriteGymIds.includes(gym.id);
@@ -1802,8 +1816,6 @@ const DATA = {
               </div>
             `;
           }).join("")}
-        </div>
-      </div>
     `;
   }
 
@@ -2433,7 +2445,14 @@ const DATA = {
     setTab(t) { state.tab = t; render(); },
     setMode(m) { state.mode = m; render(); },
     setRegion(r) { state.regionFilter = r; render(); },
-    setSearchKeyword(v) { state.searchKeyword = v; render(); },
+    setSearchKeyword(v, isComposing = false) {
+      state.searchKeyword = v;
+      if (isComposing || searchComposing) return;
+      const container = document.getElementById("gym-list-container");
+      if (container) {
+        container.innerHTML = renderRankedGymList(getRankedGyms());
+      }
+    },
     setMapType(type) { state.mapType = type; render(); },
     selectGym(gymId) {
       state.selectedGymId = gymId;
@@ -2607,6 +2626,16 @@ const DATA = {
       render();
     }
   };
+
+  document.addEventListener("compositionstart", (event) => {
+    if (event.target.id === "search-keyword-input") searchComposing = true;
+  });
+  document.addEventListener("compositionend", (event) => {
+    if (event.target.id === "search-keyword-input") {
+      searchComposing = false;
+      window.gf.setSearchKeyword(event.target.value);
+    }
+  });
 
   render();
 })();

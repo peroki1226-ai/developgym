@@ -48,7 +48,7 @@
 | **TASK-010** | ダイエット・PFC・体重推移グラフ & AI食事写真推定モック | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-011** | ユーザー投稿（設備スペック修正・器具写真・レビュー） | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-012** | App Store / Google Play 最終公開準備 & EAS署名設定 | Codex / Antigravity | `DONE` | `LGTM` (メタデータ・アセット・EAS設定・検証完了。ストアアカウント連携・ビルド待機) |
-| **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `IN REVIEW` | 5画面・共通ヘッダー・言語保存/復元。既存52件＋追加9件成功 |
+| **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -281,9 +281,16 @@
 - **検証境界**: CDNへのアクセスがHTTP 403のため、一時生成のTailwind 3.4.19 CSSをブラウザー検証時だけ代用（生成CSS・テストスクリプトはGit対象外）。実際のCDN/フォント読込み、iPhone Safari・キーボード・Safe Areaの実機確認、公開トンネルでの配信反映は未確認。mobile/は無変更のため既存61件は今回再実行せず、Web検証と区別。
 
 ### [Webプレビュー引継ぎ] 検索入力フォーカス維持（Codex）
-- **状態**: `[IN REVIEW]`。ユーザー添付HTMLのrenderRankedGymListによる結果部分更新を現行mainへ統合。
+- **状態**: `[DONE / LGTM]`。ユーザー添付HTMLのrenderRankedGymListによる結果部分更新を現行mainへ統合。2026-10-29のAntigravity受入報告を記録。
 - **実装**: 検索欄へ固定IDを付与し、入力時は#gym-list-containerのみ更新。詳細表示時のマップも結果領域に含めて同期。ランキング処理をgetRankedGymsへ共有し、全体描画と部分描画の検索結果・順序を一致させる。入力欄のDOM・フォーカス・カーソルとヘッダー/ナビを維持。
 - **日本語入力・文字列**: compositionstart/endをdocumentのイベントで監視し、変換中の結果更新を抑え、確定後に更新。InputEvent.isComposingがfalseのイベントでも変換中状態を保持。検索値の属性埋め込みをエスケープし、引用符・HTML記号を含む値もタブ/言語切替後に正しく復元。
 - **統合上の保持**: 添付は詳細条件フォーム欠落、閉包内stateをHTMLイベントから参照する切替、Safe Area/タッチサイズ/白色/翻訳の修正が古い状態だったため、該当箇所を巻き戻さず検索修正を統合。DATA/EQUIP_DICT/I18N_DICTと適合率計算・既存検索条件を保持。既存の名前付き関数の変更はrenderFinder、既存の操作メソッドの変更はsetSearchKeywordのみ。mobile/は変更なし。
 - **検証**: 変更前mainで入力後のフォーカス喪失を再現。JSDOMで入力欄/ヘッダー/ナビの同一DOM、カーソル、変換確定、貼付け・全削除、部分/全体描画結果一致、引用符を含む入力の安全な復元、5タブを確認。Chromiumモバイルエミュレーション320/390px幅で実キー連続入力・カーソル移動・削除・IMEイベント・詳細条件/モード/言語/5タブ成功。入力中のblur 0、JSエラー0。構文・既存カタログ/計算の不変性確認、git diff --check成功。
 - **残る確認**: iPhone Safariの実キーボード・日本語IME確定/キャンセル。ブラウザー検証のCSSは一時生成したTailwindを代用し、実CDN/トンネル・ローカルPCの配信反映は未確認。mobile/既存61件は今回再実行せず。
+
+### [Web検索修正 受入結果]（Antigravity報告 / 2026-10-29）
+- **判定**: `[LGTM / MERGED & LIVE]`。コード受入対象は検索修正コミット6e9028d。
+- **報告された検証**: 入力中blur 0、IME合成イベントの未確定/確定/キャンセル、全5タブ・フィルター開閉・test_full_runtime.jsの構文/実行エラー0。CodexがiPhoneを操作して再検証した結果ではない。
+- **配信報告**: port 3000およびtunnel-daemon.js再起動、https://5e43bcb2fea5fb.lhr.life でHTTP 200。Codexからの実配信再検証は未実施。
+- **追加翻訳の同期**: 配信側ではPure Bilingual Separation（日本語側の不要英語括弧0、英語側の日本語文字0）を維持したとの報告。追加翻訳のソースは未共有、origin/mainは6e9028dのため、配信側変更とリポジトリの完全一致は未確認。最新版index.htmlまたは差分の受領後に照合する。
+- **ボード同期**: TASK-013の既存LGTM履歴をDEV_STATEのタスク表とdashboardデータへ反映。全13件DONE/100%。署名付きビルド・TestFlight配布・ストア公開の成功を意味しない。

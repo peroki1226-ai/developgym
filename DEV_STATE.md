@@ -294,3 +294,9 @@
 - **配信報告**: port 3000およびtunnel-daemon.js再起動、https://5e43bcb2fea5fb.lhr.life でHTTP 200。Codexからの実配信再検証は未実施。
 - **追加翻訳の同期**: 配信側ではPure Bilingual Separation（日本語側の不要英語括弧0、英語側の日本語文字0）を維持したとの報告。追加翻訳のソースは未共有、origin/mainは6e9028dのため、配信側変更とリポジトリの完全一致は未確認。最新版index.htmlまたは差分の受領後に照合する。
 - **ボード同期**: TASK-013の既存LGTM履歴をDEV_STATEのタスク表とdashboardデータへ反映。全13件DONE/100%。署名付きビルド・TestFlight配布・ストア公開の成功を意味しない。
+
+### [TASK-012 実行準備報告] Apple登録・iOS配布（2026-10-29）
+- **ユーザー報告**: Apple Developer Program登録完了。Antigravity側にsubmit.production.ios、build-ios-testflight.ps1、build-ios-direct.ps1を配備し、型チェック・61テスト成功、READY FOR USER BUILD EXECUTIONとの引継ぎを受領。
+- **リポジトリ照合**: origin/main a7e7809を同期確認。Codex側のmobile/eas.jsonにはsubmit設定がなく、両PowerShellファイルも存在しない。配備報告はAntigravity側の状態として扱い、GitHubへ同期済みとは判断しない。
+- **次アクション**: mobile/eas.jsonと両.ps1のソースを共有・照合し、認証情報を含めずリポジトリへ同期。EASプロジェクト連携・署名・ビルド/提出結果は、実行後のEAS URL等で確認する。
+- **境界**: Apple登録はユーザー報告として記録。CodexはApple/EASへログインせず、ビルド・提出を開始していない。TestFlight/Ad Hocインストールの成功は未確認。

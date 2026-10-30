@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">13</span> / <span id="stat-total" class="text-neutral-500">13</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">15</span> / <span id="stat-total" class="text-neutral-500">15</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,12 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">13 / 13 TASKS COMPLETED (100%)</span>
+        <span class="font-num text-white">15 / 15 TASKS COMPLETED (100%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 100%"></div>
       </div>
     </div>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-014/015はAntigravityの受入・iPhone稼働報告を反映。追加実装・配布設定のGitHub同期は確認待ちです。</p>
 
     <!-- View Switcher -->
     <div class="flex items-center justify-between border-b border-white/15 pb-3">
@@ -345,7 +347,7 @@
         status: "DONE",
         rating: "LGTM",
         desc: "全機能実装完了後の最終EAS Build、アイコン・スプラッシュスクリーン調整、ストア申請情報の整備。",
-        review: "設定・アイコン/スプラッシュ・EASプロファイル・52テスト・両OSバンドル・ネイティブ設定生成を検証。署名・実機・スクリーンショット・窓口/URL確定・提出は未実施。"
+        review: "設定・アイコン/スプラッシュ・EASプロファイル・52テスト・両OSバンドル・ネイティブ設定生成を検証。Ad Hoc実機配布の報告はTASK-015参照。スクリーンショット・窓口/URL確定・ストア提出は未確認。"
       },
       {
         id: "TASK-013",
@@ -356,6 +358,26 @@
         rating: "LGTM",
         desc: "共通ヘッダーの日本語/English切替、全5画面とガイドの動的翻訳、言語の端末保存・復元。",
         review: "既存52件＋追加9件=61テスト成功。入力・投稿原文を保持。両OSバンドル成功、Antigravity受入完了。"
+      },
+      {
+        id: "TASK-014",
+        title: "無料マルチソース検索",
+        category: "Mobile Feature",
+        assignee: "Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "複数ソースによる無料ジム検索。2026-10-30の引継ぎに基づく受入記録。",
+        review: "13 suites / 68 tests・型チェック成功との報告。追加ソース未共有のためCodexでの照合・再検証は未実施。"
+      },
+      {
+        id: "TASK-015",
+        title: "実機Ad Hoc直接インストール達成",
+        category: "Release",
+        assignee: "Antigravity",
+        status: "DONE",
+        rating: "LGTM",
+        desc: "PeroのiPhoneへネイティブアプリを直接インストールし稼働との報告。",
+        review: "2026-10-30の受入報告を反映。配布設定・追加ソースのGitHub同期とビルド照合は未確認。TestFlight/ストア公開は別工程。"
       }
     ];
 

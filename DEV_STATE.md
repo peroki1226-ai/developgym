@@ -47,8 +47,11 @@
 | **TASK-009** | 家トレ管理 & 代替種目エンジンの本格ネイティブ実装 | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-010** | ダイエット・PFC・体重推移グラフ & AI食事写真推定モック | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-011** | ユーザー投稿（設備スペック修正・器具写真・レビュー） | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
-| **TASK-012** | App Store / Google Play 最終公開準備 & EAS署名設定 | Codex / Antigravity | `DONE` | `LGTM` (メタデータ・アセット・EAS設定・検証完了。ストアアカウント連携・ビルド待機) |
+| **TASK-012** | App Store / Google Play 最終公開準備 & EAS署名設定 | Codex / Antigravity | `DONE` | `LGTM`（公開準備完了。Ad Hoc配布の実行結果はTASK-015の受領報告を参照） |
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
+
+| **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（2026-10-30引継ぎ報告。追加ソースのGitHub同期は未確認） |
+| **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（PeroのiPhoneで稼働との報告。ビルド設定・追加ソースの同期は未確認） |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -300,3 +303,10 @@
 - **リポジトリ照合**: origin/main a7e7809を同期確認。Codex側のmobile/eas.jsonにはsubmit設定がなく、両PowerShellファイルも存在しない。配備報告はAntigravity側の状態として扱い、GitHubへ同期済みとは判断しない。
 - **次アクション**: mobile/eas.jsonと両.ps1のソースを共有・照合し、認証情報を含めずリポジトリへ同期。EASプロジェクト連携・署名・ビルド/提出結果は、実行後のEAS URL等で確認する。
 - **境界**: Apple登録はユーザー報告として記録。CodexはApple/EASへログインせず、ビルド・提出を開始していない。TestFlight/Ad Hocインストールの成功は未確認。
+
+### [TASK-014/015 受入・実機稼働報告]（2026-10-30）
+- **判定**: `[DONE / LGTM]`（Antigravityからの引継ぎ報告）。無料マルチソース検索、PeroのiPhoneへのAd Hoc直接インストール・ネイティブ稼働を報告として受領。
+- **品質報告**: 13 suites / 68 tests成功、TypeScript型チェック成功。追加コード未受領のため、Codex側でこの68件は再実行していない。
+- **記録同期**: Codexでgit pullした時点のorigin/mainは0c4ac95で、TASK-014/015と追加実装は未反映だった。今回タスク表とdashboardの記録を15件DONE/100%へ更新。受入報告とソース同期の状態を明記する。
+- **実装同期待ち**: 最新のmobile/ソース、追加テスト、EAS/ビルド用設定・スクリプトを含む変更差分が必要。配布済みバイナリのソースとの一致、ビルドID等は未照合。Ad Hoc成功の報告はTestFlight配布・App Store/Google Play公開の成功とは別。
+- **次アクション**: ユーザーの実機操作レビュー・新機能/改修指示待ち。コード同期は追加差分の受領後に照合する。

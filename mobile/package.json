@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "assets:generate": "node scripts/generate-assets.cjs",
-    "release:check": "node scripts/verify-release.cjs"
+    "release:check": "node scripts/verify-release.cjs",
+    "test:web": "node scripts/verify-web-language.cjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -42,6 +43,7 @@
     "eas-cli": "^25.3.0",
     "jest": "^30.5.2",
     "jest-expo": "^58.0.12",
+    "jsdom": "^26.1.0",
     "react-test-renderer": "^19.3.0",
     "sharp": "^0.35.5",
     "typescript": "^7.0.2"

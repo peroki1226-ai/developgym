@@ -78,27 +78,43 @@ function AppNavigator() {
         <Tab.Screen
           name="Gyms"
           component={GymsScreen}
-          options={{ tabBarLabel: t("ジム (Gyms)") }}
+          options={{
+            tabBarAccessibilityLabel: t("nav.gyms"),
+            tabBarLabel: t("nav.gyms"),
+          }}
         />
         <Tab.Screen
           name="Training"
           component={TrainingScreen}
-          options={{ tabBarLabel: t("トレーニング (Training)") }}
+          options={{
+            tabBarAccessibilityLabel: t("nav.training"),
+            tabBarLabel: t("nav.training"),
+          }}
         />
         <Tab.Screen
           name="Home"
           component={HomeScreen}
-          options={{ tabBarLabel: t("家トレ (Home)") }}
+          options={{
+            tabBarAccessibilityLabel: t("nav.home"),
+            tabBarLabel: t("nav.home"),
+          }}
         />
         <Tab.Screen
           name="Diet"
           component={DietScreen}
-          options={{ tabBarLabel: t("食事 (Diet)") }}
+          options={{
+            tabBarAccessibilityLabel: t("nav.diet"),
+            tabBarLabel: t("nav.diet"),
+          }}
         />
         <Tab.Screen
           name="MyPage"
           component={MyPageScreen}
-          options={{ title: "My Page", tabBarLabel: t("マイページ (My Page)") }}
+          options={{
+            title: t("nav.mypage"),
+            tabBarAccessibilityLabel: t("nav.mypage"),
+            tabBarLabel: t("nav.mypage"),
+          }}
         />
       </Tab.Navigator>
     </NavigationContainer>

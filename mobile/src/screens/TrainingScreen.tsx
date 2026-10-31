@@ -147,7 +147,6 @@ export function TrainingScreen() {
               flex: 1,
             }}
           >
-            <Body>{selected.enName}</Body>
             <Heading>{t(selected.name)}</Heading>
           </View>
           <View style={styles.pofBadge}>

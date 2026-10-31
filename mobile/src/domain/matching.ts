@@ -73,6 +73,7 @@ export function findGyms(
   region = "all",
   minimumDumbbellKg = 0,
   catalog: readonly Gym[] = gyms,
+  localize: (text: string) => string = (text) => text,
 ) {
   const q = query.normalize("NFKC").trim().toLowerCase();
   return catalog
@@ -80,7 +81,7 @@ export function findGyms(
       (g) =>
         (region === "all" || g.region === region) &&
         g.maxDumbbellKg >= minimumDumbbellKg &&
-        `${g.name} ${g.area} ${g.spec} ${g.installed.map(equipmentName).join(" ")}`
+        `${g.name} ${g.area} ${g.spec} ${g.installed.map(equipmentName).join(" ")} ${[g.name, g.area, g.spec, ...g.installed.map(equipmentName)].map(localize).join(" ")}`
           .normalize("NFKC")
           .toLowerCase()
           .includes(q),

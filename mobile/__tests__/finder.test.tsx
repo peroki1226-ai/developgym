@@ -11,27 +11,25 @@ test("menu changes update live score and missing equipment; empty choices do not
   );
   await fireEvent.changeText(screen.getByLabelText("ジム検索"), "Anytime");
   expect(
-    screen.getByLabelText("Anytime Fitness Shibuya Koen-dori マッチ率 84%"),
+    screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 84%"),
   ).toBeTruthy();
-  expect(screen.getByText("不足器具: 45° Hack Squat")).toBeTruthy();
+  expect(screen.getByText("不足器具: 45度ハックスクワット")).toBeTruthy();
   await fireEvent.press(screen.getByText("やりたい種目を選ぶ"));
   await fireEvent.press(screen.getByText("種目をすべて解除"));
   expect(
-    screen.getByLabelText("Anytime Fitness Shibuya Koen-dori マッチ率 未選択"),
+    screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 未選択"),
   ).toBeTruthy();
   await fireEvent.press(
-    screen.getByRole("button", { name: "Barbell Bench Press" }),
+    screen.getByRole("button", { name: "バーベルベンチプレス" }),
   );
   expect(
-    screen.getByLabelText("Anytime Fitness Shibuya Koen-dori マッチ率 99%"),
+    screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 99%"),
   ).toBeTruthy();
-  expect(screen.queryByText("不足器具: 45° Hack Squat")).toBeNull();
+  expect(screen.queryByText("不足器具: 45度ハックスクワット")).toBeNull();
   await fireEvent.press(screen.getByText("対象部位を選ぶ（任意）"));
-  await fireEvent.press(
-    screen.getByRole("button", { name: "Quadriceps (Front Thigh)" }),
-  );
+  await fireEvent.press(screen.getByRole("button", { name: "大腿四頭筋" }));
   expect(
-    screen.getByLabelText("Anytime Fitness Shibuya Koen-dori マッチ率 93%"),
+    screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 93%"),
   ).toBeTruthy();
 });
 
@@ -42,11 +40,11 @@ test("weight filters remove insufficient gyms and clear restores filters without
     </FitnessProvider>,
   );
   await fireEvent.press(screen.getByText("東京"));
-  await fireEvent.press(screen.getByText("60kg以上"));
+  await fireEvent.press(screen.getByText("60キログラム以上"));
   expect(screen.getByText("マッチ率順 / 1件")).toBeTruthy();
-  expect(screen.getByText("Gold's Gym Shibuya Tokyo")).toBeTruthy();
-  expect(screen.queryByText("Anytime Fitness Shibuya Koen-dori")).toBeNull();
-  await fireEvent.press(screen.getByText("90kg以上"));
+  expect(screen.getByText("ゴールドジム渋谷東京")).toBeTruthy();
+  expect(screen.queryByText("エニタイムフィットネス渋谷公園通り")).toBeNull();
+  await fireEvent.press(screen.getByText("90キログラム以上"));
   expect(screen.getByText("該当するジムがありません")).toBeTruthy();
   await fireEvent.press(screen.getByText("検索をクリア"));
   expect(screen.getByText("マッチ率順 / 5件")).toBeTruthy();

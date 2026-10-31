@@ -1,0 +1,5 @@
+packages:
+  - .
+
+# Use the dependency tree installed by npm ci and the committed package-lock.json.
+verifyDepsBeforeRun: false

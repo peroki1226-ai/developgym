@@ -30,7 +30,7 @@ export function MyPageScreen() {
               fontSize: 16,
             }}
           >
-            sets
+            {t("sets")}
           </Text>
         </Text>
         <Body>
@@ -54,7 +54,7 @@ export function MyPageScreen() {
                   ? t("自重")
                   : log.loadType === "band"
                     ? t("バンド")
-                    : `${log.weight}kg${log.loadType === "dumbbell" ? t("（片手）") : ""}`}{" "}
+                    : `${log.weight}${t("kg")}${log.loadType === "dumbbell" ? t("（片手）") : ""}`}{" "}
                 × {log.reps}
                 {t("回 × ")}
                 {log.sets}
@@ -77,7 +77,7 @@ export function MyPageScreen() {
             .filter((g) => favorites.includes(g.id))
             .map((g) => (
               <Body key={g.id}>
-                {g.name} / {g.area}
+                {t(g.name)} / {t(g.area)}
                 {t("（サンプル）")}
               </Body>
             ))
@@ -101,7 +101,7 @@ export function MyPageScreen() {
             <Button
               key={g.id}
               title={t("投稿先: {0}", {
-                "0": g.name,
+                "0": t(g.name),
               })}
               selected={selectedGym === g.id}
               onPress={() => setSelectedGym(g.id)}

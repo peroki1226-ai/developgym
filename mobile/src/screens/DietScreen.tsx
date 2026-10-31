@@ -154,7 +154,7 @@ export function DietScreen() {
       if (!uri) throw new Error("No image");
       setPhoto(uri);
       setSource("mock");
-      setName(t("写真の食事（モック）"));
+      setName("写真の食事（モック）");
       setKcal(String(mockMeal.kcal));
       setP(String(mockMeal.p));
       setF(String(mockMeal.f));
@@ -185,7 +185,7 @@ export function DietScreen() {
         <Body>{t("体重・食事の追加と表示に使用します。")}</Body>
         <Field
           accessibilityLabel={t("記録日")}
-          placeholder="YYYY-MM-DD"
+          placeholder={t("YYYY-MM-DD")}
           value={dateDraft}
           onChangeText={setDateDraft}
         />
@@ -207,7 +207,9 @@ export function DietScreen() {
       </Card>
       <Card>
         <Heading>{t("現在体重・目標")}</Heading>
-        <Text style={s.number}>{current ? `${current.kg} kg` : "— kg"}</Text>
+        <Text style={s.number}>
+          {current ? `${current.kg} ${t("kg")}` : `— ${t("kg")}`}
+        </Text>
         <Body>
           {current
             ? t("最終記録: {0}", {
@@ -255,7 +257,7 @@ export function DietScreen() {
               fontSize: 16,
             }}
           >
-            / {diet.calorieGoal} kcal
+            / {diet.calorieGoal} {t("kcal")}
           </Text>
         </Text>
         <View
@@ -294,7 +296,8 @@ export function DietScreen() {
           <View key={key}>
             <Body>
               {[t("P / タンパク質"), t("F / 脂質"), t("C / 炭水化物")][i]}:{" "}
-              {totals[key].toFixed(1)}g / {ratios[key].toFixed(1)}%
+              {totals[key].toFixed(1)}
+              {t("g")} / {ratios[key].toFixed(1)}%
             </Body>
             <View
               style={{
@@ -358,7 +361,7 @@ export function DietScreen() {
           accessibilityLabel={t("食事名")}
           placeholder={t("食事名")}
           maxLength={80}
-          value={name}
+          value={source === "mock" ? t(name) : name}
           onChangeText={setName}
         />
         {[
@@ -415,11 +418,17 @@ export function DietScreen() {
             }}
           >
             <Body>
-              {t(mealSlots.find((s) => s.id === m.slot)!.label)} / {m.name}
+              {t(mealSlots.find((s) => s.id === m.slot)!.label)} /{" "}
+              {m.source === "mock" ? t(m.name) : m.name}
               {m.source === "mock" ? t("（モック推定）") : ""}
             </Body>
             <Body>
-              {m.kcal}kcal / P:{m.p}g F:{m.f}g C:{m.c}g
+              {t("{0}kcal / P:{1}g F:{2}g C:{3}g", {
+                0: m.kcal,
+                1: m.p,
+                2: m.f,
+                3: m.c,
+              })}
             </Body>
             <Button
               title={t("{0}を削除", {

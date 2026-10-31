@@ -27,16 +27,16 @@ async function open() {
       <DietScreen />
     </FitnessProvider>,
   );
-  await screen.findByText("Nourish your progress.");
+  await screen.findByText("食事から、理想の体へ。");
   return app;
 }
 async function fillMeal(name = "鶏肉定食") {
   for (const [label, value] of [
     ["食事名", name],
-    ["カロリーkcal", "600"],
-    ["タンパク質g", "40"],
-    ["脂質g", "20"],
-    ["炭水化物g", "65"],
+    ["カロリーキロカロリー", "600"],
+    ["タンパク質グラム", "40"],
+    ["脂質グラム", "20"],
+    ["炭水化物グラム", "65"],
   ])
     await change(label, value);
 }
@@ -46,14 +46,14 @@ beforeEach(() => {
 });
 test("manual meal and goals persist across remount with correct daily totals", async () => {
   const app = await open();
-  await change("目標体重kg", "65");
+  await change("目標体重キログラム", "65");
   await change("目標カロリー", "1800");
   await fireEvent.press(button("目標を保存"));
   await fireEvent.press(button("昼食"));
   await fillMeal();
   await fireEvent.press(button("食事を保存"));
   expect(screen.getByText("昼食 / 鶏肉定食")).toBeTruthy();
-  expect(screen.getByText("目標まで1200kcal")).toBeTruthy();
+  expect(screen.getByText("目標まで1200キロカロリー")).toBeTruthy();
   await waitFor(async () => {
     const d = JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!);
     expect(d.diet.meals).toHaveLength(1);
@@ -62,21 +62,21 @@ test("manual meal and goals persist across remount with correct daily totals", a
   await app.unmount();
   await open();
   expect(screen.getByText("昼食 / 鶏肉定食")).toBeTruthy();
-  expect(screen.getByLabelText("目標体重kg").props.value).toBe("65");
+  expect(screen.getByLabelText("目標体重キログラム").props.value).toBe("65");
 });
 test("weight upsert updates one point, target and historical entries produce a real graph", async () => {
   await open();
-  await change("体重kg", "70");
+  await change("体重キログラム", "70");
   await fireEvent.press(button("体重を記録"));
-  await change("体重kg", "69.5");
+  await change("体重キログラム", "69.5");
   await fireEvent.press(button("体重を記録"));
   expect(screen.getByLabelText(/^体重推移 1件/)).toBeTruthy();
   await change("記録日", "2020-01-01");
   await fireEvent.press(button("日付を表示"));
-  await change("体重kg", "75");
+  await change("体重キログラム", "75");
   await fireEvent.press(button("体重を記録"));
   expect(screen.getByLabelText(/^体重推移 2件/)).toBeTruthy();
-  expect(screen.getByText("69.5 kg")).toBeTruthy();
+  expect(screen.getByText("69.5 キログラム")).toBeTruthy();
   await waitFor(async () =>
     expect(
       JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!).diet
@@ -92,7 +92,7 @@ test("daily views isolate meal slots and historical dates, and calorie overflow 
   await fireEvent.press(button("夕食"));
   await fireEvent.press(button("食事を保存"));
   expect(screen.getByText("夕食 / 鶏肉定食")).toBeTruthy();
-  expect(screen.getByText("目標を500kcal超えています")).toBeTruthy();
+  expect(screen.getByText("目標を500キロカロリー超えています")).toBeTruthy();
   expect(
     screen.getByLabelText("摂取カロリー達成率").props.accessibilityValue.now,
   ).toBe(100);
@@ -110,16 +110,20 @@ test("photo mock fills fixed values for explicit review, persists no photo URI, 
   await open();
   await fireEvent.press(button("写真を選んでモック推定"));
   expect(await screen.findByText("モック推定（要確認）")).toBeTruthy();
-  expect(screen.getByLabelText("カロリーkcal").props.value).toBe("580");
-  expect(screen.getByLabelText("タンパク質g").props.value).toBe("52");
-  expect(screen.getByLabelText("脂質g").props.value).toBe("16");
-  expect(screen.getByLabelText("炭水化物g").props.value).toBe("55");
+  expect(screen.getByLabelText("カロリーキロカロリー").props.value).toBe("580");
+  expect(screen.getByLabelText("タンパク質グラム").props.value).toBe("52");
+  expect(screen.getByLabelText("脂質グラム").props.value).toBe("16");
+  expect(screen.getByLabelText("炭水化物グラム").props.value).toBe("55");
   expect(
     screen.getByText("この日の食事はまだ記録されていません。"),
   ).toBeTruthy();
-  await change("カロリーkcal", "590");
+  await change("カロリーキロカロリー", "590");
   await fireEvent.press(button("食事を保存"));
-  expect(screen.getByText("590kcal / P:52g F:16g C:55g")).toBeTruthy();
+  expect(
+    screen.getByText(
+      "590キロカロリー / タンパク質:52グラム 脂質:16グラム 炭水化物:55グラム",
+    ),
+  ).toBeTruthy();
   await waitFor(async () => {
     const raw = (await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!;
     const d = JSON.parse(raw);
@@ -154,11 +158,11 @@ test("invalid goals, date, weight and meal inputs cannot be recorded", async () 
   await change("記録日", "2026-02-30");
   await fireEvent.press(button("日付を表示"));
   expect(screen.getByText(`表示・保存先: ${localDateKey()}`)).toBeTruthy();
-  await change("体重kg", "NaN");
+  await change("体重キログラム", "NaN");
   await fireEvent.press(button("体重を記録"));
   expect(screen.getByText("まだ体重の記録がありません。")).toBeTruthy();
   await fillMeal();
-  await change("脂質g", "-1");
+  await change("脂質グラム", "-1");
   await fireEvent.press(button("食事を保存"));
   expect(
     screen.getByText("この日の食事はまだ記録されていません。"),

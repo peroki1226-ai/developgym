@@ -14,9 +14,9 @@ jest.mock(
   () => require("react-native-safe-area-context/jest/mock").default,
 );
 async function home() {
-  await screen.findByText("Find your gym.");
-  await fireEvent.press(screen.getByRole("button", { name: /Home/ }));
-  await screen.findByText("Your space. Your pace.");
+  await screen.findByText("理想のジムを探そう。");
+  await fireEvent.press(screen.getByRole("button", { name: /家トレ|Home/ }));
+  await screen.findByText("自宅で、自分のペースで。");
 }
 const button = (name: string) => screen.getByRole("button", { name });
 test("dumbbell log is tagged, locally persisted, restored after remount, and profile survives", async () => {
@@ -25,16 +25,26 @@ test("dumbbell log is tagged, locally persisted, restored after remount, and pro
   await home();
   await fireEvent.press(button("ダンベル"));
   await fireEvent.press(button("ベンチ"));
-  await fireEvent.changeText(screen.getByLabelText("ダンベル最大重量kg"), "20");
+  await fireEvent.changeText(
+    screen.getByLabelText("ダンベル最大重量キログラム"),
+    "20",
+  );
   await fireEvent.press(button("最大重量を保存"));
   expect(screen.getByText("記録 / ダンベルベンチプレス")).toBeTruthy();
-  await fireEvent.changeText(screen.getByLabelText("家トレ重量kg"), "12.5");
+  await fireEvent.changeText(
+    screen.getByLabelText("家トレ重量キログラム"),
+    "12.5",
+  );
   await fireEvent.changeText(screen.getByLabelText("家トレ回数"), "8");
   await fireEvent.changeText(screen.getByLabelText("家トレセット数"), "4");
   await fireEvent.press(button("家トレを記録"));
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   expect(await screen.findByText("🏠 自宅")).toBeTruthy();
-  expect(screen.getByText("12.5kg（片手） × 8回 × 4セット")).toBeTruthy();
+  expect(
+    screen.getByText("12.5キログラム（片手） × 8回 × 4セット"),
+  ).toBeTruthy();
   await waitFor(async () => {
     const d = JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!);
     expect(d.logs[0]).toMatchObject({
@@ -49,11 +59,15 @@ test("dumbbell log is tagged, locally persisted, restored after remount, and pro
   await app.unmount();
   await render(<App />);
   await home();
-  expect(screen.getByLabelText("ダンベル最大重量kg").props.value).toBe("20");
+  expect(screen.getByLabelText("ダンベル最大重量キログラム").props.value).toBe(
+    "20",
+  );
   expect(screen.getByText("記録 / ダンベルベンチプレス")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   expect(
-    await screen.findByText("12.5kg（片手） × 8回 × 4セット"),
+    await screen.findByText("12.5キログラム（片手） × 8回 × 4セット"),
   ).toBeTruthy();
 });
 test("bodyweight mode removes equipment alternatives and records reps without stale dumbbell weight", async () => {
@@ -62,10 +76,10 @@ test("bodyweight mode removes equipment alternatives and records reps without st
   await home();
   await fireEvent.press(button("ダンベル"));
   await fireEvent.press(button("自重のみ"));
-  expect(screen.queryByLabelText("家トレ重量kg")).toBeNull();
+  expect(screen.queryByLabelText("家トレ重量キログラム")).toBeNull();
   await fireEvent.press(button("ジム種目から代替を探す"));
   await fireEvent.press(button("ラットプルダウン"));
-  expect(screen.getByText("記録 / うつ伏せWレイズ")).toBeTruthy();
+  expect(screen.getByText("記録 / うつ伏せ肩甲骨レイズ")).toBeTruthy();
   await fireEvent.press(button("ケーブルカール"));
   expect(
     screen.getByText(
@@ -75,7 +89,9 @@ test("bodyweight mode removes equipment alternatives and records reps without st
   expect(screen.queryByText("家トレを記録")).toBeNull();
   await fireEvent.press(button("レッグプレス"));
   await fireEvent.press(button("家トレを記録"));
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   expect(await screen.findByText("自重 × 10回 × 3セット")).toBeTruthy();
   expect(screen.getByText("🏠 自宅")).toBeTruthy();
 });
@@ -84,19 +100,30 @@ test("invalid home inputs and excess weight do not add logs", async () => {
   await render(<App />);
   await home();
   await fireEvent.press(button("ダンベル"));
-  await fireEvent.changeText(screen.getByLabelText("ダンベル最大重量kg"), "0");
+  await fireEvent.changeText(
+    screen.getByLabelText("ダンベル最大重量キログラム"),
+    "0",
+  );
   await fireEvent.press(button("最大重量を保存"));
   expect(alert).toHaveBeenLastCalledWith("入力を確認", expect.any(String));
-  await fireEvent.changeText(screen.getByLabelText("家トレ重量kg"), "11");
+  await fireEvent.changeText(
+    screen.getByLabelText("家トレ重量キログラム"),
+    "11",
+  );
   await fireEvent.press(button("家トレを記録"));
   expect(alert).toHaveBeenLastCalledWith(
     "入力を確認",
-    expect.stringContaining("上限10kg"),
+    expect.stringContaining("上限10キログラム"),
   );
-  await fireEvent.changeText(screen.getByLabelText("家トレ重量kg"), "5");
+  await fireEvent.changeText(
+    screen.getByLabelText("家トレ重量キログラム"),
+    "5",
+  );
   await fireEvent.changeText(screen.getByLabelText("家トレセット数"), "1.5");
   await fireEvent.press(button("家トレを記録"));
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   expect(await screen.findByText(/まだ記録がありません/)).toBeTruthy();
 });
 test("read failure preserves stored data and supports retry", async () => {
@@ -112,7 +139,7 @@ test("read failure preserves stored data and supports retry", async () => {
   ).toBeTruthy();
   expect(write).not.toHaveBeenCalled();
   await fireEvent.press(button("読み込みを再試行"));
-  expect(await screen.findByText("Find your gym.")).toBeTruthy();
+  expect(await screen.findByText("理想のジムを探そう。")).toBeTruthy();
 });
 test("write failure is visible, can retry, and retains current data", async () => {
   await render(<App />);
@@ -142,9 +169,11 @@ test("band exercises log repetitions with band load, not dumbbell kilograms", as
   await fireEvent.press(button("バンド"));
   await fireEvent.press(button("背中"));
   expect(screen.getByText("記録 / バンドシーテッドロー")).toBeTruthy();
-  expect(screen.queryByLabelText("家トレ重量kg")).toBeNull();
+  expect(screen.queryByLabelText("家トレ重量キログラム")).toBeNull();
   await fireEvent.press(button("家トレを記録"));
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   expect(await screen.findByText("バンド × 10回 × 3セット")).toBeTruthy();
 });
 

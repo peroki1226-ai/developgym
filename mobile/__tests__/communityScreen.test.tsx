@@ -45,9 +45,11 @@ const change = async (label: string, value: string) => {
   await fireEvent.changeText(screen.getByLabelText(label), value);
 };
 async function openMyPage() {
-  await screen.findByText("Find your gym.");
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
-  await screen.findByText("Made by you.");
+  await screen.findByText("理想のジムを探そう。");
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
+  await screen.findByText("積み重ねを、あなたの力に。");
 }
 beforeEach(() => {
   jest.spyOn(Alert, "alert").mockImplementation(() => {});
@@ -57,23 +59,29 @@ beforeEach(() => {
 });
 test("specs update Gyms ranking/weight filters and My Page immediately, then survive restart", async () => {
   const app = await render(<App />);
-  await screen.findByText("Find your gym.");
+  await screen.findByText("理想のジムを探そう。");
   await change("ジム検索", "Anytime");
-  await fireEvent.press(button("Anytime Fitness Shibuya Koen-doriに投稿する"));
-  await change("修正後ダンベル最大重量kg", "60");
-  await fireEvent.press(button("追加: 45° Hack Squat"));
+  await fireEvent.press(button("エニタイムフィットネス渋谷公園通りに投稿する"));
+  await change("修正後ダンベル最大重量キログラム", "60");
+  await fireEvent.press(button("追加: 45度ハックスクワット"));
   await change("設備確認メモ", "現地で確認");
   await fireEvent.press(button("設備修正を反映"));
   expect(
-    screen.getByLabelText("Anytime Fitness Shibuya Koen-dori マッチ率 99%"),
+    screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 99%"),
   ).toBeTruthy();
-  expect(screen.getByText("設備修正 / 40kg → 60kg")).toBeTruthy();
-  await fireEvent.press(button("60kg以上"));
+  expect(
+    screen.getByText("設備修正 / 40キログラム → 60キログラム"),
+  ).toBeTruthy();
+  await fireEvent.press(button("60キログラム以上"));
   expect(screen.getByText("マッチ率順 / 1件")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
-  await screen.findByText("Made by you.");
-  await fireEvent.press(button("投稿先: Anytime Fitness Shibuya Koen-dori"));
-  expect(screen.getByText("設備修正 / 40kg → 60kg")).toBeTruthy();
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
+  await screen.findByText("積み重ねを、あなたの力に。");
+  await fireEvent.press(button("投稿先: エニタイムフィットネス渋谷公園通り"));
+  expect(
+    screen.getByText("設備修正 / 40キログラム → 60キログラム"),
+  ).toBeTruthy();
   await waitFor(async () =>
     expect(
       JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!).community
@@ -82,9 +90,9 @@ test("specs update Gyms ranking/weight filters and My Page immediately, then sur
   );
   await app.unmount();
   await render(<App />);
-  await screen.findByText("Find your gym.");
+  await screen.findByText("理想のジムを探そう。");
   expect(
-    screen.getByLabelText("Anytime Fitness Shibuya Koen-dori マッチ率 99%"),
+    screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 99%"),
   ).toBeTruthy();
 });
 test("star/comment validation and local reviews reflect across tabs", async () => {
@@ -101,8 +109,8 @@ test("star/comment validation and local reviews reflect across tabs", async () =
   await fireEvent.press(button("レビューを投稿"));
   expect(screen.getByText("★ 4.0 / 5（1件・この端末）")).toBeTruthy();
   expect(screen.getByText("ラックが使いやすい")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /Gyms/ }));
-  await screen.findByText("Find your gym.");
+  await fireEvent.press(screen.getByRole("button", { name: /^(ジム|Gyms)$/ }));
+  await screen.findByText("理想のジムを探そう。");
   expect(screen.getByText("ラックが使いやすい")).toBeTruthy();
   await waitFor(async () =>
     expect(
@@ -119,11 +127,11 @@ test("library photos are copied, scoped to a gym/equipment, visible across tabs 
   pick.mockResolvedValue(image);
   const app = await render(<App />);
   await openMyPage();
-  await fireEvent.press(button("投稿先: Anytime Fitness Shibuya Koen-dori"));
+  await fireEvent.press(button("投稿先: エニタイムフィットネス渋谷公園通り"));
   await fireEvent.press(button("設備写真"));
   await fireEvent.press(button("写真を選択"));
   await change("設備写真の説明", "パワーラック");
-  await fireEvent.press(button("写真: Power Rack (Squat & Bench)"));
+  await fireEvent.press(button("写真: パワーラック・スクワット・ベンチプレス"));
   await fireEvent.press(button("写真を投稿"));
   const thumbnail = await screen.findByLabelText("設備写真: パワーラック");
   expect(thumbnail.props.source.uri).toMatch(
@@ -141,12 +149,14 @@ test("library photos are copied, scoped to a gym/equipment, visible across tabs 
   });
   await app.unmount();
   await render(<App />);
-  await screen.findByText("Find your gym.");
+  await screen.findByText("理想のジムを探そう。");
   expect(screen.getByLabelText("設備写真: パワーラック")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
-  await screen.findByText("Made by you.");
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
+  await screen.findByText("積み重ねを、あなたの力に。");
   expect(screen.queryByLabelText("設備写真: パワーラック")).toBeNull();
-  await fireEvent.press(button("投稿先: Anytime Fitness Shibuya Koen-dori"));
+  await fireEvent.press(button("投稿先: エニタイムフィットネス渋谷公園通り"));
   expect(screen.getByLabelText("設備写真: パワーラック")).toBeTruthy();
 });
 test("camera denial and cancellation never create photos", async () => {

@@ -25,15 +25,15 @@ export function WeightChart({
         "2": entries[0].kg,
         "3": entries[entries.length - 1].date,
         "4": entries[entries.length - 1].kg,
-        "5": target === null ? t("未設定") : `${target}kg`,
+        "5": target === null ? t("未設定") : `${target}${t("kg")}`,
       })}
     >
       <Svg width="100%" height={190} viewBox="0 0 320 180">
         <SvgText x={4} y={12} fontSize={9} fill="#d4d4d8">
-          {chart.max.toFixed(1)} kg
+          {chart.max.toFixed(1)} {t("kg")}
         </SvgText>
         <SvgText x={4} y={158} fontSize={9} fill="#d4d4d8">
-          {chart.min.toFixed(1)} kg
+          {chart.min.toFixed(1)} {t("kg")}
         </SvgText>
         <Line x1={24} x2={296} y1={144} y2={144} stroke="#404040" />
         {chart.targetY !== null && (
@@ -54,7 +54,8 @@ export function WeightChart({
               fontSize={10}
             >
               {t("目標 ")}
-              {target}kg
+              {target}
+              {t("kg")}
             </SvgText>
           </>
         )}

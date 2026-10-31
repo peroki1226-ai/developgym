@@ -27,13 +27,16 @@ jest.mock(
   "react-native-safe-area-context",
   () => require("react-native-safe-area-context/jest/mock").default,
 );
-const button = (name: string) => screen.getByRole("button", { name });
+const button = (name: string) =>
+  screen.getByRole("button", {
+    name: name.startsWith("🇯🇵") ? /🇯🇵/ : name.startsWith("🇺🇸") ? /🇺🇸/ : name,
+  });
 async function englishMode() {
   await fireEvent.press(button("🇺🇸 English"));
 }
 async function open() {
   const app = await render(<App />);
-  await screen.findByText("Find your gym.");
+  await screen.findByText(/理想のジムを探そう。|Find your gym\./);
   return app;
 }
 
@@ -44,18 +47,22 @@ test("header switches all five screens and tab labels immediately in both direct
   expect(button("🇺🇸 English").props.accessibilityState.selected).toBe(true);
   expect(screen.getByText("Your training")).toBeTruthy();
   expect(screen.queryByText("あなたのトレーニング")).toBeNull();
-  await fireEvent.press(screen.getByRole("button", { name: /Training/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /トレーニング|Training/ }),
+  );
   expect(await screen.findByText("Seat & equipment setup")).toBeTruthy();
   expect(button("Seated Chest Press")).toBeTruthy();
   await fireEvent.press(button("⚡ Advanced mode (biomechanics)"));
   expect(screen.getByText("Anatomical targets")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /Home/ }));
+  await fireEvent.press(screen.getByRole("button", { name: /家トレ|Home/ }));
   expect(await screen.findByText("Home equipment profile")).toBeTruthy();
   expect(button("Dumbbells")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /Diet/ }));
+  await fireEvent.press(screen.getByRole("button", { name: /食事|Diet/ }));
   expect(await screen.findByText("Record a meal")).toBeTruthy();
   expect(button("Breakfast")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   expect(await screen.findByText("Your contributions")).toBeTruthy();
   expect(screen.getByText("Workout history")).toBeTruthy();
   await fireEvent.press(button("🇯🇵 日本語"));
@@ -65,10 +72,13 @@ test("header switches all five screens and tab labels immediately in both direct
 
 test("switching preserves the active tab, entered fields and equipment selection", async () => {
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /Home/ }));
-  await screen.findByText("Your space. Your pace.");
+  await fireEvent.press(screen.getByRole("button", { name: /家トレ|Home/ }));
+  await screen.findByText("自宅で、自分のペースで。");
   await fireEvent.press(button("ダンベル"));
-  await fireEvent.changeText(screen.getByLabelText("家トレ重量kg"), "7.5");
+  await fireEvent.changeText(
+    screen.getByLabelText("家トレ重量キログラム"),
+    "7.5",
+  );
   await englishMode();
   expect(screen.getByLabelText("Home workout weight in kg").props.value).toBe(
     "7.5",
@@ -76,7 +86,7 @@ test("switching preserves the active tab, entered fields and equipment selection
   expect(button("Dumbbells").props.accessibilityState.selected).toBe(true);
   expect(screen.getByText("Record / Dumbbell floor press")).toBeTruthy();
   await fireEvent.press(button("🇯🇵 日本語"));
-  expect(screen.getByLabelText("家トレ重量kg").props.value).toBe("7.5");
+  expect(screen.getByLabelText("家トレ重量キログラム").props.value).toBe("7.5");
 });
 
 test("English preference is saved and restored after a full provider/navigation remount", async () => {
@@ -149,10 +159,12 @@ test("language changes never translate or modify saved meal names, comments or n
   await AsyncStorage.setItem(FITNESS_STORAGE_KEY, JSON.stringify(seed));
   await open();
   await englishMode();
-  await fireEvent.press(screen.getByRole("button", { name: /Diet/ }));
+  await fireEvent.press(screen.getByRole("button", { name: /食事|Diet/ }));
   await screen.findByText("Record a meal");
   expect(screen.getByText("Breakfast / 食事を保存")).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: /My Page/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /マイページ|My Page/ }),
+  );
   await screen.findByText("Your contributions");
   expect(screen.getByText("家トレを記録")).toBeTruthy();
   expect(screen.getByText("ダンベル")).toBeTruthy();
@@ -271,7 +283,9 @@ test("validation dialogs also switch to English", async () => {
   const alert = jest.spyOn(Alert, "alert").mockImplementation(() => {});
   await open();
   await englishMode();
-  await fireEvent.press(screen.getByRole("button", { name: /Training/ }));
+  await fireEvent.press(
+    screen.getByRole("button", { name: /トレーニング|Training/ }),
+  );
   await screen.findByText("Seat & equipment setup");
   await fireEvent.changeText(screen.getByLabelText("Weight in kg"), "-1");
   await fireEvent.press(button("Record gym workout"));

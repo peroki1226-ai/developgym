@@ -123,7 +123,8 @@ export function HomeScreen() {
           <>
             <Body>
               {t("ダンベル最大重量（片手あたり）: ")}
-              {profile.maxDumbbellKg}kg
+              {profile.maxDumbbellKg}
+              {t("kg")}
             </Body>
             <Field
               accessibilityLabel={t("ダンベル最大重量kg")}

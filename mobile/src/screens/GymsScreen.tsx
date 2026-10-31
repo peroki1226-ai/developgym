@@ -1,4 +1,4 @@
-import { useI18n } from "../i18n";
+import { translate, useI18n } from "../i18n";
 import React, { useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { Body, Button, Card, Field, Heading, Page, s } from "../components/ui";
@@ -8,7 +8,7 @@ import { useFitness } from "../state";
 const toggle = (items: string[], id: string) =>
   items.includes(id) ? items.filter((x) => x !== id) : [...items, id];
 export function GymsScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("all");
   const [menuIds, setMenuIds] = useState<string[]>([
@@ -32,8 +32,16 @@ export function GymsScreen() {
     [menuIds, partIds, requiredKg],
   );
   const results = useMemo(
-    () => findGyms(preferences, query, region, requiredKg, gymCatalog),
-    [preferences, query, region, requiredKg, gymCatalog],
+    () =>
+      findGyms(
+        preferences,
+        query,
+        region,
+        requiredKg,
+        gymCatalog,
+        (label) => `${translate("ja", label)} ${translate("en", label)}`,
+      ),
+    [preferences, query, region, requiredKg, gymCatalog, language],
   );
   function reset() {
     setQuery("");
@@ -97,7 +105,7 @@ export function GymsScreen() {
               {menus.map((m) => (
                 <Button
                   key={m.id}
-                  title={m.name}
+                  title={t(m.name)}
                   selected={menuIds.includes(m.id)}
                   onPress={() => setMenuIds((old) => toggle(old, m.id))}
                 />
@@ -121,7 +129,7 @@ export function GymsScreen() {
               {parts.map((p) => (
                 <Button
                   key={p.id}
-                  title={p.name}
+                  title={t(p.name)}
                   selected={partIds.includes(p.id)}
                   onPress={() => setPartIds((old) => toggle(old, p.id))}
                 />
@@ -168,11 +176,11 @@ export function GymsScreen() {
       </Heading>
       {results.map(({ gym: g, match }) => (
         <Card key={g.id}>
-          <Body>{g.area}</Body>
-          <Heading>{g.name}</Heading>
+          <Body>{t(g.area)}</Body>
+          <Heading>{t(g.name)}</Heading>
           <Text
             accessibilityLabel={t("{0} マッチ率 {1}", {
-              "0": g.name,
+              "0": t(g.name),
               "1": match.percent === null ? t("未選択") : `${match.percent}%`,
             })}
             style={s.number}
@@ -183,22 +191,23 @@ export function GymsScreen() {
                 fontSize: 18,
               }}
             >
-              % MATCH
+              {t("% MATCH")}
             </Text>
           </Text>
           {match.percent === null && (
             <Body>{t("種目・部位・重量を選ぶと計算します。")}</Body>
           )}
           <Body>
-            {g.spec}
+            {t(g.spec)}
             {"\n"}
             {t("ダンベル最大 ")}
-            {g.maxDumbbellKg} kg{"\n"}
+            {g.maxDumbbellKg} {t("kg")}
+            {"\n"}
             {t(g.dumbbellRange)}
           </Body>
           <Heading>{t("✓ Available / 実行可能")}</Heading>
           {match.available.length ? (
-            match.available.map((m) => <Body key={m.id}>✓ {m.name}</Body>)
+            match.available.map((m) => <Body key={m.id}>✓ {t(m.name)}</Body>)
           ) : (
             <Body>
               {menuIds.length
@@ -208,12 +217,12 @@ export function GymsScreen() {
           )}
           <Heading>{t("✕ Missing / 不足")}</Heading>
           {match.missing.map((m) => (
-            <Body key={m.id}>✕ {m.name}</Body>
+            <Body key={m.id}>✕ {t(m.name)}</Body>
           ))}
           {match.missingEquipment.map((id) => (
             <Body key={id}>
               {t("不足器具: ")}
-              {equipmentName(id)}
+              {t(equipmentName(id))}
             </Body>
           ))}
           {!match.dbOk && (
@@ -221,7 +230,8 @@ export function GymsScreen() {
               {t("必要ダンベル ")}
               {requiredKg}
               {t("kg / 店舗最大 ")}
-              {g.maxDumbbellKg}kg
+              {g.maxDumbbellKg}
+              {t("kg")}
             </Body>
           )}
           {!match.missing.length && !match.missingEquipment.length && (
@@ -245,10 +255,10 @@ export function GymsScreen() {
             title={
               postingGym === g.id
                 ? t("{0}の投稿フォームを閉じる", {
-                    "0": g.name,
+                    "0": t(g.name),
                   })
                 : t("{0}に投稿する", {
-                    "0": g.name,
+                    "0": t(g.name),
                   })
             }
             onPress={() => setPostingGym(postingGym === g.id ? null : g.id)}

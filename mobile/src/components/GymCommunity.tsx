@@ -42,7 +42,7 @@ function GymPhoto({ post }: { post: PhotoPost }) {
       )}
       <Body>
         {post.caption}
-        {post.equipmentId ? ` / ${equipmentName(post.equipmentId)}` : ""}
+        {post.equipmentId ? ` / ${t(equipmentName(post.equipmentId))}` : ""}
       </Body>
       <Body>{formatDate(post.createdAt)}</Body>
     </View>
@@ -79,12 +79,12 @@ export function GymPosts({ gymId }: { gymId: string }) {
             {t("設備修正 /")}{" "}
             {p.maxDumbbellKg === null
               ? t("重量変更なし")
-              : `${p.previousMaxDumbbellKg}kg → ${p.maxDumbbellKg}kg`}
+              : `${p.previousMaxDumbbellKg}${t("kg")} → ${p.maxDumbbellKg}${t("kg")}`}
           </Body>
           {!!p.equipmentIds.length && (
             <Body>
               {t("器具追加申請: ")}
-              {p.equipmentIds.map(equipmentName).join(" / ")}
+              {p.equipmentIds.map((id) => t(equipmentName(id))).join(" / ")}
             </Body>
           )}
           {!!p.note && <Body>{p.note}</Body>}
@@ -271,7 +271,7 @@ export function GymContributionForm({ gymId }: { gymId: string }) {
     >
       <Heading>
         {t("投稿先 / ")}
-        {gym.name}
+        {t(gym.name)}
       </Heading>
       <Body>
         {t(
@@ -315,7 +315,8 @@ export function GymContributionForm({ gymId }: { gymId: string }) {
         <>
           <Body>
             {t("現在のダンベル最大重量: ")}
-            {gym.maxDumbbellKg}kg
+            {gym.maxDumbbellKg}
+            {t("kg")}
           </Body>
           <Field
             accessibilityLabel={t("修正後ダンベル最大重量kg")}
@@ -332,7 +333,7 @@ export function GymContributionForm({ gymId }: { gymId: string }) {
                 <Button
                   key={e.id}
                   title={t("追加: {0}", {
-                    "0": e.name,
+                    "0": t(e.name),
                   })}
                   selected={equipmentIds.includes(e.id)}
                   onPress={() =>
@@ -430,7 +431,7 @@ export function GymContributionForm({ gymId }: { gymId: string }) {
               <Button
                 key={e.id}
                 title={t("写真: {0}", {
-                  "0": e.name,
+                  "0": t(e.name),
                 })}
                 disabled={busy}
                 selected={photoEquipment === e.id}

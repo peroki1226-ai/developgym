@@ -21,6 +21,7 @@ export function Page({
   subtitle,
   children,
 }: PropsWithChildren<{ title: string; subtitle: string }>) {
+  const { t } = useI18n();
   return (
     <ScrollView
       style={s.page}
@@ -29,9 +30,9 @@ export function Page({
       keyboardDismissMode="on-drag"
     >
       <LanguageSwitch />
-      <Text style={s.brand}>GYMFINDER / YOUR DAILY STANDARD</Text>
+      <Text style={s.brand}>{t("GYMFINDER / YOUR DAILY STANDARD")}</Text>
       <Text accessibilityRole="header" style={s.title}>
-        {title}
+        {t(title)}
       </Text>
       <Text style={s.subtitle}>{subtitle}</Text>
       {children}
@@ -47,12 +48,12 @@ export function LanguageSwitch() {
       style={[s.row, { justifyContent: "flex-end" }]}
     >
       <Button
-        title="🇯🇵 日本語"
+        title={t("🇯🇵 日本語")}
         selected={language === "ja"}
         onPress={() => setLanguage("ja")}
       />
       <Button
-        title="🇺🇸 English"
+        title={t("🇺🇸 English")}
         selected={language === "en"}
         onPress={() => setLanguage("en")}
       />

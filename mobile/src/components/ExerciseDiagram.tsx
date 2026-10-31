@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, {
@@ -19,25 +20,26 @@ export function ExerciseDiagram({
   type: string;
   muscleTag: string;
 }) {
+  const { t } = useI18n();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.badgeLabel}>FORM & TRAJECTORY</Text>
+        <Text style={styles.badgeLabel}>{t("FORM & TRAJECTORY")}</Text>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{muscleTag}</Text>
+          <Text style={styles.badgeText}>{t(muscleTag)}</Text>
         </View>
       </View>
 
       <View style={styles.canvasWrapper}>
         <Svg viewBox="0 0 120 96" style={styles.svg}>
-          {renderSvgScene(type)}
+          {renderSvgScene(type, t)}
         </Svg>
       </View>
     </View>
   );
 }
 
-function renderSvgScene(type: string) {
+function renderSvgScene(type: string, t: (message: string) => string) {
   switch (type) {
     case "chest-press":
       return (
@@ -60,7 +62,7 @@ function renderSvgScene(type: string) {
           <Circle cx="89" cy="42" r="3.5" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
           <Path d="M 70 32 L 106 32" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
           <Polygon points="106,28 114,32 106,36" fill="#ffffff" />
-          <SvgText x="64" y="24" fill="#ffffff" fontSize="8" fontWeight="bold">PRESS FORWARD</SvgText>
+          <SvgText x="64" y="24" fill="#ffffff" fontSize="8" fontWeight="bold">{t("PRESS FORWARD")}</SvgText>
         </>
       );
 
@@ -81,7 +83,7 @@ function renderSvgScene(type: string) {
           <Polygon points="50,76 57,80 50,84" fill="#ffffff" />
           <Path d="M 96 66 Q 84 82 68 80" fill="none" stroke="#d4d4d8" strokeWidth="2.5" />
           <Polygon points="70,76 63,80 70,84" fill="#ffffff" />
-          <SvgText x="32" y="13" fill="#ffffff" fontSize="8" fontWeight="bold">SWEEP IN AN ARC</SvgText>
+          <SvgText x="32" y="13" fill="#ffffff" fontSize="8" fontWeight="bold">{t("SWEEP IN AN ARC")}</SvgText>
         </>
       );
 
@@ -100,7 +102,7 @@ function renderSvgScene(type: string) {
           <Circle cx="65" cy="24" r="4.5" fill="#ffffff" stroke="#000000" strokeWidth="1.5" />
           <Line x1="80" y1="48" x2="78" y2="18" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="74,20 78,12 82,20" fill="#ffffff" />
-          <SvgText x="14" y="24" fill="#ffffff" fontSize="8" fontWeight="bold">30° FIXED RAIL</SvgText>
+          <SvgText x="14" y="24" fill="#ffffff" fontSize="8" fontWeight="bold">{t("30\u00b0 FIXED RAIL")}</SvgText>
         </>
       );
 
@@ -120,7 +122,7 @@ function renderSvgScene(type: string) {
           <Line x1="68" y1="40" x2="66" y2="55" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
           <Path d="M 32 42 Q 44 58 54 58" fill="none" stroke="#ffffff" strokeWidth="2.2" />
           <Path d="M 88 42 Q 76 58 66 58" fill="none" stroke="#ffffff" strokeWidth="2.2" />
-          <SvgText x="28" y="18" fill="#ffffff" fontSize="8" fontWeight="bold">SQUEEZE TO CENTER</SvgText>
+          <SvgText x="28" y="18" fill="#ffffff" fontSize="8" fontWeight="bold">{t("SQUEEZE TO CENTER")}</SvgText>
         </>
       );
 
@@ -141,7 +143,7 @@ function renderSvgScene(type: string) {
           <Polyline points="46,43 54,38" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
           <Line x1="24" y1="16" x2="24" y2="44" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="20,42 24,50 28,42" fill="#ffffff" />
-          <SvgText x="8" y="60" fill="#ffffff" fontSize="8" fontWeight="bold">PULL TO CHEST</SvgText>
+          <SvgText x="8" y="60" fill="#ffffff" fontSize="8" fontWeight="bold">{t("PULL TO CHEST")}</SvgText>
         </>
       );
 
@@ -161,7 +163,7 @@ function renderSvgScene(type: string) {
           <Circle cx="47" cy="54" r="3" fill="#ffffff" />
           <Line x1="78" y1="42" x2="52" y2="42" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="54,38 46,42 54,46" fill="#ffffff" />
-          <SvgText x="48" y="34" fill="#ffffff" fontSize="8" fontWeight="bold">ROW TO WAIST</SvgText>
+          <SvgText x="48" y="34" fill="#ffffff" fontSize="8" fontWeight="bold">{t("ROW TO WAIST")}</SvgText>
         </>
       );
 
@@ -180,7 +182,7 @@ function renderSvgScene(type: string) {
           <Circle cx="58" cy="15" r="3.5" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
           <Line x1="78" y1="50" x2="78" y2="18" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="74,20 78,11 82,20" fill="#ffffff" />
-          <SvgText x="82" y="34" fill="#ffffff" fontSize="8" fontWeight="bold">PRESS UP</SvgText>
+          <SvgText x="82" y="34" fill="#ffffff" fontSize="8" fontWeight="bold">{t("PRESS UP")}</SvgText>
         </>
       );
 
@@ -198,7 +200,7 @@ function renderSvgScene(type: string) {
           <Rect x="48" y="19" width="16" height="6" rx="2" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
           <Path d="M 70 46 Q 70 28 64 20" fill="none" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="61,23 62,14 68,20" fill="#ffffff" />
-          <SvgText x="60" y="36" fill="#ffffff" fontSize="8" fontWeight="bold">DEEP STRETCH</SvgText>
+          <SvgText x="60" y="36" fill="#ffffff" fontSize="8" fontWeight="bold">{t("DEEP STRETCH")}</SvgText>
         </>
       );
 
@@ -217,7 +219,7 @@ function renderSvgScene(type: string) {
           <Line x1="45" y1="67" x2="62" y2="55" stroke="#d4d4d8" strokeWidth="6" strokeLinecap="round" />
           <Line x1="66" y1="28" x2="90" y2="12" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="87,9 96,8 92,16" fill="#ffffff" />
-          <SvgText x="38" y="20" fill="#ffffff" fontSize="8" fontWeight="bold">DRIVE SLED UP 45°</SvgText>
+          <SvgText x="38" y="20" fill="#ffffff" fontSize="8" fontWeight="bold">{t("DRIVE SLED UP 45\u00b0")}</SvgText>
         </>
       );
 
@@ -234,7 +236,7 @@ function renderSvgScene(type: string) {
           <Line x1="57" y1="44" x2="43" y2="48" stroke="#d4d4d8" strokeWidth="6.5" strokeLinecap="round" />
           <Line x1="70" y1="64" x2="94" y2="40" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="90,38 99,35 96,44" fill="#ffffff" />
-          <SvgText x="48" y="76" fill="#ffffff" fontSize="8" fontWeight="bold">SLIDE ALONG 45° RAIL</SvgText>
+          <SvgText x="48" y="76" fill="#ffffff" fontSize="8" fontWeight="bold">{t("SLIDE ALONG 45\u00b0 RAIL")}</SvgText>
         </>
       );
 
@@ -252,7 +254,7 @@ function renderSvgScene(type: string) {
           <Line x1="54" y1="54" x2="67" y2="63" stroke="#d4d4d8" strokeWidth="6" strokeLinecap="round" />
           <Line x1="82" y1="50" x2="82" y2="20" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="78,22 82,14 86,22" fill="#ffffff" />
-          <SvgText x="32" y="52" fill="#ffffff" fontSize="8" fontWeight="bold">SAFETY BARS</SvgText>
+          <SvgText x="32" y="52" fill="#ffffff" fontSize="8" fontWeight="bold">{t("SAFETY BARS")}</SvgText>
         </>
       );
 
@@ -270,7 +272,7 @@ function renderSvgScene(type: string) {
           <Polyline points="50,65 68,66 72,86" fill="none" stroke="#a1a1aa" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
           <Path d="M 54 22 Q 78 22 84 44" fill="none" stroke="#ffffff" strokeWidth="2.5" />
           <Polygon points="80,43 85,51 88,42" fill="#ffffff" />
-          <SvgText x="44" y="18" fill="#ffffff" fontSize="8" fontWeight="bold">CURL RIBCAGE DOWN</SvgText>
+          <SvgText x="44" y="18" fill="#ffffff" fontSize="8" fontWeight="bold">{t("CURL RIBCAGE DOWN")}</SvgText>
         </>
       );
   }

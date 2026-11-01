@@ -333,3 +333,5 @@
 - **保存**: お気に入り・家トレ器具・食事・体重・トレーニング履歴・独自種目・設備メモ/投稿をWeb専用キーで保存。提供食事の識別を復元後も維持。破損/未知形式は元データを上書きしない。書込み失敗を表示し、記録の書き出しを提供。端末内記録はネイティブAsyncStorageとは別で、自動移行はしない。
 - **検証**: 13 suites/68 tests、型チェック、Web言語/検索監査、release:check成功。preview:checkでローカル資産・manifest・10画面/言語状態・記録復元・入力原文・破損/保存失敗を検証。Chromiumスマホエミュレーション320/390pxの20画面で横はみ出し0・48px以上のナビ・実行エラー0・起動時外部リクエスト0。実Service Workerで`/developgym/`と旧ファイル名のオフライン再読み込み・記録保持を確認。
 - **公開前の境界**: Safari実機でのホーム画面追加・実公開HTTPS・Pages実行結果は未確認。地図/外部検索は通信が必要。別環境の未同期TASK-014/015ソースを統合したとは扱わない。ユーザーの今回の配信障害対応指示に基づくWebの限定修正で、ネイティブ開発方針は維持。
+
+- **GitHub実行確認**: `45ee13b`をmainへpushし、[Deploy smartphone app #1](https://github.com/peroki1226-ai/developgym/actions/runs/41302866781)を確認。buildは成功（38秒、公開用github-pages artifact生成）。deployは404で失敗し、GitHubから「Ensure GitHub Pages has been enabled: Settings/Pages」と明示。アプリのビルドエラーではなく、Pages初回有効化待ち。管理者がSource: GitHub Actionsへ設定後、同ジョブを再実行する。公開成功・Safari実機利用は引き続き未確認。

@@ -22,3 +22,7 @@ npm run preview:check
 公開予定の標準URLは`https://peroki1226-ai.github.io/developgym/`ですが、実際のデプロイ成功前に利用可能とは扱いません。GitHub Pagesの初回有効化はリポジトリ管理者の操作です。ルートドメインへ公開する場合もリポジトリ配下へ公開する場合も相対パスを使用します。
 
 `gym-app-preview.html`がリポジトリに存在すればそれを優先し、なければ`index.html`を使用します。別環境の未同期ソースが自動で取り込まれるわけではありません。公開用HTML内に外部JS実行元・iframeが残っていればビルドを失敗させ、追加ソースの整合を確認します。
+
+## 現在の公開結果
+
+コミット`45ee13b`の[公開処理 #1](https://github.com/peroki1226-ai/developgym/actions/runs/41302866781)ではビルドと公開前検証が成功し、公開物を生成しました。デプロイは404（GitHub Pages未有効化）で停止しています。上記のSource設定後に同じ実行画面で**Re-run all jobs**を選ぶか、ワークフローを手動実行してください。公開成功後に表示されるURLでSafari実機確認を行います。

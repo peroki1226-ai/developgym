@@ -1,0 +1,50 @@
+name: Deploy smartphone app
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - gym-app-preview.html
+      - preview/**
+      - mobile/scripts/build-preview.cjs
+      - mobile/scripts/verify-preview.cjs
+      - mobile/package.json
+      - mobile/package-lock.json
+      - mobile/assets/icon.png
+      - .github/workflows/smartphone-app.yml
+permissions:
+  contents: read
+concurrency:
+  group: smartphone-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+        working-directory: mobile
+      - run: npm run preview:build && npm run preview:check
+        working-directory: mobile
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web-dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish fixed HTTPS URL
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,61 @@
+html {
+  background: #000;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+}
+#preview-tools {
+  max-width: 36rem;
+  margin: 0 auto 0.5rem;
+  padding: max(0.5rem, env(safe-area-inset-top))
+    max(0.5rem, env(safe-area-inset-right)) 0.5rem
+    max(0.5rem, env(safe-area-inset-left));
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  color: #d4d4d8;
+  font:
+    12px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+#preview-tools button,
+#preview-install-help button {
+  min-height: 48px;
+  border: 1px solid #555;
+  border-radius: 12px;
+  background: #101010;
+  color: #fff;
+  padding: 0.6rem 0.8rem;
+  font: inherit;
+  font-weight: 600;
+}
+#preview-status {
+  flex: 1;
+  min-width: 8rem;
+}
+#preview-tools button[hidden] {
+  display: none;
+}
+#preview-install-help {
+  max-width: min(28rem, calc(100% - 2rem));
+  box-sizing: border-box;
+  border: 1px solid #555;
+  border-radius: 20px;
+  background: #101010;
+  color: #fff;
+  padding: 1.5rem;
+  font:
+    16px/1.7 -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+#preview-install-help::backdrop {
+  background: #000b;
+}
+#preview-install-help h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}

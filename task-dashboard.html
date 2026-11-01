@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">88%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">15</span> / <span id="stat-total" class="text-neutral-500">16</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">15</span> / <span id="stat-total" class="text-neutral-500">17</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">15 / 16 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">15 / 17 TASKS COMPLETED (88%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93.75%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 88.24%"></div>
       </div>
     </div>
 
@@ -116,7 +116,7 @@
       </div>
       <div class="text-xs text-neutral-400 flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        GitHub main ブランチ完全同期中
+        記録同期済み・実公開は確認待ち
       </div>
     </div>
 
@@ -388,6 +388,16 @@
         rating: "レビュー待ち",
         desc: "モバイル全画面とWebの表示を日英に分離。ブランド・単位も日本語化し、入力原文と保存データを保持。",
         review: "68テスト・型チェック・Web言語監査成功。実機での長文・図解・読み上げはレビュー待ち。"
+      },
+      {
+        id: "TASK-017",
+        title: "固定HTTPS配信・ホーム画面アプリ対応",
+        category: "Mobile Access",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "公開・実機確認待ち",
+        desc: "一時トンネルに依存しない静的配信、ホーム画面追加、端末保存とオフライン起動。",
+        review: "68テスト・型チェック・公開用パッケージ検証・スマホ幅20画面・オフライン再起動を確認。GitHub Pages有効化とSafari実機確認待ち。"
       }
     ];
 

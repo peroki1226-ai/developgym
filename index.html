@@ -4232,7 +4232,7 @@
           return providedMeals.has(meal) ||
             meal.provided ||
             meal.type === "📷 AI Photo"
-            ? t(meal.name)
+            ? escapeHtml(t(meal.name))
             : escapeHtml(meal.name);
         }
         function reviewText(review) {
@@ -5719,7 +5719,7 @@
                   return `
                   <circle cx="${x}" cy="${y}" r="2.2" fill="#ffffff" />
                   <text x="${x - 4}" y="${y - 4}" fill="#ffffff" font-size="4.8" font-weight="bold">${w.kg}</text>
-                  <text x="${x - 3}" y="58" fill="#71717a" font-size="4.5">${t(w.label)}</text>
+                  <text x="${x - 3}" y="58" fill="#71717a" font-size="4.5">${escapeHtml(t(w.label))}</text>
                 `;
                 })
                 .join("")}
@@ -5913,11 +5913,11 @@
                 (w) => `
               <div class="luxe-inset border border-white/10 rounded-xl p-3 flex items-center justify-between">
                 <div>
-                  <div class="font-bold text-white">${t(w.exercise)}</div>
-                  <div class="text-neutral-400 mt-0.5">${t(w.date)} · <span class="text-neutral-200">${t(w.location)}</span></div>
+                  <div class="font-bold text-white">${escapeHtml(t(w.exercise))}</div>
+                  <div class="text-neutral-400 mt-0.5">${escapeHtml(t(w.date))} · <span class="text-neutral-200">${escapeHtml(t(w.location))}</span></div>
                 </div>
                 <div class="text-right">
-                  <div class="font-semibold text-white">${t(w.detail)}</div>
+                  <div class="font-semibold text-white">${escapeHtml(t(w.detail))}</div>
                   <div class="text-[10px] text-neutral-400">${t("Vol: {0} kg", { 0: w.volume })}</div>
                 </div>
               </div>

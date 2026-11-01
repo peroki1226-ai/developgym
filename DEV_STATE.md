@@ -55,6 +55,8 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `IN REVIEW` | 日本語・英語の表示分離、ブランド/単位の日本語化。既存61件＋新規7件=68件・型チェック成功 |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN REVIEW` | 設定・70テスト・両OSバンドル検証済み。署名・実機配布/受入待ち |
+
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
 
@@ -343,3 +345,14 @@
 - **優先度**: TASK-017のWeb/PWAは補助用途として保持し、Pages設定待ちがネイティブ開発を止めないようにする。TASK-016/017は受入未完了のためIN REVIEWを維持し、DONE件数を増やさない。
 - **確認した設定**: iOS Bundle ID `com.peroki.gymfinder`、version 1.0.0/buildNumber 1、EAS preview/productionあり。EASプロジェクトID・提出設定・配布済みバイナリとの対応は未照合。既存のApple登録/インストール報告は維持し、未実行とは断定しない。
 - **検証範囲**: 方針・計画の文書更新のみ。アプリコード・署名・配布設定は変更せず、追加のビルド/実機インストールや自動テストは今回実行していない。
+
+### [TASK-018] 進捗確認アプリのトンネル不要化（2026-11-02、日本時間）
+- **状態**: `[IN REVIEW]`。ユーザーが毎回インストール時にトンネル通信エラーになるため、今後の進捗確認では発生しないよう改善を依頼。
+- **調査**: GitHubのmobile/srcは起動時のfetch/WebSocket/トンネルURLを参照せず、既存previewはinternal配布。ユーザーが「SafariのURL・ホーム画面に追加したWeb版」と回答。一時URLのWebショートカットを開いていたことを確認。署名済みバイナリで発生したとは判断しない。
+- **実装方針**: 確認用/本番プロファイルを明示的なRelease・developmentClient=falseにし、内蔵バンドルから起動。起動時OTA取得を無効化し、自動検証で設定後退と通信依存を検出する。最新版の署名・実機再配布はEAS連携/認証と実機確認が必要。
+
+- **変更**: app.jsonのupdates.enabled=false。EAS preview/productionにdevelopmentClient=falseとiOS Releaseを明示。EAS remote/autoIncrement=trueへ変更し、更新用ビルド番号を自動増分。既存のリモート番号と配布済み最大番号は初回照合する。
+- **配布前ガード**: release:checkで開発クライアント/Debug/内蔵コード省略等への後退を検出。build:ios:preview/productionコマンドを追加し、設定・既存projectId・型チェック・全テストを確認してからEAS buildを開始する。提出や公開は行わない。
+- **実行検証**: 新規/既存インストールに相当する初期保存状態でHTTP/WebSocketを遮断し、5タブ・お気に入りの保存・完全再マウント後の復元と既存記録保持を確認する2テストを追加。14 suites/70 tests（既存68＋新規2）成功、型チェック、release:check、Expo解決後のOTA無効化、iOS/Android Hermesバンドル生成成功。既存projectIdがない場合にEAS呼出前で停止することも確認。
+- **残作業**: GitHubのapp.jsonに既存EAS projectIdが未設定で、環境にもExpo認証がない。新しい署名付きIPA・配布リンクは今回生成していない。既存EASプロジェクト/署名との連携後、ビルドしてインストールし、PC/トンネル停止・機内モードの実機冷起動を確認する。
+- **受入上の注意**: この変更は既存のSafariショートカットのURLを変更しない。Web版の記録を消さないよう、アイコン削除を対処として案内しない。今後の進捗確認は署名付きアプリの配布案内に統一し、EAS Build ID・コミット・ビルド番号を併記する。

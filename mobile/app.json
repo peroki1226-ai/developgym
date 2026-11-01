@@ -53,6 +53,9 @@
     ],
     "description": "希望する種目と設備からジムを探し、ジム・家トレ・食事を記録するフィットネスアプリ。",
     "icon": "./assets/icon.png",
-    "backgroundColor": "#000000"
+    "backgroundColor": "#000000",
+    "updates": {
+      "enabled": false
+    }
   }
 }

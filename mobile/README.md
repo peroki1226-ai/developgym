@@ -4,6 +4,12 @@ React Native / Expo SDK 58。今後の機能開発の本体です。iPhoneを主
 
 [ネイティブアプリ開発計画](../docs/NATIVE_APP_ROADMAP.md)に沿って、配布済みアプリとソースの照合、最新版の実機配布/TestFlight、操作改善、ストア公開の順に進めます。Web/PWAは補助プレビューで、Pages設定はネイティブ開発の前提にしません。
 
+## 利用者の進捗確認用アプリ
+
+進捗確認には、Ad HocまたはTestFlightで配布する署名付きReleaseビルドを使います。アプリ本体にコードを含め、Metro・PC・一時トンネルが停止していても起動できる構成です。起動時のOTA更新は無効にし、最新版は新しいビルドへ上書き更新します。通常の確認案内でExpo Goの接続QRや一時Web URLを渡さない方針です。
+
+既存のEASプロジェクトとの連携・認証が整った端末で`npm run build:ios:preview`を実行します。ビルド前の検証に通らなければ処理を止めます。ビルド番号はEAS remoteで自動増分し、初回は配布済み最大番号と照合します。詳しくは[署名・配布・機内モード確認手順](store/RELEASE.md)を参照してください。
+
 ## 起動
 
 Node.js 22.13以上（検証: 24.19.0）を使用します。
@@ -66,7 +72,7 @@ npx eas-cli@25.3.0 login
 npx eas-cli@25.3.0 init
 # 対象iPhoneが未登録なら案内URLをiPhoneのSafariで開き、UDIDを登録する
 npx eas-cli@25.3.0 device:create
-npx eas-cli@25.3.0 build --platform ios --profile preview
+npm run build:ios:preview
 ```
 
 プロビジョニングプロファイルの端末リストに対象iPhoneが含まれることを確認してください。ビルド成功後、EASのビルド詳細ページのInstall/QRをiPhoneのSafariで開いてインストールします。既存のEAS署名がある場合は再利用できます。配布にはリリースビルドのJSが含まれ、Metro常時起動は不要です。配布リンクの発行だけでは端末へのインストール完了とは扱いません。

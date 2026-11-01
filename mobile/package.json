@@ -12,7 +12,9 @@
     "release:check": "node scripts/verify-release.cjs",
     "test:web": "node scripts/verify-web-language.cjs",
     "preview:build": "node scripts/build-preview.cjs",
-    "preview:check": "node scripts/verify-preview.cjs"
+    "preview:check": "node scripts/verify-preview.cjs",
+    "build:ios:preview": "node scripts/build-ios.cjs preview",
+    "build:ios:production": "node scripts/build-ios.cjs production"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

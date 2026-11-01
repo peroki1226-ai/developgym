@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">88%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">83%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">15</span> / <span id="stat-total" class="text-neutral-500">17</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">15</span> / <span id="stat-total" class="text-neutral-500">18</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">15 / 17 TASKS COMPLETED (88%)</span>
+        <span class="font-num text-white">15 / 18 TASKS COMPLETED (83%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 88.24%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 83.33%"></div>
       </div>
     </div>
 
@@ -400,6 +400,16 @@
         rating: "補助用途・低優先",
         desc: "補助プレビュー用の静的配信・ホーム画面追加・端末保存。通常の機能開発はネイティブアプリを優先。",
         review: "68テスト・型チェック・公開用パッケージ検証・スマホ幅20画面・オフライン再起動を確認。GitHub上のbuildも成功。deployはPages未有効化の404。管理設定とSafari実機確認待ち。"
+      },
+      {
+        id: "TASK-018",
+        title: "進捗確認アプリのトンネル不要化",
+        category: "Native Delivery",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "署名・配布・実機確認待ち",
+        desc: "確認用は内蔵コードで起動する署名付きReleaseアプリへ統一。開発クライアントと起動時OTAを無効化。",
+        review: "Web版の一時URLが今回のエラー箇所。70テスト・型チェック・両OSバンドル生成成功。既存EAS連携後の署名ビルド・機内モード実機受入が必要。"
       }
     ];
 

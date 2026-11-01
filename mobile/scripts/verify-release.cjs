@@ -58,7 +58,12 @@ async function main() {
       ),
       permission,
     );
-  assert.equal(eas.cli.appVersionSource, "local");
+  assert.equal(eas.cli.appVersionSource, "remote");
+  assert.equal(
+    app.updates?.enabled,
+    false,
+    "Start from the embedded bundle, without an OTA network request",
+  );
   assert.equal(eas.build.preview.distribution, "internal");
   assert.equal(eas.build.preview.android.buildType, "apk");
   assert.equal(eas.build.production.distribution, "store");
@@ -66,7 +71,29 @@ async function main() {
   for (const profile of ["preview", "production"]) {
     assert.equal(eas.build[profile].credentialsSource, "remote");
     assert.equal(eas.build[profile].ios.simulator, false);
-    assert.equal(eas.build[profile].autoIncrement, false);
+    assert.equal(eas.build[profile].autoIncrement, true);
+    assert.equal(
+      eas.build[profile].developmentClient,
+      false,
+      "Review builds must not open a development-server launcher",
+    );
+    assert.equal(eas.build[profile].ios.buildConfiguration, "Release");
+    assert(
+      !eas.build[profile].extends,
+      "Review build settings must be explicit",
+    );
+    assert(
+      !eas.build[profile].ios.scheme,
+      "Use the Expo-generated release scheme",
+    );
+    assert(
+      !eas.build[profile].android.gradleCommand,
+      "Use the release buildType, not a custom debug Gradle task",
+    );
+    assert(
+      !eas.build[profile].env?.EXPO_NO_BUNDLE,
+      "Never omit the embedded JavaScript bundle",
+    );
   }
   await image("assets/store/google-play-icon.png", 512, 512, false);
   await image("assets/store/feature-graphic.png", 1024, 500, false);

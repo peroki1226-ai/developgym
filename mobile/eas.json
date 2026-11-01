@@ -1,32 +1,36 @@
 {
   "cli": {
     "version": ">= 25.3.0",
-    "appVersionSource": "local"
+    "appVersionSource": "remote"
   },
   "build": {
     "preview": {
       "distribution": "internal",
       "node": "24.19.0",
-      "autoIncrement": false,
+      "autoIncrement": true,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "buildConfiguration": "Release"
       },
       "android": {
         "buildType": "apk"
       },
-      "credentialsSource": "remote"
+      "credentialsSource": "remote",
+      "developmentClient": false
     },
     "production": {
       "distribution": "store",
       "node": "24.19.0",
-      "autoIncrement": false,
+      "autoIncrement": true,
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "buildConfiguration": "Release"
       },
       "android": {
         "buildType": "app-bundle"
       },
-      "credentialsSource": "remote"
+      "credentialsSource": "remote",
+      "developmentClient": false
     }
   }
 }

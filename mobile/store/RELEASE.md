@@ -7,9 +7,9 @@
 | 表示名 | GymFinder |
 | iOS Bundle ID / Android applicationId | com.peroki.gymfinder |
 | バージョン | 1.0.0 |
-| iOS buildNumber / Android versionCode | 1 / 1 |
+| iOS buildNumber / Android versionCode | app.jsonの初期値は1 / 1。配布値はEAS remoteで自動増分 |
 | Expo SDK / Node検証環境 | 58 / 24.19.0 |
-| バージョン管理 | EAS local、autoIncrement=false |
+| バージョン管理 | EAS remote、preview/productionともautoIncrement=true |
 | 署名情報 | EAS管理（credentialsSource=remote）。証明書等はGitへ保存しない |
 
 このBundle IDはユーザー指定の識別子です。Apple / Google / Expo上での所有・登録は未確認です。旧ID `com.gymfinder.mobile`、Expo Go、今回の署名済みアプリは保存領域が同一とは限らず、記録の自動移行を前提にしないでください。
@@ -59,7 +59,7 @@ npx eas-cli@25.3.0 init
 
 ```sh
 npx eas-cli@25.3.0 device:create
-npx eas-cli@25.3.0 build --platform ios --profile preview
+npm run build:ios:preview
 ```
 
 登録端末がプロビジョニングプロファイルに含まれることを確認します。Appleログイン・2FA・証明書作成等は本人がCLIの案内に従って行います。
@@ -67,13 +67,13 @@ npx eas-cli@25.3.0 build --platform ios --profile preview
 ### ストア用
 
 ```sh
-npx eas-cli@25.3.0 build --platform ios --profile production
+npm run build:ios:production
 npx eas-cli@25.3.0 build --platform android --profile production
 ```
 
 初回Android署名はEASの案内で生成・管理します。既存アプリへ更新する場合は既存署名を再利用し、新規鍵で置き換えないでください。Apple証明書・プロビジョニング・Androidキーストアはリモート管理し、ダウンロードした場合もリポジトリへ追加しません。
 
-ビルド番号は自動増分しません。同じストアへ次のバイナリをアップロードする前にiOS buildNumber / Android versionCodeを増やしてください。初回の1が既に使用済みかは、各ストアで確認します。
+ビルド番号はEAS remoteで管理し、preview/productionとも自動増分します。初回の連携時は既存のGymFinderプロジェクトを選び、各ストアや配布済みビルドの最大番号とリモート値を照合してください。必要な初期同期は`npx eas-cli@25.3.0 build:version:set --platform ios`（Androidも同様）で行い、既存番号より先へ進めます。app.jsonの1は配布済み最新版の番号を示しません。更新時は同じBundle ID・既存署名を使用し、原則アプリを削除せず上書き更新します。
 
 ## ストア登録・提出
 
@@ -115,3 +115,22 @@ Expo Goはホストアプリ側の権限や起動画面を使うため、最終�
 - 検証用店舗データと固定値の食事写真モックをどう公開するかの最終判断。
 
 設定検証、ネイティブプロジェクト生成、JS/Hermesバンドル成功は、署名・ネイティブコンパイル・ストア審査・公開の成功とは区別します。
+
+## 進捗確認ではトンネル不要の署名付きアプリを使用する
+
+`preview`と`production`は`developmentClient: false`、iOS `buildConfiguration: Release`でビルドし、JavaScript・必要なアセットをアプリに内蔵します。`updates.enabled: false`により起動時のOTA更新取得を行いません。変更を反映するには新しい署名付きビルドを配布し、既存アプリを更新します。
+
+`npm run build:ios:preview` / `npm run build:ios:production`はrelease:checkを実行し、既存EASプロジェクトIDの設定を確認し、型チェックと全テストに通ってからビルドを開始します。開発クライアント、Debug、内蔵コードの省略等の設定へ変わっていた場合は検証で止めます。コマンド自体はストア提出を行いません。
+
+利用者にはAd Hocのビルド詳細ページのInstall、またはTestFlightの配布案内を渡します。`exp://`、localhost、LAN IP、`lhr.life`等の一時URLは通常の進捗確認用として渡しません。Expo Go/開発クライアントは開発者用として扱います。専用アイコンでも開発クライアントの場合があるため、アイコンだけでReleaseと判断しません。
+
+2026-11-02、ユーザーから現在のエラーはSafari URL/ホーム画面に追加したWeb版で発生すると確認。一時トンネルを参照する既存ショートカットのURLは、ネイティブ設定の変更では更新できません。新しい署名付きアプリのインストールを確認してから、Web版アイコンと区別して案内します。Web版の端末内記録は自動移行されず、必要な記録が残っている場合は消去を案内しません。
+
+配布前の必須確認:
+
+1. EAS Build ID・ソースコミット・Bundle ID・実際のビルド番号を記録する。
+2. iPhoneへ署名付きReleaseビルドをインストールする。以前のネイティブ記録を使う場合は同じアプリへ上書き更新する。
+3. PCのMetro/トンネルを停止し、iPhoneを機内モードにする。完全終了したアプリを起動し、5タブ・記録保存・再起動後の復元を確認する。
+4. 通信を戻し、外部地図等の通信が必要な操作も確認する。配布ファイルのダウンロード、外部地図・将来のオンライン検索はネット接続が必要で、アプリ起動のトンネル依存とは区別する。
+
+自動テストやMetro/Hermesエクスポートの成功は、この署名付き実機試験の代わりにはしません。

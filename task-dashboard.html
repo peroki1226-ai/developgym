@@ -104,6 +104,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-014/015はAntigravityの受入・iPhone稼働報告を反映。追加実装・配布設定のGitHub同期は確認待ちです。</p>
 
+    <p class="text-xs text-neutral-300 px-1">2026-11-02 方針再確認：mobile/のネイティブアプリを本体として、ソース照合 → 実機配布・TestFlight → 操作改善 → ストア公開を優先。Web/PWAは補助用途です。</p>
+
     <!-- View Switcher -->
     <div class="flex items-center justify-between border-b border-white/15 pb-3">
       <div class="flex gap-2">
@@ -395,8 +397,8 @@
         category: "Mobile Access",
         assignee: "Codex",
         status: "IN REVIEW",
-        rating: "公開・実機確認待ち",
-        desc: "一時トンネルに依存しない静的配信、ホーム画面追加、端末保存とオフライン起動。",
+        rating: "補助用途・低優先",
+        desc: "補助プレビュー用の静的配信・ホーム画面追加・端末保存。通常の機能開発はネイティブアプリを優先。",
         review: "68テスト・型チェック・公開用パッケージ検証・スマホ幅20画面・オフライン再起動を確認。GitHub上のbuildも成功。deployはPages未有効化の404。管理設定とSafari実機確認待ち。"
       }
     ];

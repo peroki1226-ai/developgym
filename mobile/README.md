@@ -1,6 +1,8 @@
 # GymFinder Mobile
 
-React Native / Expo SDK 58。Web版は開発対象外です。
+React Native / Expo SDK 58。今後の機能開発の本体です。iPhoneを主な実機検証端末とし、Androidにも同じコードベースで対応します。
+
+[ネイティブアプリ開発計画](../docs/NATIVE_APP_ROADMAP.md)に沿って、配布済みアプリとソースの照合、最新版の実機配布/TestFlight、操作改善、ストア公開の順に進めます。Web/PWAは補助プレビューで、Pages設定はネイティブ開発の前提にしません。
 
 ## 起動
 

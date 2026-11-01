@@ -10,9 +10,7 @@ const root = path.resolve(__dirname, "../.."),
 const hash = (value) =>
   crypto.createHash("sha256").update(value).digest("hex").slice(0, 16);
 (async () => {
-  const sourcePath = ["gym-app-preview.html", "index.html"]
-    .map((p) => path.join(root, p))
-    .find((p) => fs.existsSync(p));
+  const sourcePath = path.join(root, "index.html");
   const dom = new JSDOM(fs.readFileSync(sourcePath, "utf8")),
     doc = dom.window.document;
   if (!doc.getElementById("app-root"))
@@ -94,7 +92,7 @@ const hash = (value) =>
   touch.href = "./assets/icon-180.png";
   doc.head.append(touch);
   doc.getElementById("app-root").innerHTML =
-    '<p role="status" style="padding:24px;color:white">◌</p><noscript>JavaScriptを有効にして開いてください。</noscript>';
+    '<p role="status" style="padding:24px;color:white">◌</p><noscript>ブラウザーのスクリプト実行を有効にして開いてください。</noscript>';
   fs.writeFileSync(path.join(destination, "index.html"), dom.serialize());
   dom.window.close();
   fs.copyFileSync(

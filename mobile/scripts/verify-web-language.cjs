@@ -40,8 +40,25 @@ function check(lang) {
     )
       bad[lang].add(text);
 }
+const dictionaries = w.eval("DISPLAY_MESSAGES");
+assert.deepEqual(
+  Object.keys(dictionaries.ja).sort(),
+  Object.keys(dictionaries.en).sort(),
+);
+for (const language of ["ja", "en"])
+  for (const [key, value] of Object.entries(dictionaries[language])) {
+    assert.equal(
+      (language === "ja" ? /[A-Za-z]/ : /[\u3040-\u30ff\u3400-\u9fff]/).test(
+        value,
+      ),
+      false,
+      `${language}: ${key} => ${value}`,
+    );
+  }
 for (const lang of ["ja", "en"]) {
-  w.gf.setLang(lang);
+  if (w.gfState.lang !== lang)
+    d.querySelector(`header button[data-language="${lang}"]`).click();
+  assert.equal(w.gfState.lang, lang);
   for (const tab of ["finder", "guide", "home", "diet", "mypage"]) {
     w.gf.setTab(tab);
     check(lang);

@@ -138,6 +138,7 @@ test("dictionaries preserve interpolation tokens and never introduce the other l
   const tokens = (s: string) => (s.match(/\{\d+\}/g) ?? []).sort();
   for (const [key, value] of Object.entries(japanese)) {
     expect(tokens(value)).toEqual(tokens(key));
+    expect(value).not.toMatch(/[A-Za-z]/);
     expect(translate("ja", key)).not.toMatch(/[A-Za-z]/);
     expect((english as Record<string, string>)[key]).toBeDefined();
     expect(translate("en", key)).not.toMatch(jp);
@@ -171,4 +172,24 @@ test("Japanese display names remain searchable without altering gym IDs or score
   expect(findGyms(pref, "Gold's Gym").map((r) => r.gym.id)).toEqual(
     result.map((r) => r.gym.id),
   );
+});
+
+test("changing language from each already-mounted tab translates immediately in both directions", async () => {
+  const app = await open("ja");
+  for (const tab of [
+    "nav.gyms",
+    "nav.training",
+    "nav.home",
+    "nav.diet",
+    "nav.mypage",
+  ]) {
+    await press(tab, "ja");
+    for (const language of ["en", "ja"] as const) {
+      await press(
+        language === "en" ? "🇺🇸 English" : "🇯🇵 日本語",
+        language === "en" ? "ja" : "en",
+      );
+      audit(app, language);
+    }
+  }
 });

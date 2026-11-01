@@ -16,7 +16,7 @@
       export: "記録を書き出す",
       close: "閉じる",
       title: "ホーム画面から使う",
-      ios: "Safariの共有ボタンから「ホーム画面に追加」を選びます。",
+      ios: "サファリの共有ボタンから「ホーム画面に追加」を選びます。",
       android:
         "ブラウザーのメニューから「アプリをインストール」または「ホーム画面に追加」を選びます。",
       local:
@@ -100,11 +100,14 @@
     refresh();
   }
   try {
+    const preferredLanguage = localStorage.getItem("gf_lang");
     originalRaw = localStorage.getItem(store.key);
     if (originalRaw !== null) {
       store.restore(store.decode(originalRaw), state, DATA.gyms);
       lastSaved = originalRaw;
     }
+    if (preferredLanguage === "ja" || preferredLanguage === "en")
+      state.lang = preferredLanguage;
   } catch {
     writesEnabled = false;
     storageError = "unreadable";
@@ -115,8 +118,11 @@
     app[name] = function (...args) {
       const result = action.apply(this, args);
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(save, 120);
-      refresh();
+      if (name === "setLang") save();
+      else {
+        saveTimer = setTimeout(save, 120);
+        refresh();
+      }
       if (result && typeof result.then === "function")
         return result.finally(save);
       return result;

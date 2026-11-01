@@ -9,6 +9,7 @@ const base = "https://gymfinder.test/developgym/";
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const info = JSON.parse(fs.readFileSync(path.join(root, "build-info.json")));
 const errors = [];
+assert.equal(info.source, "index.html", "Use the canonical translated source, not a stale preview copy");
 class Assets extends ResourceLoader {
   fetch(url) {
     assert.ok(url.startsWith(base), "No external startup resource: " + url);
@@ -19,7 +20,7 @@ class Assets extends ResourceLoader {
     );
   }
 }
-async function launch(raw, blocked = false) {
+async function launch(raw, blocked = false, preferredLanguage) {
   const vc = new VirtualConsole();
   vc.on("jsdomError", (e) => errors.push(e.message));
   const dom = new JSDOM(html, {
@@ -30,6 +31,8 @@ async function launch(raw, blocked = false) {
     beforeParse(w) {
       w.matchMedia = () => ({ matches: false });
       if (raw !== undefined) w.localStorage.setItem(store.key, raw);
+      if (preferredLanguage !== undefined)
+        w.localStorage.setItem("gf_lang", preferredLanguage);
       if (blocked)
         w.Storage.prototype.setItem = () => {
           throw new Error("Quota exceeded");
@@ -102,6 +105,13 @@ const flush = (w) => w.dispatchEvent(new w.Event("pagehide"));
       assert.ok(d.getElementById("app-root").textContent.trim().length > 50);
     }
   }
+  for (const language of ["ja", "en"]) {
+    d.querySelector(`header button[data-language="${language}"]`).click();
+    d.querySelector("#preview-install").click();
+    const help = d.querySelector("#preview-install-help");
+    assert.equal((language === "ja" ? /[A-Za-z]/ : /[\u3040-\u30ff\u3400-\u9fff]/).test(help.textContent), false, "Install help uses the selected language");
+    help.removeAttribute("open");
+  }
   const initialWorkouts = w.gfState.workoutHistory.length;
   w.gf.addWorkoutLog();
   w.gf.quickAddMeal("<b>Private meal</b>", 420, 30, 12, 48);
@@ -143,6 +153,36 @@ const flush = (w) => w.dispatchEvent(new w.Event("pagehide"));
   assert.equal(s.document.querySelector("#app-root b"), null);
   assert.ok(s.eval("DATA.gyms[0].reviews[0].text").includes("<img"));
   second.window.close();
+
+  // A previous full-state snapshot must not override the most recently chosen locale.
+  for (const language of ["ja", "en"]) {
+    const stale = JSON.parse(raw);
+    stale.state.lang = language === "ja" ? "en" : "ja";
+    const reopened = await launch(JSON.stringify(stale), false, language);
+    const localeWindow = reopened.window;
+    assert.equal(
+      localeWindow.gfState.lang,
+      language,
+      "Latest selected language wins over stale snapshot",
+    );
+    assert.equal(localeWindow.document.documentElement.lang, language);
+    const nextLanguage = language === "ja" ? "en" : "ja";
+    localeWindow.document
+      .querySelector(`header button[data-language="${nextLanguage}"]`)
+      .click();
+    assert.equal(
+      localeWindow.gfState.lang,
+      nextLanguage,
+      "Actual language button changes the locale",
+    );
+    assert.equal(
+      store.decode(localeWindow.localStorage.getItem(store.key)).state.lang,
+      nextLanguage,
+      "Language is saved immediately, without waiting for debounce/pagehide",
+    );
+    assert.equal(localeWindow.localStorage.getItem("gf_lang"), nextLanguage);
+    reopened.window.close();
+  }
 
   for (const invalid of [
     "{broken",

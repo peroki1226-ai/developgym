@@ -2,14 +2,28 @@ import { useI18n } from "../i18n";
 import React, { useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { ExerciseDiagram } from "../components/ExerciseDiagram";
-import { Body, Button, Card, Field, Heading, Page, s } from "../components/ui";
+import {
+  Body,
+  Button,
+  Card,
+  Disclosure,
+  Field,
+  Heading,
+  Page,
+  s,
+} from "../components/ui";
 import { EQUIPMENTS, EquipmentItem } from "../data/equipment";
 import { useFitness } from "../state";
-export function TrainingScreen() {
+export function TrainingScreen({
+  initialEquipmentId,
+  onBack,
+}: { initialEquipmentId?: string; onBack?: () => void } = {}) {
   const { t } = useI18n();
   const [pro, setPro] = useState(false);
   const [selectedPart, setSelectedPart] = useState<string>("all");
-  const [selected, setSelected] = useState<EquipmentItem>(EQUIPMENTS[0]);
+  const [selected, setSelected] = useState<EquipmentItem>(
+    () => EQUIPMENTS.find((e) => e.id === initialEquipmentId) ?? EQUIPMENTS[0],
+  );
   const [weight, setWeight] = useState("30");
   const [reps, setReps] = useState("10");
   const [sets, setSets] = useState("3");
@@ -53,184 +67,204 @@ export function TrainingScreen() {
     );
   }
   return (
-    <Page
-      title="Move with intent."
-      subtitle={t("正しい軌道とフォームで、怪我を防ぎ最大の筋肥大を引き出す。")}
-    >
-      {/* Mode Switcher */}
-      <View style={s.row}>
-        <Button
-          title={t("🔰 初心者モード")}
-          selected={!pro}
-          onPress={() => setPro(false)}
-        />
-        <Button
-          title={t("⚡ 本格モード（生体力学）")}
-          selected={pro}
-          onPress={() => setPro(true)}
-        />
-      </View>
-
-      {/* Body Part Filter */}
-      <Heading>{t("部位で絞り込む")}</Heading>
-      <View style={s.row}>
-        {[
-          {
-            id: "all",
-            label: t("全12種目"),
-          },
-          {
-            id: "chest",
-            label: t("胸"),
-          },
-          {
-            id: "back",
-            label: t("背中"),
-          },
-          {
-            id: "legs",
-            label: t("脚"),
-          },
-          {
-            id: "shoulder",
-            label: t("肩"),
-          },
-          {
-            id: "arm",
-            label: t("腕"),
-          },
-          {
-            id: "abs",
-            label: t("腹筋"),
-          },
-        ].map((p) => (
+    <View style={{ flex: 1 }}>
+      {onBack && (
+        <View style={{ paddingHorizontal: 22 }}>
+          <Button title={t("guide.back")} variant="quiet" onPress={onBack} />
+        </View>
+      )}
+      <Page
+        title={onBack ? "guide.title" : "Move with intent."}
+        subtitle={t(
+          onBack
+            ? "guide.entryHint"
+            : "正しい軌道とフォームで、怪我を防ぎ最大の筋肥大を引き出す。",
+        )}
+        tools={!onBack}
+        scrollKey={selected.id}
+      >
+        {/* Mode Switcher */}
+        <View style={s.row}>
           <Button
-            key={p.id}
-            title={p.label}
-            selected={selectedPart === p.id}
-            onPress={() => {
-              setSelectedPart(p.id);
-              const first = EQUIPMENTS.find(
-                (e) => p.id === "all" || e.bodyPart === p.id,
-              );
-              if (first) setSelected(first);
-            }}
+            title={t("🔰 初心者モード")}
+            selected={!pro}
+            onPress={() => setPro(false)}
           />
-        ))}
-      </View>
-
-      {/* Equipment Selector */}
-      <Heading>
-        {t("種目を選択 (")}
-        {filteredEquipments.length}
-        {t("件)")}
-      </Heading>
-      <View style={s.row}>
-        {filteredEquipments.map((eq) => (
           <Button
-            key={eq.id}
-            title={t(eq.name)}
-            selected={eq.id === selected.id}
-            onPress={() => setSelected(eq)}
+            title={t("⚡ 本格モード（生体力学）")}
+            selected={pro}
+            onPress={() => setPro(true)}
           />
-        ))}
-      </View>
-
-      {/* SVG Form & Trajectory Diagram */}
-      <ExerciseDiagram type={selected.svgType} muscleTag={selected.muscleTag} />
-
-      {/* Detailed Guide Card */}
-      <Card>
-        <View style={styles.titleRow}>
-          <View
-            style={{
-              flex: 1,
-            }}
-          >
-            <Heading>{t(selected.name)}</Heading>
-          </View>
-          <View style={styles.pofBadge}>
-            <Text style={styles.pofText}>{t(selected.pof)}</Text>
-          </View>
         </View>
 
-        <Body>{t(selected.bodyPartLabel)}</Body>
-        <Body>{t(selected.summary)}</Body>
+        {/* SVG Form & Trajectory Diagram */}
+        <Heading>{t(selected.name)}</Heading>
+        <ExerciseDiagram
+          type={selected.svgType}
+          muscleTag={selected.muscleTag}
+          label={selected.name}
+        />
 
-        <View style={styles.divider} />
-
-        {pro /* Pro Mode: Biomechanics & Variations */ ? (
-          <>
-            <Heading>{t("解剖学的ターゲット")}</Heading>
-            <Body>{t(selected.proAnatomy)}</Body>
-
-            <Heading>{t("生体力学（Biomechanics）")}</Heading>
-            <Body>{t(selected.proBiomechanics)}</Body>
-
-            <Heading>{t("バリエーション & 刺激変化")}</Heading>
-            {selected.proVariations.map((v) => (
-              <Body key={v}>• {t(v)}</Body>
-            ))}
-
-            <Heading>{t("ビルダーの極意（Builder Tip）")}</Heading>
-            <View style={styles.tipBox}>
-              <Text style={styles.tipText}>💡 {t(selected.builderTip)}</Text>
+        {/* Detailed Guide Card */}
+        <Card>
+          <View style={styles.titleRow}>
+            <View
+              style={{
+                flex: 1,
+              }}
+            >
+              <Heading>{t(selected.name)}</Heading>
             </View>
-          </> /* Beginner Mode: Seat Setup, Steps, NG Points */
-        ) : (
-          <>
-            <Heading>{t("シート・器具のセッティング")}</Heading>
-            <Body>{t(selected.seatSetup)}</Body>
+            <View style={styles.pofBadge}>
+              <Text style={styles.pofText}>{t(selected.pof)}</Text>
+            </View>
+          </View>
 
-            <Heading>{t("正しい動作手順")}</Heading>
-            {selected.beginnerSteps.map((step, i) => (
-              <Body key={step}>
-                {i + 1}. {t(step)}
+          <Body>{t(selected.bodyPartLabel)}</Body>
+          <Body>{t(selected.summary)}</Body>
+
+          <View style={styles.divider} />
+
+          {pro /* Pro Mode: Biomechanics & Variations */ ? (
+            <>
+              <Heading>{t("解剖学的ターゲット")}</Heading>
+              <Body>{t(selected.proAnatomy)}</Body>
+
+              <Heading>{t("生体力学（Biomechanics）")}</Heading>
+              <Body>{t(selected.proBiomechanics)}</Body>
+
+              <Heading>{t("バリエーション & 刺激変化")}</Heading>
+              {selected.proVariations.map((v) => (
+                <Body key={v}>• {t(v)}</Body>
+              ))}
+
+              <Heading>{t("ビルダーの極意（Builder Tip）")}</Heading>
+              <View style={styles.tipBox}>
+                <Text style={styles.tipText}>💡 {t(selected.builderTip)}</Text>
+              </View>
+            </> /* Beginner Mode: Seat Setup, Steps, NG Points */
+          ) : (
+            <>
+              <Heading>{t("シート・器具のセッティング")}</Heading>
+              <Body>{t(selected.seatSetup)}</Body>
+
+              <Heading>{t("正しい動作手順")}</Heading>
+              {selected.beginnerSteps.map((step, i) => (
+                <Body key={step}>
+                  {i + 1}. {t(step)}
+                </Body>
+              ))}
+
+              <Heading>{t("推奨スタート重量の目安")}</Heading>
+              <Body>
+                {t("男性: ")}
+                {t(selected.startWeightMale)}
+                {t(" / 女性:")} {t(selected.startWeightFemale)}
               </Body>
+
+              <Heading>{t("フォームの注意点（NG）")}</Heading>
+              {selected.ngPoints.map((point) => (
+                <Body key={point}>⚠️ {t(point)}</Body>
+              ))}
+            </>
+          )}
+        </Card>
+
+        <Disclosure title={t("guide.changeMachine")}>
+          {/* Body Part Filter */}
+          <Heading>{t("部位で絞り込む")}</Heading>
+          <View style={s.row}>
+            {[
+              {
+                id: "all",
+                label: t("全12種目"),
+              },
+              {
+                id: "chest",
+                label: t("胸"),
+              },
+              {
+                id: "back",
+                label: t("背中"),
+              },
+              {
+                id: "legs",
+                label: t("脚"),
+              },
+              {
+                id: "shoulder",
+                label: t("肩"),
+              },
+              {
+                id: "arm",
+                label: t("腕"),
+              },
+              {
+                id: "abs",
+                label: t("腹筋"),
+              },
+            ].map((p) => (
+              <Button
+                key={p.id}
+                title={p.label}
+                selected={selectedPart === p.id}
+                onPress={() => {
+                  setSelectedPart(p.id);
+                  const first = EQUIPMENTS.find(
+                    (e) => p.id === "all" || e.bodyPart === p.id,
+                  );
+                  if (first) setSelected(first);
+                }}
+              />
             ))}
+          </View>
 
-            <Heading>{t("推奨スタート重量の目安")}</Heading>
-            <Body>
-              {t("男性: ")}
-              {t(selected.startWeightMale)}
-              {t(" / 女性:")} {t(selected.startWeightFemale)}
-            </Body>
-
-            <Heading>{t("フォームの注意点（NG）")}</Heading>
-            {selected.ngPoints.map((point) => (
-              <Body key={point}>⚠️ {t(point)}</Body>
+          {/* Equipment Selector */}
+          <Heading>
+            {t("種目を選択 (")}
+            {filteredEquipments.length}
+            {t("件)")}
+          </Heading>
+          <View style={s.row}>
+            {filteredEquipments.map((eq) => (
+              <Button
+                key={eq.id}
+                title={t(eq.name)}
+                selected={eq.id === selected.id}
+                onPress={() => setSelected(eq)}
+              />
             ))}
-          </>
-        )}
-      </Card>
+          </View>
+        </Disclosure>
 
-      {/* Quick Workout Logger */}
-      <Card>
-        <Heading>{t("セットを記録（{0}）", { 0: t(selected.name) })}</Heading>
-        <Body>{t("重量（kg） / 自重の場合は0")}</Body>
-        <Field
-          accessibilityLabel={t("重量kg")}
-          keyboardType="decimal-pad"
-          value={weight}
-          onChangeText={setWeight}
-        />
-        <Body>{t("回数（Reps）")}</Body>
-        <Field
-          accessibilityLabel={t("回数")}
-          keyboardType="number-pad"
-          value={reps}
-          onChangeText={setReps}
-        />
-        <Body>{t("セット数（Sets）")}</Body>
-        <Field
-          accessibilityLabel={t("セット数")}
-          keyboardType="number-pad"
-          value={sets}
-          onChangeText={setSets}
-        />
-        <Button title={t("ジムトレーニングを記録")} selected onPress={save} />
-      </Card>
-    </Page>
+        {/* Quick Workout Logger */}
+        <Card>
+          <Heading>{t("セットを記録（{0}）", { 0: t(selected.name) })}</Heading>
+          <Body>{t("重量（kg） / 自重の場合は0")}</Body>
+          <Field
+            accessibilityLabel={t("重量kg")}
+            keyboardType="decimal-pad"
+            value={weight}
+            onChangeText={setWeight}
+          />
+          <Body>{t("回数（Reps）")}</Body>
+          <Field
+            accessibilityLabel={t("回数")}
+            keyboardType="number-pad"
+            value={reps}
+            onChangeText={setReps}
+          />
+          <Body>{t("セット数（Sets）")}</Body>
+          <Field
+            accessibilityLabel={t("セット数")}
+            keyboardType="number-pad"
+            value={sets}
+            onChangeText={setSets}
+          />
+          <Button title={t("ジムトレーニングを記録")} selected onPress={save} />
+        </Card>
+      </Page>
+    </View>
   );
 }
 const styles = StyleSheet.create({

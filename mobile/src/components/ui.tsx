@@ -33,17 +33,19 @@ export function Page({
   children,
   hero,
   tools = true,
+  scrollKey,
 }: PropsWithChildren<{
   title: string;
   subtitle: string;
   hero?: React.ReactNode;
   tools?: boolean;
+  scrollKey?: string;
 }>) {
   const { t } = useI18n();
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   useLayoutEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
-  }, [title]);
+  }, [title, scrollKey]);
   return (
     <ScrollView
       ref={scroll}

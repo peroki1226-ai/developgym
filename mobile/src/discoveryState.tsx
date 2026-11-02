@@ -9,6 +9,7 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View } from "react-native";
 import { useI18n } from "./i18n";
+import { EQUIPMENTS } from "./data/equipment";
 import {
   SearchProfile,
   defaultSearch,
@@ -35,6 +36,9 @@ type State = {
   toggleCompare: (id: string) => void;
   tool: Tool;
   setTool: (t: Tool) => void;
+  guideId: string | null;
+  openGuide: (equipmentId: string) => void;
+  closeGuide: () => void;
   storageError: boolean;
   retry: () => void;
 };
@@ -53,7 +57,8 @@ export function DiscoveryProvider({ children }: PropsWithChildren) {
   const [page, setPage] = useState<DiscoveryPage>("home"),
     [gymId, setGymId] = useState("gold"),
     [compare, setCompare] = useState<string[]>([]),
-    [tool, setTool] = useState<Tool>(null);
+    [tool, setTool] = useState<Tool>(null),
+    [guideId, setGuideId] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
     AsyncStorage.getItem(SEARCH_STORAGE_KEY)
@@ -122,7 +127,18 @@ export function DiscoveryProvider({ children }: PropsWithChildren) {
         toggleCompare: (id) =>
           setCompare((old) => comparisonSelection(old, id)),
         tool,
-        setTool,
+        setTool: (value) => {
+          setGuideId(null);
+          setTool(value);
+        },
+        guideId,
+        openGuide: (equipmentId) => {
+          setGuideId(
+            EQUIPMENTS.find((e) => e.id === equipmentId)?.id ??
+              EQUIPMENTS[0].id,
+          );
+        },
+        closeGuide: () => setGuideId(null),
         storageError,
         retry: () =>
           writable.current ? setRetry((n) => n + 1) : setReload((n) => n + 1),

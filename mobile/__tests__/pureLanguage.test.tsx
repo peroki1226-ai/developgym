@@ -89,6 +89,11 @@ test("all twelve exercise diagrams and beginner/advanced guides are separated in
   for (const language of ["ja", "en"] as const) {
     if (language === "en") await press("🇺🇸 English", "ja");
     await press("トレーニング (Training)", language);
+    const chooser = screen.getByRole("button", {
+      name: translate(language, "guide.changeMachine"),
+    });
+    if (!chooser.props.accessibilityState.expanded)
+      await fireEvent.press(chooser);
     for (const equipment of EQUIPMENTS) {
       await press(equipment.name, language);
       await press("🔰 初心者モード", language);

@@ -16,25 +16,44 @@ import { colors } from "./ui";
 export function ExerciseDiagram({
   type,
   muscleTag,
+  compact = false,
+  label,
 }: {
   type: string;
   muscleTag: string;
+  compact?: boolean;
+  label?: string;
 }) {
   const { t } = useI18n();
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, compact && { padding: 0, borderWidth: 0, backgroundColor: "transparent" }]}>
+      {!compact && <View style={styles.header}>
         <Text style={styles.badgeLabel}>{t("FORM & TRAJECTORY")}</Text>
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{t(muscleTag)}</Text>
         </View>
-      </View>
+      </View>}
 
-      <View style={styles.canvasWrapper}>
-        <Svg viewBox="0 0 120 96" style={styles.svg}>
+      <View
+        style={[styles.canvasWrapper, compact && { padding: 0, borderWidth: 0 }]}
+        accessible={!compact}
+        accessibilityRole="image"
+        accessibilityLabel={t("guide.diagramLabel", { 0: t(label ?? muscleTag) })}
+        accessibilityElementsHidden={compact}
+        importantForAccessibility={compact ? "no-hide-descendants" : "auto"}
+      >
+        <Svg viewBox="0 0 120 96" style={[styles.svg, compact && { height: 68 }]}>
           {renderSvgScene(type, t)}
         </Svg>
       </View>
+      {!compact && <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+          <Text style={styles.legend}>{t("guide.person")}</Text>
+          <Text style={styles.legend}>{t("guide.machine")}</Text>
+          <Text style={styles.legend}>{t("guide.direction")}</Text>
+        </View>
+        <Text style={styles.legend}>{t("guide.diagramHint")}</Text>
+      </View>}
     </View>
   );
 }
@@ -280,9 +299,9 @@ function renderSvgScene(type: string, t: (message: string) => string) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#edf5ff",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#dce8f8",
+    borderColor: colors.border,
     borderRadius: 16,
     padding: 14,
     gap: 12,
@@ -291,6 +310,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
   },
   badgeLabel: {
     color: colors.muted,
@@ -322,6 +343,7 @@ const styles = StyleSheet.create({
   },
   svg: {
     width: "100%",
-    height: 140,
+    height: 180,
   },
+  legend: { color: colors.muted, fontSize: 12, lineHeight: 19 },
 });

@@ -48,6 +48,9 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     );
 
     expect(await screen.findByText("確かなフォームで鍛えよう。")).toBeTruthy();
+    await fireEvent.press(
+      screen.getByRole("button", { name: "別のマシン・種目を選ぶ" }),
+    );
     expect(screen.getByRole("button", { name: "チェストプレス" })).toBeTruthy();
     expect(screen.getByText("シート・器具のセッティング")).toBeTruthy();
 

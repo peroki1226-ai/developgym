@@ -17,6 +17,7 @@ import { equipmentName, findGyms, menus, parts } from "../domain/matching";
 import { GymContributionForm, GymPosts } from "../components/GymCommunity";
 import { useFitness } from "../state";
 import { DiscoveryProvider, useDiscovery } from "../discoveryState";
+import { MachineGuideEntry } from "../components/MachineGuideEntry";
 import { GymPhoto, TravelHero, VenueCard } from "../components/TravelCards";
 const toggle = (items: string[], id: string) =>
   items.includes(id) ? items.filter((x) => x !== id) : [...items, id];
@@ -126,6 +127,7 @@ function GymsContent() {
             selected
             onPress={() => d.setPage("results")}
           />
+          <MachineGuideEntry />
           <Disclosure title={t("travel.refine")}>
             <Card>
               <Heading>{t("あなたのトレーニング")}</Heading>

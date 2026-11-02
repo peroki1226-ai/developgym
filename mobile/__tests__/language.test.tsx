@@ -52,6 +52,7 @@ test("header switches all five screens and tab labels immediately in both direct
     screen.getByRole("button", { name: /トレーニング|Training/ }),
   );
   expect(await screen.findByText("Seat & equipment setup")).toBeTruthy();
+  await fireEvent.press(button("Choose another machine or exercise"));
   expect(button("Seated Chest Press")).toBeTruthy();
   await fireEvent.press(button("⚡ Advanced mode (biomechanics)"));
   expect(screen.getByText("Anatomical targets")).toBeTruthy();

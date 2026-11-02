@@ -5,6 +5,7 @@ import {
   Body,
   Button,
   Card,
+  Disclosure,
   Field,
   Heading,
   Page,
@@ -12,6 +13,8 @@ import {
   colors,
 } from "../components/ui";
 import { GymPhoto, MatchMeter, VenueCard } from "../components/TravelCards";
+import { EQUIPMENTS } from "../data/equipment";
+import { MachineGuideEntry } from "../components/MachineGuideEntry";
 import { GymMap } from "../components/GymMap";
 import { GymContributionForm, GymPosts } from "../components/GymCommunity";
 import { useI18n, translate } from "../i18n";
@@ -65,6 +68,16 @@ export function SearchMenuScreen() {
   );
   return (
     <Page title="travel.menuTitle" subtitle={t("travel.menuSubtitle")}>
+      <MachineGuideEntry />
+      <Disclosure title={t("guide.browse")}>
+        {EQUIPMENTS.map((e) => (
+          <Button
+            key={e.id}
+            title={t("guide.openMachine", { 0: t(e.name) })}
+            onPress={() => d.openGuide(e.id)}
+          />
+        ))}
+      </Disclosure>
       <Card>
         <Heading>{t("travel.byBody")}</Heading>
         <View style={s.row}>
@@ -324,9 +337,21 @@ export function GymDetailScreen() {
           <Card>
             <Heading>{t("travel.equipment")}</Heading>
             <Body>{t(gym.spec)}</Body>
-            {gym.installed.map((id) => (
-              <Body key={id}>✓ {t(equipmentName(id))}</Body>
-            ))}
+            {gym.installed.map((id) => {
+              const guide = EQUIPMENTS.find((e) => e.id === id);
+              return (
+                <View key={id} style={{ gap: 4 }}>
+                  <Body>✓ {t(equipmentName(id))}</Body>
+                  {guide && (
+                    <Button
+                      title={t("guide.openMachine", { 0: t(guide.name) })}
+                      variant="quiet"
+                      onPress={() => d.openGuide(guide.id)}
+                    />
+                  )}
+                </View>
+              );
+            })}
           </Card>
           <Card>
             <Heading>{t("✓ Available / 実行可能")}</Heading>

@@ -1,6 +1,6 @@
-import { BackHandler } from "react-native";
+import { BackHandler, Modal, View } from "react-native";
 import { useI18n } from "./src/i18n";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   NavigationContainer,
@@ -77,6 +77,8 @@ export default function App() {
 function Route({ name }: { name: keyof TabParams }) {
   const d = useDiscovery()!,
     focused = useIsFocused();
+  const lastGuideId = useRef(d.guideId);
+  if (d.guideId) lastGuideId.current = d.guideId;
   useEffect(() => {
     if (!focused) return;
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -92,6 +94,41 @@ function Route({ name }: { name: keyof TabParams }) {
     });
     return () => sub.remove();
   }, [focused, d.tool, d.page, name]);
+  const guideOpen = focused && d.guideId !== null;
+  return (
+    <>
+      <View
+        style={{ flex: 1 }}
+        accessibilityElementsHidden={guideOpen}
+        importantForAccessibility={guideOpen ? "no-hide-descendants" : "auto"}
+      >
+        <RouteContent name={name} focused={focused} />
+      </View>
+      <Modal
+        visible={guideOpen}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={d.closeGuide}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+          <TrainingScreen
+            key={lastGuideId.current ?? "guide"}
+            initialEquipmentId={lastGuideId.current ?? undefined}
+            onBack={d.closeGuide}
+          />
+        </SafeAreaView>
+      </Modal>
+    </>
+  );
+}
+function RouteContent({
+  name,
+  focused,
+}: {
+  name: keyof TabParams;
+  focused: boolean;
+}) {
+  const d = useDiscovery()!;
   if (d.tool && focused)
     return d.tool === "training" ? (
       <TrainingScreen />

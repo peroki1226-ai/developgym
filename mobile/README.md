@@ -33,7 +33,7 @@ iPhoneにSDK 58対応のExpo Goをインストールし、開発PCと同一LAN�
 - `App.tsx`: 型付きReact Navigationの新5タブ、Safe Area Provider、白青テーマ
 - `src/components/ui.tsx`: 共通の画面・カード・入力・ボタン
 - `src/screens/`: Gyms / Training / Home / Diet / My Page
-- `src/data/equipment.ts`: 既存器具ガイド3種目のデータ
+- `src/data/equipment.ts`: 全12種目の器具・フォームガイド
 - `src/state.tsx`: 端末内保存、記録・お気に入り・自宅器具の共有状態
 
 記録・お気に入り・自宅器具はAsyncStorageで端末内に保存し、再起動時に復元します。Gymsの店舗情報・設備は検証用データです。Dietのグラフ/PFCは入力したログから表示します。Gymsのマッチ率は選択条件から計算します。全12種目の図解は実装済みです。設備投稿はこの端末内で利用できます。位置情報・実AI写真推定・公開投稿/API連携は今後のタスクです。写真は操作時にシステムの写真選択で指定し、位置情報は取得しません。カスタムフォントは未同梱でシステムフォントを使用します。
@@ -65,7 +65,7 @@ UIの重量指定は片手あたり0（指定なし）/20/40/60/90kg以上の必
 
 ## Build 1 / iPhoneへのAd Hoc配布
 
-`app.json` は `version: 1.0.0`、`ios.buildNumber: 2`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.peroki.gymfinder` はユーザー指定です。Apple側での所有・登録は未確認です。Expo/EASプロジェクトとの紐付け・Apple署名は未完了です。
+`app.json` は `version: 1.0.0`、`ios.buildNumber: 2`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.peroki.gymfinder` はユーザー指定です。Apple側での所有・登録は未確認です。既存のowner/projectIdは同期済みです。今回の環境はExpo未認証で、新しい署名ビルド・TestFlight配布は未実行です。
 
 Apple Developer Programの有料チームとExpoアカウントが必要です。認証できる作業端末で次を実行します。Appleログイン/2FAは本人がCLIの案内に沿って操作し、パスワードやトークンをGitやチャットへ保存しないでください。
 

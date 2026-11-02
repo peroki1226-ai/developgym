@@ -38,7 +38,7 @@ previewはExpo Goの代替となるスタンドアロンアプリで、Metro不�
 
 ## 認証・プロジェクト連携
 
-現在の環境では `eas whoami` はNot logged in、EXPO_TOKENは未設定、`extra.eas.projectId`も未登録です。Expo APIは到達可能でしたが、認証成功や署名準備完了を意味しません。
+既存owner/projectIdはad8d8bdから同期済みです。現在の環境ではEASの番号照合がExpo認証要求で停止し、Expo向けの認証・通信設定が未完了です。既存アカウントでの認証と署名準備を確認してから再開します。
 
 本人が利用する端末で次を実行します。
 
@@ -73,7 +73,7 @@ npx eas-cli@25.3.0 build --platform android --profile production
 
 初回Android署名はEASの案内で生成・管理します。既存アプリへ更新する場合は既存署名を再利用し、新規鍵で置き換えないでください。Apple証明書・プロビジョニング・Androidキーストアはリモート管理し、ダウンロードした場合もリポジトリへ追加しません。
 
-ビルド番号はEAS remoteで管理し、preview/productionとも自動増分します。初回の連携時は既存のGymFinderプロジェクトを選び、各ストアや配布済みビルドの最大番号とリモート値を照合してください。必要な初期同期は`npx eas-cli@25.3.0 build:version:set --platform ios`（Androidも同様）で行い、既存番号より先へ進めます。app.jsonの1は配布済み最新版の番号を示しません。更新時は同じBundle ID・既存署名を使用し、原則アプリを削除せず上書き更新します。
+ビルド番号はEAS remoteで管理し、preview/productionとも自動増分します。初回の連携時は既存のGymFinderプロジェクトを選び、各ストアや配布済みビルドの最大番号とリモート値を照合してください。必要な初期同期は`npx eas-cli@25.3.0 build:version:set --platform ios`（Androidも同様）で行い、既存番号より先へ進めます。app.jsonのローカル値は配布済み最新版の番号を示しません。更新時は同じBundle ID・既存署名を使用し、原則アプリを削除せず上書き更新します。
 
 ## ストア登録・提出
 

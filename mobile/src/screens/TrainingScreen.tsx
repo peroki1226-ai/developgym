@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   pofText: {
-    color: "#0878f9",
+    color: "#254f70",
     fontSize: 10,
     fontWeight: "700",
   },

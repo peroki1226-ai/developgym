@@ -2,7 +2,7 @@ import React from "react";
 import Svg, { Path, Circle, Ellipse, Line } from "react-native-svg";
 export function TravelIcon({
   name,
-  color = "#0878f9",
+  color = "#254f70",
   size = 24,
 }: {
   name: string;

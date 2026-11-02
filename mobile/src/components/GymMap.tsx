@@ -99,7 +99,7 @@ export function GymMap({
             >
               <View
                 style={{
-                  backgroundColor: g.id === selected ? "#00b982" : "#0878f9",
+                  backgroundColor: g.id === selected ? "#37675a" : "#254f70",
                   width: 34,
                   height: 40,
                   borderRadius: 17,
@@ -114,7 +114,7 @@ export function GymMap({
                 <Text
                   style={{
                     color: "#fff",
-                    fontWeight: "800",
+                    fontWeight: "500",
                     transform: [{ rotate: "-45deg" }],
                   }}
                 >

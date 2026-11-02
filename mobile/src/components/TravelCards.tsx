@@ -7,7 +7,6 @@ import { Gym, MatchResult } from "../domain/matching";
 import { useFitness } from "../state";
 import { useDiscovery } from "../discoveryState";
 import { Body, Button, Card, Heading, s, colors } from "./ui";
-import { TravelIcon } from "./TravelIcon";
 export function TravelHero() {
   const { t } = useI18n();
   return (
@@ -18,10 +17,6 @@ export function TravelHero() {
         resizeMode="cover"
       />
       <View style={styles.shade}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <TravelIcon name="globe" color="#fff" size={32} />
-          <Text style={styles.heroTitle}>{t("GymFinder")}</Text>
-        </View>
         <Text style={styles.heroText}>{t("travel.tagline")}</Text>
       </View>
     </View>
@@ -42,7 +37,7 @@ export function GymPhoto({
         style={{
           width: "100%",
           height: compact ? 82 : large ? 210 : 136,
-          borderRadius: 16,
+          borderRadius: 10,
         }}
         accessibilityLabel={t("travel.photo")}
       />
@@ -70,16 +65,16 @@ export function MatchMeter({ value }: { value: number | null }) {
           cx={41}
           cy={41}
           r={34}
-          stroke="#e3f2f4"
-          strokeWidth={6}
+          stroke={colors.border}
+          strokeWidth={3}
           fill="none"
         />
         <Circle
           cx={41}
           cy={41}
           r={34}
-          stroke="#00b982"
-          strokeWidth={6}
+          stroke={colors.success}
+          strokeWidth={3}
           fill="none"
           strokeDasharray={`${((value || 0) / 100) * 214} 214`}
           rotation={-90}
@@ -90,7 +85,7 @@ export function MatchMeter({ value }: { value: number | null }) {
       <Text style={{ fontSize: 10, color: colors.muted }}>
         {t("travel.match")}
       </Text>
-      <Text style={{ fontSize: 23, fontWeight: "800", color: colors.success }}>
+      <Text style={{ fontSize: 23, fontWeight: "400", color: colors.success }}>
         {value === null ? "—" : value + "%"}
       </Text>
     </View>
@@ -111,7 +106,7 @@ export function VenueCard({ gym, match }: { gym: Gym; match: MatchResult }) {
           <Heading>{t(gym.name)}</Heading>
           <Body>{t(gym.area)}</Body>
           <Text
-            style={{ color: colors.success, fontSize: 17, fontWeight: "800" }}
+            style={{ color: colors.success, fontSize: 17, fontWeight: "500" }}
           >
             {t("travel.match")}{" "}
             {match.percent === null ? "—" : match.percent + "%"}
@@ -161,33 +156,37 @@ export function VenueCard({ gym, match }: { gym: Gym; match: MatchResult }) {
 }
 
 const styles = StyleSheet.create({
-  hero: { height: 140, width: "100%", borderRadius: 24, overflow: "hidden" },
+  hero: { height: 84, width: "100%", borderRadius: 12, overflow: "hidden" },
   shade: {
     flex: 1,
-    backgroundColor: "#031d3659",
-    justifyContent: "center",
+    backgroundColor: "#14253566",
+    justifyContent: "flex-end",
     padding: 18,
     gap: 8,
   },
-  heroTitle: { fontSize: 26, fontWeight: "800", color: "#fff" },
-  heroText: { fontSize: 12, color: "#fff", fontWeight: "600" },
+  heroText: {
+    fontSize: 12,
+    color: "#fff",
+    fontWeight: "400",
+    letterSpacing: 0.2,
+  },
   photoLabel: {
     position: "absolute",
     bottom: 8,
     right: 8,
-    backgroundColor: "#072c48b3",
+    backgroundColor: "#182a3ac9",
     color: "#fff",
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 8,
+    borderRadius: 4,
     fontSize: 10,
   },
   tag: {
-    color: "#0878f9",
-    backgroundColor: "#edf5ff",
+    color: colors.muted,
+    backgroundColor: "#f3f5f6",
     alignSelf: "flex-start",
     padding: 8,
-    borderRadius: 10,
-    fontWeight: "600",
+    borderRadius: 6,
+    fontWeight: "400",
   },
 });

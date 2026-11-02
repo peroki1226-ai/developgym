@@ -45,6 +45,7 @@ test("header switches all five screens and tab labels immediately in both direct
   expect(button("🇯🇵 日本語").props.accessibilityState.selected).toBe(true);
   await englishMode();
   expect(button("🇺🇸 English").props.accessibilityState.selected).toBe(true);
+  await fireEvent.press(button("Refine search"));
   expect(screen.getByText("Your training")).toBeTruthy();
   expect(screen.queryByText("あなたのトレーニング")).toBeNull();
   await fireEvent.press(
@@ -99,6 +100,7 @@ test("English preference is saved and restored after a full provider/navigation 
   );
   await app.unmount();
   await open();
+  await fireEvent.press(button("Refine search"));
   expect(screen.getByText("Your training")).toBeTruthy();
   expect(button("🇺🇸 English").props.accessibilityState.selected).toBe(true);
   await fireEvent.press(button("🇯🇵 日本語"));

@@ -3,6 +3,8 @@ import React, { useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import {
   Body,
+  Disclosure,
+  colors,
   Button,
   Card,
   Field,
@@ -86,7 +88,7 @@ function GymsContent() {
       )}
       {d.page !== "results" && (
         <>
-          <Text style={{ fontSize: 11, color: "#5d718b" }}>
+          <Text style={{ fontSize: 11, color: colors.muted }}>
             {t("travel.sampleBadge")}
           </Text>
           <Field
@@ -120,107 +122,98 @@ function GymsContent() {
           </View>
           <Button
             title={t("travel.search")}
+            variant="primary"
             selected
             onPress={() => d.setPage("results")}
           />
-          <TrainingTools />
-          <View style={s.row}>
-            <Button
-              title={t("travel.equipmentSearch")}
-              onPress={() => d.setPage("equipment")}
-            />
-            <Button
-              title={t("travel.suggestions")}
-              onPress={() => d.setPage("recommendations")}
-            />
-            <Button
-              title={t("travel.compareCount", { 0: d.compare.length })}
-              disabled={d.compare.length !== 2}
-              onPress={() => d.setPage("compare")}
-            />
-          </View>
-          <Card>
-            <Heading>{t("あなたのトレーニング")}</Heading>
-            <Body>
-              {t("選択種目 ")}
-              {menuIds.length}
-              {t(" / 対象部位 ")}
-              {partIds.length}
-            </Body>
-            <Button
-              title={showMenu ? t("種目選択を閉じる") : t("やりたい種目を選ぶ")}
-              onPress={() => setShowMenu(!showMenu)}
-            />
-            {showMenu && (
-              <>
-                <View style={s.row}>
-                  {menus.map((m) => (
-                    <Button
-                      key={m.id}
-                      title={t(m.name)}
-                      selected={menuIds.includes(m.id)}
-                      onPress={() => setMenuIds((old) => toggle(old, m.id))}
-                    />
-                  ))}
-                </View>
-                <Button
-                  title={t("種目をすべて解除")}
-                  onPress={() => setMenuIds([])}
-                />
-              </>
-            )}
-            <Button
-              title={
-                showParts ? t("対象部位を閉じる") : t("対象部位を選ぶ（任意）")
-              }
-              onPress={() => setShowParts(!showParts)}
-            />
-            {showParts && (
-              <>
-                <View style={s.row}>
-                  {parts.map((p) => (
-                    <Button
-                      key={p.id}
-                      title={t(p.name)}
-                      selected={partIds.includes(p.id)}
-                      onPress={() => setPartIds((old) => toggle(old, p.id))}
-                    />
-                  ))}
-                </View>
-                <Button
-                  title={t("対象部位をすべて解除")}
-                  onPress={() => setPartIds([])}
-                />
-              </>
-            )}
-            <Body>
-              {t(
-                "選択種目65% + 部位の器具保有率20% + 重量条件15%。未選択の項目は充足扱い、全条件一致の種目選択は99%。最低スコアは15%です。実行可否は下の一覧で確認してください。",
+          <Disclosure title={t("travel.refine")}>
+            <Card>
+              <Heading>{t("あなたのトレーニング")}</Heading>
+              <Body>
+                {t("選択種目 ")}
+                {menuIds.length}
+                {t(" / 対象部位 ")}
+                {partIds.length}
+              </Body>
+              <Button
+                title={
+                  showMenu ? t("種目選択を閉じる") : t("やりたい種目を選ぶ")
+                }
+                onPress={() => setShowMenu(!showMenu)}
+              />
+              {showMenu && (
+                <>
+                  <View style={s.row}>
+                    {menus.map((m) => (
+                      <Button
+                        key={m.id}
+                        title={t(m.name)}
+                        selected={menuIds.includes(m.id)}
+                        onPress={() => setMenuIds((old) => toggle(old, m.id))}
+                      />
+                    ))}
+                  </View>
+                  <Button
+                    title={t("種目をすべて解除")}
+                    onPress={() => setMenuIds([])}
+                  />
+                </>
               )}
-            </Body>
-          </Card>
-          <Card>
-            <Heading>{t("必要なダンベル重量")}</Heading>
-            <Body>
-              {t("片手あたりの重量。選択値以上を備える店舗だけ表示します。")}
-            </Body>
-            <View style={s.row}>
-              {[0, 20, 40, 60, 90].map((kg) => (
-                <Button
-                  key={kg}
-                  title={
-                    kg
-                      ? t("{0}kg以上", {
-                          "0": kg,
-                        })
-                      : t("重量指定なし")
-                  }
-                  selected={requiredKg === kg}
-                  onPress={() => setRequiredKg(kg)}
-                />
-              ))}
-            </View>
-          </Card>
+              <Button
+                title={
+                  showParts
+                    ? t("対象部位を閉じる")
+                    : t("対象部位を選ぶ（任意）")
+                }
+                onPress={() => setShowParts(!showParts)}
+              />
+              {showParts && (
+                <>
+                  <View style={s.row}>
+                    {parts.map((p) => (
+                      <Button
+                        key={p.id}
+                        title={t(p.name)}
+                        selected={partIds.includes(p.id)}
+                        onPress={() => setPartIds((old) => toggle(old, p.id))}
+                      />
+                    ))}
+                  </View>
+                  <Button
+                    title={t("対象部位をすべて解除")}
+                    onPress={() => setPartIds([])}
+                  />
+                </>
+              )}
+              <Body>
+                {t(
+                  "選択種目65% + 部位の器具保有率20% + 重量条件15%。未選択の項目は充足扱い、全条件一致の種目選択は99%。最低スコアは15%です。実行可否は下の一覧で確認してください。",
+                )}
+              </Body>
+            </Card>
+            <Card>
+              <Heading>{t("必要なダンベル重量")}</Heading>
+              <Body>
+                {t("片手あたりの重量。選択値以上を備える店舗だけ表示します。")}
+              </Body>
+              <View style={s.row}>
+                {[0, 20, 40, 60, 90].map((kg) => (
+                  <Button
+                    key={kg}
+                    title={
+                      kg
+                        ? t("{0}kg以上", {
+                            "0": kg,
+                          })
+                        : t("重量指定なし")
+                    }
+                    selected={requiredKg === kg}
+                    onPress={() => setRequiredKg(kg)}
+                  />
+                ))}
+              </View>
+            </Card>
+          </Disclosure>
         </>
       )}
       {d.page === "results" && (
@@ -246,9 +239,17 @@ function GymsContent() {
           <VenueCard key={g.id} gym={g} match={match} />
         ) : (
           <Card key={g.id}>
-            <GymPhoto />
-            <Body>{t(g.area)}</Body>
-            <Heading>{t(g.name)}</Heading>
+            <View
+              style={{ flexDirection: "row", gap: 12, alignItems: "center" }}
+            >
+              <View style={{ width: 72 }}>
+                <GymPhoto compact />
+              </View>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Body>{t(g.area)}</Body>
+                <Heading>{t(g.name)}</Heading>
+              </View>
+            </View>
             <Text
               accessibilityLabel={t("{0} マッチ率 {1}", {
                 "0": t(g.name),
@@ -265,53 +266,6 @@ function GymsContent() {
                 {t("% MATCH")}
               </Text>
             </Text>
-            {match.percent === null && (
-              <Body>{t("種目・部位・重量を選ぶと計算します。")}</Body>
-            )}
-            <Body>
-              {t(g.spec)}
-              {"\n"}
-              {t("ダンベル最大 ")}
-              {g.maxDumbbellKg} {t("kg")}
-              {"\n"}
-              {t(g.dumbbellRange)}
-            </Body>
-            <Heading>{t("✓ Available / 実行可能")}</Heading>
-            {match.available.length ? (
-              match.available.map((m) => <Body key={m.id}>✓ {t(m.name)}</Body>)
-            ) : (
-              <Body>
-                {menuIds.length
-                  ? t("対応する選択種目がありません。")
-                  : t("種目が未選択です。")}
-              </Body>
-            )}
-            <Heading>{t("✕ Missing / 不足")}</Heading>
-            {match.missing.map((m) => (
-              <Body key={m.id}>✕ {t(m.name)}</Body>
-            ))}
-            {match.missingEquipment.map((id) => (
-              <Body key={id}>
-                {t("不足器具: ")}
-                {t(equipmentName(id))}
-              </Body>
-            ))}
-            {!match.dbOk && (
-              <Body>
-                {t("必要ダンベル ")}
-                {requiredKg}
-                {t("kg / 店舗最大 ")}
-                {g.maxDumbbellKg}
-                {t("kg")}
-              </Body>
-            )}
-            {!match.missing.length && !match.missingEquipment.length && (
-              <Body>
-                {match.percent === null
-                  ? t("条件を選択してください。")
-                  : t("指定条件での不足はありません。")}
-              </Body>
-            )}
             <Button
               title={
                 favorites.includes(g.id)
@@ -337,24 +291,98 @@ function GymsContent() {
                 onPress={() => d.toggleCompare(g.id)}
               />
             </View>
-            <GymPosts gymId={g.id} />
-            <Button
-              title={
-                postingGym === g.id
-                  ? t("{0}の投稿フォームを閉じる", {
-                      "0": t(g.name),
-                    })
-                  : t("{0}に投稿する", {
-                      "0": t(g.name),
-                    })
-              }
-              onPress={() => setPostingGym(postingGym === g.id ? null : g.id)}
-            />
-            {postingGym === g.id && (
-              <GymContributionForm key={g.id} gymId={g.id} />
-            )}
+            <Disclosure title={t("travel.gymMore", { 0: t(g.name) })}>
+              {match.percent === null && (
+                <Body>{t("種目・部位・重量を選ぶと計算します。")}</Body>
+              )}
+              <Body>
+                {t(g.spec)}
+                {"\n"}
+                {t("ダンベル最大 ")}
+                {g.maxDumbbellKg} {t("kg")}
+                {"\n"}
+                {t(g.dumbbellRange)}
+              </Body>
+              <Heading>{t("✓ Available / 実行可能")}</Heading>
+              {match.available.length ? (
+                match.available.map((m) => (
+                  <Body key={m.id}>✓ {t(m.name)}</Body>
+                ))
+              ) : (
+                <Body>
+                  {menuIds.length
+                    ? t("対応する選択種目がありません。")
+                    : t("種目が未選択です。")}
+                </Body>
+              )}
+              <Heading>{t("✕ Missing / 不足")}</Heading>
+              {match.missing.map((m) => (
+                <Body key={m.id}>✕ {t(m.name)}</Body>
+              ))}
+              {match.missingEquipment.map((id) => (
+                <Body key={id}>
+                  {t("不足器具: ")}
+                  {t(equipmentName(id))}
+                </Body>
+              ))}
+              {!match.dbOk && (
+                <Body>
+                  {t("必要ダンベル ")}
+                  {requiredKg}
+                  {t("kg / 店舗最大 ")}
+                  {g.maxDumbbellKg}
+                  {t("kg")}
+                </Body>
+              )}
+              {!match.missing.length && !match.missingEquipment.length && (
+                <Body>
+                  {match.percent === null
+                    ? t("条件を選択してください。")
+                    : t("指定条件での不足はありません。")}
+                </Body>
+              )}
+              <GymPosts gymId={g.id} />
+              <Button
+                title={
+                  postingGym === g.id
+                    ? t("{0}の投稿フォームを閉じる", {
+                        "0": t(g.name),
+                      })
+                    : t("{0}に投稿する", {
+                        "0": t(g.name),
+                      })
+                }
+                onPress={() => setPostingGym(postingGym === g.id ? null : g.id)}
+              />
+              {postingGym === g.id && (
+                <GymContributionForm key={g.id} gymId={g.id} />
+              )}
+            </Disclosure>
           </Card>
         ),
+      )}
+      {d.page !== "results" && (
+        <Card>
+          <Heading>{t("travel.tools")}</Heading>
+          <TrainingTools />
+          <View style={s.row}>
+            <Button
+              variant="quiet"
+              title={t("travel.equipmentSearch")}
+              onPress={() => d.setPage("equipment")}
+            />
+            <Button
+              variant="quiet"
+              title={t("travel.suggestions")}
+              onPress={() => d.setPage("recommendations")}
+            />
+            <Button
+              title={t("travel.compareCount", { 0: d.compare.length })}
+              disabled={d.compare.length !== 2}
+              onPress={() => d.setPage("compare")}
+            />
+          </View>
+        </Card>
       )}
       {!results.length && (
         <Card>

@@ -34,7 +34,7 @@ export function MyPageScreen() {
             ].map(([label, count]) => (
               <View key={label} style={{ gap: 6 }}>
                 <Text
-                  style={{ color: "#0878f9", fontSize: 28, fontWeight: "800" }}
+                  style={{ color: "#254f70", fontSize: 28, fontWeight: "500" }}
                 >
                   {count}
                 </Text>

@@ -278,7 +278,7 @@ export function DietScreen() {
           <View
             style={{
               height: 10,
-              backgroundColor: "#0878f9",
+              backgroundColor: "#254f70",
               width: `${Math.min(100, percent)}%`,
             }}
           />
@@ -309,7 +309,7 @@ export function DietScreen() {
                 style={{
                   height: 4,
                   width: `${ratios[key]}%`,
-                  backgroundColor: ["#0878f9", "#38bdf8", "#3f51b5"][i],
+                  backgroundColor: ["#254f70", "#38bdf8", "#3f51b5"][i],
                 }}
               />
             </View>

@@ -62,7 +62,7 @@ export function WeightChart({
         {points.length > 1 && (
           <Polyline
             points={points.map((p) => `${p.x},${p.y}`).join(" ")}
-            stroke="#0878f9"
+            stroke="#254f70"
             fill="none"
             strokeWidth={2}
           />
@@ -73,7 +73,7 @@ export function WeightChart({
             cx={p.x}
             cy={p.y}
             r={3}
-            fill="#0878f9"
+            fill="#254f70"
           />
         ))}
         <SvgText x={24} y={175} fill="#526d8c" fontSize={10}>

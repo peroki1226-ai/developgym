@@ -61,8 +61,20 @@ test("specs update Gyms ranking/weight filters and My Page immediately, then sur
   const app = await render(<App />);
   await screen.findByText("理想のジムを探そう。");
   await change("ジム検索", "Anytime");
+  await fireEvent.press(
+    button("エニタイムフィットネス渋谷公園通りの設備・投稿"),
+  );
   await fireEvent.press(button("エニタイムフィットネス渋谷公園通りに投稿する"));
   await change("修正後ダンベル最大重量キログラム", "60");
+  await fireEvent.press(
+    button("エニタイムフィットネス渋谷公園通りの設備・投稿"),
+  );
+  await fireEvent.press(
+    button("エニタイムフィットネス渋谷公園通りの設備・投稿"),
+  );
+  expect(
+    screen.getByLabelText("修正後ダンベル最大重量キログラム").props.value,
+  ).toBe("60");
   await fireEvent.press(button("追加: 45度ハックスクワット"));
   await change("設備確認メモ", "現地で確認");
   await fireEvent.press(button("設備修正を反映"));
@@ -72,6 +84,7 @@ test("specs update Gyms ranking/weight filters and My Page immediately, then sur
   expect(
     screen.getByText("設備修正 / 40キログラム → 60キログラム"),
   ).toBeTruthy();
+  await fireEvent.press(button("検索条件を調整"));
   await fireEvent.press(button("60キログラム以上"));
   expect(screen.getByText("マッチ率順 / 1件")).toBeTruthy();
   await fireEvent.press(
@@ -111,6 +124,7 @@ test("star/comment validation and local reviews reflect across tabs", async () =
   expect(screen.getByText("ラックが使いやすい")).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: /^(ジム|Gyms)$/ }));
   await screen.findByText("理想のジムを探そう。");
+  await fireEvent.press(button("ゴールドジム渋谷東京の設備・投稿"));
   expect(screen.getByText("ラックが使いやすい")).toBeTruthy();
   await waitFor(async () =>
     expect(
@@ -150,6 +164,9 @@ test("library photos are copied, scoped to a gym/equipment, visible across tabs 
   await app.unmount();
   await render(<App />);
   await screen.findByText("理想のジムを探そう。");
+  await fireEvent.press(
+    button("エニタイムフィットネス渋谷公園通りの設備・投稿"),
+  );
   expect(screen.getByLabelText("設備写真: パワーラック")).toBeTruthy();
   await fireEvent.press(
     screen.getByRole("button", { name: /マイページ|My Page/ }),

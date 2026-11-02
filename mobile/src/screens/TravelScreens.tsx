@@ -125,6 +125,7 @@ export function SearchMenuScreen() {
       {!filtered.length && <Body>{t("travel.noMenus")}</Body>}
       <Button
         title={t("travel.seeResults")}
+        variant="primary"
         selected
         onPress={() => {
           d.setPage("results");
@@ -298,7 +299,7 @@ export function GymDetailScreen() {
       <Card>
         <Heading>{t("travel.equipmentCoverage")}</Heading>
         <Text
-          style={{ fontSize: 30, color: colors.primary, fontWeight: "800" }}
+          style={{ fontSize: 30, color: colors.primary, fontWeight: "500" }}
         >
           {gym.installed.length} / {equipment.length}
         </Text>
@@ -357,6 +358,7 @@ export function GymDetailScreen() {
       )}
       <Button
         title={t("travel.goGym")}
+        variant="primary"
         selected
         onPress={() => openRoute(gym, t)}
       />

@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">89%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">85%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">17</span> / <span id="stat-total" class="text-neutral-500">19</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">17</span> / <span id="stat-total" class="text-neutral-500">20</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">17 / 19 TASKS COMPLETED (89%)</span>
+        <span class="font-num text-white">17 / 20 TASKS COMPLETED (85%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 89.47%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 85%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-014/015の追加ソースとEAS連携情報は統合済み。署名ビルド・実機更新は認証待ちです。</p>
+    <p class="text-xs text-neutral-400 px-1">Build 3のApple提出成功記録を同期済み。TestFlight実機受入待ち。TASK-020として機能を維持したシンプル・上質なレイアウト改善を追加。</p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-02 方針再確認：mobile/のネイティブアプリを本体として、ソース照合 → 実機配布・TestFlight → 操作改善 → ストア公開を優先。Web/PWAは補助用途です。</p>
 
@@ -426,6 +426,16 @@
         rating: "LGTM",
         desc: "参考画像を採用。新5タブ、検索/詳細/比較/地図/器具逆引き/条件提案と既存記録ツールを統合。",
         review: "Antigravityの88テスト・新UI/言語分離受入完了。実店舗データ/実AIは別工程。配布はTASK-018で追跡。"
+      },
+      {
+        id: "TASK-020",
+        title: "機能を維持したシンプル・上質なレイアウト",
+        category: "Native Design",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証完了、受入待ち",
+        desc: "白と濃紺、控えめな青。余白・文字・操作の階層を統一し、検索と候補を優先。詳細条件や設備/投稿を折りたたんでも入力を保持。",
+        review: "17 suites/124 tests・型/設定検証・iOS/Androidバンドル成功。320/390幅・日英20画面で混在/横はみ出し/実行エラー0。検索フォーカス・条件/入力保持を確認。Build 3は変更前のため新ビルドで実機確認する。"
       }
     ];
 

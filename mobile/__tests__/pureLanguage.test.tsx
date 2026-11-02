@@ -57,6 +57,7 @@ for (const language of ["ja", "en"] as const) {
   test(`${language}: all five screens and expanded forms contain only the selected system language`, async () => {
     const app = await open(language);
     audit(app, language);
+    await press("travel.refine", language);
     await press("やりたい種目を選ぶ", language);
     await press("対象部位を選ぶ（任意）", language);
     audit(app, language);

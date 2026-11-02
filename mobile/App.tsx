@@ -29,6 +29,7 @@ import {
   EquipmentSearchScreen,
   RecommendationsScreen,
 } from "./src/screens/TravelScreens";
+import { colors } from "./src/components/ui";
 import { TravelIcon } from "./src/components/TravelIcon";
 export type TabParams = {
   Explore: undefined;
@@ -42,11 +43,11 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#0878f9",
-    background: "#f5f9ff",
+    primary: colors.primary,
+    background: colors.background,
     card: "#ffffff",
-    text: "#102b4e",
-    border: "#dfebfa",
+    text: colors.text,
+    border: colors.border,
   },
 };
 const icons = {
@@ -61,7 +62,7 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#f5f9ff" }}
+        style={{ flex: 1, backgroundColor: colors.background }}
         edges={["top", "left", "right"]}
       >
         <FitnessProvider>
@@ -136,17 +137,17 @@ function AppNavigator() {
         })}
         screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarActiveTintColor: "#0878f9",
-          tabBarInactiveTintColor: "#7087a3",
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.muted,
           tabBarStyle: {
             backgroundColor: "#fff",
-            borderTopColor: "#dfebfa",
+            borderTopColor: colors.border,
             height: 64 + insets.bottom,
             paddingBottom: insets.bottom + 4,
             paddingTop: 4,
           },
           tabBarItemStyle: { minHeight: 48 },
-          tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
+          tabBarLabelStyle: { fontSize: 10, fontWeight: "500" },
           tabBarIcon: ({ color }) => (
             <TravelIcon name={icons[route.name]} color={color} />
           ),

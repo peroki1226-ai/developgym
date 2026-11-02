@@ -13,7 +13,13 @@ test("menu changes update live score and missing equipment; empty choices do not
   expect(
     screen.getByLabelText("エニタイムフィットネス渋谷公園通り マッチ率 84%"),
   ).toBeTruthy();
+  await fireEvent.press(
+    screen.getByRole("button", {
+      name: "エニタイムフィットネス渋谷公園通りの設備・投稿",
+    }),
+  );
   expect(screen.getByText("不足器具: 45度ハックスクワット")).toBeTruthy();
+  await fireEvent.press(screen.getByRole("button", { name: "検索条件を調整" }));
   await fireEvent.press(screen.getByText("やりたい種目を選ぶ"));
   await fireEvent.press(screen.getByText("種目をすべて解除"));
   expect(
@@ -39,6 +45,7 @@ test("weight filters remove insufficient gyms and clear restores filters without
       <GymsScreen />
     </FitnessProvider>,
   );
+  await fireEvent.press(screen.getByRole("button", { name: "検索条件を調整" }));
   await fireEvent.press(screen.getByText("東京"));
   await fireEvent.press(screen.getByText("60キログラム以上"));
   expect(screen.getByText("マッチ率順 / 1件")).toBeTruthy();

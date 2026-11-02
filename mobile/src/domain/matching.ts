@@ -17,6 +17,8 @@ export const gyms: Gym[] = data.gyms;
 export const menus: Menu[] = data.menus;
 export const parts = data.parts;
 export const equipment = data.equipment;
+export * from "./brandInference";
+export * from "./freeSearchService";
 export const equipmentName = (id: string) =>
   equipment.find((e) => e.id === id)?.name ?? id;
 

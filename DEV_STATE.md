@@ -52,7 +52,7 @@
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
 | **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（2026-10-30引継ぎ報告。追加ソースのGitHub同期は未確認） |
 | **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（PeroのiPhoneで稼働との報告。ビルド設定・追加ソースの同期は未確認） |
-| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（Antigravity受入。15 suites/78 tests成功との報告。Codex側は追加差分未受領） |
+| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | DONE | LGTM（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
 | **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 2準備。追加差分・EAS projectId/認証・Expo通信待ちで署名ビルド未開始 |

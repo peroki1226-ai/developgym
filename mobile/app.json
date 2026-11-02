@@ -29,7 +29,9 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.SYSTEM_ALERT_WINDOW"
       ],
-      "permissions": ["android.permission.CAMERA"]
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "plugins": [
       "expo-status-bar",
@@ -56,6 +58,12 @@
     "backgroundColor": "#ffffff",
     "updates": {
       "enabled": false
+    },
+    "owner": "peroki1226",
+    "extra": {
+      "eas": {
+        "projectId": "707c6e89-6ed5-4d65-a6bb-90472a724971"
+      }
     }
   }
 }

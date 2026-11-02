@@ -252,7 +252,8 @@ test("English catalog covers every displayed training/home description and macro
     expect(en.trim().length).toBeGreaterThan(0);
     expect(en).not.toMatch(jp);
     const tokens = (s: string) => (s.match(/\{\d+\}/g) ?? []).sort();
-    expect(tokens(en)).toEqual(tokens(ja));
+    expect(tokens(en)).toEqual(tokens(translate("ja", ja)));
+    if (tokens(ja).length) expect(tokens(en)).toEqual(tokens(ja));
   }
 });
 

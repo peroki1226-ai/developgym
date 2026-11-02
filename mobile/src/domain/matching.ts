@@ -81,7 +81,7 @@ export function findGyms(
       (g) =>
         (region === "all" || g.region === region) &&
         g.maxDumbbellKg >= minimumDumbbellKg &&
-        `${g.name} ${g.area} ${g.spec} ${g.installed.map(equipmentName).join(" ")} ${[g.name, g.area, g.spec, ...g.installed.map(equipmentName)].map(localize).join(" ")}`
+        `${g.name} ${g.area} ${g.spec} ${g.installed.map((id) => equipment.find((e) => e.id === id)?.brand || "").join(" ")} ${g.installed.map(equipmentName).join(" ")} ${[g.name, g.area, g.spec, ...g.installed.map(equipmentName), ...g.installed.map((id) => equipment.find((e) => e.id === id)?.brand || "")].map(localize).join(" ")}`
           .normalize("NFKC")
           .toLowerCase()
           .includes(q),

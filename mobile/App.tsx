@@ -1,119 +1,200 @@
+import { BackHandler } from "react-native";
 import { useI18n } from "./src/i18n";
-import React from "react";
+import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DefaultTheme,
+  useIsFocused,
+} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "react-native";
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { GymsScreen } from "./src/screens/GymsScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { TrainingScreen } from "./src/screens/TrainingScreen";
 import { MyPageScreen } from "./src/screens/LifestyleScreens";
 import { DietScreen } from "./src/screens/DietScreen";
 import { FitnessProvider } from "./src/state";
+import { DiscoveryProvider, useDiscovery } from "./src/discoveryState";
+import {
+  MapScreen,
+  SearchMenuScreen,
+  FavoritesScreen,
+  GymDetailScreen,
+  ComparisonScreen,
+  EquipmentSearchScreen,
+  RecommendationsScreen,
+} from "./src/screens/TravelScreens";
+import { TravelIcon } from "./src/components/TravelIcon";
 export type TabParams = {
-  Gyms: undefined;
-  Training: undefined;
-  Home: undefined;
-  Diet: undefined;
+  Explore: undefined;
+  Map: undefined;
+  Menu: undefined;
+  Favorites: undefined;
   MyPage: undefined;
 };
 const Tab = createBottomTabNavigator<TabParams>();
 const theme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
-    primary: "#ffffff",
-    background: "#000000",
-    card: "#000000",
-    text: "#ffffff",
-    border: "#303030",
+    ...DefaultTheme.colors,
+    primary: "#0878f9",
+    background: "#f5f9ff",
+    card: "#ffffff",
+    text: "#102b4e",
+    border: "#dfebfa",
   },
 };
-const icons: Record<keyof TabParams, string> = {
-  Gyms: "◎",
-  Training: "▥",
-  Home: "⌂",
-  Diet: "◒",
-  MyPage: "○",
+const icons = {
+  Explore: "home",
+  Map: "map",
+  Menu: "menu",
+  Favorites: "heart",
+  MyPage: "person",
 };
 export default function App() {
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#000000" }}
+        style={{ flex: 1, backgroundColor: "#f5f9ff" }}
         edges={["top", "left", "right"]}
       >
         <FitnessProvider>
-          <AppNavigator />
+          <DiscoveryProvider>
+            <AppNavigator />
+          </DiscoveryProvider>
         </FitnessProvider>
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
-
+function Route({ name }: { name: keyof TabParams }) {
+  const d = useDiscovery()!,
+    focused = useIsFocused();
+  useEffect(() => {
+    if (!focused) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (d.tool) {
+        d.setTool(null);
+        return true;
+      }
+      if (name === "Explore" && d.page !== "home") {
+        d.setPage(d.page === "detail" ? "results" : "home");
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+  }, [focused, d.tool, d.page, name]);
+  if (d.tool && focused)
+    return d.tool === "training" ? (
+      <TrainingScreen />
+    ) : d.tool === "home" ? (
+      <HomeScreen />
+    ) : (
+      <DietScreen />
+    );
+  if (name === "Explore") {
+    if (d.page === "detail") return <GymDetailScreen />;
+    if (d.page === "compare") return <ComparisonScreen />;
+    if (d.page === "equipment") return <EquipmentSearchScreen />;
+    if (d.page === "recommendations") return <RecommendationsScreen />;
+    return <GymsScreen />;
+  }
+  return name === "Map" ? (
+    <MapScreen />
+  ) : name === "Menu" ? (
+    <SearchMenuScreen />
+  ) : name === "Favorites" ? (
+    <FavoritesScreen />
+  ) : (
+    <MyPageScreen />
+  );
+}
+const Explore = () => <Route name="Explore" />,
+  Map = () => <Route name="Map" />,
+  Menu = () => <Route name="Menu" />,
+  Favorites = () => <Route name="Favorites" />,
+  MyPage = () => <Route name="MyPage" />;
 function AppNavigator() {
-  const { t } = useI18n();
+  const { t } = useI18n(),
+    d = useDiscovery()!,
+    insets = useSafeAreaInsets();
   return (
     <NavigationContainer theme={theme}>
       <Tab.Navigator
+        screenListeners={({ route }) => ({
+          tabPress: () => {
+            d.setTool(null);
+            if (route.name === "Explore") d.setPage("home");
+          },
+        })}
         screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarActiveTintColor: "#ffffff",
-          tabBarInactiveTintColor: "#a1a1aa",
+          tabBarActiveTintColor: "#0878f9",
+          tabBarInactiveTintColor: "#7087a3",
           tabBarStyle: {
-            backgroundColor: "#000000",
-            borderTopColor: "#303030",
+            backgroundColor: "#fff",
+            borderTopColor: "#dfebfa",
+            height: 64 + insets.bottom,
+            paddingBottom: insets.bottom + 4,
+            paddingTop: 4,
           },
           tabBarItemStyle: { minHeight: 48 },
-          tabBarLabelStyle: { fontSize: 10 },
+          tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
           tabBarIcon: ({ color }) => (
-            <Text style={{ color, fontSize: 24 }} accessibilityElementsHidden>
-              {icons[route.name]}
-            </Text>
+            <TravelIcon name={icons[route.name]} color={color} />
           ),
         })}
       >
         <Tab.Screen
-          name="Gyms"
-          component={GymsScreen}
+          name="Explore"
+          component={Explore}
           options={{
-            tabBarAccessibilityLabel: t("nav.gyms"),
-            tabBarLabel: t("nav.gyms"),
+            title: t("travel.nav.explore"),
+            tabBarLabel: t("travel.nav.explore"),
+            tabBarAccessibilityLabel: t("travel.nav.explore"),
           }}
         />
         <Tab.Screen
-          name="Training"
-          component={TrainingScreen}
+          name="Map"
+          component={Map}
           options={{
-            tabBarAccessibilityLabel: t("nav.training"),
-            tabBarLabel: t("nav.training"),
+            title: t("travel.nav.map"),
+            tabBarLabel: t("travel.nav.map"),
+            tabBarAccessibilityLabel: t("travel.nav.map"),
           }}
         />
         <Tab.Screen
-          name="Home"
-          component={HomeScreen}
+          name="Menu"
+          component={Menu}
           options={{
-            tabBarAccessibilityLabel: t("nav.home"),
-            tabBarLabel: t("nav.home"),
+            title: t("travel.nav.menu"),
+            tabBarLabel: t("travel.nav.menu"),
+            tabBarAccessibilityLabel: t("travel.nav.menu"),
           }}
         />
         <Tab.Screen
-          name="Diet"
-          component={DietScreen}
+          name="Favorites"
+          component={Favorites}
           options={{
-            tabBarAccessibilityLabel: t("nav.diet"),
-            tabBarLabel: t("nav.diet"),
+            title: t("travel.nav.favorites"),
+            tabBarLabel: t("travel.nav.favorites"),
+            tabBarAccessibilityLabel: t("travel.nav.favorites"),
           }}
         />
         <Tab.Screen
           name="MyPage"
-          component={MyPageScreen}
+          component={MyPage}
           options={{
             title: t("nav.mypage"),
-            tabBarAccessibilityLabel: t("nav.mypage"),
             tabBarLabel: t("nav.mypage"),
+            tabBarAccessibilityLabel: t("nav.mypage"),
           }}
         />
       </Tab.Navigator>

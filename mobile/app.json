@@ -3,7 +3,7 @@
     "name": "GymFinder",
     "slug": "gymfinder",
     "version": "1.0.0",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.peroki.gymfinder",
@@ -18,7 +18,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-foreground.png",
         "monochromeImage": "./assets/adaptive-foreground.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#ffffff"
       },
       "blockedPermissions": [
         "android.permission.RECORD_AUDIO",
@@ -44,7 +44,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#000000",
+          "backgroundColor": "#ffffff",
           "image": "./assets/splash.png",
           "imageWidth": 240,
           "resizeMode": "contain"
@@ -53,7 +53,7 @@
     ],
     "description": "希望する種目と設備からジムを探し、ジム・家トレ・食事を記録するフィットネスアプリ。",
     "icon": "./assets/icon.png",
-    "backgroundColor": "#000000",
+    "backgroundColor": "#ffffff",
     "updates": {
       "enabled": false
     }

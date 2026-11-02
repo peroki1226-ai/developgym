@@ -29,13 +29,13 @@ export function WeightChart({
       })}
     >
       <Svg width="100%" height={190} viewBox="0 0 320 180">
-        <SvgText x={4} y={12} fontSize={9} fill="#d4d4d8">
+        <SvgText x={4} y={12} fontSize={9} fill="#526d8c">
           {chart.max.toFixed(1)} {t("kg")}
         </SvgText>
-        <SvgText x={4} y={158} fontSize={9} fill="#d4d4d8">
+        <SvgText x={4} y={158} fontSize={9} fill="#526d8c">
           {chart.min.toFixed(1)} {t("kg")}
         </SvgText>
-        <Line x1={24} x2={296} y1={144} y2={144} stroke="#404040" />
+        <Line x1={24} x2={296} y1={144} y2={144} stroke="#d8e6f5" />
         {chart.targetY !== null && (
           <>
             <Line
@@ -43,14 +43,14 @@ export function WeightChart({
               x2={296}
               y1={chart.targetY}
               y2={chart.targetY}
-              stroke="#a1a1aa"
+              stroke="#8ca4bd"
               strokeDasharray="4 4"
             />
             <SvgText
               x={296}
               y={Math.max(12, chart.targetY - 5)}
               textAnchor="end"
-              fill="#d4d4d8"
+              fill="#526d8c"
               fontSize={10}
             >
               {t("目標 ")}
@@ -62,7 +62,7 @@ export function WeightChart({
         {points.length > 1 && (
           <Polyline
             points={points.map((p) => `${p.x},${p.y}`).join(" ")}
-            stroke="#ffffff"
+            stroke="#0878f9"
             fill="none"
             strokeWidth={2}
           />
@@ -73,13 +73,13 @@ export function WeightChart({
             cx={p.x}
             cy={p.y}
             r={3}
-            fill="#ffffff"
+            fill="#0878f9"
           />
         ))}
-        <SvgText x={24} y={175} fill="#d4d4d8" fontSize={10}>
+        <SvgText x={24} y={175} fill="#526d8c" fontSize={10}>
           {entries[0].date.slice(5)}
         </SvgText>
-        <SvgText x={296} y={175} textAnchor="end" fill="#d4d4d8" fontSize={10}>
+        <SvgText x={296} y={175} textAnchor="end" fill="#526d8c" fontSize={10}>
           {entries[entries.length - 1].date.slice(5)}
         </SvgText>
       </Svg>

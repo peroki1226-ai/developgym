@@ -17,6 +17,8 @@ async function image(file, width, height, alpha) {
 }
 async function main() {
   assert.equal(app.name, "GymFinder");
+  assert.equal(app.userInterfaceStyle, "light");
+  assert.equal(app.backgroundColor, "#ffffff");
   assert.equal(app.version, "1.0.0");
   assert.equal(app.ios.bundleIdentifier, "com.peroki.gymfinder");
   assert.equal(app.android.package, "com.peroki.gymfinder");
@@ -28,13 +30,13 @@ async function main() {
   await image(app.icon, 1024, 1024, false);
   await image(app.android.adaptiveIcon.foregroundImage, 1024, 1024, true);
   await image(app.android.adaptiveIcon.monochromeImage, 1024, 1024, true);
-  assert.equal(app.android.adaptiveIcon.backgroundColor, "#000000");
+  assert.equal(app.android.adaptiveIcon.backgroundColor, "#ffffff");
   assert(app.android.permissions.includes("android.permission.CAMERA"));
   const splash = app.plugins.find(
     (p) => Array.isArray(p) && p[0] === "expo-splash-screen",
   )?.[1];
   assert(splash, "Missing splash plugin");
-  assert.equal(splash.backgroundColor, "#000000");
+  assert.equal(splash.backgroundColor, "#ffffff");
   assert.equal(splash.resizeMode, "contain");
   await image(splash.image, 1024, 1024, true);
   const picker = app.plugins.find(

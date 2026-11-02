@@ -4,6 +4,10 @@ React Native / Expo SDK 58。今後の機能開発の本体です。iPhoneを主
 
 [ネイティブアプリ開発計画](../docs/NATIVE_APP_ROADMAP.md)に沿って、配布済みアプリとソースの照合、最新版の実機配布/TestFlight、操作改善、ストア公開の順に進めます。Web/PWAは補助プレビューで、Pages設定はネイティブ開発の前提にしません。
 
+## 現在の画面構成
+
+[白青の旅行先ジム探索デザイン](../docs/TRAVEL_REDESIGN.md)を採用。下部5タブはホーム/マップ/メニュー/お気に入り/マイページです。既存のフォーム図解・家トレ・食事/体重は記録ツールから利用できます。検証用店舗・近似地図位置・生成した内観イメージを使用し、実データ/実AI接続は別工程です。
+
 ## 利用者の進捗確認用アプリ
 
 通常の進捗確認はTestFlightに統一します。[iPhoneへの導入・更新ガイド](../docs/IPHONE_INSTALL.md)に沿って、初回に招待からインストールし、以後は同じアプリを更新します。アプリ本体にコードを含め、Metro・PC・一時トンネルが停止していても起動できる構成です。起動時のOTA更新は無効にし、最新版は新しいビルドへ上書き更新します。通常の確認案内でExpo Goの接続QRや一時Web URLを渡さない方針です。
@@ -26,7 +30,7 @@ iPhoneにSDK 58対応のExpo Goをインストールし、開発PCと同一LAN�
 
 ## 構成
 
-- `App.tsx`: 型付きReact Navigationの5タブ、Safe Area Provider、ダークテーマ
+- `App.tsx`: 型付きReact Navigationの新5タブ、Safe Area Provider、白青テーマ
 - `src/components/ui.tsx`: 共通の画面・カード・入力・ボタン
 - `src/screens/`: Gyms / Training / Home / Diet / My Page
 - `src/data/equipment.ts`: 既存器具ガイド3種目のデータ

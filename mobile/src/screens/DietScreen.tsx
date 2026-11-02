@@ -270,7 +270,7 @@ export function DietScreen() {
           }}
           style={{
             height: 10,
-            backgroundColor: "#303030",
+            backgroundColor: "#e7eff9",
             borderRadius: 5,
             overflow: "hidden",
           }}
@@ -278,7 +278,7 @@ export function DietScreen() {
           <View
             style={{
               height: 10,
-              backgroundColor: "#ffffff",
+              backgroundColor: "#0878f9",
               width: `${Math.min(100, percent)}%`,
             }}
           />
@@ -302,14 +302,14 @@ export function DietScreen() {
             <View
               style={{
                 height: 4,
-                backgroundColor: "#303030",
+                backgroundColor: "#e7eff9",
               }}
             >
               <View
                 style={{
                   height: 4,
                   width: `${ratios[key]}%`,
-                  backgroundColor: ["#ffffff", "#d4d4d8", "#a1a1aa"][i],
+                  backgroundColor: ["#0878f9", "#38bdf8", "#3f51b5"][i],
                 }}
               />
             </View>
@@ -413,7 +413,7 @@ export function DietScreen() {
             style={{
               gap: 8,
               borderBottomWidth: 1,
-              borderColor: "#303030",
+              borderColor: "#dce8f8",
               paddingBottom: 12,
             }}
           >

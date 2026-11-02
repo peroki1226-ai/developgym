@@ -1,7 +1,9 @@
+import { NavigationContext } from "@react-navigation/native";
+import { useDiscovery } from "../discoveryState";
 import { EQUIPMENTS } from "../data/equipment";
 import { homeExercises } from "../domain/homeTraining";
 import { useI18n } from "../i18n";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Text, View } from "react-native";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
@@ -11,6 +13,8 @@ const systemExerciseNames = new Set(
 );
 export function MyPageScreen() {
   const { t, formatDate } = useI18n();
+  const d = useDiscovery(),
+    nav = useContext(NavigationContext);
   const { logs, favorites, storageStatus, gymCatalog, community } =
     useFitness();
   const [selectedGym, setSelectedGym] = useState(gymCatalog[0].id);
@@ -19,6 +23,31 @@ export function MyPageScreen() {
       title="Made by you."
       subtitle={t("ジムでも、自宅でも。すべての積み重ねをひとつに。")}
     >
+      {d && (
+        <Card>
+          <Heading>{t("travel.passport")}</Heading>
+          <View style={[s.row, { justifyContent: "space-between" }]}>
+            {[
+              ["travel.logCount", logs.length],
+              ["travel.favoriteTitle", favorites.length],
+              ["travel.menuCount", d.profile.menuIds.length],
+            ].map(([label, count]) => (
+              <View key={label} style={{ gap: 6 }}>
+                <Text
+                  style={{ color: "#0878f9", fontSize: 28, fontWeight: "800" }}
+                >
+                  {count}
+                </Text>
+                <Body>{t(String(label))}</Body>
+              </View>
+            ))}
+          </View>
+          <Button
+            title={t("travel.myMenu")}
+            onPress={() => nav?.navigate("Menu" as never)}
+          />
+        </Card>
+      )}
       <Body>{t("記録・お気に入り・自宅器具はこの端末に保存します。")}</Body>
       <Body>{t("🌐 言語は画面上部のボタンで切り替えられます。")}</Body>
       <Card>

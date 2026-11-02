@@ -1,10 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><g fill="none" stroke-linecap="round" stroke-linejoin="round">
- <circle cx="512" cy="512" r="306" stroke="#d4d4d8" stroke-width="12"/>
- <g transform="rotate(-32 512 512)" stroke="#ffffff" stroke-width="18">
- <path d="M372 512H652"/>
- <rect x="310" y="414" width="62" height="196" rx="14"/>
- <rect x="652" y="414" width="62" height="196" rx="14"/>
- <path d="M280 466V558M744 466V558"/>
- </g>
- <path d="M512 164V194M830 512H860M512 830V860M164 512H194" stroke="#d4d4d8" stroke-width="12"/>
- </g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><g fill="none" stroke="#0878f9" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="512" cy="425" r="245"/>
+<ellipse cx="512" cy="425" rx="120" ry="245"/>
+<path d="M267 425H757M308 290H716M308 560H716M363 632L512 852L661 632"/>
+<path d="M165 355V495M208 315V535M816 315V535M859 355V495" stroke-width="32"/>
+</g></svg>

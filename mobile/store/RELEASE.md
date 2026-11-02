@@ -19,8 +19,8 @@
 | 用途 | ファイル | サイズ・形式 |
 |---|---|---|
 | iOS / 共通アプリアイコン | assets/icon.png | 1024×1024 PNG、透過なし、角丸加工なし |
-| Android adaptive / monochrome | assets/adaptive-foreground.png | 1024×1024 PNG、透過あり、背景は黒 |
-| スプラッシュロゴ | assets/splash.png | 1024×1024 PNG、透過あり、黒背景にcontain配置 |
+| Android adaptive / monochrome | assets/adaptive-foreground.png | 1024×1024 PNG、透過あり、背景は白 |
+| スプラッシュロゴ | assets/splash.png | 1024×1024 PNG、透過あり、白背景にcontain配置 |
 | Google Playアイコン | assets/store/google-play-icon.png | 512×512 PNG、透過なし |
 | Google Play feature graphic | assets/store/feature-graphic.png | 1024×500 PNG、透過なし |
 | 編集元 | assets/brand-mark.svg / assets/store/feature-graphic.svg | オリジナル幾何学図形。feature graphic文字はシステムのsans-serifで描画 |

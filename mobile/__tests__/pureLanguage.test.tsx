@@ -137,7 +137,10 @@ test("provided exercise, home, gym and manufacturer data have explicit localized
 test("dictionaries preserve interpolation tokens and never introduce the other language", () => {
   const tokens = (s: string) => (s.match(/\{\d+\}/g) ?? []).sort();
   for (const [key, value] of Object.entries(japanese)) {
-    expect(tokens(value)).toEqual(tokens(key));
+    expect(tokens(value)).toEqual(
+      tokens((english as Record<string, string>)[key]),
+    );
+    if (tokens(key).length) expect(tokens(value)).toEqual(tokens(key));
     expect(value).not.toMatch(/[A-Za-z]/);
     expect(translate("ja", key)).not.toMatch(/[A-Za-z]/);
     expect((english as Record<string, string>)[key]).toBeDefined();

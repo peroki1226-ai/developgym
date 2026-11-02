@@ -12,7 +12,7 @@ if (Test-Path "$nodeDir\node.exe") {
 Set-Location -Path $PSScriptRoot
 
 Write-Host "1. TypeScript 型チェックの検証中..." -ForegroundColor Yellow
-& cmd.exe /c "corepack pnpm exec tsc --noEmit"
+& cmd.exe /c "npm run typecheck"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "型チェックエラーが発生しました。" -ForegroundColor Red
     exit 1
@@ -22,4 +22,4 @@ Write-Host "2. EAS Build を実行し、iPhone 直接インストール用ビル
 Write-Host "※ ビルド完了後に表示される QR コードを iPhone のカメラで読み取るだけで、Safari から直接インストールできます。" -ForegroundColor Green
 Write-Host ""
 
-& cmd.exe /c "corepack pnpm exec eas build --platform ios --profile preview"
+& cmd.exe /c "npm run build:ios:preview"

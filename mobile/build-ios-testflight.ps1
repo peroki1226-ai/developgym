@@ -12,7 +12,7 @@ if (Test-Path "$nodeDir\node.exe") {
 Set-Location -Path $PSScriptRoot
 
 Write-Host "1. TypeScript 型チェック & テストの検証中..." -ForegroundColor Yellow
-& cmd.exe /c "corepack pnpm exec tsc --noEmit"
+& cmd.exe /c "npm run typecheck"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "型チェックエラーが発生しました。修正してから再実行してください。" -ForegroundColor Red
     exit 1
@@ -20,10 +20,10 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host "2. EAS Build を実行し、TestFlight へ自動提出します..." -ForegroundColor Yellow
 Write-Host "※ 初回実行時は、Apple Developer Program に登録した Apple ID とパスワードを入力してください。" -ForegroundColor Green
-Write-Host "※ 証明書やプロビジョニングプロファイルの作成は EAS が全自動で行います。" -ForegroundColor Green
+Write-Host "※ 既存の署名とAppleアカウントを確認し、必要な認証はEASの案内に沿って行ってください。" -ForegroundColor Green
 Write-Host ""
 
-& cmd.exe /c "corepack pnpm exec eas build --platform ios --profile production --auto-submit"
+& cmd.exe /c "npm run build:ios:testflight"
 
 Write-Host ""
 Write-Host "ビルド完了後、App Store Connect の TestFlight タブ、または iPhone の TestFlight アプリからインストールできます。" -ForegroundColor Cyan

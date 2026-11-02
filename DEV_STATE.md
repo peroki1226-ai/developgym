@@ -50,12 +50,12 @@
 | **TASK-011** | ユーザー投稿（設備スペック修正・器具写真・レビュー） | Codex | `DONE` | `LGTM`（Antigravity受入完了） |
 | **TASK-012** | App Store / Google Play 最終公開準備 & EAS署名設定 | Codex / Antigravity | `DONE` | `LGTM`（公開準備完了。Ad Hoc配布の実行結果はTASK-015の受領報告を参照） |
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
-| **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（2026-10-30引継ぎ報告。追加ソースのGitHub同期は未確認） |
-| **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（PeroのiPhoneで稼働との報告。ビルド設定・追加ソースの同期は未確認） |
+| **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（ad8d8bdの追加ソース/7テストを保全統合。実APIと画面の接続は別途検証） |
+| **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（実機稼働報告を維持。ad8d8bdでowner/projectId・配布スクリプト同期済み） |
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | DONE | LGTM（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 2準備。追加差分・EAS projectId/認証・Expo通信待ちで署名ビルド未開始 |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | 追加差分・既存EAS連携は統合済み。Expo未認証/通信設定待ちで署名ビルド未開始 |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `IN REVIEW` | 白青UI・新5タブ・詳細/比較/地図/検索導線を実装。81テスト、両OSバンドル成功。実機配布待ち |
 
@@ -394,3 +394,10 @@
 - **検証**: 既存71件＋追加10件=15 suites/81 tests、型チェック、release:check、iOS/Android Hermesバンドル生成成功。新5タブ・メニュー再起動復元・詳細と経路URL・比較上限・メーカー逆引き・検索破損保護/読込み再試行・新全画面の日英分離を確認。Expo Webは同じネイティブUIのブラウザー検証用にdev依存を追加し、既存依存バージョンは変更しない。
 - **視覚検証**: Chromiumスマホエミュレーション320/390px×日英×5タブ=20状態で言語混入・横はみ出し・実行エラー0。ホームの主検索操作が初期表示内にあること、検索/詳細遷移、地図接続失敗時の案内と一覧利用を確認。参考画像の背景/内観は生成素材を同梱。実機/地図タイルの実配信は未確認。
 - **引継ぎ/境界**: 詳細はdocs/TRAVEL_REDESIGN.md。旧index.htmlは今回のデザイン変更対象外。新UIはmobile/のビルドで確認する。実店舗データ/実AI・未共有のTASK-014/015・既存EAS owner/projectId連携、署名付き実機配布/更新・実機の拡大文字/安全領域は未完了。公開済み・iPhone反映済みとは扱わない。
+
+### [TASK-019/018 統合結果]（2026-11-02、日本時間）
+- **並行更新の保全**: UI更新のpush時にmainのad8d8bdを検出。通常のmergeでTASK-014のbrandInference/freeSearchService/7テスト、TASK-015のPowerShell・既存owner/projectIdを保持して統合。白青テーマ、iOS buildNumber 2、Release/OTA無効設定も保持。
+- **再検証**: 統合後16 suites/88 tests、型チェック、release:check、iOS/Android Hermes・検証用Webバンドル成功。88件は基準71＋新UI10＋合流7件。APIのライブ疎通や実機更新の成功を意味しない。
+- **配布コマンド整合**: build:ios:testflightを追加。既存のPowerShellも同じ設定/型/テスト検証付きビルダーを使い、指定したproductionビルドをauto-submitする。previewへのauto-submitや未知オプションは拒否する。PS1はWindowsで未実行。
+- **現在の配布ブロッカー**: projectId未設定は解消。既存番号の読取りコマンド`eas build:version:get --platform ios --json --non-interactive`はExpo認証要求で停止した。環境のExpo向け認証/通信設定は未設定で、署名付き新ビルド・提出・招待リンクは今回生成していない。認証済み環境で既存番号を照合後にビルド/提出する。
+- **画面側の境界**: 合流した無料検索モジュールは保全したが、今回の白青画面は既存5店舗の検証用データを使用。ライブAPI/推論スペックの正確性と日英表示を確認してから接続する。履歴/お気に入り保存、言語分離、通信不要の初回起動を維持する。

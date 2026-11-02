@@ -48,3 +48,7 @@
 ## Build 2準備の状態
 
 TASK-016はAntigravityのLGTMを受領済み。app.jsonのiOS buildNumberを2へ変更したが、TASK-014/015の追加差分と既存EAS projectIdはCodex側で未受領。署名付きBuild 2の作成・TestFlight提出・実機更新は未実行。EAS remoteの番号管理が有効なので、実行前に現在値と配布済み最大番号を確認し、実際の番号2が使用可能かを判断する。
+
+## 追加差分の統合（2026-11-02）
+
+ad8d8bdの無料検索モジュール・7テスト、PowerShell、既存owner/projectIdを白青UIと統合済み。現在16 suites/88 tests成功。既存番号のEAS照合はExpo未認証で停止しており、配布の残作業は認証/通信連携・番号照合・署名ビルド/提出・実機更新確認である。無料検索APIの画面への接続は翻訳と推論値の扱いを検証してから行う。

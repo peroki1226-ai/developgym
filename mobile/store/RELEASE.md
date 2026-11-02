@@ -7,7 +7,7 @@
 | 表示名 | GymFinder |
 | iOS Bundle ID / Android applicationId | com.peroki.gymfinder |
 | バージョン | 1.0.0 |
-| iOS buildNumber / Android versionCode | app.jsonの初期値は1 / 1。配布値はEAS remoteで自動増分 |
+| iOS buildNumber / Android versionCode | app.jsonのローカル設定は2 / 1。配布値はEAS remoteで自動増分 |
 | Expo SDK / Node検証環境 | 58 / 24.19.0 |
 | バージョン管理 | EAS remote、preview/productionともautoIncrement=true |
 | 署名情報 | EAS管理（credentialsSource=remote）。証明書等はGitへ保存しない |

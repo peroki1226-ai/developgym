@@ -61,7 +61,7 @@ UIの重量指定は片手あたり0（指定なし）/20/40/60/90kg以上の必
 
 ## Build 1 / iPhoneへのAd Hoc配布
 
-`app.json` は `version: 1.0.0`、`ios.buildNumber: 1`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.peroki.gymfinder` はユーザー指定です。Apple側での所有・登録は未確認です。Expo/EASプロジェクトとの紐付け・Apple署名は未完了です。
+`app.json` は `version: 1.0.0`、`ios.buildNumber: 2`。`eas.json` の `preview` は実機向けinternal配布です。Bundle ID `com.peroki.gymfinder` はユーザー指定です。Apple側での所有・登録は未確認です。Expo/EASプロジェクトとの紐付け・Apple署名は未完了です。
 
 Apple Developer Programの有料チームとExpoアカウントが必要です。認証できる作業端末で次を実行します。Appleログイン/2FAは本人がCLIの案内に沿って操作し、パスワードやトークンをGitやチャットへ保存しないでください。
 

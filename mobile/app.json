@@ -7,7 +7,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.peroki.gymfinder",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "config": {
         "usesNonExemptEncryption": false
       }

@@ -25,7 +25,7 @@
 
 - `mobile/`に5タブ、ジムのマッチ率計算、フォーム図解、家トレ、食事/体重、端末内投稿、言語切替の実装がある。
 - TASK-018の検証で14スイート/70テスト、型チェック、release:check、iOS/Android Hermesバンドル生成が成功。署名付きアプリの実機起動は別途確認する。
-- `mobile/app.json`は`com.peroki.gymfinder`、バージョン`1.0.0`、iOSビルド番号`1`。`eas.json`にAd Hoc用`preview`とストア用`production`がある。
+- `mobile/app.json`は`com.peroki.gymfinder`、バージョン`1.0.0`、iOSビルド番号のローカル設定は`2`。実際の配布番号はEAS remoteで照合する。`eas.json`にAd Hoc用`preview`とストア用`production`がある。
 - Apple Developer登録・PeroのiPhoneへのAd Hocインストール成功はユーザー/Antigravityからの報告として受領している。
 - GitHub側では配布済みバイナリのソース・EAS Build IDが未照合。TASK-014/015の追加ソース、EASプロジェクトID、提出設定、別環境の配布スクリプトの同期も未確認。新規プロジェクトや署名を推測で作成せず、既存のものを確認する。
 
@@ -44,3 +44,7 @@
 ## インストール・更新の運用
 
 通常の配布はTestFlightに統一し、[iPhone導入ガイド](IPHONE_INSTALL.md)を使用する。初回は招待からインストール、次回以降は更新する。配布担当が提出処理・テスター割当・有効期限・実機での更新とデータ保持を確認した後、最新版のビルド番号・短い変更点・有効な招待1件を案内する。Ad Hocは登録端末向けの補助経路とする。
+
+## Build 2準備の状態
+
+TASK-016はAntigravityのLGTMを受領済み。app.jsonのiOS buildNumberを2へ変更したが、TASK-014/015の追加差分と既存EAS projectIdはCodex側で未受領。署名付きBuild 2の作成・TestFlight提出・実機更新は未実行。EAS remoteの番号管理が有効なので、実行前に現在値と配布済み最大番号を確認し、実際の番号2が使用可能かを判断する。

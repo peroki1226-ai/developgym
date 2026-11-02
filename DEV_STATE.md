@@ -52,10 +52,10 @@
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
 | **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（2026-10-30引継ぎ報告。追加ソースのGitHub同期は未確認） |
 | **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（PeroのiPhoneで稼働との報告。ビルド設定・追加ソースの同期は未確認） |
-| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `IN REVIEW` | 辞書の完全分離・言語保存の復元不具合を修正。71テスト・型チェック・両OSバンドル成功 |
+| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（Antigravity受入。15 suites/78 tests成功との報告。Codex側は追加差分未受領） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN REVIEW` | 設定・70テスト・両OSバンドル検証済み。署名・実機配布/受入待ち |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 2準備。追加差分・EAS projectId/認証・Expo通信待ちで署名ビルド未開始 |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -373,3 +373,12 @@
 - **切替UIと表示元**: Webヘッダーを日本語/英語の直接選択にし、選択中の状態をaria-pressedでも表示。index.htmlを唯一の表示元とし、ルートgym-app-preview.htmlは同じ画面へ誘導。公開用ビルドもindex.htmlを必ず使用し、古い独立コピーを優先しない。別環境のgym-app-preview.htmlに独自機能がある場合は、差分を退避してindex.htmlへ統合する。
 - **検証**: 14 suites/71 tests成功（既存70件＋全5タブから両方向へ切り替える1件）。辞書の全値監査、型チェック、release:check、iOS/Android Hermesバンドル生成成功。Web言語/検索監査、preview:checkで保存競合・実ボタン切替・即時保存・破損保護を確認。Chromiumモバイルエミュレーション320/390px・20画面で横はみ出し/実行エラー0、実ボタンクリック・オフライン再起動/言語保持を確認。旧入口の誘導もquery/hash保持を確認。
 - **反映の境界**: Codexのコード・生成プレビューを検証した結果で、別環境の稼働中ページやiPhoneへ反映したとは扱わない。レビュー時に最新index.html/確認用入口と保存処理を同期し、実際の表示でも両言語を確認する。ネイティブ配布はTASK-018の連携待ち。
+
+### [TASK-016受入 / TASK-018 Build 2実行依頼]（2026-11-02、日本時間）
+- **受入**: AntigravityのTASK-016 `[LGTM / DONE]`を受領。追加差分込み15 suites/78 tests・型チェック等の成功は相手環境の報告として記録。TASK-016をDONEに同期する。
+- **ソース照合**: `git pull --ff-only origin main`後もHEADはd04cf3a、作業ツリーはクリーン。brandInference.ts、freeSearchService.ts、freeSearch.test.ts、build-ios-*.ps1はこの環境に存在せず、app.jsonにもowner/projectIdがない。差分はまだCodex側/GitHubへ届いていないため、未受領コードをコミット済みとは扱わない。
+- **先行する変更**: 指示どおりmobile/app.jsonのios.buildNumberを"2"に更新。同じBundle ID・既存データスキーマ・署名方針を維持。EAS remote/autoIncrement=trueは維持するが、ローカルの2が実際の配布番号2を保証するわけではない。既存プロジェクト連携後にリモート値と配布済み最大番号を照合してから実行する。番号の巻き戻しや重複提出は行わない。
+- **実行条件**: 環境の観測ではExpo向け認証/接続設定がなく、Expo/AppleのAPIホストも許可対象にない。既存projectIdが未設定なのでローカルのビルド前チェックでも停止する。Task-018はIN PROGRESS（差分/配布連携待ち）。
+
+- **実行結果**: `tsc --noEmit`、release:check成功。`npm run build:ios:production`を実行したが、`expo.extra.eas.projectIdがありません`でローカルの配布前チェックが停止。EASジョブ・IPA・提出IDは生成していない。Build 2の成果物が存在しないため、別ビルドの誤提出を避けてeas submitは実行していない。実機更新・データ保持も未検証。
+- **再開に必要なもの**: Antigravity側で保全した追加ソース・追加テスト・非秘密のowner/projectId/提出設定をGitHubへpushするか差分ZIPで共有する。署名/提出には、既存認証のある環境で実行するか、この環境へExpo認証と必要な接続設定を安全に連携する。チャットやGitへ秘密鍵/トークン/Appleパスワードを含めない。

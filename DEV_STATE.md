@@ -52,14 +52,14 @@
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
 | **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（ad8d8bdの追加ソース/7テストを保全統合。実APIと画面の接続は別途検証） |
 | **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（実機稼働報告を維持。ad8d8bdでowner/projectId・配布スクリプト同期済み） |
-| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | DONE | LGTM（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
+| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
 | **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN REVIEW` | 固定Build 3の照合/提出コマンド実装済み。Apple提出成功の同期記録あり、招待/実機更新・保持確認待ち |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
-| **TASK-020** | 機能を維持したシンプル・上質なネイティブレイアウト | Codex | `IN REVIEW` | 124テスト・型/設定検証・ネイティブバンドル成功。日英20画面確認済み。実機/新ビルドは未確認 |
+| **TASK-020** | 機能を維持したシンプル・上質なネイティブレイアウト | Codex | `DONE` | `LGTM`（洗練プレミアム配色・検索優先配置・入力保持折りたたみ・全17スイート/124テスト合格・受入完了） |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）

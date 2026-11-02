@@ -5,3 +5,5 @@ dist/
 .agent/
 
 web-dist/
+mobile/store/IOS_RELEASE_STATUS.json.lock
+mobile/store/IOS_RELEASE_STATUS.json.tmp

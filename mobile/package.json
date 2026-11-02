@@ -15,7 +15,9 @@
     "preview:check": "node scripts/verify-preview.cjs",
     "build:ios:preview": "node scripts/build-ios.cjs preview",
     "build:ios:production": "node scripts/build-ios.cjs production",
-    "build:ios:testflight": "node scripts/build-ios.cjs production --auto-submit"
+    "build:ios:testflight": "node scripts/build-ios.cjs production --auto-submit",
+    "release:ios:status": "node scripts/ios-release.cjs status",
+    "release:ios:submit": "node scripts/ios-release.cjs submit"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

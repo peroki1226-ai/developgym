@@ -2,7 +2,9 @@
 
 今後の通常の進捗確認はTestFlightに統一します。最新版は同じアプリを更新して確認します。
 
-**現在の状態：iOS 1.0.0 (3)がEASでビルド進行中との報告。TestFlight提出・配布は未確認で、招待リンクは未発行です。**
+**現在の状態：Antigravityの同期記録（63b3f41）ではiOS 1.0.0 (3)のビルド完了・App Store Connect提出成功。TestFlightでの利用可能性・招待・実機更新は未確認です。**
+
+配布担当は[App Store ConnectのTestFlight画面](https://appstoreconnect.apple.com/apps/6828502638/testflight/ios)でAppleの処理結果とテスター割当を確認してください。これは管理画面のため、そのまま利用者用の招待リンクにはできません。既存の提出IDは`9dc718a2-9a94-478b-bcd4-60be4aad2331`で、再提出は行いません。
 
 対象ビルドID：`9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`。受領時点の状態で、ライブ更新ではありません。
 

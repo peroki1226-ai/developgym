@@ -55,7 +55,7 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | DONE | LGTM（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 3（9ba7dd8b…）がEASでIN_PROGRESSとの報告。提出・実機更新/保持確認待ち |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN REVIEW` | 固定Build 3の照合/提出コマンド実装済み。Apple提出成功の同期記録あり、招待/実機更新・保持確認待ち |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
@@ -411,3 +411,13 @@
 - **受入まで残るもの**: App Store Connect処理完了/テスター配布/有効な招待、PeroのiPhoneへの上書き更新・旧ログ/お気に入り/食事等の保持、トンネル停止・機内モードでの起動。これらを確認するまでTASK-018はDONEにしない。今回は状態記録のみでアプリコード・ビルド番号設定は変更せず、自動テストは再実行しない。
 
 - **直接照会の実行結果**: 対象IDの`eas build:view ... --json`を試行したが、`An Expo user account is required to proceed`で終了コード1。EAS上の状態は取得できず、状態ファイルのdirectlyVerified=falseを維持した。提出コマンドは未実行。
+
+### [TASK-018] 既存Build 3の照合・提出コマンド（2026-11-02）
+- **状態**: IN REVIEW（実装レビュー・TestFlight実機受入待ち）。ユーザーの「実装して」に基づき、固定した既存Build IDの状態照会と、照合後のTestFlight提出処理を実装。新しいビルドは作成していない。
+- **変更**: `release:ios:status` / `release:ios:submit`追加。プロジェクト/アプリ/版/番号/ソース/STORE実機/HTTPS成果物を照合。EAS CLIの通常のbuild:view JSONには提出履歴がないため、インストール済みCLIの認証と読取りAPIで同じBuildの提出履歴まで確認する。既存の提出があれば自動再提出しない。
+- **中断保護**: 提出開始前に試行日時を永続化。タイムアウト・中断・提出ID未確認は未解決状態で止め、成功扱いや自動再試行をしない。並行実行は排他ファイル、状態JSONは一時ファイルからの置換。API応答全体や署名付きURL/秘密値は保存しない。FINISHEDの提出でも招待/実機保持を自動で合格にしない。
+- **検証**: 統合後17 suites / 124 tests（既存88＋配布ガード36）、型チェック・release:check成功。未知オプションと並行実行を実際のCLIで拒否し、拒否時に状態JSONが変化しないことを確認。ダッシュボード構文・17/19集計・提出ID/ASC設定保全も確認。scripts/とドキュメントの変更でアプリ実装は変更しておらず、ネイティブバンドルは今回再生成していない。
+- **提出完了の同期**: 作業中にorigin/mainの63b3f41を検出し、通常のfast-forwardで同期。Antigravity記録のBuild FINISHED / SUBMITTED_TO_APPLE、提出ID `9dc718a2-9a94-478b-bcd4-60be4aad2331`、ASC App ID `6828502638`とeas.json提出先を保全。再提出は行わない。
+- **直接実行**: `npm run release:ios:status`はExpo認証不足で停止。状態ファイルの提出成功報告と確認元を保持し、Codex側の照会失敗/試行時刻を記録。directlyVerified=trueはAntigravity側の同期記録であり、Codexの直接確認成功を意味しない。Codex側ではリモート提出・ビルド作成は未実行。
+- **環境準備**: 既存クラウド設定ドラフトのEXPO_TOKEN要件とapi.expo.dev/expo.dev許可を確認。秘密値の保存バインドはなく、実行環境にも未適用。古いTASK-006向け起動指示だけを更新し保存成功。ネットワーク/秘密要件を重複追加せず保持。保存は適用/公開ではなく、環境設定で安全な認証入力・レビュー/保存/公開が必要。
+- **残工程**: 既存提出を追跡し、App Store Connect処理→テスター招待→PeroのiPhone上書き更新・記録保持・機内モード起動を確認する。Codexから直接照会する場合は認証/接続設定適用が必要。全体17/19 DONEを維持。

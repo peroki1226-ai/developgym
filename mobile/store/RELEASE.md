@@ -46,10 +46,10 @@ previewはExpo Goの代替となるスタンドアロンアプリで、Metro不�
 cd mobile
 npm ci
 npx eas-cli@25.3.0 login
-npx eas-cli@25.3.0 init
+npx eas-cli@25.3.0 project:info
 ```
 
-既存のGymFinderプロジェクトがある場合は、それに接続してください。作成・接続後に追加されたprojectId / ownerが正しいことを確認し、非秘密の設定変更だけをコミットします。推測したUUIDやApple Team IDを記入しないでください。
+既存のGymFinderプロジェクト（owner: peroki1226 / projectId: 707c6e89-6ed5-4d65-a6bb-90472a724971）への接続を確認します。新しいプロジェクトを作成したり、推測したUUIDやApple Team IDを記入したりしないでください。
 
 クラウドで続行する場合、環境設定の安全な入力欄へEXPO_TOKENを設定します。トークン・Appleパスワード・サービスアカウントキーをチャットやGitに貼らないでください。既に登録済みのEXPO_TOKEN要件を再利用します。
 
@@ -83,7 +83,7 @@ npx eas-cli@25.3.0 build --platform android --profile production
 - サポート窓口、運営者、公開プライバシーポリシーURLを設定。`PRIVACY_POLICY_DRAFT.ja.md` は公開前ドラフト。
 - 年齢区分、健康関連の申告、App Privacy / Data safetyは署名済みバイナリ・SDK・実装に基づいて本人が確定。端末内だけの記録と外部収集を区別。
 - Play App Signingと初回アップロード、App Store Connect上のTestFlight等を、各コンソールで実施。
-- 実機検証と提出素材を確認してから審査提出。ここまでのスクリプトはストア送信・公開を行いません。
+- 実機検証と提出素材を確認してから審査提出。build:ios:productionはビルドのみ。build:ios:testflight / release:ios:submitはAppleへのアップロードを行いますが、App Store審査提出・一般公開は別工程です。
 
 ## 権限
 
@@ -143,8 +143,26 @@ Expo Goはホストアプリ側の権限や起動画面を使うため、最終�
 
 ## 今回追跡するiOSビルド
 
-[IOS_RELEASE_STATUS.json](IOS_RELEASE_STATUS.json)に対象を記録しています。Antigravity報告ではiOS 1.0.0 (3)、EAS ID `9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`がIN_PROGRESSです。状態はライブ更新ではありません。
+[IOS_RELEASE_STATUS.json](IOS_RELEASE_STATUS.json)に対象を記録しています。同期コミット63b3f41ではiOS 1.0.0 (3)、EAS ID `9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`がFINISHED、提出ID `9dc718a2-9a94-478b-bcd4-60be4aad2331`でSUBMITTED_TO_APPLEと記録されました。Codex環境の直接照会は認証不足で停止しています。directlyVerified=trueはAntigravityの確認記録を保全した値で、Codexが今回API照会に成功した意味ではありません。状態はライブ更新ではありません。
 
-認証済み環境で`npx eas-cli@25.3.0 build:view 9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785 --json`を確認し、完了・所属アプリ・バージョン・成果物を照合します。自動提出が既に予約されていればその結果を追跡し、手動提出が必要な場合だけ`npx eas-cli@25.3.0 submit --platform ios --id 9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`を実行します。
+ascAppId `6828502638`をeas.jsonのproduction提出先に同期済みです。[TestFlight管理画面](https://appstoreconnect.apple.com/apps/6828502638/testflight/ios)でApple処理・テスター割当を確認します。招待リンクや実機での利用可能性はまだ未確認なので、既存の提出を繰り返さないでください。
+
+認証済み環境ではまず状態を照会します（作業ディレクトリはmobile/）。提出コマンドは固定対象の未提出が確認できる場合だけに使用し、既存ID/提出試行があれば重複アップロードを拒否します。新しいビルドや`--latest`は使用しません。
+
+```sh
+npm run release:ios:status
+# 今回のBuild 3は提出済みの記録があるため、以下は再実行しない。
+npm run release:ios:submit
+# 署名/提出設定が揃った自動化環境の場合
+npm run release:ios:submit -- --non-interactive
+```
+
+状態照会は、EASのビルドに加えて提出履歴を読み取ります。通常の`eas build:view --json`には提出履歴が含まれないため、インストール済みEAS CLIの認証/プロキシ/TLSと`withSubmissionsByIdAsync`読取りを使用します。この内部APIはロックファイルのCLIバージョンで検証しており、CLI更新時は再確認してください。利用できなければ提出前に停止します。
+
+提出前にFINISHED・プロジェクト・Bundle ID・バージョン・番号3・ソースコミット・実機STORE配布・HTTPS成果物・ASC提出先を照合します。既存提出は成功/実行中/失敗のいずれも自動再提出せず、提出IDと状態を記録します。認証や照会が失敗した場合は最後の報告を残し、lastCheckSucceeded=falseと試行日時だけを記録します。directlyVerifiedはstatusSourceが示す確認元の結果で、CLIの成功照会ではstatusSource=EAS APIとlastCheckedAtを更新します。
+
+提出コマンド開始前に`submissionAttemptedAt`を保存し、タイムアウト・中断・終了コード0でも提出IDが未確認の場合は`REQUESTED_UNCONFIRMED`を維持します。まずstatusを再実行して確認します。履歴が空でも未解決の試行があれば自動再試行は拒否します。EASとApp Store Connect双方で提出されていないことを担当者が確認した場合のみ、状態ファイルの試行日時を除去し、submissionStatusをNOT_CONFIRMEDへ戻して再実行してください。
+
+並行コマンドは`IOS_RELEASE_STATUS.json.lock`で拒否します。クラッシュで残った場合は、実行中のrelease/EASプロセスがないことを確認してからlockを削除します。JSONは一時ファイルから置換し、署名付きダウンロードURL・秘密値・API応答全体は保存しません。認証情報は環境の安全な設定欄または本人のEASログインで用意します。App Store Connect提出設定が不足している場合、対話実行で既存アプリを選択するかeas.jsonに検証済みのascAppIdを設定してください。未確認IDは追加しません。
 
 提出成功後は提出ID、Apple側の処理結果、テスター配布/招待、実機更新とデータ保持を確認して記録を進めます。ビルド中・提出中・利用可能の状態を混同しません。

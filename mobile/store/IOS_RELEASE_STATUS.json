@@ -1,0 +1,19 @@
+{
+  "platform": "ios",
+  "bundleIdentifier": "com.peroki.gymfinder",
+  "version": "1.0.0",
+  "buildNumber": "3",
+  "easProjectId": "707c6e89-6ed5-4d65-a6bb-90472a724971",
+  "easBuildId": "9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785",
+  "buildUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785",
+  "buildStatus": "IN_PROGRESS",
+  "statusSource": "Antigravity handoff",
+  "reportedOn": "2026-11-02",
+  "directlyVerified": false,
+  "submissionStatus": "NOT_CONFIRMED",
+  "submissionId": null,
+  "testflightInviteUrl": null,
+  "deviceUpdateVerified": false,
+  "dataRetentionVerified": false,
+  "expectedSourceCommit": "d4c81d6"
+}

@@ -140,3 +140,11 @@ Expo Goはホストアプリ側の権限や起動画面を使うため、最終�
 既存の認証・署名・提出先アプリを照合した環境では`npm run build:ios:testflight`を使用できます。Release設定・既存projectId・型チェック・全テストを確認し、productionビルドを作成してそのビルドをauto-submitします。Appleの処理完了・テスターへの配布・招待の有効性は別途確認します。
 
 自動化環境では`npm run build:ios:testflight -- --non-interactive`を使います。認証/署名/提出設定が揃っていなければ停止します。既存PowerShellの直接配布/TestFlightヘルパーも同じ検証付きコマンドを使用します。
+
+## 今回追跡するiOSビルド
+
+[IOS_RELEASE_STATUS.json](IOS_RELEASE_STATUS.json)に対象を記録しています。Antigravity報告ではiOS 1.0.0 (3)、EAS ID `9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`がIN_PROGRESSです。状態はライブ更新ではありません。
+
+認証済み環境で`npx eas-cli@25.3.0 build:view 9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785 --json`を確認し、完了・所属アプリ・バージョン・成果物を照合します。自動提出が既に予約されていればその結果を追跡し、手動提出が必要な場合だけ`npx eas-cli@25.3.0 submit --platform ios --id 9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`を実行します。
+
+提出成功後は提出ID、Apple側の処理結果、テスター配布/招待、実機更新とデータ保持を確認して記録を進めます。ビルド中・提出中・利用可能の状態を混同しません。

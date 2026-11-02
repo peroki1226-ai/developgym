@@ -55,9 +55,9 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | DONE | LGTM（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | 追加差分・既存EAS連携は統合済み。Expo未認証/通信設定待ちで署名ビルド未開始 |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 3（9ba7dd8b…）がEASでIN_PROGRESSとの報告。提出・実機更新/保持確認待ち |
 
-| **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `IN REVIEW` | 白青UI・新5タブ・詳細/比較/地図/検索導線を実装。81テスト、両OSバンドル成功。実機配布待ち |
+| **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
 > **ステータスの種類**:  
 > `TODO`（未着手）→ `IN PROGRESS`（Codex実装中）→ `IN REVIEW`（Antigravityレビュー中）→ `DONE`（受入完了）
@@ -401,3 +401,13 @@
 - **配布コマンド整合**: build:ios:testflightを追加。既存のPowerShellも同じ設定/型/テスト検証付きビルダーを使い、指定したproductionビルドをauto-submitする。previewへのauto-submitや未知オプションは拒否する。PS1はWindowsで未実行。
 - **現在の配布ブロッカー**: projectId未設定は解消。既存番号の読取りコマンド`eas build:version:get --platform ios --json --non-interactive`はExpo認証要求で停止した。環境のExpo向け認証/通信設定は未設定で、署名付き新ビルド・提出・招待リンクは今回生成していない。認証済み環境で既存番号を照合後にビルド/提出する。
 - **画面側の境界**: 合流した無料検索モジュールは保全したが、今回の白青画面は既存5店舗の検証用データを使用。ライブAPI/推論スペックの正確性と日英表示を確認してから接続する。履歴/お気に入り保存、言語分離、通信不要の初回起動を維持する。
+
+### [TASK-019受入 / TASK-018 Build 3進行報告]（2026-11-02、日本時間）
+- **受入結果**: AntigravityからTASK-019のLGTM/DONEを受領。16 suites/88 tests、白青UI・Explore/Map/Menu/Favorites/MyPage・比較/地図導線・言語分離の合格を報告。ボードを17/19 DONEへ同期する。
+- **進行中の対象**: EAS Build ID `9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`、iOS `1.0.0 (3)`、`IN_PROGRESS`との報告。対象ソースはd4c81d6として受領。mobile/store/IOS_RELEASE_STATUS.jsonへ提出対象を固定して記録。新しいビルドは開始していない。
+- **番号管理**: EAS remote/autoIncrementによる実際の番号3を対象にする。app.jsonのローカル値2を配布番号と誤認せず、リモート値を巻き戻さない。
+- **確認範囲**: Codex環境では引き続きExpo認証/Expo APIへの接続設定がなく、EASのライブ状態を直接取得できない。IN_PROGRESSは受領時点の報告で、現在の実状態・完了・署名成果物・提出成功を独自確認したとは扱わない。
+- **次の工程**: 認証済み環境で同じIDのFINISHED・所属プロジェクト/バージョン・成果物を確認する。既に自動提出が予約されている場合はその提出結果を追跡し、重複提出しない。手動提出が必要な場合は `npx eas-cli@25.3.0 submit --platform ios --id 9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785` を使う。
+- **受入まで残るもの**: App Store Connect処理完了/テスター配布/有効な招待、PeroのiPhoneへの上書き更新・旧ログ/お気に入り/食事等の保持、トンネル停止・機内モードでの起動。これらを確認するまでTASK-018はDONEにしない。今回は状態記録のみでアプリコード・ビルド番号設定は変更せず、自動テストは再実行しない。
+
+- **直接照会の実行結果**: 対象IDの`eas build:view ... --json`を試行したが、`An Expo user account is required to proceed`で終了コード1。EAS上の状態は取得できず、状態ファイルのdirectlyVerified=falseを維持した。提出コマンドは未実行。

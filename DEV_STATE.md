@@ -55,7 +55,7 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN REVIEW` | 固定Build 3の照合/提出コマンド実装済み。Apple提出成功の同期記録あり、招待/実機更新・保持確認待ち |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 3の提出記録を保全。Build 4候補のローカル検証・配布手順は完了（レビュー依頼）。署名/提出はExpo認証待ち、Apple処理・実機更新/保持は未確認 |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
@@ -483,3 +483,13 @@
   - 既存Build 3（`9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`）はApp Store Connect TestFlight審査・配信処理中。
   - TASK-020（洗練ミニマルUI）、TASK-021（初心者マシン図解）、TASK-022（全国・多ブランド検索）を統合した最新署名付きビルド（Build 4）の作成へと進む。
 
+
+### [TASK-018] Build 4候補のリリース準備（2026-11-04、UTC）
+- **同期**: `git pull --ff-only origin main`で`cc6a7fe`を取得し、TASK-022のLGTMを保全。タスクダッシュボードも20/22 DONE（91%）に同期。TASK-017は補助Webの受入待ち、TASK-018は配布作業中であり、全タスク完了にはしていない。
+- **完了した準備**: `docs/BUILD4_RELEASE.md`にTASK-020〜022の統合内容、日英TestFlightリリースノート、番号/重複ジョブの事前照合、同じ識別子・署名での更新、PeroのiPhoneでの記録保持・オフライン起動の確認手順を追加。`mobile/store/IOS_BUILD4_CANDIDATE.json`に受入済み機能の基準コミット、ソース/バンドルのハッシュと未実施項目を分けて記録。実際のEAS Build ID・ソースコミット・配布番号は未割当のまま保存。
+- **用途説明**: 写真ライブラリの許可説明に、既存の設備写真に加えて食事写真の選択用途を明記。Expo introspectのInfo.plist出力で反映を確認。新しい権限・保存キー・UI/機能変更なし。
+- **再検証**: 20 suites/150 tests成功（失敗/スキップ0）、TypeScript・release:check成功。iOS/Android HermesとWebのMetroエクスポート成功。設定文言修正後にrelease:checkとExpo introspectも成功。これは署名済みネイティブアプリではなく、実機検証は未実施。
+- **Build 3の追跡**: 固定IDの`release:ios:status`はExpo認証要求で失敗（`lastCheckSucceeded=false`）。AntigravityのFINISHED/SUBMITTED_TO_APPLE記録・提出IDは変更せず保全。Appleの処理状況・TestFlight招待・利用可能性は確認できていない。再提出はしていない。
+- **Build 4の境界**: remoteバージョン照会とbuild:listは認証不足で停止。Expo設定読取り失敗は`EXPO_NO_TELEMETRY=1`で解消し、その後も認証不足を確認。実際の番号/重複ジョブが未照合のためビルド/提出は未実行。`appVersionSource=remote`を維持し、ローカル番号や既存Build 3の固定対象を候補番号で置き換えていない。
+- **環境**: 既存EXPO_TOKEN要件を再利用（安全な値の設定なし）、Expo向け通信設定はドラフト保存済みだがruntimeへ未反映。start_skillにBuild 4の手順・固定Build 3との区別・再実行防止・実機確認の境界を追記して保存。保存はruntime反映/公開/署名ビルド実行を意味しない。
+- **残作業**: 認証と通信設定の反映後、Build 3のApple処理確認とBuild 4候補のremote番号/既存ジョブ照合、署名・提出、TestFlight配信、実機での更新/保持/PC不要起動を確認してTASK-018の受入へ。準備差分のレビューを依頼し、実機受入前にTASK-018をDONEへ変更しない。

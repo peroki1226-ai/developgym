@@ -39,7 +39,7 @@
         "expo-image-picker",
         {
           "cameraPermission": "GymFinderで設備写真を撮影するためにカメラを使用します。",
-          "photosPermission": "GymFinderで設備写真を選ぶために写真を使用します。",
+          "photosPermission": "GymFinderで設備写真や食事写真を選ぶために写真を使用します。",
           "microphonePermission": false
         }
       ],

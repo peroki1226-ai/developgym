@@ -4,6 +4,8 @@
 
 **現在の状態：Antigravityの同期記録（63b3f41）ではiOS 1.0.0 (3)のビルド完了・App Store Connect提出成功。TestFlightでの利用可能性・招待・実機更新は未確認です。**
 
+2026-11-04：TASK-020〜022を含む次のBuild 4候補は150テスト・型/設定検証・両OSバンドル生成まで完了。署名・提出はExpo認証待ちです。[Build 4の配布準備と実機確認手順](BUILD4_RELEASE.md)を参照してください。既存Build 3と最新版候補を区別して追跡します。
+
 配布担当は[App Store ConnectのTestFlight画面](https://appstoreconnect.apple.com/apps/6828502638/testflight/ios)でAppleの処理結果とテスター割当を確認してください。これは管理画面のため、そのまま利用者用の招待リンクにはできません。既存の提出IDは`9dc718a2-9a94-478b-bcd4-60be4aad2331`で、再提出は行いません。
 
 対象ビルドID：`9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`。受領時点の状態で、ライブ更新ではありません。

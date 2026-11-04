@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">86%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">19</span> / <span id="stat-total" class="text-neutral-500">22</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">20</span> / <span id="stat-total" class="text-neutral-500">22</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">19 / 22 TASKS COMPLETED (86%)</span>
+        <span class="font-num text-white">20 / 22 TASKS COMPLETED (91%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 86.36%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90.91%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-021受入を同期済み。TASK-022として全国・多ブランド・地方/女性向け施設の検索を追加。実通信・署名付き新版の実機確認は未完了です。</p>
+    <p class="text-xs text-neutral-400 px-1">TASK-022のLGTMをcc6a7feから同期済み。Build 4候補は150テスト・型/設定検証・両OSバンドル成功。署名/提出はExpo認証待ち、Apple処理・実機更新/データ保持は未確認です。<a class="underline" href="docs/BUILD4_RELEASE.md">Build 4 配布手順</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-02 方針再確認：mobile/のネイティブアプリを本体として、ソース照合 → 実機配布・TestFlight → 操作改善 → ストア公開を優先。Web/PWAは補助用途です。</p>
 
@@ -412,10 +412,10 @@
         title: "進捗確認アプリのトンネル不要化",
         category: "Native Delivery",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "Apple提出報告・実機受入待ち",
+        status: "IN PROGRESS",
+        rating: "Build 4準備済み・Expo認証待ち",
         desc: "通常の確認はTestFlightへ統一し、初回インストール後は上書き更新。内蔵コードで起動し、開発クライアントと起動時OTAを無効化。",
-        review: "63b3f41のBuild 3完了/Apple提出成功記録とASC提出先を同期。固定IDの照合/提出コマンドを実装。17 suites/124 tests・型/設定検証成功。Codex直接照会は認証不足。招待・実機更新/保持は未確認。"
+        review: "Build 3の提出記録を保全。TASK-020〜022を含むBuild 4候補のソース/バンドル記録・日英リリースノート・上書き更新手順を準備。150テスト・型/設定・両OSバンドル成功。Expo認証不足で照会停止、署名/提出・Apple処理・実機確認は未完了。"
       },
       {
         id: "TASK-019",
@@ -452,10 +452,10 @@
         title: "全国・多ブランド・地方/女性向けジム検索",
         category: "Native Directory",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、実接続待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "16ブランドと47都道府県から、女性向け・公共・地域施設を検索。ユーザー指定のエバーフィット24公式サイト/千葉初期選択、お気に入り保存と情報元を表示。",
-        review: "20 suites/150 tests・型/設定・iOS/Androidバンドル成功。スマホ幅2種類・日英24状態をモック応答で確認。実店舗取得は通信制限のため未検証。未確認設備/重量/マッチ率を推測で表示しない。"
+        review: "cc6a7feのAntigravity受入を同期。20 suites/150 tests・型/設定・両OSバンドル成功。16ブランド・47都道府県・分類・保存・未確認スペック表示の受入完了。署名付き新版の配布はTASK-018で追跡。"
       }
     ];
 

@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-04T08:51:27.069Z",
+  "status": "LOCAL_VALIDATION_COMPLETE_WAITING_FOR_EAS",
+  "desired": {
+    "platform": "ios",
+    "profile": "production",
+    "distribution": "store",
+    "version": "1.0.0",
+    "buildNumber": "4",
+    "bundleIdentifier": "com.peroki.gymfinder",
+    "easProjectId": "707c6e89-6ed5-4d65-a6bb-90472a724971",
+    "ascAppId": "6828502638"
+  },
+  "includedTasks": [
+    "TASK-020",
+    "TASK-021",
+    "TASK-022"
+  ],
+  "source": {
+    "acceptedFeatureBaseCommit": "cc6a7fecb4f9e0fdd5afbc760b9ac5d6843a6ec6",
+    "gitTreesAtAcceptedBase": {
+      "mobile/src": "cbc56b2265a97c3d630274bc3bc7a094c2408411",
+      "mobile/assets": "8ce6ae017aae770095691950d0971b85ac81b4a1"
+    },
+    "releasePreparationChange": "Photo-library purpose now includes existing equipment and meal photo selection; no new permission or storage schema.",
+    "fileSha256": {
+      "mobile/App.tsx": "07273646be9e00f8c9ff45b1b017b15f36fc5588d4f99b6a5d696f139c8faaf5",
+      "mobile/app.json": "d4b9ccf18ac8b9f09aca8834fcb241ec255ae17495cca9d2c6b7a6becc0ad3f1",
+      "mobile/eas.json": "ead328bb49ea263129d5bffee7e5f98b1ace7fd1fc2388dfb5f222c34a48f61a",
+      "mobile/package.json": "18a3b71cb36ae09b5b42a53e98762ceac7278ce20f5f286f10f35c811ae8ee42",
+      "mobile/package-lock.json": "9fc154f4e6d89b452dacae06532fd7ab9d485e9c1cc57064d4b9f471d9b275c9",
+      "mobile/scripts/build-ios.cjs": "00289504cfc03442a8994468fb6018f4430ad257336ed0757215afaf01e024df",
+      "mobile/scripts/verify-release.cjs": "26b32c233e78ed398f2751bdfccfba3300413547bfb4a8bbf8b2df1d014f7e48"
+    },
+    "actualBuildSourceCommit": null
+  },
+  "validation": {
+    "tests": {
+      "command": "pnpm test --json --outputFile=/tmp/gymfinder-build4-tests.json",
+      "startedAt": "2026-11-04T08:41:52.864Z",
+      "suites": 20,
+      "passed": 150,
+      "failed": 0,
+      "skipped": 0,
+      "success": true
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "success": true
+    },
+    "releaseCheck": {
+      "command": "npm run release:check",
+      "success": true
+    },
+    "expoIntrospection": {
+      "success": true,
+      "cameraUsage": "GymFinderで設備写真を撮影するためにカメラを使用します。",
+      "photoLibraryUsage": "GymFinderで設備写真や食事写真を選ぶために写真を使用します。",
+      "microphoneUsage": null,
+      "updatesEnabled": false
+    },
+    "export": {
+      "command": "EXPO_OFFLINE=1 EXPO_NO_TELEMETRY=1 npx expo export --platform all --max-workers 2 --output-dir /tmp/gymfinder-build4-candidate",
+      "success": true,
+      "bundles": {
+        "ios": {
+          "format": "Hermes bytecode",
+          "file": "_expo/static/js/ios/AppEntry-6c41d525ebec4abffde66c7670d2550a.hbc",
+          "sha256": "ce73e756601e55bcf6912bc7b33344005672615404bc553d8f59c9b440b5190c",
+          "assetCount": 18
+        },
+        "android": {
+          "format": "Hermes bytecode",
+          "file": "_expo/static/js/android/AppEntry-087429d079afb55f8d5b5172f8488731.hbc",
+          "sha256": "b403f59bae3b8cf983894fbfeb97d016fccb43ec743d74c5ed2a889f3e861141",
+          "assetCount": 19
+        }
+      },
+      "isSignedNativeArtifact": false
+    }
+  },
+  "remote": {
+    "versionVerified": false,
+    "duplicateBuildCheckVerified": false,
+    "easBuildId": null,
+    "assignedBuildNumber": null,
+    "buildStatus": null,
+    "submissionId": null,
+    "submissionStatus": null,
+    "signedArtifactUrl": null,
+    "appleProcessingStatus": null,
+    "testflightInviteUrl": null
+  },
+  "device": {
+    "name": "PeroのiPhone",
+    "installedBuildNumber": null,
+    "updateVerified": false,
+    "dataRetentionVerified": false,
+    "offlineColdStartVerified": false
+  },
+  "previousBuild": {
+    "buildNumber": "3",
+    "easBuildId": "9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785",
+    "submissionId": "9dc718a2-9a94-478b-bcd4-60be4aad2331",
+    "reportedSubmissionStatus": "SUBMITTED_TO_APPLE",
+    "currentAppleProcessingVerified": false,
+    "statusFile": "IOS_RELEASE_STATUS.json"
+  },
+  "blockers": [
+    "Expo authentication unavailable in this runtime; existing EXPO_TOKEN requirement has no saved binding.",
+    "Expo API host rules are saved in the environment draft but not applied to this runtime."
+  ],
+  "instructions": "../../docs/BUILD4_RELEASE.md"
+}

@@ -1,5 +1,9 @@
 # GymFinder 1.0.0 リリース準備・署名手順
 
+## 最新候補（2026-11-04）
+
+TASK-020〜022を含む[Build 4リリース手順](../../docs/BUILD4_RELEASE.md)と[候補記録](IOS_BUILD4_CANDIDATE.json)を追加。20スイート/150テスト・型/設定検証・両OSバンドル生成は成功、署名・提出・実機更新は未完了。既存の`IOS_RELEASE_STATUS.json`と`release:ios:*`はBuild 3専用で、候補の番号に置き換えない。
+
 ## 今回の設定
 
 | 項目 | 値 |

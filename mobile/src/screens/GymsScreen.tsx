@@ -125,8 +125,9 @@ function GymsContent() {
             title={t("travel.search")}
             variant="primary"
             selected
-            onPress={() => d.setPage("results")}
+            onPress={() => d.setPage(results.length ? "results" : "directory")}
           />
+          <Button title={t("directory.entry")} onPress={() => d.setPage("directory")} />
           <MachineGuideEntry />
           <Disclosure title={t("travel.refine")}>
             <Card>

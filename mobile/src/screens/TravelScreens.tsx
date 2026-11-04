@@ -15,6 +15,8 @@ import {
 import { GymPhoto, MatchMeter, VenueCard } from "../components/TravelCards";
 import { EQUIPMENTS } from "../data/equipment";
 import { MachineGuideEntry } from "../components/MachineGuideEntry";
+import { DirectorySavedVenues } from "../components/DirectoryVenueCard";
+import { useDirectory } from "../directoryState";
 import { GymMap } from "../components/GymMap";
 import { GymContributionForm, GymPosts } from "../components/GymCommunity";
 import { useI18n, translate } from "../i18n";
@@ -151,7 +153,8 @@ export function SearchMenuScreen() {
 export function MapScreen() {
   const { t } = useI18n(),
     d = useDiscovery()!,
-    results = useResults();
+    results = useResults(),
+    nav = useContext(NavigationContext);
   const [selected, setSelected] = useState("gold");
   const chosen = results.find((r) => r.gym.id === selected) || results[0];
   return (
@@ -160,6 +163,13 @@ export function MapScreen() {
       title="travel.mapTitle"
       subtitle={t("travel.mapSubtitle")}
     >
+      <Button
+        title={t("directory.entry")}
+        onPress={() => {
+          d.setPage("directory");
+          nav?.navigate("Explore" as never);
+        }}
+      />
       <Field
         accessibilityLabel={t("ジム検索")}
         value={d.profile.query}
@@ -200,6 +210,7 @@ export function MapScreen() {
   );
 }
 export function FavoritesScreen() {
+  const directory = useDirectory();
   const { t } = useI18n(),
     { favorites, gymCatalog } = useFitness(),
     d = useDiscovery()!,
@@ -223,7 +234,11 @@ export function FavoritesScreen() {
       {results.map(({ gym, match }) => (
         <VenueCard key={gym.id} gym={gym} match={match} />
       ))}
-      {!results.length && (
+      {Boolean(directory?.saved.length) && (
+        <Heading>{t("directory.savedTitle")}</Heading>
+      )}
+      <DirectorySavedVenues />
+      {!results.length && !directory?.saved.length && (
         <Card>
           <Heading>{t("travel.noFavorites")}</Heading>
           <Body>{t("travel.favoriteHint")}</Body>

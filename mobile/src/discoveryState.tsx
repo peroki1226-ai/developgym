@@ -23,6 +23,7 @@ export type DiscoveryPage =
   | "detail"
   | "compare"
   | "equipment"
+  | "directory"
   | "recommendations";
 export type Tool = "training" | "home" | "diet" | null;
 type State = {

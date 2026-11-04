@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">18</span> / <span id="stat-total" class="text-neutral-500">21</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">19</span> / <span id="stat-total" class="text-neutral-500">22</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">18 / 21 TASKS COMPLETED (86%)</span>
+        <span class="font-num text-white">19 / 22 TASKS COMPLETED (86%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 85.71%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 86.36%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-020のレイアウト受入を同期済み。TASK-021として初心者向けマシン図解の入口と表示を改善。新しい署名付きビルドで実機確認が必要です。</p>
+    <p class="text-xs text-neutral-400 px-1">TASK-021受入を同期済み。TASK-022として全国・多ブランド・地方/女性向け施設の検索を追加。実通信・署名付き新版の実機確認は未完了です。</p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-02 方針再確認：mobile/のネイティブアプリを本体として、ソース照合 → 実機配布・TestFlight → 操作改善 → ストア公開を優先。Web/PWAは補助用途です。</p>
 
@@ -442,10 +442,20 @@
         title: "初心者向けマシン図解の入口と表示",
         category: "Native Guide",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証完了、受入待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "既存12種目の人物・マシン・動作矢印をホーム/メニュー/設備から開き、図解と初心者手順を先に表示。元の検索や入力を保持。",
-        review: "18 suites/129 tests・型/設定・iOS/Androidバンドル成功。320/390幅・日英で3種目12表示、図解初期表示・固定戻る・入力保持を確認。実機/署名付き新版は未確認。"
+        review: "41aac0eのAntigravity受入を同期。18 suites/129 tests等の確認記録を保全。実機配布はTASK-018で追跡。"
+      },
+      {
+        id: "TASK-022",
+        title: "全国・多ブランド・地方/女性向けジム検索",
+        category: "Native Directory",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、実接続待ち",
+        desc: "16ブランドと47都道府県から、女性向け・公共・地域施設を検索。ユーザー指定のエバーフィット24公式サイト/千葉初期選択、お気に入り保存と情報元を表示。",
+        review: "20 suites/150 tests・型/設定・iOS/Androidバンドル成功。スマホ幅2種類・日英24状態をモック応答で確認。実店舗取得は通信制限のため未検証。未確認設備/重量/マッチ率を推測で表示しない。"
       }
     ];
 

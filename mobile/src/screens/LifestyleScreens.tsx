@@ -1,5 +1,7 @@
 import { NavigationContext } from "@react-navigation/native";
 import { useDiscovery } from "../discoveryState";
+import { useDirectory } from "../directoryState";
+import { DirectorySavedVenues } from "../components/DirectoryVenueCard";
 import { EQUIPMENTS } from "../data/equipment";
 import { homeExercises } from "../domain/homeTraining";
 import { useI18n } from "../i18n";
@@ -12,6 +14,7 @@ const systemExerciseNames = new Set(
   [...EQUIPMENTS, ...homeExercises].map((item) => item.name),
 );
 export function MyPageScreen() {
+  const directory = useDirectory();
   const { t, formatDate } = useI18n();
   const d = useDiscovery(),
     nav = useContext(NavigationContext);
@@ -29,7 +32,10 @@ export function MyPageScreen() {
           <View style={[s.row, { justifyContent: "space-between" }]}>
             {[
               ["travel.logCount", logs.length],
-              ["travel.favoriteTitle", favorites.length],
+              [
+                "travel.favoriteTitle",
+                favorites.length + (directory?.saved.length ?? 0),
+              ],
               ["travel.menuCount", d.profile.menuIds.length],
             ].map(([label, count]) => (
               <View key={label} style={{ gap: 6 }}>
@@ -110,9 +116,10 @@ export function MyPageScreen() {
                 {t("（サンプル）")}
               </Body>
             ))
-        ) : (
+        ) : !directory?.saved.length ? (
           <Body>{t("Gyms タブからお気に入りを追加できます。")}</Body>
-        )}
+        ) : null}
+        <DirectorySavedVenues />
       </Card>
       <Card>
         <Heading>{t("あなたの投稿")}</Heading>

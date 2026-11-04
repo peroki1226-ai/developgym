@@ -20,6 +20,8 @@ import { MyPageScreen } from "./src/screens/LifestyleScreens";
 import { DietScreen } from "./src/screens/DietScreen";
 import { FitnessProvider } from "./src/state";
 import { DiscoveryProvider, useDiscovery } from "./src/discoveryState";
+import { DirectoryProvider } from "./src/directoryState";
+import { DirectoryScreen } from "./src/screens/DirectoryScreen";
 import {
   MapScreen,
   SearchMenuScreen,
@@ -67,7 +69,9 @@ export default function App() {
       >
         <FitnessProvider>
           <DiscoveryProvider>
-            <AppNavigator />
+            <DirectoryProvider>
+              <AppNavigator />
+            </DirectoryProvider>
           </DiscoveryProvider>
         </FitnessProvider>
       </SafeAreaView>
@@ -138,6 +142,7 @@ function RouteContent({
       <DietScreen />
     );
   if (name === "Explore") {
+    if (d.page === "directory") return <DirectoryScreen />;
     if (d.page === "detail") return <GymDetailScreen />;
     if (d.page === "compare") return <ComparisonScreen />;
     if (d.page === "equipment") return <EquipmentSearchScreen />;

@@ -1,0 +1,138 @@
+import React, { useMemo } from "react";
+import { Circle, Ellipse, G, Line, Path, Polyline, Rect } from "react-native-svg";
+import { exercisePose, ExercisePose, motionType, Point } from "../domain/exerciseMotion";
+
+const machine = "#8c9ca8", frame = "#c8d2da", person = "#337baf", target = "#173f60";
+const points = (items: readonly Point[]) => items.map((p) => p.join(",")).join(" ");
+function Segment({ a, b, color = machine, width = 2 }: { a: Point; b: Point; color?: string; width?: number }) {
+  return <Line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={color} strokeWidth={width} strokeLinecap="round" />;
+}
+function Seat({ x = 43, y = 66, width = 24 }: { x?: number; y?: number; width?: number }) {
+  return <G>
+    <Rect x={x} y={y} width={width} height={4} rx={2} fill={machine} />
+    <Segment a={[x + 9, y + 4]} b={[x + 9, 88]} width={3} />
+  </G>;
+}
+function Stack({ x, lift }: { x: number; lift: number }) {
+  return <G>
+    <Rect x={x} y={12} width={11} height={76} rx={3} fill="#eef2f5" stroke={frame} />
+    <Segment a={[x + 5.5, 17]} b={[x + 5.5, 84]} color={frame} width={1} />
+    {[0, 1, 2, 3].map((i) => <Rect key={i} x={x + 1.5} y={65 + i * 4 - lift} width={8} height={3} rx={0.5} fill={machine} />)}
+  </G>;
+}
+function Hardware({ type: raw, pose, progress: p }: { type: string; pose: ExercisePose; progress: number }) {
+  const type = motionType(raw), hand = pose.grips[0], foot = pose.legs[0]?.[2] ?? [0, 0];
+  switch (type) {
+    case "chest-press":
+      return <G><Stack x={18} lift={p * 9} /><Seat />
+        <Segment a={[43, 32]} b={[43, 64]} width={5} />
+        <Segment a={[29, 17]} b={[65, 18]} color={frame} width={3} />
+        <Segment a={[65, 18]} b={hand} width={3} /><Circle cx={65} cy={18} r={2.5} fill={machine} />
+      </G>;
+    case "pec-fly":
+      return <G><Rect x={44} y={18} width={32} height={8} rx={3} fill={machine} />
+        {pose.arms.map((arm, i) => <Segment key={i} a={arm[0]} b={arm[2]} width={5} color={frame} />)}
+        <Ellipse cx={60} cy={44} rx={12} ry={10} fill="#eef2f5" stroke={frame} />
+      </G>;
+    case "cable-machine":
+      return <G><Stack x={8} lift={p * 8} /><Stack x={101} lift={p * 8} />
+        <Segment a={[13, 18]} b={pose.grips[0]} /><Segment a={[106, 18]} b={pose.grips[1]} />
+        <Circle cx={13} cy={18} r={3} fill={machine} /><Circle cx={106} cy={18} r={3} fill={machine} />
+      </G>;
+    case "incline-smith":
+    case "dumbbell-heavy":
+      return <G><Segment a={[33, 46]} b={[62, 72]} width={6} /><Segment a={[62, 72]} b={[79, 68]} width={5} />
+        <Segment a={[59, 73]} b={[59, 88]} width={3} />
+        {type === "incline-smith" ? <G>
+          <Segment a={[65, 9]} b={[65, 88]} color={frame} width={3} /><Segment a={[83, 9]} b={[83, 88]} color={frame} width={3} />
+          <Segment a={[44, hand[1]]} b={[87, hand[1]]} width={2.5} />
+          <Rect x={79} y={hand[1] - 6} width={6} height={12} rx={1} fill={machine} />
+        </G> : <G>
+          <Segment a={[hand[0] - 8, hand[1]]} b={[hand[0] + 8, hand[1]]} width={2} />
+          <Rect x={hand[0] - 9} y={hand[1] - 5} width={4} height={10} rx={1} fill={machine} />
+          <Rect x={hand[0] + 5} y={hand[1] - 5} width={4} height={10} rx={1} fill={machine} />
+        </G>}
+      </G>;
+    case "lat-pulldown":
+      return <G><Stack x={100} lift={p * 10} /><Seat x={46} width={28} />
+        <Segment a={[60, 8]} b={[105, 8]} width={3} />
+        <Segment a={[60, 8]} b={[60, hand[1]]} width={1.3} />
+        <Segment a={pose.grips[0]} b={pose.grips[1]} width={3} />
+        <Segment a={[43, 68]} b={[77, 68]} width={4} />
+      </G>;
+    case "seated-row":
+      return <G><Stack x={100} lift={p * 9} /><Seat x={27} width={23} />
+        <Segment a={[105, 52]} b={hand} width={1.4} />
+        <Segment a={[78, 69]} b={[81, 83]} width={4} />
+      </G>;
+    case "shoulder-press":
+      return <G><Seat /><Segment a={[39, 34]} b={[43, 64]} width={5} />
+        <Segment a={[26, 34]} b={hand} width={3} /><Circle cx={26} cy={34} r={3} fill={machine} />
+        <Stack x={98} lift={p * 9} />
+      </G>;
+    case "leg-press":
+      return <G><Segment a={[19, 47]} b={[40, 75]} width={6} /><Segment a={[40, 75]} b={[55, 72]} width={5} />
+        <Segment a={[54, 81]} b={[106, 29]} width={3} color={frame} />
+        <Segment a={[foot[0] - 7, foot[1] - 7]} b={[foot[0] + 7, foot[1] + 7]} width={5} />
+        <Circle cx={foot[0] + 8} cy={foot[1] + 9} r={4} fill={machine} />
+      </G>;
+    case "hack-squat":
+      return <G><Segment a={[26, 86]} b={[99, 13]} width={4} color={frame} />
+        <Segment a={[24, 71]} b={[40, 87]} width={5} />
+        <Segment a={[pose.hip[0] + 3, pose.hip[1] + 3]} b={[pose.shoulder[0] + 3, pose.shoulder[1] + 3]} width={10} />
+        <Rect x={pose.shoulder[0] - 7} y={pose.shoulder[1] - 1} width={16} height={5} rx={2} fill={machine} />
+      </G>;
+    case "power-rack": {
+      const y = pose.shoulder[1] - 3;
+      return <G><Rect x={22} y={9} width={76} height={79} rx={2} fill="none" stroke={frame} strokeWidth={3} />
+        <Segment a={[22, 71]} b={[98, 71]} width={2} color={frame} />
+        <Segment a={[13, y]} b={[107, y]} width={2.5} />
+        <Rect x={19} y={y - 8} width={6} height={16} rx={1} fill={machine} />
+        <Rect x={95} y={y - 8} width={6} height={16} rx={1} fill={machine} />
+      </G>;
+    }
+    case "abdominal-crunch":
+      return <G><Seat /><Segment a={[42, 34]} b={[42, 63]} width={5} />
+        <Segment a={[32, 28]} b={hand} width={3} /><Circle cx={32} cy={28} r={3} fill={machine} />
+      </G>;
+  }
+}
+function Figure({ pose, ghost = false }: { pose: ExercisePose; ghost?: boolean }) {
+  return <G opacity={ghost ? 0.2 : 1}>
+    <Circle cx={pose.head[0]} cy={pose.head[1]} r={5.5} fill={ghost ? "none" : person} stroke={person} strokeWidth={1} />
+    <Segment a={pose.shoulder} b={pose.hip} color={person} width={ghost ? 1 : 7} />
+    {pose.camera !== "side" && <Segment a={[pose.shoulder[0] - 11, pose.shoulder[1]]} b={[pose.shoulder[0] + 11, pose.shoulder[1]]} color={person} width={ghost ? 1 : 5} />}
+    {[...pose.legs, ...pose.arms].map((limb, i) => <G key={i}>
+      <Polyline points={points(limb)} fill="none" stroke={i < pose.legs.length ? "#69849a" : person} strokeWidth={ghost ? 1 : 3.8} strokeDasharray={ghost ? "2 2" : undefined} strokeLinecap="round" strokeLinejoin="round" />
+      {!ghost && <Circle cx={limb[1][0]} cy={limb[1][1]} r={1.8} fill="#ffffff" stroke={person} strokeWidth={0.9} />}
+    </G>)}
+    {!ghost && <>
+      <Segment a={pose.highlight[0]} b={pose.highlight[1]} color={target} width={5} />
+      {pose.grips.map((p, i) => <Circle key={i} cx={p[0]} cy={p[1]} r={2.4} fill={person} stroke="#ffffff" strokeWidth={1} />)}
+    </>}
+  </G>;
+}
+export function ExerciseMotionScene({ type, progress }: { type: string; progress: number }) {
+  const pose = exercisePose(type, progress);
+  const { start, from, to, trajectory } = useMemo(() => {
+    const contact = (p: ExercisePose) => type === "leg-press" ? p.legs[0][2]
+      : type === "hack-squat" || type === "power-rack" ? p.shoulder : p.grips[0];
+    const start = exercisePose(type, 0), end = exercisePose(type, 1);
+    return { start, from: contact(start), to: contact(end),
+      trajectory: points(Array.from({ length: 17 }, (_, i) => contact(exercisePose(type, i / 16)))) };
+  }, [type]);
+  const dx = to[0] - from[0], dy = to[1] - from[1], length = Math.hypot(dx, dy) || 1;
+  // Keep the direction cue on the right of the scene, away from moving joints.
+  const tip: Point = [111 + dx / length * 4, 48 + dy / length * 4];
+  const base: Point = [tip[0] - dx / length * 4, tip[1] - dy / length * 4];
+  return <>
+    <Ellipse cx={60} cy={89} rx={50} ry={3} fill="#f1f4f6" />
+    <Line x1={10} y1={88} x2={110} y2={88} stroke={frame} strokeWidth={1.5} />
+    <Hardware type={type} pose={pose} progress={progress} />
+    <Figure pose={start} ghost />
+    <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />
+    <Figure pose={pose} />
+    <Line x1={111 - dx / length * 6} y1={48 - dy / length * 6} x2={tip[0]} y2={tip[1]} stroke={person} strokeWidth={1.4} />
+    <Path d={`M ${base[0] - dy / length * 2} ${base[1] + dx / length * 2} L ${tip[0]} ${tip[1]} L ${base[0] + dy / length * 2} ${base[1] - dx / length * 2}`} fill="none" stroke={person} strokeWidth={1.4} />
+  </>;
+}

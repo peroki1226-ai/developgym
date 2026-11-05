@@ -17,7 +17,8 @@ import { useFitness } from "../state";
 export function TrainingScreen({
   initialEquipmentId,
   onBack,
-}: { initialEquipmentId?: string; onBack?: () => void } = {}) {
+  active = true,
+}: { initialEquipmentId?: string; onBack?: () => void; active?: boolean } = {}) {
   const { t } = useI18n();
   const [pro, setPro] = useState(false);
   const [selectedPart, setSelectedPart] = useState<string>("all");
@@ -103,6 +104,7 @@ export function TrainingScreen({
           type={selected.svgType}
           muscleTag={selected.muscleTag}
           label={selected.name}
+          active={active}
         />
 
         {/* Detailed Guide Card */}

@@ -119,6 +119,7 @@ function Route({ name }: { name: keyof TabParams }) {
             key={lastGuideId.current ?? "guide"}
             initialEquipmentId={lastGuideId.current ?? undefined}
             onBack={d.closeGuide}
+            active={guideOpen}
           />
         </SafeAreaView>
       </Modal>
@@ -135,7 +136,7 @@ function RouteContent({
   const d = useDiscovery()!;
   if (d.tool && focused)
     return d.tool === "training" ? (
-      <TrainingScreen />
+      <TrainingScreen active={focused && !d.guideId} />
     ) : d.tool === "home" ? (
       <HomeScreen />
     ) : (

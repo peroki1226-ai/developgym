@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">87%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">20</span> / <span id="stat-total" class="text-neutral-500">22</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">20</span> / <span id="stat-total" class="text-neutral-500">23</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">20 / 22 TASKS COMPLETED (91%)</span>
+        <span class="font-num text-white">20 / 23 TASKS COMPLETED (87%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90.91%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 86.96%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">ユーザー指示によりTestFlightの追加提出・配布は保留。実機確認は登録済みiPhoneへのAd Hoc直接配布を基本にします。既存Build 4の提出記録は保全、取消/配布停止は未実施。<a class="underline" href="docs/IPHONE_INSTALL.md">iPhone直接配布の方針</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-023：全12種目の動く模型を実装。175テスト・型/設定検証成功、レビュー待ち。TestFlight保留を維持し、新版のAd Hoc実機確認は未実施です。<a class="underline" href="docs/ANIMATED_FORM_GUIDE.md">動く模型の実装・検証</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -456,6 +456,16 @@
         rating: "LGTM",
         desc: "16ブランドと47都道府県から、女性向け・公共・地域施設を検索。ユーザー指定のエバーフィット24公式サイト/千葉初期選択、お気に入り保存と情報元を表示。",
         review: "cc6a7feのAntigravity受入を同期。20 suites/150 tests・型/設定・両OSバンドル成功。16ブランド・47都道府県・分類・保存・未確認スペック表示の受入完了。署名付き新版の配布はTASK-018で追跡。"
+      },
+      {
+        id: "TASK-023",
+        title: "フォーム模型の連続動作・器具連動",
+        category: "Native Motion Guide",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、実機/レビュー待ち",
+        desc: "全12種目で人物の関節と器具が連動。再生/停止・半速・開始/終了姿勢・なぞって途中の姿勢を確認。日英・動きを減らす設定に対応。",
+        review: "22 suites/175 tests・型/設定検証成功。背景/非表示時のループ停止、骨長/角度/足の固定、日英操作を検証。実機の滑らかさ/VoiceOverは未確認。TestFlight・新規リモートビルドは実行していない。"
       }
     ];
 

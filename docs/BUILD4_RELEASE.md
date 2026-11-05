@@ -1,9 +1,29 @@
 # Build 4 リリース候補・実機受入手順
 
-2026-11-04（UTC）。TASK-020〜022の受入済みコードを含む次の署名付きiOS版を準備する。
-**ローカル検証は完了。署名ビルド・Appleへの提出・TestFlight配布・実機更新は未実施。**
+2026-11-05（日本時間）更新。TASK-020〜022を含む署名付きiOS版を追跡する。
+**Build 4のビルド・EAS提出はFINISHED（Antigravity同期記録94f6b93）。AppleはPROCESSING。TestFlight配信・実機更新は未確認。ビルド/提出コマンドは再実行しない。**
 
-2026-11-05（日本時間）追記：`dedc060`で準備差分のLGTMを受領。Antigravityの認証済み環境ではremote番号3・重複/未完了ジョブなし・Build 3の提出FINISHEDを照合済み。このCodex環境の`eas whoami`は`Not logged in`、番号照会もExpo認証要求で停止した。ビルドコマンドは未開始で、Build ID/提出IDは未発行。認証済みのAntigravity環境で以下の手順を実行するか、この環境の既存EXPO_TOKENと通信設定を反映してから再開する。過去のジョブ照合をもとに再確認なしで新規ビルドを開始しない。
+| 配布対象 | 記録 |
+| --- | --- |
+| バージョン | `1.0.0 (4)` |
+| EAS Build ID | `e4781907-f41c-4d4c-a9b3-29ad1e70bf2e` |
+| 提出ID | `95091359-23a8-47fe-a853-e371aa4f78d1` |
+| 署名済みIPA | 候補JSONの`remote.signedArtifactUrl`。TestFlight招待ではなく、Safariからの直接インストール用ではない |
+| Apple / 実機 | 処理中の報告。招待・更新・データ保持・オフライン起動は未確認 |
+
+[実機受入記録](BUILD4_DEVICE_ACCEPTANCE.md)に沿って確認する。Codex環境のExpo認証不足はこの環境からのライブ照会の制約であり、完了済みビルド/提出を妨げている状態ではない。
+
+## 実際のビルドソースの照合（未完了）
+
+候補JSONの報告値`e5b39d5690b23267710c850ee5b8fba7ca20dafe`は取得済みGit履歴に存在しない。実際のリリース準備コミットは`e5b39d5a618809d42b67ce6f969718aae144872a`。短縮値は同じでも完全ハッシュが異なるため、推測で置き換えない。報告値は`reportedBuildSourceCommit`に保全し、`actualBuildSourceCommit`は未照合のnullとした。
+
+認証済み環境で次の読取りを実行し、当該ビルドの`gitCommitHash`とprojectId/Bundle ID/実際の番号を記録する。アプリファイル・src/assetsのツリーは承認済み候補と一致することをCodexで確認済みだが、署名バイナリのソースが同一である証明とは分ける。
+
+```sh
+npx eas build:view e4781907-f41c-4d4c-a9b3-29ad1e70bf2e --json
+```
+
+正確な値をGit履歴と照合後、候補JSONのソース監査欄を更新する。今回のCodex確認はGit同期記録の照合で、EAS/Appleへのライブ照会ではない。
 
 ## 対象と検証結果
 
@@ -14,14 +34,14 @@
 | TASK-021 | 全12種目の模型風SVG図解、初心者手順、元画面の入力を保持するガイド |
 | TASK-022 | 16ブランド・47都道府県、女性向け/公共/地域施設の検索、お気に入り保存 |
 | アプリ | GymFinder / `com.peroki.gymfinder` / `1.0.0` |
-| 希望する次のビルド番号 | `4`（Antigravityがremote現在値3を照合済み。実際の割当番号はビルド時に確認） |
+| 実際のビルド番号 | `4`（AntigravityのEAS実行記録） |
 | Expo | `peroki1226/gymfinder` / `707c6e89-6ed5-4d65-a6bb-90472a724971` |
 | App Store Connect | `6828502638` |
 | 自動テスト | 20スイート・150テスト成功、失敗/スキップ0 |
 | 型検査 / release:check | 成功 |
 | Metroエクスポート | iOS / Android Hermes、Webの生成成功。署名済みIPAではない |
 
-ソースと生成バンドルのハッシュ、未実施項目は[候補記録](../mobile/store/IOS_BUILD4_CANDIDATE.json)に保存する。基準コミットは受入済み機能の出自であり、次回ビルドの実際のソースコミットではない。準備変更は、写真ライブラリ用途説明に既存の「食事写真」用途を追記したものとリリース記録のみ。新しい権限や保存スキーマは追加していない。
+ソースと生成バンドルのハッシュ、配布結果、未実施項目は[候補記録](../mobile/store/IOS_BUILD4_CANDIDATE.json)に保存する。基準コミットは受入済み機能の出自であり、実際のビルドソースコミットとは別。準備変更は、写真ライブラリ用途説明に既存の「食事写真」用途を追記したものとリリース記録のみ。新しい権限や保存スキーマは追加していない。
 
 ## Build 3を先に確認する
 
@@ -31,9 +51,9 @@
 - [App Store ConnectのTestFlight管理画面](https://appstoreconnect.apple.com/apps/6828502638/testflight/ios)で処理結果、必要な申告、テスター割当、有効期限を確認する。EASへの提出成功だけではAppleの処理完了を意味しない。
 - Build 3の再提出は行わない。`release:ios:status` / `release:ios:submit`は既存JSONの固定対象を扱うため、Build 4用と解釈しない。既存のBuild 3記録を候補番号で上書きしない。
 
-## 認証と重複確認後に新しいビルドを開始する
+## 参考：作成時の手順（実行済み。今回のBuild 4には再実行しない）
 
-クラウド環境の既存`EXPO_TOKEN`要件には安全な値の設定がなく、Expo向け通信設定も実行環境へ未反映。環境設定で値を入力し、設定を保存・反映後に接続を再確認する。パスワードやトークンをチャット、Git、ログへ貼り付けない。本人の認証済みPCでも同じ手順を再開できる。
+以下は以降の別リリースにも使う参考手順。今回のBuild 4はAntigravityの認証済み環境から実行・提出済み。このCodex環境でライブ照会が必要な場合は既存EXPO_TOKENとExpo通信設定の反映を確認する。パスワードやトークンをチャット、Git、ログへ貼り付けない。
 
 作業場所は`mobile/`。インストール済みEAS CLIを使う。以下の`EXPO_NO_TELEMETRY=1`はこのクラウド環境でExpo設定読取りの失敗を避けるための指定。PowerShellでは先に`$env:EXPO_NO_TELEMETRY="1"`を設定し、各コマンドの先頭の指定を省く。**EASのAPI操作には`EXPO_OFFLINE=1`を付けない。**
 

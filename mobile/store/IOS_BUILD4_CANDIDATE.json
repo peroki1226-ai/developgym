@@ -33,7 +33,19 @@
       "mobile/scripts/build-ios.cjs": "00289504cfc03442a8994468fb6018f4430ad257336ed0757215afaf01e024df",
       "mobile/scripts/verify-release.cjs": "26b32c233e78ed398f2751bdfccfba3300413547bfb4a8bbf8b2df1d014f7e48"
     },
-    "actualBuildSourceCommit": "e5b39d5690b23267710c850ee5b8fba7ca20dafe"
+    "actualBuildSourceCommit": null,
+    "reportedBuildSourceCommit": "e5b39d5690b23267710c850ee5b8fba7ca20dafe",
+    "commitAudit": {
+      "checkedAt": "2026-11-05T04:30:55.314Z",
+      "reportCommit": "94f6b93f1350ffcb1e04c6e58fef663a110df595",
+      "expectedReleaseSourceCommit": "e5b39d5a618809d42b67ce6f969718aae144872a",
+      "reportedCommitExistsInFetchedRepository": false,
+      "applicationFilesMatchCandidate": true,
+      "srcAndAssetsTreesMatchCandidate": true,
+      "liveBuildCommitVerified": false,
+      "result": "PENDING_EAS_GIT_COMMIT_HASH_CONFIRMATION",
+      "note": "The reported full commit does not exist in the fetched Git history. Preserve the report separately; confirm gitCommitHash on the existing EAS Build ID before recording an actual source commit."
+    }
   },
   "validation": {
     "tests": {
@@ -98,17 +110,24 @@
       "remoteBuildVersion": "3",
       "noDuplicateOrUnfinishedJobs": true,
       "verifiedByThisRuntime": true,
-      "requiresRecheckBeforeBuild": false
+      "requiresRecheckBeforeBuild": false,
+      "verificationRuntime": "Antigravity authenticated environment"
     },
     "buildUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/e4781907-f41c-4d4c-a9b3-29ad1e70bf2e",
-    "submissionUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/submissions/95091359-23a8-47fe-a853-e371aa4f78d1"
+    "submissionUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/submissions/95091359-23a8-47fe-a853-e371aa4f78d1",
+    "codexObservation": {
+      "reportCommit": "94f6b93f1350ffcb1e04c6e58fef663a110df595",
+      "source": "Git-synced Antigravity execution record and user handoff",
+      "liveApiVerified": false
+    }
   },
   "device": {
     "name": "PeroのiPhone",
     "installedBuildNumber": null,
     "updateVerified": false,
     "dataRetentionVerified": false,
-    "offlineColdStartVerified": false
+    "offlineColdStartVerified": false,
+    "acceptanceInstructions": "../../docs/BUILD4_DEVICE_ACCEPTANCE.md"
   },
   "previousBuild": {
     "buildNumber": "3",
@@ -122,8 +141,9 @@
     "reportedAppleProcessingSource": "Antigravity handoff; persisted status file records EAS submission FINISHED. TestFlight availability and device update remain unverified."
   },
   "blockers": [
-    "Expo authentication unavailable in this runtime; existing EXPO_TOKEN requirement has no saved binding.",
-    "Expo API host rules are saved in the environment draft but not applied to this runtime."
+    "Apple TestFlight processing and tester availability are pending confirmation.",
+    "Actual EAS build source commit requires reconciliation with the Git history.",
+    "PeroのiPhone update, retained data and offline cold start are not yet verified."
   ],
   "instructions": "../../docs/BUILD4_RELEASE.md",
   "preparationApproval": {
@@ -147,5 +167,9 @@
     "buildCommandStarted": false,
     "remoteJobCreated": false,
     "reason": "This Codex runtime is unauthenticated; Antigravity authentication is not shared."
-  }
+  },
+  "codexEnvironmentLimitations": [
+    "Expo authentication unavailable in this runtime; existing EXPO_TOKEN requirement has no saved binding.",
+    "Expo API host rules are saved in the environment draft but not applied to this runtime."
+  ]
 }

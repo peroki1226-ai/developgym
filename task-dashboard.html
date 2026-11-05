@@ -102,7 +102,7 @@
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-022のLGTMをcc6a7feから同期済み。Build 4候補は150テスト・型/設定検証・両OSバンドル成功。署名/提出はExpo認証待ち、Apple処理・実機更新/データ保持は未確認です。<a class="underline" href="docs/BUILD4_RELEASE.md">Build 4 配布手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">Build 4のビルド・提出FINISHEDを94f6b93から同期。Apple処理中、TestFlight配信・実機更新/保持・オフライン起動は未確認。ソース完全ハッシュの照合も必要です。<a class="underline" href="docs/BUILD4_DEVICE_ACCEPTANCE.md">iPhone実機受入記録</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-02 方針再確認：mobile/のネイティブアプリを本体として、ソース照合 → 実機配布・TestFlight → 操作改善 → ストア公開を優先。Web/PWAは補助用途です。</p>
 
@@ -412,10 +412,10 @@
         title: "進捗確認アプリのトンネル不要化",
         category: "Native Delivery",
         assignee: "Codex",
-        status: "IN PROGRESS",
-        rating: "Build 4準備承認済み・Codex認証待ち",
+        status: "IN REVIEW",
+        rating: "Build 4提出済み・Apple/実機確認待ち",
         desc: "通常の確認はTestFlightへ統一し、初回インストール後は上書き更新。内蔵コードで起動し、開発クライアントと起動時OTAを無効化。",
-        review: "dedc060の準備差分LGTMを同期。AntigravityがBuild 3提出FINISHED、remote番号3、重複/未完了ジョブなしを照合。Codex側はNot logged inでBuild 4未開始。認証済み環境で番号/ジョブを再確認して署名・自動提出へ。TestFlight配信・実機更新/保持は未確認。"
+        review: "94f6b93のBuild 4ビルド/提出FINISHEDを同期。Apple処理中の報告。アプリファイルは候補と一致するが、報告されたソース完全ハッシュがGit履歴と不一致のためEAS側で照合待ち。再ビルド/再提出せず、配信・実機更新/保存保持/機内モード起動を受入確認する。"
       },
       {
         id: "TASK-019",

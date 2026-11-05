@@ -55,7 +55,7 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex / Antigravity | `IN PROGRESS` | Build 4（1.0.0(4) / ID: e4781907）実行・自動提出予約完了。クラウドビルド完了・TestFlight配信・実機更新/保持確認待ち |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex / Antigravity | `IN REVIEW` | Build 4ビルド/提出FINISHEDを同期。Apple処理・配信・実機更新/保持/オフライン起動待ち。報告ソースの完全ハッシュもEAS側で再照合が必要 |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
@@ -531,3 +531,11 @@
 - **次のステップ**:
   - EAS クラウドビルド完了（FINISHED）および Apple TestFlight への自動提出完了を追跡。
   - PeroのiPhoneにおける TestFlight 上書き更新、データ保持（fitness v4、search v1、directory v1）、オフライン起動を確認。
+
+### [TASK-018] Build 4提出完了の同期・実機受入準備（2026-11-05、日本時間）
+- **同期**: `git pull --ff-only origin main`で`94f6b93`を取得。候補JSONの1.0.0 (4)、Build ID `e4781907-f41c-4d4c-a9b3-29ad1e70bf2e`、提出ID `95091359-23a8-47fe-a853-e371aa4f78d1`、両方FINISHED、署名済みIPAとApple PROCESSINGの報告を保全。今回のCodex確認はGit記録/引継ぎの照合で、EAS/Appleへのライブ照会成功ではない。
+- **現在地**: 作成/提出待ちだったガイド・ダッシュボードを更新。TASK-018はIN REVIEW（Apple配信・実機受入待ち）、全体20/22 DONEを維持。新規ビルド・再提出・Build 3固定対象の変更は行っていない。
+- **照合上の指摘**: 報告された完全ハッシュ`e5b39d5690b23267710c850ee5b8fba7ca20dafe`はGit履歴に存在しない。ローカルで確定できる準備コミットは`e5b39d5a618809d42b67ce6f969718aae144872a`。短縮SHA一致から実ビルドのソースを推測せず、報告値を別欄へ保全し`actualBuildSourceCommit=null`、監査結果を`PENDING_EAS_GIT_COMMIT_HASH_CONFIRMATION`とした。認証済み環境で既存Build IDの`gitCommitHash`を取得してGitと照合してほしい。
+- **環境制約と配布を区別**: CodexのExpo認証/通信制約は別欄に保全し、完了済みBuild 4の作成を止めている要因とは扱わない。現在の配布上の残項目はApple処理/テスター割当、ソース完全ハッシュ照合、実機受入。Antigravityによる実行/検証記録は出典付きで維持。
+- **実機手順**: `docs/BUILD4_DEVICE_ACCEPTANCE.md`を追加。更新前の記録を控え、アプリを削除せずTestFlightで1.0.0 (4)へ更新し、fitness v4/search v1/directory v1、言語、再起動、新しい記録、PC停止・機内モードでの完全終了後の起動を確認する表を用意。全項目は未確認のまま。IPAリンクをSafariインストールや招待URLとして案内しない。
+- **確認範囲**: 候補のアプリ/ビルドファイルハッシュとsrc/assetsツリーの一致、JSON・相対リンク・ダッシュボード構文を検証。アプリコード変更なし、既存150テスト等は過去の受入証跡として維持し、今回の再実行とは扱わない。iPhone実機は操作しておらず、利用可能性/更新/データ保持/オフライン起動は未確認。

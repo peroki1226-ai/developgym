@@ -55,7 +55,7 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 3の提出記録を保全。Build 4候補のローカル検証・配布手順は完了（レビュー依頼）。署名/提出はExpo認証待ち、Apple処理・実機更新/保持は未確認 |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 4準備LGTM・Build 3提出FINISHED・remote番号3/重複なしの報告を同期。Codex側は未ログインでBuild 4未開始。配信・実機更新/保持確認待ち |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
@@ -506,3 +506,11 @@
 - **次のステップ**:
   - TASK-020（洗練ミニマルUI）、TASK-021（初心者マシン図解）、TASK-022（全国・多ブランド検索）を統合した最新署名付きビルド（Build 4）の作成（`npm run build:ios:testflight`）へと進む。
 
+
+### [TASK-018] Build 4実行前の認証確認（2026-11-05、日本時間）
+- **同期**: `git pull --ff-only origin main`で`dedc060`を取得。準備差分のLGTM、AntigravityによるBuild 3提出FINISHED、remote番号3、重複/未完了ジョブなしの照合報告を候補JSONへ出典付きで反映。
+- **実行環境の違い**: このCodex runtimeでは`eas whoami`が`Not logged in`（終了1）、`build:version:get --platform ios --profile production --json --non-interactive`もExpoアカウント要求（終了1）。`EXPO_NO_TELEMETRY=1`を指定して確認した。環境の観測はcurrent、Expo認証bindingなし、Expo向け通信許可も未反映。既存ドラフトにはEXPO_TOKEN要件があるが`has_saved_binding=false`。既存要件を重複追加せず、認証済みのAntigravity環境と同一とは扱わない。
+- **未実行**: 認証前のため`npm run build:ios:testflight`は開始していない。新しいEASジョブ/提出は作成しておらず、実際のBuild ID・提出ID・番号・ビルドソースコミットはnullを維持。リモート番号の巻き戻し・Build 3の再提出・既存署名の変更なし。
+- **記録**: `IOS_BUILD4_CANDIDATE.json`に準備承認、外部照合結果とCodex実行前チェックを区別して追加。既存`IOS_RELEASE_STATUS.json`のAntigravity成功記録は書き換えていない。EAS提出FINISHEDとTestFlightの利用可能性/招待/実機更新を区別し、配布ガイドとダッシュボードも同期。
+- **検証範囲**: アプリ/ビルドコードは変更なし。候補の全ファイルハッシュ、src/assetsツリー一致、ドキュメント相対リンク、ダッシュボード構文とrelease:checkを確認。150テスト等は受入済みの既存検証記録を保全し、今回の再実行とは記載していない。
+- **再開条件**: Antigravity側の認証済み環境で最新mainと番号/既存ジョブを再確認後、`mobile/`で既存`npm run build:ios:testflight`を一度実行し、実際の番号・Build ID・提出ID・ソースを記録する。またはこのクラウド環境の既存EXPO_TOKENへ安全に値を設定し、Expo通信設定を反映してから認証を再確認。TestFlight配信とPeroのiPhoneの上書き/保持/PC不要起動を確認するまでTASK-018はIN PROGRESS。

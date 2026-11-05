@@ -90,7 +90,16 @@
     "submissionStatus": null,
     "signedArtifactUrl": null,
     "appleProcessingStatus": null,
-    "testflightInviteUrl": null
+    "testflightInviteUrl": null,
+    "lastReportedChecks": {
+      "source": "Antigravity handoff",
+      "sourceCommit": "dedc0601828d5c77defc8b625c7611332c4d8e8b",
+      "reportedOn": "2026-11-05",
+      "remoteBuildVersion": "3",
+      "noDuplicateOrUnfinishedJobs": true,
+      "verifiedByThisRuntime": false,
+      "requiresRecheckBeforeBuild": true
+    }
   },
   "device": {
     "name": "PeroのiPhone",
@@ -103,13 +112,38 @@
     "buildNumber": "3",
     "easBuildId": "9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785",
     "submissionId": "9dc718a2-9a94-478b-bcd4-60be4aad2331",
-    "reportedSubmissionStatus": "SUBMITTED_TO_APPLE",
+    "reportedSubmissionStatus": "FINISHED",
     "currentAppleProcessingVerified": false,
-    "statusFile": "IOS_RELEASE_STATUS.json"
+    "statusFile": "IOS_RELEASE_STATUS.json",
+    "reportSourceCommit": "dedc0601828d5c77defc8b625c7611332c4d8e8b",
+    "reportedAppleProcessingComplete": true,
+    "reportedAppleProcessingSource": "Antigravity handoff; persisted status file records EAS submission FINISHED. TestFlight availability and device update remain unverified."
   },
   "blockers": [
     "Expo authentication unavailable in this runtime; existing EXPO_TOKEN requirement has no saved binding.",
     "Expo API host rules are saved in the environment draft but not applied to this runtime."
   ],
-  "instructions": "../../docs/BUILD4_RELEASE.md"
+  "instructions": "../../docs/BUILD4_RELEASE.md",
+  "preparationApproval": {
+    "decision": "LGTM / APPROVED",
+    "source": "Antigravity handoff",
+    "sourceCommit": "dedc0601828d5c77defc8b625c7611332c4d8e8b",
+    "reportedOn": "2026-11-05",
+    "timezone": "Asia/Tokyo"
+  },
+  "lastExecutionAttempt": {
+    "checkedAt": "2026-11-05T02:45:36.338Z",
+    "phase": "authentication preflight",
+    "whoami": {
+      "exitCode": 1,
+      "message": "Not logged in"
+    },
+    "remoteVersionQuery": {
+      "exitCode": 1,
+      "message": "An Expo user account is required to proceed."
+    },
+    "buildCommandStarted": false,
+    "remoteJobCreated": false,
+    "reason": "This Codex runtime is unauthenticated; Antigravity authentication is not shared."
+  }
 }

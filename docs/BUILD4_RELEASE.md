@@ -3,6 +3,8 @@
 2026-11-04（UTC）。TASK-020〜022の受入済みコードを含む次の署名付きiOS版を準備する。
 **ローカル検証は完了。署名ビルド・Appleへの提出・TestFlight配布・実機更新は未実施。**
 
+2026-11-05（日本時間）追記：`dedc060`で準備差分のLGTMを受領。Antigravityの認証済み環境ではremote番号3・重複/未完了ジョブなし・Build 3の提出FINISHEDを照合済み。このCodex環境の`eas whoami`は`Not logged in`、番号照会もExpo認証要求で停止した。ビルドコマンドは未開始で、Build ID/提出IDは未発行。認証済みのAntigravity環境で以下の手順を実行するか、この環境の既存EXPO_TOKENと通信設定を反映してから再開する。過去のジョブ照合をもとに再確認なしで新規ビルドを開始しない。
+
 ## 対象と検証結果
 
 | 項目 | 候補 / 確認結果 |
@@ -12,7 +14,7 @@
 | TASK-021 | 全12種目の模型風SVG図解、初心者手順、元画面の入力を保持するガイド |
 | TASK-022 | 16ブランド・47都道府県、女性向け/公共/地域施設の検索、お気に入り保存 |
 | アプリ | GymFinder / `com.peroki.gymfinder` / `1.0.0` |
-| 希望する次のビルド番号 | `4`（EAS remoteの実際の番号は未照合） |
+| 希望する次のビルド番号 | `4`（Antigravityがremote現在値3を照合済み。実際の割当番号はビルド時に確認） |
 | Expo | `peroki1226/gymfinder` / `707c6e89-6ed5-4d65-a6bb-90472a724971` |
 | App Store Connect | `6828502638` |
 | 自動テスト | 20スイート・150テスト成功、失敗/スキップ0 |
@@ -23,7 +25,7 @@
 
 ## Build 3を先に確認する
 
-[既存の記録](../mobile/store/IOS_RELEASE_STATUS.json)はBuild 3専用。EAS Build IDは`9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`、提出IDは`9dc718a2-9a94-478b-bcd4-60be4aad2331`。Antigravityの同期記録ではビルド完了・Apple提出済み。今回のCodexの照会はExpo認証不足で失敗したため、Apple処理状況・配信可否は未確認。
+[既存の記録](../mobile/store/IOS_RELEASE_STATUS.json)はBuild 3専用。EAS Build IDは`9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785`、提出IDは`9dc718a2-9a94-478b-bcd4-60be4aad2331`。`dedc060`ではAntigravityによるEAS提出状態`FINISHED`の直接照合を記録。引継ぎにはApple処理完了との報告もあるが、EAS提出完了とTestFlightの配信可否は分けて扱い、招待・実機更新は未確認のまま保全する。Codexでの今回の認証確認は失敗しており、ライブ状態を確認できていない。
 
 - 認証済み環境で`mobile/`から`npm run release:ios:status`を実行する。
 - [App Store ConnectのTestFlight管理画面](https://appstoreconnect.apple.com/apps/6828502638/testflight/ios)で処理結果、必要な申告、テスター割当、有効期限を確認する。EASへの提出成功だけではAppleの処理完了を意味しない。

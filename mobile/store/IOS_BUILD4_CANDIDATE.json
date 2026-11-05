@@ -141,9 +141,9 @@
     "reportedAppleProcessingSource": "Antigravity handoff; persisted status file records EAS submission FINISHED. TestFlight availability and device update remain unverified."
   },
   "blockers": [
-    "Apple TestFlight processing and tester availability are pending confirmation.",
-    "Actual EAS build source commit requires reconciliation with the Git history.",
-    "PeroのiPhone update, retained data and offline cold start are not yet verified."
+    "TestFlight submission and distribution are on hold at the user’s request.",
+    "A new signed Ad Hoc review build and its actual version/installation link are not yet available.",
+    "The existing build source hash and physical-device update/data-retention/offline-launch checks remain unverified."
   ],
   "instructions": "../../docs/BUILD4_RELEASE.md",
   "preparationApproval": {
@@ -171,5 +171,20 @@
   "codexEnvironmentLimitations": [
     "Expo authentication unavailable in this runtime; existing EXPO_TOKEN requirement has no saved binding.",
     "Expo API host rules are saved in the environment draft but not applied to this runtime."
-  ]
+  ],
+  "deliveryPolicy": {
+    "updatedAt": "2026-11-05T04:37:26.818Z",
+    "source": "User reply on 2026-11-05 (Asia/Tokyo)",
+    "instruction": "まだtest flightには出したくない",
+    "testflightOnHold": true,
+    "newSubmissionsAllowed": false,
+    "testerAssignmentOrSharingAllowed": false,
+    "resumeRequiresExplicitUserInstruction": true,
+    "preferredDeviceReviewDistribution": "ad-hoc",
+    "existingSubmissionCancelled": false,
+    "existingTestflightDistributionStopped": false,
+    "existingTesterAccessVerified": false,
+    "newAdHocBuildId": null,
+    "note": "Existing Build 4 build/submission completion records are preserved. This is an instruction for future actions, not evidence of a remote cancellation or distribution change."
+  }
 }

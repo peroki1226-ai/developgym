@@ -102,9 +102,9 @@
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">Build 4のビルド・提出FINISHEDを94f6b93から同期。Apple処理中、TestFlight配信・実機更新/保持・オフライン起動は未確認。ソース完全ハッシュの照合も必要です。<a class="underline" href="docs/BUILD4_DEVICE_ACCEPTANCE.md">iPhone実機受入記録</a></p>
+    <p class="text-xs text-neutral-400 px-1">ユーザー指示によりTestFlightの追加提出・配布は保留。実機確認は登録済みiPhoneへのAd Hoc直接配布を基本にします。既存Build 4の提出記録は保全、取消/配布停止は未実施。<a class="underline" href="docs/IPHONE_INSTALL.md">iPhone直接配布の方針</a></p>
 
-    <p class="text-xs text-neutral-300 px-1">2026-11-02 方針再確認：mobile/のネイティブアプリを本体として、ソース照合 → 実機配布・TestFlight → 操作改善 → ストア公開を優先。Web/PWAは補助用途です。</p>
+    <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
     <div class="luxe-card rounded-xl p-4 text-sm space-y-2">
       <p class="font-bold">iOS 1.0.0 (3)：EASビルド進行中（Antigravity報告時点）</p>
@@ -412,10 +412,10 @@
         title: "進捗確認アプリのトンネル不要化",
         category: "Native Delivery",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "Build 4提出済み・Apple/実機確認待ち",
-        desc: "通常の確認はTestFlightへ統一し、初回インストール後は上書き更新。内蔵コードで起動し、開発クライアントと起動時OTAを無効化。",
-        review: "94f6b93のBuild 4ビルド/提出FINISHEDを同期。Apple処理中の報告。アプリファイルは候補と一致するが、報告されたソース完全ハッシュがGit履歴と不一致のためEAS側で照合待ち。再ビルド/再提出せず、配信・実機更新/保存保持/機内モード起動を受入確認する。"
+        status: "IN PROGRESS",
+        rating: "TestFlight保留・Ad Hoc直接配布へ",
+        desc: "ユーザー指示でTestFlightの追加提出・配布を保留。登録済みiPhoneへ署名付きinternal版を直接配布し、トンネル不要起動と上書き/保持を確認する。",
+        review: "既存Build 4のビルド/提出FINISHED記録は保全。取消/既存配布の停止は未実施。新しいAd Hoc版は未作成で、実際の番号・ソース照合・実機受入は未完了。TestFlight再開にはユーザーの明示指示が必要。"
       },
       {
         id: "TASK-019",

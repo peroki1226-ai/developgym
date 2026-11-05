@@ -1,5 +1,7 @@
 # GymFinder 1.0.0 リリース準備・署名手順
 
+**2026-11-05 ユーザー指示：TestFlightへの追加提出・自動提出・テスター割当・招待/共有は保留。再開指示までは`build:ios:testflight`/ストア提出を実行しない。実機確認は登録済みiPhoneへのAd Hoc直接配布を基本にし、既存`build:ios:preview`を使う。以下の提出済み記録は取消を意味しない。**
+
 ## 最新候補（2026-11-04）
 
 2026-11-05更新：TASK-020〜022を含むBuild 4（`e4781907-f41c-4d4c-a9b3-29ad1e70bf2e`）のビルド・提出はFINISHEDとの記録を同期。Apple処理・TestFlight配信・実機受入を追跡する。[Build 4記録](../../docs/BUILD4_RELEASE.md)にはソース完全ハッシュの照合待ち事項も記載。今回の作成/提出は繰り返さない。既存の`IOS_RELEASE_STATUS.json`と`release:ios:*`はBuild 3専用のまま保全する。

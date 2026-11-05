@@ -179,7 +179,7 @@ export function TrainingScreen({
             {[
               {
                 id: "all",
-                label: t("全12種目"),
+                label: t("guide.allMachines", { 0: EQUIPMENTS.length }),
               },
               {
                 id: "chest",

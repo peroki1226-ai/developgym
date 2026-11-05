@@ -4,6 +4,8 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import { EQUIPMENTS } from "../src/data/equipment";
 import { TrainingScreen } from "../src/screens/TrainingScreen";
 import { FitnessProvider } from "../src/state";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FITNESS_STORAGE_KEY } from "../src/domain/fitnessStorage";
 
 jest.mock(
   "react-native-safe-area-context",
@@ -15,8 +17,8 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     jest.spyOn(Alert, "alert").mockImplementation(() => {});
   });
 
-  test("contains exactly 12 full equipment items covering all major muscle groups", () => {
-    expect(EQUIPMENTS).toHaveLength(12);
+  test("contains 24 complete equipment guides covering all major muscle groups", () => {
+    expect(EQUIPMENTS).toHaveLength(24);
 
     const parts = new Set(EQUIPMENTS.map((e) => e.bodyPart));
     expect(parts.has("chest")).toBe(true);
@@ -92,5 +94,20 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     await fireEvent.changeText(screen.getByLabelText("セット数"), "3");
     await fireEvent.press(screen.getByText("ジムトレーニングを記録"));
     expect(alert).toHaveBeenCalledWith("記録しました", expect.any(String));
+  });
+
+  test("new arm machines appear in the same filters, display the live count and save a workout", async () => {
+    await render(<FitnessProvider><TrainingScreen /></FitnessProvider>);
+    await screen.findByText("確かなフォームで鍛えよう。");
+    await fireEvent.press(screen.getByRole("button", { name: "別のマシン・種目を選ぶ" }));
+    expect(screen.getByRole("button", { name: "全24種目" })).toBeTruthy();
+    await fireEvent.press(screen.getByRole("button", { name: "腕" }));
+    expect(screen.queryByRole("button", { name: "レッグエクステンション" })).toBeNull();
+    await fireEvent.press(screen.getByRole("button", { name: "アームカールマシン" }));
+    expect(screen.getByText("上腕がパッドに乗る高さへ座席を調整し、肘を回転軸付近に合わせる。")).toBeTruthy();
+    await fireEvent.changeText(screen.getByLabelText("重量キログラム"), "6");
+    await fireEvent.changeText(screen.getByLabelText("回数"), "12");
+    await fireEvent.press(screen.getByText("ジムトレーニングを記録"));
+    expect(JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!).logs[0]).toMatchObject({ name: "アームカールマシン", weight: 6, reps: 12, location: "gym" });
   });
 });

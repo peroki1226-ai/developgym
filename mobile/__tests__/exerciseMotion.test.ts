@@ -1,5 +1,5 @@
 import { EQUIPMENTS } from "../src/data/equipment";
-import { exercisePose, MOTION_TYPES, MOTION_CYCLE_MS, sampleMotion, solveLimb } from "../src/domain/exerciseMotion";
+import { exercisePose, motionContact, MOTION_TYPES, MOTION_CYCLE_MS, sampleMotion, solveLimb } from "../src/domain/exerciseMotion";
 
 const distance = (a: readonly number[], b: readonly number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 test("every catalogue diagram has its own motion model", () => {
@@ -8,6 +8,7 @@ test("every catalogue diagram has its own motion model", () => {
 test.each(MOTION_TYPES)("%s: continuous bounded poses keep bone lengths and grip contacts", (type) => {
   const start = exercisePose(type, 0), end = exercisePose(type, 1);
   expect(end).not.toEqual(start);
+  expect(distance(motionContact(type, end), motionContact(type, start))).toBeGreaterThan(5);
   for (let step = 0; step <= 100; step++) {
     const pose = exercisePose(type, step / 100);
     const baseline = [...start.arms, ...start.legs];
@@ -57,13 +58,67 @@ test("presses and squats reach a visibly extended position without locking the e
   }
 });
 test("fly models preserve elbow angle while shoulders sweep instead of pressing", () => {
-  for (const type of ["pec-fly", "cable-machine"]) {
+  for (const type of ["pec-fly", "cable-machine", "rear-delt-fly", "lateral-raise"]) {
     const angle = (p: number) => {
       const [s, e, h] = exercisePose(type, p).arms[0];
       return ((s[0] - e[0]) * (h[0] - e[0]) + (s[1] - e[1]) * (h[1] - e[1])) / (distance(s, e) * distance(h, e));
     };
     for (let step = 0; step <= 20; step++) expect(angle(step / 20)).toBeCloseTo(angle(0), 8);
   }
+});
+test("leg extension and seated curl keep their hip and knee pivots anchored", () => {
+  for (const type of ["leg-extension", "seated-leg-curl"]) {
+    const start = exercisePose(type, 0);
+    for (let step = 0; step <= 20; step++) {
+      const pose = exercisePose(type, step / 20);
+      expect(pose.hip).toEqual(start.hip);
+      expect(pose.legs[0][1]).toEqual(start.legs[0][1]);
+    }
+  }
+  expect(exercisePose("leg-extension", 1).legs[0][2][1]).toBeLessThan(exercisePose("leg-extension", 0).legs[0][2][1]);
+  expect(exercisePose("seated-leg-curl", 1).legs[0][2][0]).toBeLessThan(exercisePose("seated-leg-curl", 0).legs[0][2][0]);
+});
+test("abduction opens and adduction closes while the torso remains still", () => {
+  for (const type of ["hip-abduction", "hip-adduction"]) {
+    expect(exercisePose(type, 0).shoulder).toEqual(exercisePose(type, 1).shoulder);
+    expect(exercisePose(type, 0).hip).toEqual(exercisePose(type, 1).hip);
+    for (const p of [0, 0.5, 1]) exercisePose(type, p).legs.forEach((leg) => expect(leg[2][1]).toBeLessThanOrEqual(88));
+  }
+  const spread = (type: string, p: number) => exercisePose(type, p).legs[1][1][0] - exercisePose(type, p).legs[0][1][0];
+  expect(spread("hip-abduction", 1)).toBeGreaterThan(spread("hip-abduction", 0));
+  expect(spread("hip-adduction", 1)).toBeLessThan(spread("hip-adduction", 0));
+});
+test("curl and pushdown use a fixed elbow rather than swinging the upper arm", () => {
+  for (const type of ["preacher-curl", "triceps-pushdown"]) {
+    const start = exercisePose(type, 0);
+    for (let step = 0; step <= 20; step++) {
+      const pose = exercisePose(type, step / 20);
+      expect(pose.arms[0][0]).toEqual(start.arms[0][0]);
+      expect(pose.arms[0][1]).toEqual(start.arms[0][1]);
+    }
+  }
+});
+test("assisted movements raise the body against fixed grips with the knee pad following the body", () => {
+  for (const type of ["assisted-pull-up", "assisted-dip"]) {
+    const start = exercisePose(type, 0);
+    for (let step = 0; step <= 20; step++) {
+      const pose = exercisePose(type, step / 20);
+      pose.grips.forEach((p, i) => expect(distance(p, start.grips[i])).toBeLessThan(0.000001));
+      expect(pose.legs[0][1][1] - pose.hip[1]).toBeCloseTo(start.legs[0][1][1] - start.hip[1]);
+    }
+    expect(exercisePose(type, 1).shoulder[1]).toBeLessThan(start.shoulder[1]);
+  }
+});
+test("calf raise rotates around the supported toes and back extension finishes in alignment", () => {
+  const start = exercisePose("seated-calf-raise", 0), toe = [82, 88];
+  for (let step = 0; step <= 20; step++) {
+    const p = step / 20;
+    expect(distance(exercisePose("seated-calf-raise", p).legs[0][2], toe)).toBeCloseTo(distance(start.legs[0][2], toe), 6);
+    expect(exercisePose("back-extension", p).hip).toEqual([62, 58]);
+  }
+  const end = exercisePose("back-extension", 1), thigh = end.legs[0][1];
+  const dot = ((end.shoulder[0] - end.hip[0]) * (thigh[0] - end.hip[0]) + (end.shoulder[1] - end.hip[1]) * (thigh[1] - end.hip[1])) / (distance(end.shoulder, end.hip) * distance(thigh, end.hip));
+  expect(dot).toBeLessThan(-0.99);
 });
 test("cycle eases continuously into reversal, returns more slowly, and loops without jumping", () => {
   expect(sampleMotion(0)).toEqual({ progress: 0, phase: "start" });

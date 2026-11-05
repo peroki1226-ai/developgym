@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">87%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">88%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">20</span> / <span id="stat-total" class="text-neutral-500">23</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">21</span> / <span id="stat-total" class="text-neutral-500">24</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">20 / 23 TASKS COMPLETED (87%)</span>
+        <span class="font-num text-white">21 / 24 TASKS COMPLETED (88%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 86.96%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 87.5%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-023：全12種目の動く模型を実装。175テスト・型/設定検証成功、レビュー待ち。TestFlight保留を維持し、新版のAd Hoc実機確認は未実施です。<a class="underline" href="docs/ANIMATED_FORM_GUIDE.md">動く模型の実装・検証</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-023のLGTMを同期。TASK-024で動く模型を12→24種類へ拡充し、193テスト・型/設定検証成功、レビュー待ち。TestFlight保留、新しい実機版は未作成です。<a class="underline" href="docs/EXPANDED_FORM_CATALOG.md">追加器具と検証</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -462,10 +462,20 @@
         title: "フォーム模型の連続動作・器具連動",
         category: "Native Motion Guide",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、実機/レビュー待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "全12種目で人物の関節と器具が連動。再生/停止・半速・開始/終了姿勢・なぞって途中の姿勢を確認。日英・動きを減らす設定に対応。",
-        review: "22 suites/175 tests・型/設定検証成功。背景/非表示時のループ停止、骨長/角度/足の固定、日英操作を検証。実機の滑らかさ/VoiceOverは未確認。TestFlight・新規リモートビルドは実行していない。"
+        review: "498f1e1のAntigravity受入を同期。22 suites/175 tests・型/設定・両OSバンドル成功。動作/コントロール/減速設定を受入。実機確認はTASK-018で追跡。"
+      },
+      {
+        id: "TASK-024",
+        title: "動くフォーム模型ガイドの器具拡充",
+        category: "Native Guide Catalogue",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "24種類実装・検証済み、レビュー待ち",
+        desc: "現行の見た目・操作を維持し、脚・肩・腕・補助付き懸垂/ディップス・背筋等の12種類を追加。各器具の動作・日英の使い方と記録保存に対応。",
+        review: "22 suites/193 tests・型/設定検証成功。全24種類の骨長/連続性・新しい支点/接触・日英・フィルタ/保存を確認。実機未確認。新規リモートビルド/TestFlight操作は行っていない。"
       }
     ];
 

@@ -84,7 +84,7 @@ for (const language of ["ja", "en"] as const) {
     audit(app, language);
   });
 }
-test("all twelve exercise diagrams and beginner/advanced guides are separated in both languages", async () => {
+test("all catalogue diagrams and beginner/advanced guides are separated in both languages", async () => {
   const app = await open("ja");
   for (const language of ["ja", "en"] as const) {
     if (language === "en") await press("🇺🇸 English", "ja");

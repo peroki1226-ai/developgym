@@ -1,3 +1,5 @@
+import { ADDITIONAL_EQUIPMENTS } from "./equipmentAdditions";
+
 export interface EquipmentItem {
   id: string;
   name: string;
@@ -383,5 +385,6 @@ export const EQUIPMENTS: EquipmentItem[] = [
       "トップホールド法: 収縮ピークで息を吐ききり3秒静止"
     ],
     builderTip: "股関節の屈曲を完全に脱力し、みぞおちとおへそをくっつける感覚のみに集中すると腹筋の厚みが激増する。"
-  }
+  },
+  ...ADDITIONAL_EQUIPMENTS,
 ];

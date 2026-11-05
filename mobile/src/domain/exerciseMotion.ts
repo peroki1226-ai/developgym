@@ -7,6 +7,9 @@ export const MOTION_TYPES = [
   "chest-press", "pec-fly", "incline-smith", "cable-machine",
   "lat-pulldown", "seated-row", "shoulder-press", "dumbbell-heavy",
   "leg-press", "hack-squat", "power-rack", "abdominal-crunch",
+  "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction",
+  "seated-calf-raise", "lateral-raise", "preacher-curl", "triceps-pushdown",
+  "assisted-pull-up", "assisted-dip", "back-extension", "rear-delt-fly",
 ] as const;
 export type MotionType = typeof MOTION_TYPES[number];
 
@@ -31,6 +34,12 @@ export const motionAction: Record<MotionType, string> = {
   "shoulder-press": "motion.push", "dumbbell-heavy": "motion.push",
   "leg-press": "motion.push", "hack-squat": "motion.stand",
   "power-rack": "motion.stand", "abdominal-crunch": "motion.curl",
+  "leg-extension": "motion.extendKnees", "seated-leg-curl": "motion.bendKnees",
+  "hip-abduction": "motion.openLegs", "hip-adduction": "motion.closeLegs",
+  "seated-calf-raise": "motion.raiseHeels", "lateral-raise": "motion.raiseArms",
+  "preacher-curl": "motion.bendElbows", "triceps-pushdown": "motion.extendElbows",
+  "assisted-pull-up": "motion.pull", "assisted-dip": "motion.push",
+  "back-extension": "motion.raiseTorso", "rear-delt-fly": "motion.openArms",
 };
 const mix = (a: Point, b: Point, p: number): Point => [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p];
 const offset = (a: Point, x: number, y: number): Point => [a[0] + x, a[1] + y];
@@ -70,12 +79,14 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
       break;
     }
     case "pec-fly":
-    case "cable-machine": {
+    case "cable-machine":
+    case "rear-delt-fly": {
       // Overhead projection keeps the slight elbow bend constant during adduction.
       camera = "top"; head = [60, 29]; shoulder = [60, 38]; hip = [60, 47]; legs = [];
+      const sweep = type === "rear-delt-fly" ? 1 - p : p;
       arms = [
-        [[48, 38], rotate([48, 38], [-22, 0], -90 * p), rotate([48, 38], [-36, 8], -90 * p)],
-        [[72, 38], rotate([72, 38], [22, 0], 90 * p), rotate([72, 38], [36, 8], 90 * p)],
+        [[48, 38], rotate([48, 38], [-22, 0], -90 * sweep), rotate([48, 38], [-36, 8], -90 * sweep)],
+        [[72, 38], rotate([72, 38], [22, 0], 90 * sweep), rotate([72, 38], [36, 8], 90 * sweep)],
       ];
       break;
     }
@@ -120,11 +131,80 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
       arms = [solveLimb(shoulder, offset(shoulder, 12, 6), 15, 14)];
       legs = [[hip, [69, 66], [74, 87]]];
       break;
+    case "leg-extension":
+    case "seated-leg-curl": {
+      head = [43, 30]; shoulder = [46, 41]; hip = [47, 64];
+      const knee: Point = [73, 64];
+      const angle = type === "leg-extension" ? 90 - 78 * p : 12 + 103 * p;
+      legs = [[hip, knee, rotate(knee, [24, 0], angle)]];
+      arms = [solveLimb(shoulder, [53, 61], 18, 16)];
+      break;
+    }
+    case "hip-abduction":
+    case "hip-adduction": {
+      camera = "front"; head = [60, 23]; shoulder = [60, 34]; hip = [60, 52];
+      const angle = 15 + 40 * (type === "hip-abduction" ? p : 1 - p);
+      const left: Point = [54, 52], right: Point = [66, 52];
+      const lk = rotate(left, [0, 18], angle), rk = rotate(right, [0, 18], -angle);
+      legs = [[left, lk, offset(lk, 0, 18)], [right, rk, offset(rk, 0, 18)]];
+      arms = [solveLimb([50, 34], [45, 54], 18, 16), solveLimb([70, 34], [75, 54], 18, 16, -1)];
+      break;
+    }
+    case "seated-calf-raise":
+      head = [38, 29]; shoulder = [41, 40]; hip = [44, 64];
+      legs = [solveLimb(hip, rotate([82, 88], [-12, -2], 30 * p), 25, 23, -1)];
+      arms = [solveLimb(shoulder, [61, 57], 19, 17)];
+      break;
+    case "lateral-raise":
+      camera = "front"; head = [60, 24]; shoulder = [60, 36]; hip = [60, 61];
+      arms = [
+        [[49, 38], rotate([49, 38], [0, 19], 10 + 65 * p), rotate([49, 38], [-3, 34], 10 + 65 * p)],
+        [[71, 38], rotate([71, 38], [0, 19], -10 - 65 * p), rotate([71, 38], [3, 34], -10 - 65 * p)],
+      ];
+      legs = [[[54, 61], [46, 73], [44, 88]], [[66, 61], [74, 73], [76, 88]]];
+      break;
+    case "preacher-curl":
+      head = [39, 27]; shoulder = [42, 38]; hip = [42, 65];
+      arms = [[shoulder, [61, 54], rotate([61, 54], [23, 0], 30 - 110 * p)]];
+      legs = [[hip, [68, 67], [76, 86]]];
+      break;
+    case "triceps-pushdown":
+      head = [43, 26]; shoulder = [45, 38]; hip = [45, 64];
+      arms = [[shoulder, [49, 57], rotate([49, 57], [19, 0], -20 + 80 * p)]];
+      legs = [[hip, [43, 75], [42, 88]], [hip, [56, 76], [62, 88]]];
+      break;
+    case "assisted-pull-up":
+      camera = "front"; shoulder = [60, 42 - 17 * p]; head = offset(shoulder, 0, -11); hip = offset(shoulder, 0, 23);
+      arms = [solveLimb(offset(shoulder, -10, 0), [33, 10], 19, 19, -1), solveLimb(offset(shoulder, 10, 0), [87, 10], 19, 19, 1)];
+      legs = [[offset(hip, -6, 0), [46, 78 - 17 * p], [59, 83 - 17 * p]], [offset(hip, 6, 0), [74, 78 - 17 * p], [61, 83 - 17 * p]]];
+      break;
+    case "assisted-dip":
+      shoulder = [52, 42 - 22 * p]; head = offset(shoulder, 0, -11); hip = offset(shoulder, 0, 24);
+      arms = [solveLimb(shoulder, [65, 48], 16, 15)];
+      legs = [[hip, offset(hip, 16, 12), offset(hip, 26, 6)]];
+      break;
+    case "back-extension": {
+      hip = [62, 58]; const angle = 170 + 40 * p;
+      shoulder = rotate(hip, [27, 0], angle); head = rotate(hip, [37, 0], angle);
+      arms = [[shoulder, rotate(hip, [23, 6], angle), rotate(hip, [28, 3], angle)]];
+      legs = [[hip, [80, 68], [94, 83]]];
+      break;
+    }
   }
-  const highlight: ExercisePose["highlight"] = type === "leg-press" || type === "hack-squat" || type === "power-rack"
+  const highlight: ExercisePose["highlight"] = type === "seated-calf-raise" ? [legs[0][1], legs[0][2]]
+    : ["leg-press", "hack-squat", "power-rack", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)
     ? [legs[0][0], legs[0][1]]
-    : type === "lat-pulldown" || type === "seated-row" || type === "abdominal-crunch"
+    : ["preacher-curl", "triceps-pushdown", "assisted-dip", "lateral-raise"].includes(type) ? [arms[0][0], arms[0][1]]
+    : ["lat-pulldown", "seated-row", "abdominal-crunch", "back-extension", "assisted-pull-up"].includes(type)
       ? [mix(shoulder, hip, 0.3), mix(shoulder, hip, 0.75)]
       : [offset(shoulder, -5, 3), offset(shoulder, 5, 3)];
   return { head, shoulder, hip, arms, legs, grips: arms.map((arm) => arm[2]), camera, highlight };
+}
+
+/** The moving body/equipment contact used by the trajectory and direction cue. */
+export function motionContact(type: string, pose: ExercisePose): Point {
+  if (["leg-press", "leg-extension", "seated-leg-curl", "seated-calf-raise"].includes(type)) return pose.legs[0][2];
+  if (["hip-abduction", "hip-adduction"].includes(type)) return pose.legs[0][1];
+  if (["hack-squat", "power-rack", "assisted-pull-up", "assisted-dip", "back-extension"].includes(type)) return pose.shoulder;
+  return pose.grips[0];
 }

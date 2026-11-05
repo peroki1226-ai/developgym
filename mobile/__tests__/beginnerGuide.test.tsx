@@ -106,7 +106,7 @@ test("gym equipment opens the corresponding machine guide and returns to the sam
 });
 
 test.each(["ja", "en"] as const)(
-  "%s: all twelve direct machine guides open in beginner mode with localized setup",
+  "%s: all direct machine guides open in beginner mode with localized setup",
   async (language) => {
     await open();
     if (language === "en") await press(/🇺🇸/);

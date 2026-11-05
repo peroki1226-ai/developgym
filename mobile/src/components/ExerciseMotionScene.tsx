@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Circle, Ellipse, G, Line, Path, Polyline, Rect } from "react-native-svg";
-import { exercisePose, ExercisePose, motionType, Point } from "../domain/exerciseMotion";
+import { exercisePose, ExercisePose, motionContact, motionType, Point } from "../domain/exerciseMotion";
 
 const machine = "#8c9ca8", frame = "#c8d2da", person = "#337baf", target = "#173f60";
 const points = (items: readonly Point[]) => items.map((p) => p.join(",")).join(" ");
@@ -95,6 +95,81 @@ function Hardware({ type: raw, pose, progress: p }: { type: string; pose: Exerci
       return <G><Seat /><Segment a={[42, 34]} b={[42, 63]} width={5} />
         <Segment a={[32, 28]} b={hand} width={3} /><Circle cx={32} cy={28} r={3} fill={machine} />
       </G>;
+    case "leg-extension":
+    case "seated-leg-curl":
+      return <G><Stack x={103} lift={p * 8} /><Seat x={37} width={39} />
+        <Segment a={[38, 34]} b={[40, 63]} width={5} />
+        <Segment a={pose.legs[0][1]} b={foot} width={5} color={frame} />
+        <Circle cx={73} cy={64} r={3} fill={machine} />
+        <Ellipse cx={foot[0]} cy={foot[1]} rx={5} ry={3} fill={machine} />
+        {type === "seated-leg-curl" && <Rect x={66} y={58} width={13} height={4} rx={2} fill={machine} />}
+      </G>;
+    case "hip-abduction":
+    case "hip-adduction":
+      return <G><Seat x={45} y={55} width={30} /><Segment a={[45, 31]} b={[45, 52]} width={4} />
+        {pose.legs.map((leg, i) => <G key={i}>
+          <Segment a={[60, 59]} b={leg[1]} width={3} color={frame} />
+          <Rect x={leg[1][0] + (type === "hip-abduction" ? (i === 0 ? -5 : 2) : (i === 0 ? 2 : -5))} y={leg[1][1] - 4} width={3} height={8} rx={1} fill={machine} />
+          <Segment a={[leg[2][0] - 4, leg[2][1] + 1]} b={[leg[2][0] + 4, leg[2][1] + 1]} width={3} />
+        </G>)}
+      </G>;
+    case "seated-calf-raise": {
+      const knee = pose.legs[0][1];
+      return <G><Stack x={101} lift={p * 5} /><Seat x={34} width={25} />
+        <Segment a={[78, 88]} b={[90, 88]} width={4} />
+        <Segment a={foot} b={[82, 88]} width={3} color={person} />
+        <Segment a={[95, 64]} b={[knee[0], knee[1] - 4]} width={3} />
+        <Rect x={knee[0] - 6} y={knee[1] - 5} width={12} height={4} rx={2} fill={machine} />
+      </G>;
+    }
+    case "lateral-raise":
+      return <G><Seat x={46} y={63} width={28} />
+        <Segment a={[20, 88]} b={[20, 32]} width={3} color={frame} />
+        <Segment a={[100, 88]} b={[100, 32]} width={3} color={frame} />
+        {pose.arms.map((arm, i) => <G key={i}>
+          <Segment a={[i === 0 ? 20 : 100, 32]} b={arm[0]} width={3} color={frame} />
+          <Segment a={arm[0]} b={arm[1]} width={6} color={frame} />
+          <Rect x={arm[1][0] - 4} y={arm[1][1] - 2} width={8} height={4} rx={2} fill={machine} />
+        </G>)}
+      </G>;
+    case "preacher-curl":
+      return <G><Stack x={100} lift={p * 7} /><Seat x={32} width={25} />
+        <Segment a={[45, 44]} b={[67, 61]} width={7} />
+        <Segment a={[65, 62]} b={[65, 88]} width={3} />
+        <Segment a={[61, 54]} b={hand} width={6} color={frame} />
+        <Segment a={[hand[0] - 4, hand[1]]} b={[hand[0] + 4, hand[1]]} width={3} />
+      </G>;
+    case "triceps-pushdown":
+      return <G><Stack x={96} lift={p * 9} />
+        <Segment a={[86, 12]} b={[102, 12]} width={3} />
+        <Circle cx={86} cy={12} r={3} fill={machine} />
+        <Segment a={[86, 12]} b={hand} width={1.3} />
+        <Segment a={[hand[0] - 5, hand[1]]} b={[hand[0] + 5, hand[1]]} width={3} />
+      </G>;
+    case "assisted-pull-up":
+      return <G><Rect x={18} y={8} width={84} height={80} rx={2} fill="none" stroke={frame} strokeWidth={3} />
+        <Stack x={5} lift={-p * 4} /><Segment a={pose.grips[0]} b={pose.grips[1]} width={3} />
+        <Segment a={[60, 54]} b={[60, 88]} width={2} color={frame} />
+        <Rect x={40} y={pose.legs[0][1][1] + 3} width={40} height={4} rx={2} fill={machine} />
+      </G>;
+    case "assisted-dip":
+      return <G><Stack x={101} lift={-p * 4} />
+        <Segment a={[87, 18]} b={[87, 88]} width={4} color={frame} />
+        <Segment a={[65, 48]} b={[87, 48]} width={4} />
+        <Segment a={[78, 43]} b={[78, 88]} width={2} color={frame} />
+        <Rect x={56} y={pose.legs[0][1][1] + 3} width={28} height={4} rx={2} fill={machine} />
+      </G>;
+    case "back-extension":
+      return <G><Segment a={[51, 61]} b={[96, 88]} width={5} color={frame} />
+        <Segment a={[55, 53]} b={[69, 62]} width={8} />
+        <Circle cx={94} cy={83} r={4} fill={machine} />
+        <Segment a={[43, 88]} b={[106, 88]} width={3} />
+      </G>;
+    case "rear-delt-fly":
+      return <G><Rect x={49} y={48} width={22} height={5} rx={2} fill={machine} />
+        <Segment a={[60, 53]} b={[60, 72]} width={3} color={frame} />
+        {pose.arms.map((arm, i) => <Segment key={i} a={[i === 0 ? 46 : 74, 27]} b={arm[2]} width={4} color={frame} />)}
+      </G>;
   }
 }
 function Figure({ pose, ghost = false }: { pose: ExercisePose; ghost?: boolean }) {
@@ -115,8 +190,7 @@ function Figure({ pose, ghost = false }: { pose: ExercisePose; ghost?: boolean }
 export function ExerciseMotionScene({ type, progress }: { type: string; progress: number }) {
   const pose = exercisePose(type, progress);
   const { start, from, to, trajectory } = useMemo(() => {
-    const contact = (p: ExercisePose) => type === "leg-press" ? p.legs[0][2]
-      : type === "hack-squat" || type === "power-rack" ? p.shoulder : p.grips[0];
+    const contact = (p: ExercisePose) => motionContact(type, p);
     const start = exercisePose(type, 0), end = exercisePose(type, 1);
     return { start, from: contact(start), to: contact(end),
       trajectory: points(Array.from({ length: 17 }, (_, i) => contact(exercisePose(type, i / 16)))) };

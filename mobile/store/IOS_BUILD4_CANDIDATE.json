@@ -33,7 +33,7 @@
       "mobile/scripts/build-ios.cjs": "00289504cfc03442a8994468fb6018f4430ad257336ed0757215afaf01e024df",
       "mobile/scripts/verify-release.cjs": "26b32c233e78ed398f2751bdfccfba3300413547bfb4a8bbf8b2df1d014f7e48"
     },
-    "actualBuildSourceCommit": null,
+    "actualBuildSourceCommit": "e5b39d5a618809d42b67ce6f969718aae144872a",
     "reportedBuildSourceCommit": "e5b39d5690b23267710c850ee5b8fba7ca20dafe",
     "commitAudit": {
       "checkedAt": "2026-11-05T04:30:55.314Z",
@@ -44,7 +44,10 @@
       "srcAndAssetsTreesMatchCandidate": true,
       "liveBuildCommitVerified": false,
       "result": "PENDING_EAS_GIT_COMMIT_HASH_CONFIRMATION",
-      "note": "The reported full commit does not exist in the fetched Git history. Preserve the report separately; confirm gitCommitHash on the existing EAS Build ID before recording an actual source commit."
+      "note": "The reported full commit does not exist in the fetched Git history. Preserve the report separately; confirm gitCommitHash on the existing EAS Build ID before recording an actual source commit.",
+      "status": "MATCH_CONFIRMED_VIA_EAS",
+      "confirmedCommit": "e5b39d5a618809d42b67ce6f969718aae144872a",
+      "notes": "Confirmed directly from EAS Build query output for build e4781907-f41c-4d4c-a9b3-29ad1e70bf2e"
     }
   },
   "validation": {

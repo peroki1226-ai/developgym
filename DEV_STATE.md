@@ -55,7 +55,7 @@
 | **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `DONE` | `LGTM`（辞書完全分離・保存復元検証・全15スイート/78テスト合格・Antigravity受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
-| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex | `IN PROGRESS` | Build 4準備LGTM・Build 3提出FINISHED・remote番号3/重複なしの報告を同期。Codex側は未ログインでBuild 4未開始。配信・実機更新/保持確認待ち |
+| **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex / Antigravity | `IN PROGRESS` | Build 4（1.0.0(4) / ID: e4781907）実行・自動提出予約完了。クラウドビルド完了・TestFlight配信・実機更新/保持確認待ち |
 
 | **TASK-019** | 参考画像に基づく白青ネイティブUI・ジム探索導線の刷新 | Codex | `DONE` | `LGTM`（Antigravity受入。16 suites/88 tests成功、白青UI・新5タブ・言語分離合格） |
 
@@ -514,3 +514,20 @@
 - **記録**: `IOS_BUILD4_CANDIDATE.json`に準備承認、外部照合結果とCodex実行前チェックを区別して追加。既存`IOS_RELEASE_STATUS.json`のAntigravity成功記録は書き換えていない。EAS提出FINISHEDとTestFlightの利用可能性/招待/実機更新を区別し、配布ガイドとダッシュボードも同期。
 - **検証範囲**: アプリ/ビルドコードは変更なし。候補の全ファイルハッシュ、src/assetsツリー一致、ドキュメント相対リンク、ダッシュボード構文とrelease:checkを確認。150テスト等は受入済みの既存検証記録を保全し、今回の再実行とは記載していない。
 - **再開条件**: Antigravity側の認証済み環境で最新mainと番号/既存ジョブを再確認後、`mobile/`で既存`npm run build:ios:testflight`を一度実行し、実際の番号・Build ID・提出ID・ソースを記録する。またはこのクラウド環境の既存EXPO_TOKENへ安全に値を設定し、Expo通信設定を反映してから認証を再確認。TestFlight配信とPeroのiPhoneの上書き/保持/PC不要起動を確認するまでTASK-018はIN PROGRESS。
+
+### [TASK-018] Build 4 実行 & TestFlight自動提出スケジュール完了（2026-11-05、日本時間）
+- **実行環境**: Antigravity 認証済み環境（peroki1226/gymfinder）
+- **対象ソース**: コミット `e5b39d5690b23267710c850ee5b8fba7ca20dafe`（TASK-020〜022統合版）
+- **実行コマンド**: `npm run build:ios:testflight -- --non-interactive`
+- **発行成果物**:
+  - **EAS Build ID**: `e4781907-f41c-4d4c-a9b3-29ad1e70bf2e`
+  - **ビルド番号**: `1.0.0 (4)`（EAS remote 自動採番確認）
+  - **ビルド状況**: `IN_PROGRESS`（Expo クラウドビルド実行中）
+  - **ビルドURL**: https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/e4781907-f41c-4d4c-a9b3-29ad1e70bf2e
+  - **App Store Connect 提出予約 ID**: `95091359-23a8-47fe-a853-e371aa4f78d1`
+  - **提出状況**: `SCHEDULED`（ビルド完了後に自動提出）
+  - **提出URL**: https://expo.dev/accounts/peroki1226/projects/gymfinder/submissions/95091359-23a8-47fe-a853-e371aa4f78d1
+- **反映先**: `mobile/store/IOS_BUILD4_CANDIDATE.json`
+- **次のステップ**:
+  - EAS クラウドビルド完了（FINISHED）および Apple TestFlight への自動提出完了を追跡。
+  - PeroのiPhoneにおける TestFlight 上書き更新、データ保持（fitness v4、search v1、directory v1）、オフライン起動を確認。

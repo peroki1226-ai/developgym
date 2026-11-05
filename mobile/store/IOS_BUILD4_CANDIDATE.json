@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "preparedAt": "2026-11-04T08:51:27.069Z",
-  "status": "LOCAL_VALIDATION_COMPLETE_WAITING_FOR_EAS",
+  "status": "BUILD_IN_PROGRESS_SUBMISSION_SCHEDULED",
   "desired": {
     "platform": "ios",
     "profile": "production",
@@ -33,7 +33,7 @@
       "mobile/scripts/build-ios.cjs": "00289504cfc03442a8994468fb6018f4430ad257336ed0757215afaf01e024df",
       "mobile/scripts/verify-release.cjs": "26b32c233e78ed398f2751bdfccfba3300413547bfb4a8bbf8b2df1d014f7e48"
     },
-    "actualBuildSourceCommit": null
+    "actualBuildSourceCommit": "e5b39d5690b23267710c850ee5b8fba7ca20dafe"
   },
   "validation": {
     "tests": {
@@ -81,25 +81,27 @@
     }
   },
   "remote": {
-    "versionVerified": false,
-    "duplicateBuildCheckVerified": false,
-    "easBuildId": null,
-    "assignedBuildNumber": null,
-    "buildStatus": null,
-    "submissionId": null,
-    "submissionStatus": null,
+    "versionVerified": true,
+    "duplicateBuildCheckVerified": true,
+    "easBuildId": "e4781907-f41c-4d4c-a9b3-29ad1e70bf2e",
+    "assignedBuildNumber": "4",
+    "buildStatus": "IN_PROGRESS",
+    "submissionId": "95091359-23a8-47fe-a853-e371aa4f78d1",
+    "submissionStatus": "SCHEDULED",
     "signedArtifactUrl": null,
     "appleProcessingStatus": null,
     "testflightInviteUrl": null,
     "lastReportedChecks": {
-      "source": "Antigravity handoff",
-      "sourceCommit": "dedc0601828d5c77defc8b625c7611332c4d8e8b",
+      "source": "Antigravity EAS execution",
+      "sourceCommit": "e5b39d5690b23267710c850ee5b8fba7ca20dafe",
       "reportedOn": "2026-11-05",
       "remoteBuildVersion": "3",
       "noDuplicateOrUnfinishedJobs": true,
-      "verifiedByThisRuntime": false,
-      "requiresRecheckBeforeBuild": true
-    }
+      "verifiedByThisRuntime": true,
+      "requiresRecheckBeforeBuild": false
+    },
+    "buildUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/e4781907-f41c-4d4c-a9b3-29ad1e70bf2e",
+    "submissionUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/submissions/95091359-23a8-47fe-a853-e371aa4f78d1"
   },
   "device": {
     "name": "PeroのiPhone",

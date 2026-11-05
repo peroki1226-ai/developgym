@@ -493,3 +493,16 @@
 - **Build 4の境界**: remoteバージョン照会とbuild:listは認証不足で停止。Expo設定読取り失敗は`EXPO_NO_TELEMETRY=1`で解消し、その後も認証不足を確認。実際の番号/重複ジョブが未照合のためビルド/提出は未実行。`appVersionSource=remote`を維持し、ローカル番号や既存Build 3の固定対象を候補番号で置き換えていない。
 - **環境**: 既存EXPO_TOKEN要件を再利用（安全な値の設定なし）、Expo向け通信設定はドラフト保存済みだがruntimeへ未反映。start_skillにBuild 4の手順・固定Build 3との区別・再実行防止・実機確認の境界を追記して保存。保存はruntime反映/公開/署名ビルド実行を意味しない。
 - **残作業**: 認証と通信設定の反映後、Build 3のApple処理確認とBuild 4候補のremote番号/既存ジョブ照合、署名・提出、TestFlight配信、実機での更新/保持/PC不要起動を確認してTASK-018の受入へ。準備差分のレビューを依頼し、実機受入前にTASK-018をDONEへ変更しない。
+
+### [TASK-018] Build 4準備差分レビュー & Build 3提出完了確認（2026-11-05、日本時間）
+- **判定**: `[LGTM / APPROVED]`（Build 4準備差分受入完了）
+- **Build 3 提出照合結果**:
+  - `npm run release:ios:status` を認証済み環境で実行し、Apple提出ID `9dc718a2-9a94-478b-bcd4-60be4aad2331` が **`FINISHED`**（App Store Connect 処理完了）であることを直接確認。`mobile/store/IOS_RELEASE_STATUS.json` を更新。
+- **Build 4 候補照合結果**:
+  - EAS Remote Build Version を照会し、production プロファイルの現在値が `3` であることを確認（`autoIncrement: true` により、次回ビルドで自動的に **Build 4** が採番される）。
+  - `build:list` にて進行中または重複する Build 4 ジョブが存在しないことを確認。
+  - プロジェクト `@peroki1226/gymfinder` (`707c6e89-6ed5-4d65-a6bb-90472a724971`)、Bundle ID `com.peroki.gymfinder`、ASC App ID `6828502638` の完全一致を確認。
+  - `docs/BUILD4_RELEASE.md`、`mobile/store/IOS_BUILD4_CANDIDATE.json`、`app.json`（食事写真の用途明記）の整合性を承認。
+- **次のステップ**:
+  - TASK-020（洗練ミニマルUI）、TASK-021（初心者マシン図解）、TASK-022（全国・多ブランド検索）を統合した最新署名付きビルド（Build 4）の作成（`npm run build:ios:testflight`）へと進む。
+

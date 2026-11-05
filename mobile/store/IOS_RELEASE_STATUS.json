@@ -7,10 +7,10 @@
   "easBuildId": "9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785",
   "buildUrl": "https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785",
   "buildStatus": "FINISHED",
-  "statusSource": "Antigravity handoff",
+  "statusSource": "EAS API",
   "reportedOn": "2026-11-02",
   "directlyVerified": true,
-  "submissionStatus": "SUBMITTED_TO_APPLE",
+  "submissionStatus": "FINISHED",
   "submissionId": "9dc718a2-9a94-478b-bcd4-60be4aad2331",
   "testflightInviteUrl": null,
   "deviceUpdateVerified": false,
@@ -20,5 +20,13 @@
   "ascAppId": "6828502638",
   "testflightConsoleUrl": "https://appstoreconnect.apple.com/apps/6828502638/testflight/ios",
   "lastCheckAttemptAt": "2026-11-04T08:41:13.091Z",
-  "lastCheckSucceeded": false
+  "lastCheckSucceeded": true,
+  "sourceCommitVerified": false,
+  "submissions": [
+    {
+      "id": "9dc718a2-9a94-478b-bcd4-60be4aad2331",
+      "status": "FINISHED"
+    }
+  ],
+  "lastCheckedAt": "2026-11-05T02:37:02.112Z"
 }

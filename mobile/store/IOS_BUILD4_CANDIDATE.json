@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "preparedAt": "2026-11-04T08:51:27.069Z",
-  "status": "BUILD_FINISHED_SUBMISSION_IN_PROGRESS",
+  "status": "BUILD_AND_SUBMISSION_FINISHED",
   "desired": {
     "platform": "ios",
     "profile": "production",
@@ -87,9 +87,9 @@
     "assignedBuildNumber": "4",
     "buildStatus": "FINISHED",
     "submissionId": "95091359-23a8-47fe-a853-e371aa4f78d1",
-    "submissionStatus": "SCHEDULED",
+    "submissionStatus": "FINISHED",
     "signedArtifactUrl": "https://expo.dev/artifacts/eas/RwwBpdeGz5E4HbctmetZgEzD2pb4PXU70UEmjYSp_zo.ipa",
-    "appleProcessingStatus": null,
+    "appleProcessingStatus": "PROCESSING",
     "testflightInviteUrl": null,
     "lastReportedChecks": {
       "source": "Antigravity EAS execution",

@@ -110,7 +110,8 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
     </Pressable>
     {details && <MotionJointDetail type={type} progress={motion.progress} />}
     {motion.reduced && <Text style={styles.note}>{t("motion.reducedHint")}</Text>}
-    <Text style={styles.note}>{t(details ? "teaching.legend" : "motion.legend")}</Text>
+    {details && <Text style={styles.note}>{t("teaching.legend")}</Text>}
+    <Text style={styles.note}>{t("motion.legend")}</Text>
     <Text style={styles.note}>{t("motion.hint")}</Text>
   </View>;
 }

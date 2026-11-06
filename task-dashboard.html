@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">92%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">88%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">23</span> / <span id="stat-total" class="text-neutral-500">25</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">23</span> / <span id="stat-total" class="text-neutral-500">26</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">23 / 25 TASKS COMPLETED (92%)</span>
+        <span class="font-num text-white">23 / 26 TASKS COMPLETED (88%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 92%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 88%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-025：24種類に固定/動作位置・関節拡大・局面説明、ゆっくり/超ゆっくりと41段階コマ送りを追加。222テスト・型/設定検証成功、受入待ち。TestFlight・新規リモートビルド保留。<a class="underline" href="docs/DETAILED_MOTION_GUIDE.md">詳しい動作ガイド</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-026：全24種類の人物を、人の輪郭・顔・手・靴・ウェアが分かる模型へ更新。250テスト・型/設定・両OSバンドル成功、受入待ち。TASK-025は受入完了。TestFlight・新規リモートビルド保留。<a class="underline" href="docs/HUMAN_FORM_MODEL.md">人物模型の改良</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -486,6 +486,16 @@
         rating: "実装・検証済み、実機/受入待ち",
         desc: "24種類の固定/動作位置と関節を拡大。往復で矢印と説明を切り替え、通常/半速/4分の1速、41段階の姿勢確認に対応。",
         review: "23 suites/222 tests・型/設定検証成功。任意位置からの連続再開、速度変更/保持、関節拡大、日英・背景停止を検証。実機未確認。配布保留を維持し、新規リモートビルドは実行していない。"
+      },
+      {
+        id: "TASK-026",
+        title: "フォーム模型の人物シルエット改善",
+        category: "Native Human Figure",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、受入待ち",
+        desc: "肩から腰へ絞った胴体、太さの違う四肢、顔の向き・手・靴・運動着を追加。24種類の関節と器具連動、3速度・41段階操作は維持。",
+        review: "24 suites/250 tests・型/設定・両OSバンドル成功。96画面/480姿勢で人体の境界・3速度・コマ送り・日英・実行エラー0を確認。iPhone実機未確認。配布保留を維持。"
       }
     ];
 

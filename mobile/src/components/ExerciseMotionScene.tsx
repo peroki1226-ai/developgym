@@ -2,8 +2,9 @@ import React, { useMemo } from "react";
 import { Circle, Ellipse, G, Line, Path, Polyline, Rect, Text as SvgText } from "react-native-svg";
 import { exercisePose, ExercisePose, motionContact, motionType, Point } from "../domain/exerciseMotion";
 import { motionTeaching } from "../domain/motionTeaching";
+import { HumanFigure } from "./HumanFigure";
 
-const machine = "#8c9ca8", frame = "#c8d2da", person = "#337baf", target = "#173f60";
+const machine = "#8c9ca8", frame = "#c8d2da", person = "#337baf";
 const points = (items: readonly Point[]) => items.map((p) => p.join(",")).join(" ");
 function Segment({ a, b, color = machine, width = 2 }: { a: Point; b: Point; color?: string; width?: number }) {
   return <Line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={color} strokeWidth={width} strokeLinecap="round" />;
@@ -173,23 +174,6 @@ function Hardware({ type: raw, pose, progress: p }: { type: string; pose: Exerci
       </G>;
   }
 }
-function Figure({ pose, ghost = false }: { pose: ExercisePose; ghost?: boolean }) {
-  return <G opacity={ghost ? 0.2 : 1}>
-    <Circle cx={pose.head[0]} cy={pose.head[1]} r={5.5} fill={ghost ? "none" : person} stroke={person} strokeWidth={1} />
-    {pose.spine
-      ? <Polyline points={points(pose.spine)} fill="none" stroke={person} strokeWidth={ghost ? 1 : 7} strokeLinecap="round" strokeLinejoin="round" />
-      : <Segment a={pose.shoulder} b={pose.hip} color={person} width={ghost ? 1 : 7} />}
-    {pose.camera !== "side" && <Segment a={[pose.shoulder[0] - 11, pose.shoulder[1]]} b={[pose.shoulder[0] + 11, pose.shoulder[1]]} color={person} width={ghost ? 1 : 5} />}
-    {[...pose.legs, ...pose.arms].map((limb, i) => <G key={i}>
-      <Polyline points={points(limb)} fill="none" stroke={i < pose.legs.length ? "#69849a" : person} strokeWidth={ghost ? 1 : 3.8} strokeDasharray={ghost ? "2 2" : undefined} strokeLinecap="round" strokeLinejoin="round" />
-      {!ghost && <Circle cx={limb[1][0]} cy={limb[1][1]} r={1.8} fill="#ffffff" stroke={person} strokeWidth={0.9} />}
-    </G>)}
-    {!ghost && <>
-      <Segment a={pose.highlight[0]} b={pose.highlight[1]} color={target} width={5} />
-      {pose.grips.map((p, i) => <Circle key={i} cx={p[0]} cy={p[1]} r={2.4} fill={person} stroke="#ffffff" strokeWidth={1} />)}
-    </>}
-  </G>;
-}
 function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset: number }) {
   const x = Math.max(8, Math.min(112, point[0] + offset));
   const y = Math.max(8, Math.min(88, point[1] - 7));
@@ -223,10 +207,10 @@ export function ExerciseMotionScene({ type, progress, details = false, returning
     <Ellipse cx={60} cy={89} rx={50} ry={3} fill="#f1f4f6" />
     <Line x1={10} y1={88} x2={110} y2={88} stroke={frame} strokeWidth={1.5} />
     <Hardware type={type} pose={pose} progress={progress} />
-    <Figure pose={start} ghost />
+    <HumanFigure type={type} pose={start} ghost />
     <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />
     {details && <Polyline points={points(partial)} stroke={person} strokeWidth={1.5} fill="none" opacity={0.75} />}
-    <Figure pose={pose} />
+    <HumanFigure type={type} pose={pose} />
     {details && <>
       <Marker point={teaching.fixed} number={1} offset={8} />
       <Marker point={teaching.moving} number={2} offset={-8} />

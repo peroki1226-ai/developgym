@@ -789,7 +789,7 @@
   "motion.camera.front": "Front view",
   "motion.camera.top": "Overhead view",
   "motion.reducedHint": "Reduced motion is enabled. Use the position buttons or movement control to inspect each pose.",
-  "motion.legend": "Blue: person · Grey: equipment · Faint outline: start",
+  "motion.legend": "Cyan: approximate target area · Grey: equipment · Faint outline: start",
   "motion.hint": "This model shows a basic movement. Adjust the seat and range to the machine and your body, and check the steps below.",
   "最軽量で動作を確認": "Start at the lightest setting",
   "補助を強めて体を支える": "Use enough assistance to support your body",

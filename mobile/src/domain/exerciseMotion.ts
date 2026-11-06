@@ -2,6 +2,10 @@
 export type Point = readonly [number, number];
 export type Limb = readonly [Point, Point, Point];
 export type MotionPhase = "start" | "work" | "hold" | "return";
+export type MotionFrame = { progress: number; phase: MotionPhase };
+export type PlaybackSpeed = 1 | 0.5 | 0.25;
+export const PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [1, 0.5, 0.25];
+export const MOTION_FRAME_COUNT = 41;
 export const MOTION_CYCLE_MS = 5100;
 export const MOTION_TYPES = [
   "chest-press", "pec-fly", "incline-smith", "cable-machine",
@@ -19,13 +23,33 @@ export function clampProgress(value: number) {
 export function motionType(type: string): MotionType {
   return MOTION_TYPES.includes(type as MotionType) ? type as MotionType : "abdominal-crunch";
 }
-export function sampleMotion(elapsed: number): { progress: number; phase: MotionPhase } {
+export function sampleMotion(elapsed: number): MotionFrame {
   const time = Number.isFinite(elapsed) ? Math.max(0, elapsed) % MOTION_CYCLE_MS : 0;
   const ease = (p: number) => (1 - Math.cos(Math.PI * p)) / 2;
   if (time === 0 || time >= 4650) return { progress: 0, phase: "start" };
   if (time < 1800) return { progress: ease(time / 1800), phase: "work" };
   if (time < 2250) return { progress: 1, phase: "hold" };
   return { progress: 1 - ease((time - 2250) / 2400), phase: "return" };
+}
+/** Invert the easing so inspection -> playback never jumps to a different pose. */
+export function elapsedForProgress(value: number, direction: "work" | "return") {
+  const p = clampProgress(value);
+  const inverseEase = (x: number) => Math.acos(1 - 2 * x) / Math.PI;
+  return direction === "return" ? 2250 + inverseEase(1 - p) * 2400 : inverseEase(p) * 1800;
+}
+export function framePosition(frame: MotionFrame, elapsed: number) {
+  if (frame.phase === "return") return 20 + (1 - frame.progress) * 20;
+  if (frame.phase === "hold") return 20;
+  if (frame.phase === "start") return elapsed % MOTION_CYCLE_MS >= 4650 ? 40 : 0;
+  return frame.progress * 20;
+}
+export function inspectionFrame(value: number): { frame: MotionFrame; elapsed: number } {
+  const index = Math.max(0, Math.min(40, Number.isFinite(value) ? Math.round(value) : 0));
+  if (index === 0 || index === 40) return { frame: { progress: 0, phase: "start" }, elapsed: index === 40 ? 4650 : 0 };
+  if (index === 20) return { frame: { progress: 1, phase: "hold" }, elapsed: 1800 };
+  const direction = index > 20 ? "return" : "work";
+  const progress = index > 20 ? (40 - index) / 20 : index / 20;
+  return { frame: { progress, phase: direction }, elapsed: elapsedForProgress(progress, direction) };
 }
 export const motionAction: Record<MotionType, string> = {
   "chest-press": "motion.push", "pec-fly": "motion.close",
@@ -66,12 +90,14 @@ export interface ExercisePose {
   grips: Point[];
   camera: "side" | "front" | "top";
   highlight: readonly [Point, Point];
+  spine?: readonly Point[];
 }
 export function exercisePose(rawType: string, rawProgress: number): ExercisePose {
   const type = motionType(rawType), p = clampProgress(rawProgress);
   let head: Point = [51, 29], shoulder: Point = [54, 40], hip: Point = [54, 65];
   let arms: Limb[] = [], legs: Limb[] = [[[54, 65], [75, 66], [78, 86]]];
   let camera: ExercisePose["camera"] = "side";
+  let spine: Point[] | undefined;
   switch (type) {
     case "chest-press": {
       const hand = rotate([65, 18], [30, 0], 90 - p * 62);
@@ -126,11 +152,17 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
       arms = [solveLimb(offset(shoulder, -9, 0), [36, shoulder[1] - 3], 14, 14, -1), solveLimb(offset(shoulder, 9, 0), [84, shoulder[1] - 3], 14, 14, 1)];
       legs = [solveLimb(offset(hip, -6, 0), [42, 87], 25, 25, 1), solveLimb(offset(hip, 6, 0), [78, 87], 25, 25, -1)];
       break;
-    case "abdominal-crunch":
-      hip = [51, 65]; shoulder = rotate(hip, [27, 0], -90 + 38 * p); head = rotate(hip, [38, 0], -90 + 38 * p);
+    case "abdominal-crunch": {
+      hip = [51, 65];
+      const lumbar: Point = [51, 55];
+      const mid = rotate(lumbar, [0, -9], 25 * p);
+      shoulder = rotate(mid, [0, -9], 45 * p);
+      head = rotate(shoulder, [0, -10], 50 * p);
+      spine = [hip, lumbar, mid, shoulder];
       arms = [solveLimb(shoulder, offset(shoulder, 12, 6), 15, 14)];
       legs = [[hip, [69, 66], [74, 87]]];
       break;
+    }
     case "leg-extension":
     case "seated-leg-curl": {
       head = [43, 30]; shoulder = [46, 41]; hip = [47, 64];
@@ -198,11 +230,12 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
     : ["lat-pulldown", "seated-row", "abdominal-crunch", "back-extension", "assisted-pull-up"].includes(type)
       ? [mix(shoulder, hip, 0.3), mix(shoulder, hip, 0.75)]
       : [offset(shoulder, -5, 3), offset(shoulder, 5, 3)];
-  return { head, shoulder, hip, arms, legs, grips: arms.map((arm) => arm[2]), camera, highlight };
+  return { head, shoulder, hip, arms, legs, grips: arms.map((arm) => arm[2]), camera, highlight, spine };
 }
 
 /** The moving body/equipment contact used by the trajectory and direction cue. */
 export function motionContact(type: string, pose: ExercisePose): Point {
+  if (type === "lateral-raise") return pose.arms[0][1];
   if (["leg-press", "leg-extension", "seated-leg-curl", "seated-calf-raise"].includes(type)) return pose.legs[0][2];
   if (["hip-abduction", "hip-adduction"].includes(type)) return pose.legs[0][1];
   if (["hack-squat", "power-rack", "assisted-pull-up", "assisted-dip", "back-extension"].includes(type)) return pose.shoulder;

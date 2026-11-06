@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
-import { Circle, Ellipse, G, Line, Path, Polyline, Rect } from "react-native-svg";
+import { Circle, Ellipse, G, Line, Path, Polyline, Rect, Text as SvgText } from "react-native-svg";
 import { exercisePose, ExercisePose, motionContact, motionType, Point } from "../domain/exerciseMotion";
+import { motionTeaching } from "../domain/motionTeaching";
 
 const machine = "#8c9ca8", frame = "#c8d2da", person = "#337baf", target = "#173f60";
 const points = (items: readonly Point[]) => items.map((p) => p.join(",")).join(" ");
@@ -175,7 +176,9 @@ function Hardware({ type: raw, pose, progress: p }: { type: string; pose: Exerci
 function Figure({ pose, ghost = false }: { pose: ExercisePose; ghost?: boolean }) {
   return <G opacity={ghost ? 0.2 : 1}>
     <Circle cx={pose.head[0]} cy={pose.head[1]} r={5.5} fill={ghost ? "none" : person} stroke={person} strokeWidth={1} />
-    <Segment a={pose.shoulder} b={pose.hip} color={person} width={ghost ? 1 : 7} />
+    {pose.spine
+      ? <Polyline points={points(pose.spine)} fill="none" stroke={person} strokeWidth={ghost ? 1 : 7} strokeLinecap="round" strokeLinejoin="round" />
+      : <Segment a={pose.shoulder} b={pose.hip} color={person} width={ghost ? 1 : 7} />}
     {pose.camera !== "side" && <Segment a={[pose.shoulder[0] - 11, pose.shoulder[1]]} b={[pose.shoulder[0] + 11, pose.shoulder[1]]} color={person} width={ghost ? 1 : 5} />}
     {[...pose.legs, ...pose.arms].map((limb, i) => <G key={i}>
       <Polyline points={points(limb)} fill="none" stroke={i < pose.legs.length ? "#69849a" : person} strokeWidth={ghost ? 1 : 3.8} strokeDasharray={ghost ? "2 2" : undefined} strokeLinecap="round" strokeLinejoin="round" />
@@ -187,15 +190,32 @@ function Figure({ pose, ghost = false }: { pose: ExercisePose; ghost?: boolean }
     </>}
   </G>;
 }
-export function ExerciseMotionScene({ type, progress }: { type: string; progress: number }) {
+function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset: number }) {
+  const x = Math.max(8, Math.min(112, point[0] + offset));
+  const y = Math.max(8, Math.min(88, point[1] - 7));
+  const color = number === 1 ? "#173f60" : person;
+  return <G>
+    <Circle cx={point[0]} cy={point[1]} r={4} stroke={color} strokeWidth={1} fill="none" />
+    <Line x1={point[0]} y1={point[1]} x2={x} y2={y} stroke={color} strokeWidth={0.7} />
+    <Circle cx={x} cy={y} r={3.7} fill="#ffffff" stroke={color} strokeWidth={0.7} />
+    <SvgText x={x} y={y + 1.5} fontSize={4.5} textAnchor="middle" fontWeight="bold" fill={color}>{number}</SvgText>
+  </G>;
+}
+export function ExerciseMotionScene({ type, progress, details = false, returning = false }: { type: string; progress: number; details?: boolean; returning?: boolean }) {
   const pose = exercisePose(type, progress);
-  const { start, from, to, trajectory } = useMemo(() => {
+  const { start, trace, trajectory } = useMemo(() => {
     const contact = (p: ExercisePose) => motionContact(type, p);
-    const start = exercisePose(type, 0), end = exercisePose(type, 1);
-    return { start, from: contact(start), to: contact(end),
-      trajectory: points(Array.from({ length: 17 }, (_, i) => contact(exercisePose(type, i / 16)))) };
+    const start = exercisePose(type, 0);
+    const trace = Array.from({ length: 17 }, (_, i) => contact(exercisePose(type, i / 16)));
+    return { start, trace, trajectory: points(trace) };
   }, [type]);
-  const dx = to[0] - from[0], dy = to[1] - from[1], length = Math.hypot(dx, dy) || 1;
+  const before = motionContact(type, exercisePose(type, Math.max(0, progress - 0.025)));
+  const after = motionContact(type, exercisePose(type, Math.min(1, progress + 0.025)));
+  const sign = returning ? -1 : 1;
+  const dx = (after[0] - before[0]) * sign, dy = (after[1] - before[1]) * sign, length = Math.hypot(dx, dy) || 1;
+  const current = motionContact(type, pose);
+  const partial = trace.filter((_, i) => i / 16 < progress).concat([current]);
+  const teaching = motionTeaching(type, pose);
   // Keep the direction cue on the right of the scene, away from moving joints.
   const tip: Point = [111 + dx / length * 4, 48 + dy / length * 4];
   const base: Point = [tip[0] - dx / length * 4, tip[1] - dy / length * 4];
@@ -205,7 +225,12 @@ export function ExerciseMotionScene({ type, progress }: { type: string; progress
     <Hardware type={type} pose={pose} progress={progress} />
     <Figure pose={start} ghost />
     <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />
+    {details && <Polyline points={points(partial)} stroke={person} strokeWidth={1.5} fill="none" opacity={0.75} />}
     <Figure pose={pose} />
+    {details && <>
+      <Marker point={teaching.fixed} number={1} offset={8} />
+      <Marker point={teaching.moving} number={2} offset={-8} />
+    </>}
     <Line x1={111 - dx / length * 6} y1={48 - dy / length * 6} x2={tip[0]} y2={tip[1]} stroke={person} strokeWidth={1.4} />
     <Path d={`M ${base[0] - dy / length * 2} ${base[1] + dx / length * 2} L ${tip[0]} ${tip[1]} L ${base[0] + dy / length * 2} ${base[1] - dx / length * 2}`} fill="none" stroke={person} strokeWidth={1.4} />
   </>;

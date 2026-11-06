@@ -38,7 +38,7 @@ test("play, pause, resume, manual seeking and half-speed advance actual pose pro
   expect(result.current.progress).toBe(paused);
   expect(callbacks.size).toBe(0);
   await act(() => result.current.seek(0));
-  await act(() => { result.current.toggleSlow(); result.current.toggle(); });
+  await act(() => { result.current.setSpeed(0.5); result.current.toggle(); });
   await frames(1); await frames(20, 50);
   expect(result.current.progress).toBeLessThan(paused);
   expect(result.current.progress).toBeGreaterThan(0);
@@ -89,6 +89,54 @@ test("compact cards never create an animation clock or subscribe to motion setti
   expect(requestAnimationFrame).not.toHaveBeenCalled();
   expect(AccessibilityInfo.isReduceMotionEnabled).not.toHaveBeenCalled();
 });
+test("quarter speed is slower than half speed and preserves pose when speed changes", async () => {
+  const { result } = await renderHook(() => useExerciseMotion(true));
+  await act(() => result.current.setSpeed(0.25));
+  await frames(1); await frames(20, 50);
+  const quarter = result.current.progress;
+  expect(quarter).toBeGreaterThan(0);
+  expect(quarter).toBeLessThan(0.1);
+  await act(() => result.current.setSpeed(0.5));
+  await frames(1);
+  expect(result.current.progress).toBe(quarter);
+  await act(() => result.current.seek(0, "work"));
+  await act(() => result.current.toggle());
+  await frames(1); await frames(20, 50);
+  expect(result.current.progress).toBeGreaterThan(quarter);
+});
+test("41 manual frames traverse both directions and handle rapid taps and boundaries", async () => {
+  const { result } = await renderHook(() => useExerciseMotion(true));
+  await act(() => { result.current.step(1); result.current.step(1); result.current.step(1); });
+  expect(result.current.frameNumber).toBe(4);
+  expect(result.current.progress).toBeCloseTo(0.15);
+  expect(result.current.running).toBe(false);
+  await act(() => { for (let i = 0; i < 17; i++) result.current.step(1); });
+  expect(result.current.frameNumber).toBe(21);
+  expect(result.current.phase).toBe("hold");
+  await act(() => result.current.step(1));
+  expect(result.current.progress).toBeCloseTo(0.95);
+  expect(result.current.phase).toBe("return");
+  await act(() => { for (let i = 0; i < 30; i++) result.current.step(1); });
+  expect(result.current.frameNumber).toBe(41);
+  expect(result.current.progress).toBe(0);
+  expect(result.current.canStepForward).toBe(false);
+  await act(() => { for (let i = 0; i < 50; i++) result.current.step(-1); });
+  expect(result.current.frameNumber).toBe(1);
+  expect(result.current.canStepBack).toBe(false);
+});
+test("resume after arbitrary forward and return seeking keeps the inspected pose", async () => {
+  const { result } = await renderHook(() => useExerciseMotion(true));
+  for (const direction of ["work", "return"] as const) for (const value of [0.13, 0.37, 0.82]) {
+    await act(() => result.current.seek(value, direction));
+    await act(() => result.current.toggle());
+    await frames(1);
+    expect(result.current.progress).toBeCloseTo(value, 9);
+    expect(result.current.phase).toBe(direction);
+    await frames(1, 16);
+    if (direction === "return") expect(result.current.progress).toBeLessThan(value);
+    else expect(result.current.progress).toBeGreaterThan(value);
+  }
+});
 test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable position, then reset for a new machine", async (language) => {
   const t = (key: string) => translate(language, key);
   const view = (type: string) => <LocaleProvider language={language} setLanguage={() => {}}><ExerciseDiagram type={type} muscleTag="胸" /></LocaleProvider>;
@@ -96,7 +144,7 @@ test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable 
   await fireEvent.press(screen.getByRole("button", { name: t("motion.endPose") }));
   expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(100);
   await fireEvent(screen.getByRole("adjustable"), "accessibilityAction", { nativeEvent: { actionName: "decrement" } });
-  expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(90);
+  expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(95);
   await fireEvent(screen.getByRole("adjustable"), "layout", { nativeEvent: { layout: { width: 200 } } });
   await fireEvent(screen.getByRole("adjustable"), "responderMove", { nativeEvent: { locationX: 50 } });
   expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(25);
@@ -104,6 +152,13 @@ test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable 
   await fireEvent.press(screen.getByRole("button", { name: t("motion.startPose") }));
   expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(0);
   await fireEvent.press(screen.getByRole("button", { name: t("motion.endPose") }));
+  await fireEvent.press(screen.getByRole("radio", { name: t("motion.extraSlow") }));
   await app.rerender(view("leg-press"));
   expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(0);
+  expect(screen.getByRole("radio", { name: t("motion.extraSlow") }).props.accessibilityState.checked).toBe(true);
+  await fireEvent.press(screen.getByRole("button", { name: t("motion.stepForward") }));
+  expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(5);
+  expect(screen.getAllByRole("image")).toHaveLength(2);
+  await fireEvent.press(screen.getByRole("button", { name: t("teaching.details") }));
+  expect(screen.getAllByRole("image")).toHaveLength(1);
 });

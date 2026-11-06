@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Circle, Ellipse, G, Line, Path, Polyline, Text as SvgText } from "react-native-svg";
 import { exercisePose, ExercisePose, motionContact, Point } from "../domain/exerciseMotion";
 import { motionTeaching } from "../domain/motionTeaching";
-import { EquipmentContacts, ExerciseEquipment } from "./ExerciseEquipment";
+import { EquipmentContacts, EquipmentGrips, EquipmentRearFrame, ExerciseEquipment } from "./ExerciseEquipment";
 import { HumanFigure } from "./HumanFigure";
 
 const frame = "#bcbcbc", person = "#666666";
@@ -12,7 +12,7 @@ function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset
   const y = Math.max(8, Math.min(88, point[1] - 7));
   const color = number === 1 ? "#494949" : person;
   return <G>
-    <Circle cx={point[0]} cy={point[1]} r={4} stroke={color} strokeWidth={1} fill="none" />
+    <Circle cx={point[0]} cy={point[1]} r={0.9} fill={color} />
     <Line x1={point[0]} y1={point[1]} x2={x} y2={y} stroke={color} strokeWidth={0.7} />
     <Circle cx={x} cy={y} r={3.7} fill="#ffffff" stroke={color} strokeWidth={0.7} />
     <SvgText x={x} y={y + 1.5} fontSize={4.5} textAnchor="middle" fontWeight="bold" fill={color}>{number}</SvgText>
@@ -39,7 +39,9 @@ export function ExerciseMotionScene({ type, progress, details = false, returning
   return <>
     <Ellipse cx={60} cy={89} rx={50} ry={3} fill="#f2f2f2" />
     <Line x1={10} y1={88} x2={110} y2={88} stroke={frame} strokeWidth={1.5} />
+    <EquipmentRearFrame type={type} />
     <ExerciseEquipment type={type} pose={pose} progress={progress} />
+    <EquipmentGrips type={type} pose={pose} />
     <HumanFigure type={type} pose={start} ghost />
     <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />
     {details && <Polyline points={points(partial)} stroke={person} strokeWidth={1.5} fill="none" opacity={0.75} />}

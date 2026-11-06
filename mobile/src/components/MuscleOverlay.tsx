@@ -1,7 +1,8 @@
 import React from "react";
 import { ClipPath, Defs, G, Path } from "react-native-svg";
 import { ExercisePose } from "../domain/exerciseMotion";
-import { bodyContour, taperedContour } from "../domain/humanFigure";
+import { articulatedSurface } from "../domain/articulatedSurface";
+import { bodyContour } from "../domain/humanFigure";
 import { contractionFrame, muscleRegions } from "../domain/muscleMotion";
 
 /** Cutaway, schematic muscle bellies; neutral tendons retain their fixed attachments. */
@@ -9,11 +10,8 @@ export function MuscleOverlay({ type, pose, progress, prefix }: { type: string; 
   return <G testID="muscle-overlay">
     <Defs>
       <ClipPath id={`${prefix}-torso`}><Path d={bodyContour(pose).path} /></ClipPath>
-      <ClipPath id={`${prefix}-arm`}>{pose.arms.map(([s, e], i) => <Path key={i} d={taperedContour(s, e, 3.4, 2.1)} />)}</ClipPath>
-      <ClipPath id={`${prefix}-leg`}>{pose.legs.flatMap(([h, k, a], i) => [
-        <Path key={`${i}-thigh`} d={taperedContour(h, k, 4.7, 2.5)} />,
-        <Path key={`${i}-calf`} d={taperedContour(k, a, 2.7, 1.45)} />,
-      ])}</ClipPath>
+      <ClipPath id={`${prefix}-arm`}>{pose.arms.map((limb, i) => <Path key={i} d={articulatedSurface(limb, "arm").path} />)}</ClipPath>
+      <ClipPath id={`${prefix}-leg`}>{pose.legs.map((limb, i) => <Path key={i} d={articulatedSurface(limb, "leg").path} />)}</ClipPath>
     </Defs>
     {muscleRegions(type, pose).map((region, index) => {
       const dx = region.b[0] - region.a[0], dy = region.b[1] - region.a[1];

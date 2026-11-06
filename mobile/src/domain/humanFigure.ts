@@ -32,10 +32,11 @@ export function bodyContour(pose: ExercisePose) {
     return add(point, boneDirection(before, after).normal, widths[i] * sign);
   }));
   const [left, right] = sides;
-  const neck = between(s, pose.head, 0.25);
+  const neck = between(s, pose.head, 0.5);
+  const neckLeft = add(neck, n, -2.1), neckRight = add(neck, n, 2.1);
   const side = (items: Point[]) => items.slice(1).map((v, i) => ` Q ${xy(items[i])} ${xy(between(items[i], v, 0.5))} L ${xy(v)}`).join("");
   return {
-    path: `M ${xy(left[0])}${side(left)} Q ${xy(add(h, boneDirection(s, h).unit, 2))} ${xy(right[right.length - 1])}${side([...right].reverse())} Q ${xy(neck)} ${xy(left[0])} Z`,
+    path: `M ${xy(left[0])}${side(left)} Q ${xy(add(h, boneDirection(s, h).unit, 2))} ${xy(right[right.length - 1])}${side([...right].reverse())} Q ${xy(between(right[0], neckRight, 0.55))} ${xy(neckRight)} L ${xy(neckLeft)} Q ${xy(between(left[0], neckLeft, 0.55))} ${xy(left[0])} Z`,
     shoulderWidth, waistWidth, hipWidth,
     // Neck and head rotation use the actual changing head/shoulder relation.
     neck, headAngle: Math.atan2(pose.head[0] - s[0], s[1] - pose.head[1]) * 180 / Math.PI,

@@ -1,6 +1,7 @@
 import React from "react";
 import { Circle, ClipPath, Defs, Ellipse, G, Line, LinearGradient, Path, Stop } from "react-native-svg";
 import { ExercisePose, Limb } from "../domain/exerciseMotion";
+import { ArticulatedLimb } from "./ArticulatedLimb";
 import { MuscleOverlay } from "./MuscleOverlay";
 import { between, bodyContour, footPlacement, shoeContour, taperedContour } from "../domain/humanFigure";
 
@@ -24,11 +25,8 @@ export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost =
     const foot = footPlacement(type, pose, index), footDirection = foot.facing;
     const shoe = shoeContour(ankle, footDirection, foot.toe);
     return <G key={`leg-${index}`}>
-      {surface(taperedContour(hip, knee, 4.7, 2.5), palette.skin)}
-      {surface(taperedContour(knee, ankle, 2.7, 1.45), palette.skin)}
+      <ArticulatedLimb limb={limb} kind="leg" prefix={`${prefix}-leg-${index}`} ghost={ghost} />
       {surface(taperedContour(hip, shortsEnd, 5.1, 4.2), palette.shorts, palette.shortsEdge)}
-      {!ghost && <Path d={`M ${knee[0] - 1.3},${knee[1] - 0.4} Q ${knee[0]},${knee[1] + 1.1} ${knee[0] + 1.4},${knee[1] - 0.1}`}
-        fill="none" stroke={palette.skinShade} strokeWidth={0.55} />}
       <G transform={`rotate(${foot.angle} ${ankle[0]} ${ankle[1]})`}>
         {surface(shoe, palette.shoe, palette.shortsEdge)}
         {!ghost && <Line x1={ankle[0] - footDirection * 1.1} y1={ankle[1] + 1.35} x2={foot.toe ? foot.toe[0] : ankle[0] + footDirection * 4.5}
@@ -37,15 +35,12 @@ export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost =
     </G>;
   };
   const arm = (limb: Limb, index: number) => {
-    const [shoulder, elbow, hand] = limb;
+    const [, elbow, hand] = limb;
     return <G key={`arm-${index}`}>
-      {surface(taperedContour(shoulder, elbow, 3.4, 2.1), palette.skin)}
-      {surface(taperedContour(elbow, hand, 2.45, 1.15), palette.skin)}
-      {!ghost && <Path d={`M ${elbow[0] - 0.8},${elbow[1] + 0.5} Q ${elbow[0]},${elbow[1] - 0.8} ${elbow[0] + 0.9},${elbow[1] + 0.3}`}
-        fill="none" stroke={palette.skinShade} strokeWidth={0.5} />}
+      <ArticulatedLimb limb={limb} kind="arm" prefix={`${prefix}-arm-${index}`} ghost={ghost} blendRoot />
       <G transform={`translate(${hand[0]} ${hand[1]}) rotate(${Math.atan2(hand[1] - elbow[1], hand[0] - elbow[0]) * 180 / Math.PI})`}>
-        <Ellipse cx={0} cy={0} rx={2.05} ry={1.5} fill={ghost ? "none" : palette.skin} stroke={ghost ? "#a2a2a2" : palette.edge} strokeWidth={0.35} />
-        {!ghost && <Path d="M -0.4,0.2 Q 0.1,-1 1.2,-0.6 M 0.9,0.1 L 1.3,0.6" fill="none" stroke={palette.edge} strokeWidth={0.35} />}
+        {surface("M -2,-1.1 Q -1.4,-1.8 0,-1.6 L 1.9,-1.3 Q 2.8,-0.8 2.6,0.4 L 1.7,1.4 Q 0,1.9 -1.6,1 Z", palette.skin, palette.edge, 0.25)}
+        {!ghost && <Path d="M -1,0.4 Q -0.5,-0.7 0.7,-0.5 M 0.5,-1.3 Q 0.1,-0.5 0.8,0.7 M 1.2,-1.1 Q 0.8,-0.4 1.4,0.7 M 1.9,-0.9 Q 1.5,-0.2 2,0.5" fill="none" stroke="#868686" strokeWidth={0.24} />}
       </G>
     </G>;
   };
@@ -63,7 +58,6 @@ export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost =
     {/* Rear limbs first, joined by the shaded trunk. */}
     {pose.legs.map(leg)}
     {pose.arms.length > 1 && arm(pose.arms[0], 0)}
-    {surface(taperedContour(body.neck, between(pose.shoulder, pose.head, 0.65), 2.5, 2.1), palette.skin)}
     {surface(body.path, palette.shirt, palette.shortsEdge, 0.45)}
     {!ghost && <G clipPath={`url(#${prefix}-surface)`}><G transform={`translate(${pose.shoulder[0]} ${pose.shoulder[1]}) rotate(${Math.atan2(pose.hip[1] - pose.shoulder[1], pose.hip[0] - pose.shoulder[0]) * 180 / Math.PI - 90})`}>
       {pose.camera === "side" ? <>
@@ -83,7 +77,7 @@ export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost =
           <Path d="M 3.8,-0.9 L 4.8,0.9 Q 5,1.5 3.9,1.5" fill={palette.skin} stroke={palette.edge} strokeWidth={0.35} />
           <Circle cx={2.5} cy={-0.7} r={0.28} fill={palette.hair} />
           <Path d="M 2.6,3.1 L 3.7,2.9" stroke={palette.edge} strokeWidth={0.4} />
-          <Ellipse cx={-1.4} cy={0.6} rx={0.8} ry={1.2} fill={palette.skinShade} />
+          <Path d="M -1.4,-0.4 Q -2.8,-0.6 -2.2,1.5 Q -1.7,2 -1.3,0.7" fill="none" stroke="#999" strokeWidth={0.3} />
         </G> : pose.camera === "front" ? <>
           <Circle cx={-1.5} cy={-0.4} r={0.26} fill={palette.hair} /><Circle cx={1.5} cy={-0.4} r={0.26} fill={palette.hair} />
           <Path d="M 0,0 L 0.5,1.6 L -0.3,1.6 M -1,3 Q 0,3.5 1,3" stroke={palette.edge} strokeWidth={0.35} fill="none" />

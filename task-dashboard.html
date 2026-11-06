@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">93%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">89%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">25</span> / <span id="stat-total" class="text-neutral-500">27</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">25</span> / <span id="stat-total" class="text-neutral-500">28</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">25 / 27 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">25 / 28 TASKS COMPLETED (89%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 89%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-027：人体/器具の立体的な描写と、対象筋の着色・筋繊維収縮ガイドを実装。277テスト・型/設定・両OSバンドル成功、受入待ち。TASK-026は受入完了。TestFlight・新規リモートビルド保留。<a class="underline" href="docs/MUSCLE_FORM_GUIDE.md">筋肉と筋繊維ガイド</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-028：関節をまたぐ滑らかな人体の輪郭と器具の前後面を実装。304テスト・型/設定・両OSバンドル成功、受入待ち。TASK-027は受入完了。TestFlight・新規リモートビルド保留。<a class="underline" href="docs/REALISTIC_JOINT_GUIDE.md">自然な関節と器具の奥行き</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -502,10 +502,20 @@
         title: "人体/器具の立体表現・筋肉と筋繊維の可視化",
         category: "Native Muscle Learning",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、受入待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "全24種の人物/器具をグレーの陰影で描き、主に使う筋肉だけを着色。短縮/伸長/姿勢保持と筋節の滑りを模式表示。",
         review: "25 suites/277 tests・型/設定・両OSバンドル成功。96画面/480姿勢、30対象部位の可視着色、姿勢保持/短縮/伸長、日英・実行エラー0を確認。実機未確認。配布保留。"
+      },
+      {
+        id: "TASK-028",
+        title: "自然な関節と器具の奥行き",
+        category: "Native Joint Surfaces",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、受入待ち",
+        desc: "腕/脚の継ぎ目をなくし、肩/首・肘の折れ目・膝頭・手指と関節拡大を改良。器具の前面/側面/背面、握りを追加。",
+        review: "26 suites/304 tests・型/設定・両OSバンドル成功。96状態/480姿勢と関節拡大、30部位の着色・3速度/位置操作・日英・実行エラー0を確認。実機未確認・配布保留。"
       }
     ];
 

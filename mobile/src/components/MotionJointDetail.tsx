@@ -4,10 +4,15 @@ import Svg, { Circle, Path, Polyline } from "react-native-svg";
 import { exercisePose } from "../domain/exerciseMotion";
 import { enlargedJoint, motionTeaching } from "../domain/motionTeaching";
 import { useI18n } from "../i18n";
+import { ArticulatedLimb } from "./ArticulatedLimb";
+import { SurfaceKind } from "../domain/articulatedSurface";
 import { colors } from "./ui";
 
 export function MotionJointDetail({ type, progress }: { type: string; progress: number }) {
   const { t } = useI18n();
+  const prefix = `joint-${React.useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const kind: SurfaceKind = ["abdominal-crunch", "back-extension"].includes(type) ? "trunk"
+    : ["leg-press", "hack-squat", "power-rack", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction", "seated-calf-raise"].includes(type) ? "leg" : "arm";
   const info = motionTeaching(type, exercisePose(type, progress));
   const joint = enlargedJoint(info.joint);
   const start = useMemo(() => enlargedJoint(motionTeaching(type, exercisePose(type, 0)).joint), [type]);
@@ -21,10 +26,10 @@ export function MotionJointDetail({ type, progress }: { type: string; progress: 
       <Svg viewBox="0 0 80 80" width={90} height={90}>
         <Circle cx={40} cy={40} r={34} fill="#f4f4f4" />
         <Polyline points={points(start)} fill="none" stroke="#b5b5b5" strokeWidth={2} strokeDasharray="3 3" />
-        <Polyline points={points(joint)} fill="none" stroke="#777777" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
+        <ArticulatedLimb limb={joint} kind={kind} prefix={prefix} scale={1.5} />
         <Path d={arc} fill="none" stroke="#444444" strokeWidth={1.3} />
-        <Circle cx={40} cy={40} r={5} fill="#ffffff" stroke="#444444" strokeWidth={2} />
-        {[joint[0], joint[2]].map((p, i) => <Circle key={i} cx={p[0]} cy={p[1]} r={3} fill="#777777" />)}
+
+
       </Svg>
     </View>
     <View style={styles.copy}>

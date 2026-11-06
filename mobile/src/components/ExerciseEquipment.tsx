@@ -1,11 +1,15 @@
 import React from "react";
-import { Circle, Ellipse, G, Line, Path, Rect } from "react-native-svg";
+import { Circle, Ellipse, G, Line, Path, Polygon, Rect } from "react-native-svg";
 import { ExercisePose, motionType, Point } from "../domain/exerciseMotion";
+import { beamSurface, boxSurface, polygonPoints } from "../domain/equipmentSurface";
 
 const machine = "#686868", frame = "#a8a8a8", person = "#666666";
 function Segment({ a, b, color = machine, width = 2 }: { a: Point; b: Point; color?: string; width?: number }) {
   const padded = width >= 5;
+  const volume = beamSurface(a, b, width, padded ? [2.2, -1.5] : [2.8, -1.8]);
   return <G>
+    <Polygon points={polygonPoints(volume.side)} fill={padded ? "#343434" : "#8b8b8b"} stroke="#686868" strokeWidth={0.25} />
+    <Polygon points={polygonPoints(volume.cap)} fill={padded ? "#777" : "#ddd"} stroke="#888" strokeWidth={0.25} />
     <Line x1={a[0]} y1={a[1] + 0.35} x2={b[0]} y2={b[1] + 0.35} stroke="#444" strokeWidth={width + 0.7} strokeLinecap="round" />
     <Line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={padded ? "#454545" : color} strokeWidth={width} strokeLinecap="round" />
     <Line x1={a[0] - 0.35} y1={a[1] - 0.45} x2={b[0] - 0.35} y2={b[1] - 0.45}
@@ -13,21 +17,26 @@ function Segment({ a, b, color = machine, width = 2 }: { a: Point; b: Point; col
   </G>;
 }
 function Pivot({ cx, cy, r = 3 }: { cx: number; cy: number; r?: number; fill?: string }) {
-  return <G><Circle cx={cx} cy={cy} r={r + 0.25} fill="#353535" />
+  return <G><Circle cx={cx + 0.8} cy={cy - 0.5} r={r + 0.25} fill="#666" />
+    <Circle cx={cx} cy={cy} r={r + 0.25} fill="#353535" />
     <Circle cx={cx - 0.25} cy={cy - 0.25} r={r * 0.78} fill="#b6b6b6" />
     <Circle cx={cx} cy={cy} r={r * 0.3} fill="#555" />
     <Path d={`M ${cx - 0.6},${cy} h 1.2`} stroke="#ddd" strokeWidth={0.3} />
   </G>;
 }
 function Plate({ x, y, radius = 5 }: { x: number; y: number; radius?: number }) {
-  return <G><Ellipse cx={x + 1} cy={y + 0.5} rx={radius * 0.55} ry={radius} fill="#333" />
+  return <G><Ellipse cx={x + 2} cy={y - 1.3} rx={radius * 0.55} ry={radius} fill="#333" />
+    <Path d={`M ${x},${y-radius} l 2,-1.3 v ${radius*2} l -2,1.3 Z`} fill="#4b4b4b" />
     <Ellipse cx={x} cy={y} rx={radius * 0.55} ry={radius} fill="#737373" stroke="#383838" strokeWidth={0.5} />
     <Ellipse cx={x} cy={y} rx={radius * 0.35} ry={radius * 0.78} fill="none" stroke="#aaa" strokeWidth={0.4} />
     <Circle cx={x} cy={y} r={0.75} fill="#ddd" stroke="#333" strokeWidth={0.3} />
   </G>;
 }
 function Seat({ x = 43, y = 66, width = 24 }: { x?: number; y?: number; width?: number }) {
+  const volume = boxSurface(x, y, width, 4);
   return <G>
+    <Polygon points={polygonPoints(volume.top)} fill="#777" stroke="#444" strokeWidth={0.3} />
+    <Polygon points={polygonPoints(volume.side)} fill="#333" stroke="#222" strokeWidth={0.3} />
     <Rect x={x - 0.5} y={y + 1} width={width + 1} height={4} rx={1.4} fill="#343434" />
     <Rect x={x} y={y} width={width} height={3.7} rx={1.4} fill="#555" stroke="#292929" strokeWidth={0.45} />
     <Path d={`M ${x + 2},${y + 0.8} h ${width - 4}`} stroke="#929292" strokeWidth={0.4} />
@@ -36,7 +45,10 @@ function Seat({ x = 43, y = 66, width = 24 }: { x?: number; y?: number; width?: 
   </G>;
 }
 function Stack({ x, lift }: { x: number; lift: number }) {
+  const volume = boxSurface(x, 12, 11, 76);
   return <G>
+    <Polygon points={polygonPoints(volume.top)} fill="#e0e0e0" stroke="#777" strokeWidth={0.4} />
+    <Polygon points={polygonPoints(volume.side)} fill="#9b9b9b" stroke="#666" strokeWidth={0.4} />
     <Rect x={x} y={12} width={11} height={76} rx={2} fill="#d0d0d0" stroke="#6d6d6d" strokeWidth={0.6} />
     <Rect x={x + 1.2} y={15} width={8.6} height={70} rx={1} fill="#ededed" stroke="#aaa" strokeWidth={0.4} />
     {[3, 8].map(dx => <Segment key={dx} a={[x + dx, 17]} b={[x + dx, 84]} color="#bebebe" width={0.65} />)}
@@ -49,6 +61,43 @@ function Stack({ x, lift }: { x: number; lift: number }) {
     <Line x1={x + 3} y1={17.5} x2={x + 8} y2={17.5} stroke="#ccc" strokeWidth={0.4} />
     <Rect x={x - 0.5} y={86} width={12} height={3} rx={1} fill="#505050" />
   </G>;
+}
+
+export function EquipmentRearFrame({ type }: { type: string }) {
+  const rack = type === "power-rack" || type === "assisted-pull-up";
+  if (rack) {
+    const left = type === "power-rack" ? 22 : 18, right = type === "power-rack" ? 98 : 102;
+    return <G testID="equipment-rear-frame" opacity={0.65}>
+      <Segment a={[left+5, 6]} b={[left+5, 84]} width={2.4} color="#999" />
+      <Segment a={[right+5, 6]} b={[right+5, 84]} width={2.4} color="#999" />
+      <Segment a={[left+5, 6]} b={[right+5, 6]} width={2.4} color="#999" />
+      {[left,right].map(x=><G key={x}>
+        <Segment a={[x, 9]} b={[x+5, 6]} width={2.4} color="#999" />
+        <Segment a={[x, 88]} b={[x+5, 84]} width={2.4} color="#999" />
+      </G>)}
+    </G>;
+  }
+  if (type === "leg-press" || type === "hack-squat") {
+    const a: Point = type === "leg-press" ? [54,81] : [26,86];
+    const b: Point = type === "leg-press" ? [106,29] : [99,13];
+    return <G testID="equipment-rear-frame" opacity={0.6}>
+      <Segment a={[a[0]+5,a[1]-3]} b={[b[0]+5,b[1]-3]} width={3} color="#aaa" />
+      <Segment a={a} b={[a[0]+5,a[1]-3]} width={3} color="#aaa" />
+      <Segment a={b} b={[b[0]+5,b[1]-3]} width={3} color="#aaa" />
+    </G>;
+  }
+  return null;
+}
+
+export function EquipmentGrips({ type, pose }: { type: string; pose: ExercisePose }) {
+  const bar = ["incline-smith", "dumbbell-heavy", "power-rack", "lat-pulldown", "assisted-pull-up"].includes(type);
+  return <G testID="equipment-grips">{pose.arms.map(([, e, hand],i)=>{
+    const angle = bar ? 0 : Math.atan2(hand[1]-e[1],hand[0]-e[0])*180/Math.PI + 90;
+    return <G key={i} transform={`translate(${hand[0]} ${hand[1]}) rotate(${angle})`}>
+      <Path d="M -3,0 H 3" stroke="#333" strokeWidth={2.2} strokeLinecap="round" />
+      {[-2,-1,0,1,2].map(x=><Line key={x} x1={x} x2={x} y1={-0.75} y2={0.75} stroke="#8e8e8e" strokeWidth={0.25} />)}
+    </G>;
+  })}</G>;
 }
 export function ExerciseEquipment({ type: raw, pose, progress: p }: { type: string; pose: ExercisePose; progress: number }) {
   const type = motionType(raw), hand = pose.grips[0], foot = pose.legs[0]?.[2] ?? [0, 0];

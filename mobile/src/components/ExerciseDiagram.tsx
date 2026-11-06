@@ -7,6 +7,7 @@ import { motionTeaching } from "../domain/motionTeaching";
 import { useExerciseMotion } from "../hooks/useExerciseMotion";
 import { ExerciseMotionScene } from "./ExerciseMotionScene";
 import { MotionJointDetail } from "./MotionJointDetail";
+import { MuscleContractionPanel } from "./MuscleContractionPanel";
 import { MotionCue } from "./MotionCue";
 import { Button, colors } from "./ui";
 
@@ -24,6 +25,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   const { width, fontScale } = useWindowDimensions();
   const motion = useExerciseMotion(active, type);
   const [details, setDetails] = useState(true);
+  const [anatomy, setAnatomy] = useState(true);
   const [trackWidth, setTrackWidth] = useState(1);
   const pose = exercisePose(type, motion.progress);
   const teaching = motionTeaching(type, pose);
@@ -57,7 +59,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
       accessibilityLabel={t("guide.diagramLabel", { 0: t(label ?? muscleTag) })}>
       <Svg viewBox="0 0 120 96" style={styles.svg}>
         <ExerciseMotionScene type={type} progress={motion.progress} details={details}
-          returning={motion.phase === "return" || motion.phase === "hold"} />
+          returning={motion.phase === "return" || motion.phase === "hold"} anatomy={anatomy} />
       </Svg>
     </View>
     <View style={styles.header}>
@@ -103,6 +105,12 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
       <Button title={t("motion.startPose")} onPress={() => motion.seek(0, "work")} variant="quiet" />
       <Button title={t("motion.endPose")} onPress={() => motion.seek(1, "work")} variant="quiet" />
     </View>
+    <Pressable accessibilityRole="button" accessibilityLabel={t("muscle.toggle")}
+      accessibilityState={{ selected: anatomy }} aria-pressed={anatomy}
+      onPress={() => setAnatomy(value => !value)} style={styles.detailToggle}>
+      <Text style={styles.detailTitle}>{t(anatomy ? "muscle.on" : "muscle.off")}</Text>
+    </Pressable>
+    {anatomy && <MuscleContractionPanel key={type} type={type} progress={motion.progress} phase={motion.phase} />}
     <Pressable accessibilityRole="button" accessibilityLabel={t("teaching.details")}
       accessibilityState={{ expanded: details }} aria-expanded={details}
       onPress={() => setDetails(value => !value)} style={styles.detailToggle}>
@@ -122,7 +130,7 @@ const styles = StyleSheet.create({
   badge: { color: colors.primary, backgroundColor: "#edf3f7", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5, fontSize: 11 },
   phase: { color: colors.text, fontWeight: "600", fontSize: 16 },
   phaseHeader: { gap: 2, minHeight: 44 },
-  canvas: { borderRadius: 12, backgroundColor: "#fbfcfd", overflow: "hidden" },
+  canvas: { borderRadius: 12, backgroundColor: "#fbfbfb", overflow: "hidden" },
   svg: { width: "100%", height: 240 },
   detailToggle: { minHeight: 48, justifyContent: "center" },
   detailTitle: { color: colors.primary, fontSize: 12, lineHeight: 20 },

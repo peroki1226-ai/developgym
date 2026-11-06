@@ -158,7 +158,15 @@ test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable 
   expect(screen.getByRole("radio", { name: t("motion.extraSlow") }).props.accessibilityState.checked).toBe(true);
   await fireEvent.press(screen.getByRole("button", { name: t("motion.stepForward") }));
   expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(5);
-  expect(screen.getAllByRole("image")).toHaveLength(2);
+  const zoomLabel = t("teaching.zoomLabel").replace("{0}", t("膝の曲げ伸ばし"));
+  expect(screen.getByRole("image", { name: zoomLabel })).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: t("teaching.details") }));
+  expect(screen.queryByRole("image", { name: zoomLabel })).toBeNull();
+  expect(screen.getByTestId("muscle-contraction-panel")).toBeTruthy();
+  await fireEvent.press(screen.getByRole("button", { name: t("muscle.toggle") }));
+  expect(screen.queryByTestId("muscle-contraction-panel")).toBeNull();
+  expect(screen.queryByTestId("muscle-overlay")).toBeNull();
   expect(screen.getAllByRole("image")).toHaveLength(1);
+  await fireEvent.press(screen.getByRole("button", { name: t("muscle.toggle") }));
+  expect(screen.getByTestId("muscle-overlay")).toBeTruthy();
 });

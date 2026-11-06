@@ -19,12 +19,12 @@ export function MotionJointDetail({ type, progress }: { type: string; progress: 
   return <View style={styles.panel}>
     <View accessible accessibilityRole="image" accessibilityLabel={t("teaching.zoomLabel", { 0: t(info.jointLabel) })}>
       <Svg viewBox="0 0 80 80" width={90} height={90}>
-        <Circle cx={40} cy={40} r={34} fill="#f2f6f9" />
-        <Polyline points={points(start)} fill="none" stroke="#9bb1c2" strokeWidth={2} strokeDasharray="3 3" />
-        <Polyline points={points(joint)} fill="none" stroke="#337baf" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        <Path d={arc} fill="none" stroke="#173f60" strokeWidth={1.3} />
-        <Circle cx={40} cy={40} r={5} fill="#ffffff" stroke="#173f60" strokeWidth={2} />
-        {[joint[0], joint[2]].map((p, i) => <Circle key={i} cx={p[0]} cy={p[1]} r={3} fill="#337baf" />)}
+        <Circle cx={40} cy={40} r={34} fill="#f4f4f4" />
+        <Polyline points={points(start)} fill="none" stroke="#b5b5b5" strokeWidth={2} strokeDasharray="3 3" />
+        <Polyline points={points(joint)} fill="none" stroke="#777777" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
+        <Path d={arc} fill="none" stroke="#444444" strokeWidth={1.3} />
+        <Circle cx={40} cy={40} r={5} fill="#ffffff" stroke="#444444" strokeWidth={2} />
+        {[joint[0], joint[2]].map((p, i) => <Circle key={i} cx={p[0]} cy={p[1]} r={3} fill="#777777" />)}
       </Svg>
     </View>
     <View style={styles.copy}>

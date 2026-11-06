@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">93%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">26</span> / <span id="stat-total" class="text-neutral-500">28</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">26</span> / <span id="stat-total" class="text-neutral-500">29</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">26 / 28 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">26 / 29 TASKS COMPLETED (90%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 89%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-028：関節をまたぐ滑らかな人体の輪郭と器具の前後面を実装。304テスト・型/設定・両OSバンドル成功、受入待ち。TASK-027は受入完了。TestFlight・新規リモートビルド保留。<a class="underline" href="docs/REALISTIC_JOINT_GUIDE.md">自然な関節と器具の奥行き</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-029：全24種の三次元人体/器具、前・横・後、手足/筋肉への拡大と透過を実装。334テスト・型/設定・両OS/Web書き出し、96画面/864姿勢視点を検証。受入待ち。TASK-028は受入完了。実機未確認・新規配布保留。<a class="underline" href="docs/SPATIAL_FORM_GUIDE.md">三方向の立体フォームガイド</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -512,11 +512,22 @@
         title: "自然な関節と器具の奥行き",
         category: "Native Joint Surfaces",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、受入待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "腕/脚の継ぎ目をなくし、肩/首・肘の折れ目・膝頭・手指と関節拡大を改良。器具の前面/側面/背面、握りを追加。",
         review: "26 suites/304 tests・型/設定・両OSバンドル成功。96状態/480姿勢と関節拡大、30部位の着色・3速度/位置操作・日英・実行エラー0を確認。実機未確認・配布保留。"
+      },
+      {
+        id: "TASK-029",
+        title: "人体/器具の三次元表示・三方向から学ぶフォーム",
+        category: "Native Spatial Learning",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、ユーザー/受入レビュー待ち",
+        desc: "全24種の人体と器具を三次元化。前・横・後、手/足・膝/筋肉への拡大、接点の目印、器具透過、姿勢選択と低速再生。",
+        review: "27 suites/334 tests・型/設定・iOS/Android/Web書き出し成功。実WebGLで96状態/864姿勢視点、24種の筋肉着色、障害復帰を確認。expo-gl追加につき新バイナリ必要。実機未確認・配布保留。"
       }
+
     ];
 
     function renderKanban() {

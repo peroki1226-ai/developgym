@@ -14,3 +14,5 @@ jest.mock("expo-file-system/legacy", () => ({
     .mockResolvedValue({ exists: true, isDirectory: false, size: 1000 }),
   deleteAsync: jest.fn().mockResolvedValue(undefined),
 }));
+
+jest.mock("expo-gl", () => ({ GLView: (props) => require("react").createElement(require("react-native").View, props) }));

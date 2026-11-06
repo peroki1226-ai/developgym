@@ -141,6 +141,7 @@ test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable 
   const t = (key: string) => translate(language, key);
   const view = (type: string) => <LocaleProvider language={language} setLanguage={() => {}}><ExerciseDiagram type={type} muscleTag="胸" /></LocaleProvider>;
   const app = await render(view("chest-press"));
+  await fireEvent.press(screen.getByRole("radio", { name: t("scene.diagram") }));
   await fireEvent.press(screen.getByRole("button", { name: t("motion.endPose") }));
   expect(screen.getByRole("adjustable").props.accessibilityValue.now).toBe(100);
   await fireEvent(screen.getByRole("adjustable"), "accessibilityAction", { nativeEvent: { actionName: "decrement" } });

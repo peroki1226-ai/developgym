@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">93%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">27</span> / <span id="stat-total" class="text-neutral-500">29</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">26</span> / <span id="stat-total" class="text-neutral-500">29</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">27 / 29 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">26 / 29 TASKS COMPLETED (90%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-029：全24種の三次元人体/器具、前・横・後、手足/筋肉への拡大と透過を実装。334テスト・型/設定・両OS/Web書き出し、96画面/864姿勢視点を検証。受入待ち。TASK-028は受入完了。実機未確認・新規配布保留。<a class="underline" href="docs/SPATIAL_FORM_GUIDE.md">三方向の立体フォームガイド</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-029：ユーザー差戻し。器具形状の実物一致が未達のため再制作へ。基準のメーカー/機種・実物写真を確認中。334テストは機能検証の履歴で、形状の受入完了ではありません。実機/配布保留。<a class="underline" href="docs/MACHINE_REFERENCE_AUDIT.md">実物形状の照合・再制作条件</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -519,13 +519,13 @@
       },
       {
         id: "TASK-029",
-        title: "人体/器具の三次元表示・三方向から学ぶフォーム",
+        title: "人体/器具の三次元表示・実物形状の再制作",
         category: "Native Spatial Learning",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、ユーザー/受入レビュー待ち",
-        desc: "全24種の人体と器具を三次元化。前・横・後、手/足・膝/筋肉への拡大、接点の目印、器具透過、姿勢選択と低速再生。",
-        review: "27 suites/334 tests・型/設定・iOS/Android/Web書き出し成功。実WebGLで96状態/864姿勢視点、24種の筋肉着色、障害復帰を確認。expo-gl追加につき新バイナリ必要。実機未確認・配布保留。"
+        status: "IN PROGRESS",
+        rating: "ユーザー差戻し・実物資料待ち",
+        desc: "器具形状が実物と異なるため、基準のメーカー/機種と写真を確認し、形状・支点・可動部・人体接点を再制作する。",
+        review: "共通の汎用形状、スミスの専用構造不足などをコード監査。334テストと三方向描画の成功は形状再現の受入を意味しない。実物資料未確認。実機/配布保留。"
       }
 
     ];

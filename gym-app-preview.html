@@ -3,16 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="refresh" content="0;url=./index.html" />
-    <title>ジムファインダー</title>
-    <script>
-      const appUrl = new URL("./index.html", window.location.href);
-      appUrl.search = window.location.search;
-      appUrl.hash = window.location.hash;
-      window.location.replace(appUrl.href);
-    </script>
+    <title>ジムファインダー — アプリ版プレビュー</title>
+    <style>
+      body { margin:0; padding:32px; background:#f5f7fa; color:#14253c; font:16px/1.8 system-ui,sans-serif; }
+      main { max-width:540px; margin:12vh auto; }
+      a { color:#1664cc; } code { display:block; padding:16px; background:white; border-radius:12px; }
+    </style>
   </head>
-  <body style="background:#000;color:#fff">
-    <noscript><a href="./index.html" style="color:#fff">→</a></noscript>
+  <body>
+    <main>
+      <h1>アプリ版プレビュー</h1>
+      <p id="status" role="status">最新のアプリ表示を確認しています…</p>
+      <div id="help" hidden>
+        <p>プレビューを起動する側で、リポジトリの中から次を実行してください。</p>
+        <code>cd mobile<br>npm run preview:app</code>
+        <p>表示されたアドレスを開くと、アプリと同じコードで動く模型を確認できます。</p>
+        <p><a href="./app-preview/">起動後にもう一度開く</a></p>
+      </div>
+      <noscript><a href="./app-preview/">アプリ版プレビューを開く</a></noscript>
+    </main>
+    <script>
+      (async () => {
+        try {
+          const response = await fetch("./app-preview/preview-info.json", { cache:"no-store" });
+          if (!response.ok) throw new Error("Preview unavailable");
+          const info = await response.json();
+          if (info.source !== "mobile/App.tsx" || info.kind !== "expo-app-preview")
+            throw new Error("Wrong preview source");
+          const target = new URL("./app-preview/", location.href);
+          target.searchParams.set("revision", info.sourceHash);
+          location.replace(target.href);
+        } catch {
+          document.getElementById("status").textContent = "アプリ版プレビューがまだ起動していません。";
+          document.getElementById("help").hidden = false;
+        }
+      })();
+    </script>
   </body>
 </html>

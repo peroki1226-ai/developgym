@@ -13,6 +13,8 @@
     "test:web": "node scripts/verify-web-language.cjs",
     "preview:build": "node scripts/build-preview.cjs",
     "preview:check": "node scripts/verify-preview.cjs",
+    "preview:app": "node scripts/app-preview.cjs",
+    "preview:app:build": "node scripts/app-preview.cjs --build-only",
     "build:ios:preview": "node scripts/build-ios.cjs preview",
     "build:ios:production": "node scripts/build-ios.cjs production",
     "build:ios:testflight": "node scripts/build-ios.cjs production --auto-submit",

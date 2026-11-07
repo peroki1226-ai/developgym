@@ -5,6 +5,7 @@ const fs = require("node:fs"),
 const { execFileSync } = require("node:child_process");
 const { JSDOM } = require("jsdom");
 const sharp = require("sharp");
+console.warn("Legacy Web/PWA build. For the current mobile app and moving muscle model use: npm run preview:app");
 const root = path.resolve(__dirname, "../.."),
   destination = path.join(root, "web-dist");
 const hash = (value) =>

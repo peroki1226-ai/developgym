@@ -102,7 +102,7 @@
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-031：人体そのものを筋肉の立体模型へ。筋肉の面/境目と繊維、対象筋の筋腹を動作連動。405テスト・型/設定・両OSバンドル、実WebGL96状態/30対象筋を検証。受入待ち。TASK-030は受入済み。TASK-029実物照合・実機/配布は未完了。<a class="underline" href="docs/MUSCULAR_BODY_MODEL.md">筋肉のある人体模型</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-031：ユーザー差戻し。旧Web転送を廃止し、mobileの共通ソースを表示するプレビューを実装。ローカルで筋肉模型/三視点/低速再生を確認。Antigravityでの再起動・人体/器具の見え方の受入は未完了。TASK-029実物照合・実機/配布も未完了。<a class="underline" href="docs/APP_PREVIEW.md">アプリ版プレビューの表示手順</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -542,10 +542,10 @@
         title: "人体そのものを筋肉のある立体模型へ",
         category: "Native Anatomical Body",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、人体の見え方/分かりやすさの受入待ち",
-        desc: "胸/背中/肩/腕/脚の筋肉面と筋繊維を全身に配置。対象筋だけ赤く、筋腹と繊維を進捗連動。灰色模型とSVGでも筋肉の形を保全。",
-        review: "30 suites/405 tests・型/設定・両OS/Web書き出し成功。96状態/30対象筋、消色/三視点/バッファ解放を確認。模式模型。実機/配布は未実施。"
+        status: "IN PROGRESS",
+        rating: "ユーザー差戻し：プレビューへの未反映と見え方を再確認",
+        desc: "旧Webを表示する経路を廃止。アプリ共通ソースの生成/表示、ソース変更時の古い表示の拒否、未生成時の起動案内を追加。人体の見え方は未受入。",
+        review: "プレビュー修正をローカル実WebGLで確認。Antigravity側では同期後 npm run preview:app で起動する必要あり。テスト合格を見た目の受入としない。実機/配布は未実施。"
       }
 
     ];

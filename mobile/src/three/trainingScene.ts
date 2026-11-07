@@ -15,7 +15,7 @@ import {
   dot3,
   mix3,
 } from "../domain/training3d";
-import { muscleSpec } from "../domain/muscleMotion";
+import { Muscle, muscleSpec } from "../domain/muscleMotion";
 
 export type SceneInput = {
   type: string;
@@ -24,6 +24,7 @@ export type SceneInput = {
   view: View3;
   focus: Focus3;
   transparent: boolean;
+  muscle?: Muscle;
 };
 const v = (a: V3) => new THREE.Vector3(...a);
 const SKIN = new THREE.Color("#c8c8c8"),
@@ -366,7 +367,14 @@ export function createTrainingScene(
   }
   function draw(input: SceneInput) {
     if (disposed) return;
-    const frame = trainingFrame3d(input.type, input.progress);
+    const sourceFrame = trainingFrame3d(input.type, input.progress);
+    const selected =
+      input.muscle && muscleSpec(input.type).primary.includes(input.muscle)
+        ? input.muscle
+        : undefined;
+    const frame = selected
+      ? { ...sourceFrame, muscles: [selected] }
+      : sourceFrame;
     if (currentType !== frame.type) {
       reset();
       currentType = frame.type;
@@ -520,7 +528,7 @@ export function createTrainingScene(
         if (n.visible) bounds.expandByObject(n);
       });
     else {
-      const muscle = muscleSpec(frame.type).focus;
+      const muscle = selected ?? muscleSpec(frame.type).focus;
       const lower = [
         "quads",
         "hamstrings",

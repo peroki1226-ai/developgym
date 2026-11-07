@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">87%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">26</span> / <span id="stat-total" class="text-neutral-500">29</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">26</span> / <span id="stat-total" class="text-neutral-500">30</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">26 / 29 TASKS COMPLETED (90%)</span>
+        <span class="font-num text-white">26 / 30 TASKS COMPLETED (87%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 87%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-029：ハンマーストレングスを主基準・スミスも対応。スミスの固定ガイド/可動スリーブ/受け金具・安全止めを修正。337テスト・型/設定・両OSバンドル成功。実機の製品形状との照合は未完了、メーカー資料の接続設定案を保存済み・適用待ち。配布保留。<a class="underline" href="docs/HAMMER_SMITH_GUIDE.md">今回の修正と残り</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-030：筋肉の拡大図を模型と連動し、短縮/伸長/姿勢保持と筋力/抵抗を区別。366テスト・型/設定・両OSバンドル、96画面/30対象筋を検証。受入待ち。TASK-029のメーカー実物照合は継続中。実機/配布保留。<a class="underline" href="docs/MUSCLE_LOAD_LESSON.md">筋肉と負荷のガイド</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -526,6 +526,16 @@
         rating: "ユーザー差戻し・スミス修正済み/メーカー照合待ち",
         desc: "ハンマーストレングスを主基準とし、スミスを対象に含める。スミスの固定ガイドと可動スリーブ・固定受け/安全止めを修正。実機照合は未完了。",
         review: "27 suites/337 tests・型/設定・両OSバンドル成功。スミスの機構と4画面状態/36姿勢視点を確認。公式資料の接続設定案は保存済み・未適用。HS製品模型の再制作/実物形状受入/実機/配布は未完了。"
+      },
+      {
+        id: "TASK-030",
+        title: "筋肉の収縮と負荷を動作と一緒に見る",
+        category: "Native Muscle Load Learning",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、分かりやすさの受入待ち",
+        desc: "模型直下の筋肉拡大、短縮/伸長/姿勢保持の比較、筋力と外からの抵抗、選択筋と模型の着色/視点連動、四分の一速再生を追加。",
+        review: "28 suites/366 tests・型/設定・iOS/Android/Web書き出し成功。実WebGL96状態/30対象筋、戻りの筋力/姿勢保持/日英を確認。負荷は模式表示。実機・配布未実施。"
       }
 
     ];

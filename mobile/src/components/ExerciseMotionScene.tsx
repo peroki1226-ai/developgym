@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { Muscle } from "../domain/muscleMotion";
 import { Circle, Ellipse, G, Line, Path, Polyline, Text as SvgText } from "react-native-svg";
 import { exercisePose, ExercisePose, motionContact, Point } from "../domain/exerciseMotion";
 import { motionTeaching } from "../domain/motionTeaching";
@@ -18,7 +19,7 @@ function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset
     <SvgText x={x} y={y + 1.5} fontSize={4.5} textAnchor="middle" fontWeight="bold" fill={color}>{number}</SvgText>
   </G>;
 }
-export function ExerciseMotionScene({ type, progress, details = false, returning = false, anatomy = true }: { type: string; progress: number; details?: boolean; returning?: boolean; anatomy?: boolean }) {
+export function ExerciseMotionScene({ type, progress, details = false, returning = false, anatomy = true, selectedMuscle }: { type: string; progress: number; details?: boolean; returning?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
   const pose = exercisePose(type, progress);
   const { start, trace, trajectory } = useMemo(() => {
     const contact = (p: ExercisePose) => motionContact(type, p);
@@ -45,7 +46,7 @@ export function ExerciseMotionScene({ type, progress, details = false, returning
     <HumanFigure type={type} pose={start} ghost />
     <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />
     {details && <Polyline points={points(partial)} stroke={person} strokeWidth={1.5} fill="none" opacity={0.75} />}
-    <HumanFigure type={type} pose={pose} progress={progress} anatomy={anatomy} />
+    <HumanFigure type={type} pose={pose} progress={progress} anatomy={anatomy} selectedMuscle={selectedMuscle} />
     <EquipmentContacts type={type} pose={pose} />
     {details && <>
       <Marker point={teaching.fixed} number={1} offset={8} />

@@ -19,10 +19,14 @@ import { motionTeaching } from "../domain/motionTeaching";
 import { useExerciseMotion } from "../hooks/useExerciseMotion";
 import { ExerciseMotionScene } from "./ExerciseMotionScene";
 import { MotionJointDetail } from "./MotionJointDetail";
-import { MuscleContractionPanel } from "./MuscleContractionPanel";
+import {
+  MuscleContractionPanel,
+  MuscleLiveInset,
+} from "./MuscleContractionPanel";
 import { Motion3DView } from "./Motion3DView";
 import { Focus3, View3 } from "../domain/training3d";
-import { muscleSpec } from "../domain/muscleMotion";
+import { Muscle, muscleSpec } from "../domain/muscleMotion";
+import { rearMuscles } from "../domain/muscleLoad";
 import { MotionCue } from "./MotionCue";
 import { Button, colors } from "./ui";
 
@@ -53,6 +57,9 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   const motion = useExerciseMotion(active, type, false);
   const [details, setDetails] = useState(true);
   const [anatomy, setAnatomy] = useState(true);
+  const [selectedMuscle, setSelectedMuscle] = useState<Muscle>(
+    muscleSpec(type).focus,
+  );
   const [mode, setMode] = useState<"spatial" | "diagram">("spatial");
   const [view, setView] = useState<View3>("front");
   const [focus, setFocus] = useState<Focus3>("whole");
@@ -73,6 +80,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   useEffect(() => {
     setFocus("whole");
     setView("front");
+    setSelectedMuscle(muscleSpec(type).focus);
   }, [type]);
   const [trackWidth, setTrackWidth] = useState(1);
   const pose = exercisePose(type, motion.progress);
@@ -190,6 +198,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
               view={view}
               focus={focus}
               transparent={transparent}
+              muscle={focus === "muscles" ? selectedMuscle : undefined}
               onReady={loaded}
               onFailure={fail}
             />
@@ -208,10 +217,20 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
               details={details}
               returning={motion.phase === "return" || motion.phase === "hold"}
               anatomy={anatomy}
+              selectedMuscle={focus === "muscles" ? selectedMuscle : undefined}
             />
           </Svg>
         )}
       </View>
+      {anatomy && (
+        <MuscleLiveInset
+          type={type}
+          progress={motion.progress}
+          phase={motion.phase}
+          selectedMuscle={selectedMuscle}
+        />
+      )}
+
       {failed && (
         <Text accessibilityRole="alert" style={styles.note}>
           {t("scene.failed")}
@@ -237,18 +256,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
                     setAnatomy(true);
                     setTransparent(true);
                     setView(
-                      [
-                        "lats",
-                        "midBack",
-                        "rearShoulder",
-                        "hamstrings",
-                        "hipAbductors",
-                        "glutes",
-                        "soleus",
-                        "erectors",
-                      ].includes(muscleSpec(type).focus)
-                        ? "back"
-                        : "front",
+                      rearMuscles.includes(selectedMuscle) ? "back" : "front",
                     );
                   }
                 }}
@@ -417,6 +425,29 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           )}
         </Text>
       </View>
+      {anatomy && (
+        <MuscleContractionPanel
+          key={type}
+          type={type}
+          progress={motion.progress}
+          phase={motion.phase}
+          selectedMuscle={selectedMuscle}
+          onSelect={(muscle) => {
+            setSelectedMuscle(muscle);
+            setFocus("muscles");
+            setTransparent(true);
+            setView(rearMuscles.includes(muscle) ? "back" : "front");
+          }}
+          onInspect={(direction) => motion.seek(0.5, direction)}
+          running={motion.running}
+          canPlay={motion.canPlay}
+          onSlowPlay={() => {
+            if (!motion.canPlay) return;
+            if (!motion.running) motion.setSpeed(0.25);
+            motion.toggle();
+          }}
+        />
+      )}
       <MotionCue
         key={`${type}:${language}:${width}:${fontScale}`}
         cues={cues}
@@ -476,14 +507,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           {t(anatomy ? "muscle.on" : "muscle.off")}
         </Text>
       </Pressable>
-      {anatomy && (
-        <MuscleContractionPanel
-          key={type}
-          type={type}
-          progress={motion.progress}
-          phase={motion.phase}
-        />
-      )}
+
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t("teaching.details")}

@@ -55,7 +55,11 @@ test("selecting a postural muscle gives a stable drawing and the guide explains 
   await fireEvent.press(view.getByRole("radio", { name: translate("ja", "muscle.erectors") }));
   expect(view.getByText(translate("ja", "muscle.isometric"))).toBeTruthy();
   expect(view.getByText(translate("ja", "muscle.limit"))).toBeTruthy();
-  const before = view.toJSON();
+  await fireEvent.press(view.getByRole("button", { name: translate("ja", "load.details") }));
+  const before = view.getByTestId("muscle-bundle").props.d;
+  const ends = () => view.getByTestId("sarcomere-filaments").props.children[1].map((node: any) => [node.props.x1,node.props.x2]);
+  const filaments = ends();
   await view.rerender(<LocaleProvider language="ja" setLanguage={() => {}}><MuscleContractionPanel type="back-extension" progress={1} phase="return" /></LocaleProvider>);
-  expect(view.toJSON()).toEqual(before);
+  expect(view.getByTestId("muscle-bundle").props.d).toEqual(before);
+  expect(ends()).toEqual(filaments);
 });

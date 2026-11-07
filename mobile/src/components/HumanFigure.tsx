@@ -2,6 +2,7 @@ import React from "react";
 import { Circle, ClipPath, Defs, Ellipse, G, Line, LinearGradient, Path, Stop } from "react-native-svg";
 import { ExercisePose, Limb } from "../domain/exerciseMotion";
 import { ArticulatedLimb } from "./ArticulatedLimb";
+import { Muscle } from "../domain/muscleMotion";
 import { MuscleOverlay } from "./MuscleOverlay";
 import { between, bodyContour, footPlacement, shoeContour, taperedContour } from "../domain/humanFigure";
 
@@ -10,10 +11,10 @@ const palette = {
   shirt: "#c9c9c9", shirtLight: "#f3f3f3", shorts: "#626262", shortsEdge: "#454545",
   shoe: "#4c4c4c", sole: "#ededed", hair: "#646464",
 };
-type Props = { pose: ExercisePose; type: string; ghost?: boolean; progress?: number; anatomy?: boolean };
+type Props = { pose: ExercisePose; type: string; ghost?: boolean; progress?: number; anatomy?: boolean; selectedMuscle?: Muscle };
 
 /** Lightweight articulated illustration: every contour follows the existing joint centres. */
-export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost = false, progress = 0, anatomy = true }: Props) {
+export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost = false, progress = 0, anatomy = true, selectedMuscle }: Props) {
   const prefix = `human-${React.useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const body = bodyContour(pose), facing = ["back-extension", "hack-squat"].includes(type) ? -1 : 1;
   const surface = (d: string, fill: string, edge = palette.edge, width = 0.35) => <Path d={d}
@@ -68,7 +69,7 @@ export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost =
       </>}
     </G></G>}
     {pose.arms.slice(pose.arms.length > 1 ? 1 : 0).map((a, i) => arm(a, i + 1))}
-    {!ghost && anatomy && <MuscleOverlay prefix={prefix} type={type} pose={pose} progress={progress} />}
+    {!ghost && anatomy && <MuscleOverlay prefix={prefix} type={type} pose={pose} progress={progress} selectedMuscle={selectedMuscle} />}
     <G transform={`translate(${pose.head[0]} ${pose.head[1]}) rotate(${body.headAngle})`}>
       {surface("M -3.8,-3.2 Q -3.2,-6 0,-6 Q 3.8,-6 4.1,-2.8 L 4,1.6 Q 3.4,5.4 0.6,5.7 Q -2.8,5.5 -3.8,2 Z", palette.skin)}
       {!ghost && <>

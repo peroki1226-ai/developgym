@@ -67,6 +67,7 @@ export function Motion3DView(props: Motion3DProps) {
     props.focus,
     props.anatomy,
     props.transparent,
+    props.muscle,
   ]);
   return React.createElement("canvas", {
     ref: canvas,

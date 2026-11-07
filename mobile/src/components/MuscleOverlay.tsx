@@ -3,17 +3,17 @@ import { ClipPath, Defs, G, Path } from "react-native-svg";
 import { ExercisePose } from "../domain/exerciseMotion";
 import { articulatedSurface } from "../domain/articulatedSurface";
 import { bodyContour } from "../domain/humanFigure";
-import { contractionFrame, muscleRegions } from "../domain/muscleMotion";
+import { contractionFrame, Muscle, muscleRegions } from "../domain/muscleMotion";
 
 /** Cutaway, schematic muscle bellies; neutral tendons retain their fixed attachments. */
-export function MuscleOverlay({ type, pose, progress, prefix }: { type: string; pose: ExercisePose; progress: number; prefix: string }) {
+export function MuscleOverlay({ type, pose, progress, prefix, selectedMuscle }: { type: string; pose: ExercisePose; progress: number; prefix: string; selectedMuscle?: Muscle }) {
   return <G testID="muscle-overlay">
     <Defs>
       <ClipPath id={`${prefix}-torso`}><Path d={bodyContour(pose).path} /></ClipPath>
       <ClipPath id={`${prefix}-arm`}>{pose.arms.map((limb, i) => <Path key={i} d={articulatedSurface(limb, "arm").path} />)}</ClipPath>
       <ClipPath id={`${prefix}-leg`}>{pose.legs.map((limb, i) => <Path key={i} d={articulatedSurface(limb, "leg").path} />)}</ClipPath>
     </Defs>
-    {muscleRegions(type, pose).map((region, index) => {
+    {muscleRegions(type, pose).filter(region => !selectedMuscle || region.muscle === selectedMuscle).map((region, index) => {
       const dx = region.b[0] - region.a[0], dy = region.b[1] - region.a[1];
       const length = Math.hypot(dx, dy), state = contractionFrame(type, region.muscle, progress, "work");
       const inset = length * (0.06 + 0.09 * state.shortened), span = length - inset * 2;

@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">87%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">27</span> / <span id="stat-total" class="text-neutral-500">30</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">27</span> / <span id="stat-total" class="text-neutral-500">31</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,14 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">27 / 30 TASKS COMPLETED (90%)</span>
+        <span class="font-num text-white">27 / 31 TASKS COMPLETED (87%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 87%"></div>
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-030再改善：「縮む/伸びるが分からない」に対応。長い/短い比較、両端の目印と距離、片道だけの低速再生と終点停止。詳細は折りたたみ。375テスト・型/設定・両OSバンドル、96画面/30対象筋を検証。受入待ち。TASK-029実物照合・実機/配布は未完了。<a class="underline" href="docs/MUSCLE_LENGTH_COACH.md">縮む/伸びるのガイド</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-031：人体そのものを筋肉の立体模型へ。筋肉の面/境目と繊維、対象筋の筋腹を動作連動。405テスト・型/設定・両OSバンドル、実WebGL96状態/30対象筋を検証。受入待ち。TASK-030は受入済み。TASK-029実物照合・実機/配布は未完了。<a class="underline" href="docs/MUSCULAR_BODY_MODEL.md">筋肉のある人体模型</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -532,10 +532,20 @@
         title: "筋肉の収縮と負荷を動作と一緒に見る",
         category: "Native Muscle Load Learning",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "実装・検証済み、分かりやすさの受入待ち",
+        status: "DONE",
+        rating: "LGTM",
         desc: "長い/短い状態を並べ、両端の距離で縮む/伸びるを説明。片道だけ四分の一速で再生し終点停止。力/筋繊維の詳細は折りたたみ。",
         review: "29 suites/375 tests・型/設定・両OS/Web書き出し成功。96状態/30対象筋、距離の違い、片道の停止/フレーム解放、休止/背景復帰、姿勢保持を確認。模式図。分かりやすさの受入/実機/配布は未完了。"
+      },
+      {
+        id: "TASK-031",
+        title: "人体そのものを筋肉のある立体模型へ",
+        category: "Native Anatomical Body",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "実装・検証済み、人体の見え方/分かりやすさの受入待ち",
+        desc: "胸/背中/肩/腕/脚の筋肉面と筋繊維を全身に配置。対象筋だけ赤く、筋腹と繊維を進捗連動。灰色模型とSVGでも筋肉の形を保全。",
+        review: "30 suites/405 tests・型/設定・両OS/Web書き出し成功。96状態/30対象筋、消色/三視点/バッファ解放を確認。模式模型。実機/配布は未実施。"
       }
 
     ];

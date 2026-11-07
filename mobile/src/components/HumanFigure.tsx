@@ -69,7 +69,7 @@ export const HumanFigure = React.memo(function HumanFigure({ pose, type, ghost =
       </>}
     </G></G>}
     {pose.arms.slice(pose.arms.length > 1 ? 1 : 0).map((a, i) => arm(a, i + 1))}
-    {!ghost && anatomy && <MuscleOverlay prefix={prefix} type={type} pose={pose} progress={progress} selectedMuscle={selectedMuscle} />}
+    {!ghost && <MuscleOverlay prefix={prefix} type={type} pose={pose} progress={progress} selectedMuscle={selectedMuscle} coloured={anatomy} />}
     <G transform={`translate(${pose.head[0]} ${pose.head[1]}) rotate(${body.headAngle})`}>
       {surface("M -3.8,-3.2 Q -3.2,-6 0,-6 Q 3.8,-6 4.1,-2.8 L 4,1.6 Q 3.4,5.4 0.6,5.7 Q -2.8,5.5 -3.8,2 Z", palette.skin)}
       {!ghost && <>

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { createAnatomicalMuscles } from "./anatomicalMuscles";
 import {
   camera3d,
   TrainingFrame3,
@@ -27,9 +28,7 @@ export type SceneInput = {
   muscle?: Muscle;
 };
 const v = (a: V3) => new THREE.Vector3(...a);
-const SKIN = new THREE.Color("#c8c8c8"),
-  DARK = new THREE.Color("#575757"),
-  MUSCLE = new THREE.Color("#c65346");
+const SKIN = new THREE.Color("#a7a7a7");
 const yAxis = new THREE.Vector3(0, 1, 0);
 const material = (color: string, metalness = 0, roughness = 0.7) =>
   new THREE.MeshStandardMaterial({ color, metalness, roughness });
@@ -62,10 +61,6 @@ function writeLimb(
   geometry: THREE.BufferGeometry,
   limb: Bone3,
   kind: "arm" | "leg",
-  index: number,
-  frame: TrainingFrame3,
-  anatomy: boolean,
-  progress: number,
 ) {
   const [a, b, c] = limb,
     curve = new THREE.CatmullRomCurve3(
@@ -99,32 +94,8 @@ function writeLimb(
           .addScaledVector(second, Math.sin(angle));
       const point = centre.clone().addScaledVector(radial, r),
         at = i * 25 + j;
-      const front = radial.dot(v(frame.body.forward)),
-        lateral = radial.x * (index === 0 ? -1 : 1),
-        upper = t < 0.5;
-      const selected =
-        anatomy &&
-        frame.muscles.some((m) =>
-          kind === "arm"
-            ? (m === "biceps" && t > 0.12 && t < 0.43 && front > 0.05) ||
-              (m === "triceps" && t > 0.12 && t < 0.43 && front < -0.05) ||
-              (((m === "frontShoulder" && front > 0.15) ||
-                (m === "sideShoulder" && lateral > 0.15) ||
-                (m === "rearShoulder" && front < -0.15)) &&
-                t < 0.19)
-            : (m === "quads" && t > 0.08 && t < 0.46 && front > -0.05) ||
-              (m === "hamstrings" && t > 0.1 && t < 0.45 && front < 0.05) ||
-              (m === "glutes" && t < 0.18 && front < 0.2) ||
-              (m === "hipAbductors" && t < 0.2 && lateral > 0.15) ||
-              (m === "adductors" && t > 0.06 && t < 0.4 && lateral < -0.1) ||
-              (m === "soleus" && t > 0.57 && t < 0.91 && front < 0.1),
-        );
-      if (selected && upper && kind === "arm")
-        point.addScaledVector(radial, 0.25 * progress);
       positions.setXYZ(at, point.x, point.y, point.z);
-      const base = selected ? MUSCLE : kind === "leg" && t < 0.23 ? DARK : SKIN;
-      const stripe = selected ? 0.94 + 0.06 * Math.cos(t * 150 + angle * 3) : 1;
-      colours.setXYZ(at, base.r * stripe, base.g * stripe, base.b * stripe);
+      colours.setXYZ(at, SKIN.r, SKIN.g, SKIN.b);
     }
   }
   positions.needsUpdate = true;
@@ -133,11 +104,7 @@ function writeLimb(
   geometry.computeBoundingSphere();
   geometry.computeBoundingBox();
 }
-function writeTorso(
-  geometry: THREE.BufferGeometry,
-  frame: TrainingFrame3,
-  anatomy: boolean,
-) {
+function writeTorso(geometry: THREE.BufferGeometry, frame: TrainingFrame3) {
   const { body } = frame,
     up = unit3(sub3(body.shoulder, body.hip)),
     neck = add3(body.head, mul3(up, -5.3));
@@ -172,28 +139,7 @@ function writeTorso(
         .addScaledVector(right, rx * x)
         .addScaledVector(front, rz * z);
       positions.setXYZ(at, point.x, point.y, point.z);
-      const on =
-        anatomy &&
-        frame.muscles.some(
-          (m) =>
-            (m === "chest" &&
-              t > 0.5 + 0.08 * Math.abs(x) &&
-              t < 0.81 &&
-              z > 0.25 &&
-              Math.abs(x) > 0.06) ||
-            (m === "upperChest" && t > 0.65 && t < 0.84 && z > 0.25) ||
-            (m === "abs" && t > 0.16 && t < 0.54 && z > 0.6) ||
-            (m === "lats" &&
-              t > 0.24 &&
-              t < 0.76 &&
-              z < -0.1 &&
-              Math.abs(x) > 0.32) ||
-            (m === "midBack" && t > 0.5 && t < 0.8 && z < -0.45) ||
-            (m === "erectors" && t > 0.2 && t < 0.75 && z < -0.75),
-        );
-      const base = on ? MUSCLE : t < 0.13 ? DARK : SKIN,
-        shade = on ? 0.96 + 0.04 * Math.cos(t * 165 + x * 9) : 1;
-      colours.setXYZ(at, base.r * shade, base.g * shade, base.b * shade);
+      colours.setXYZ(at, SKIN.r, SKIN.g, SKIN.b);
     }
   }
   positions.needsUpdate = true;
@@ -203,11 +149,7 @@ function writeTorso(
   geometry.computeBoundingBox();
 }
 
-function writePelvis(
-  geometry: THREE.BufferGeometry,
-  frame: TrainingFrame3,
-  anatomy: boolean,
-) {
+function writePelvis(geometry: THREE.BufferGeometry, frame: TrainingFrame3) {
   const positions = geometry.attributes.position as THREE.BufferAttribute,
     colours = geometry.attributes.color as THREE.BufferAttribute;
   const up = unit3(sub3(frame.body.shoulder, frame.body.hip));
@@ -227,12 +169,7 @@ function writePelvis(
         mul3(frame.body.forward, z * 5.2),
       );
       positions.setXYZ(at, ...p);
-      const active =
-        anatomy &&
-        ((frame.muscles.includes("glutes") && z < -0.15) ||
-          (frame.muscles.includes("hipAbductors") && Math.abs(x) > 0.55));
-      const c = active ? MUSCLE : DARK;
-      colours.setXYZ(at, c.r, c.g, c.b);
+      colours.setXYZ(at, SKIN.r, SKIN.g, SKIN.b);
     }
   positions.needsUpdate = true;
   colours.needsUpdate = true;
@@ -295,6 +232,7 @@ export function createTrainingScene(
     sphere: new THREE.SphereGeometry(1, 20, 14),
     beam: new THREE.CylinderGeometry(1, 1, 1, 16),
   };
+  const anatomical = createAnatomicalMuscles(group);
   const nodes = new Map<string, THREE.Mesh>();
   const tubes = new Map<string, THREE.Mesh>();
   let currentType = "",
@@ -406,29 +344,26 @@ export function createTrainingScene(
         if (item.axes) axes(node, ...item.axes);
       }
     });
-    writePelvis(tube("pelvis").geometry, frame, input.anatomy);
-    writeTorso(tube("torso").geometry, frame, input.anatomy);
+    writePelvis(tube("pelvis").geometry, frame);
+    writeTorso(tube("torso").geometry, frame);
     frame.body.arms.forEach((limb, i) =>
-      writeLimb(
-        tube("arm" + i).geometry,
-        limb,
-        "arm",
-        i,
-        frame,
-        input.anatomy,
-        input.progress,
-      ),
+      writeLimb(tube("arm" + i).geometry, limb, "arm"),
     );
     frame.body.legs.forEach((limb, i) =>
-      writeLimb(
-        tube("leg" + i).geometry,
-        limb,
-        "leg",
-        i,
-        frame,
-        input.anatomy,
-        input.progress,
-      ),
+      writeLimb(tube("leg" + i).geometry, limb, "leg"),
+    );
+    anatomical.draw(
+      frame,
+      {
+        torso: tube("torso").geometry,
+        pelvis: tube("pelvis").geometry,
+        arm0: tube("arm0").geometry,
+        arm1: tube("arm1").geometry,
+        leg0: tube("leg0").geometry,
+        leg1: tube("leg1").geometry,
+      },
+      input.progress,
+      input.anatomy,
     );
     const body = frame.body,
       up = unit3(sub3(body.head, body.shoulder)),
@@ -599,6 +534,7 @@ export function createTrainingScene(
       if (disposed) return;
       disposed = true;
       reset();
+      anatomical.dispose();
       Object.values(geometries).forEach((g) => g.dispose());
       Object.values(materials).forEach((m) => m.dispose());
       groundGeo.dispose();
@@ -606,6 +542,11 @@ export function createTrainingScene(
       key.shadow.map?.dispose();
       renderer.dispose();
     },
-    stats: () => ({ nodes: nodes.size, tubes: tubes.size, disposed }),
+    stats: () => ({
+      nodes: nodes.size,
+      tubes: tubes.size,
+      disposed,
+      anatomy: anatomical.stats(),
+    }),
   };
 }

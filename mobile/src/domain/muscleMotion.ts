@@ -46,7 +46,7 @@ export function contractionFrame(type: string, muscle: Muscle, progress: number,
 }
 
 export type MuscleRegion = { muscle: Muscle; a: Point; b: Point; radius: number; fan?: boolean; clip: "torso" | "arm" | "leg" };
-export function muscleRegions(type: string, pose: ExercisePose): MuscleRegion[] {
+export function muscleRegions(type: string, pose: ExercisePose, requested: readonly Muscle[] = muscleSpec(type).primary): MuscleRegion[] {
   const regions: MuscleRegion[] = [];
   const { shoulder: s, hip: h } = pose;
   const axis = boneDirection(s, h), front = pose.camera !== "side";
@@ -63,7 +63,7 @@ export function muscleRegions(type: string, pose: ExercisePose): MuscleRegion[] 
     const shift = (p: Point): Point => [p[0] + n[0] * offset, p[1] + n[1] * offset];
     regions.push({ muscle, a: shift(between(a, b, from)), b: shift(between(a, b, to)), radius: r, clip: bones === pose.arms ? "arm" : "leg" });
   });
-  for (const muscle of muscleSpec(type).primary) {
+  for (const muscle of requested) {
     switch (muscle) {
       case "chest": case "upperChest":
         if (front) for (const sign of [-1, 1]) regions.push({ muscle, a: local(sign * 0.8, 0.3), b: local(sign * 8, 0.14), radius: pose.camera === "top" ? 2 : 3.4, fan: true, clip: "torso" });

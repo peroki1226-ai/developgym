@@ -72,6 +72,7 @@ export function muscleLoadLesson(
 }
 
 export const rearMuscles: readonly Muscle[] = [
+  "triceps",
   "lats",
   "midBack",
   "rearShoulder",

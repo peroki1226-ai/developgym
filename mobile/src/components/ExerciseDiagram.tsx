@@ -19,10 +19,8 @@ import { motionTeaching } from "../domain/motionTeaching";
 import { useExerciseMotion } from "../hooks/useExerciseMotion";
 import { ExerciseMotionScene } from "./ExerciseMotionScene";
 import { MotionJointDetail } from "./MotionJointDetail";
-import {
-  MuscleContractionPanel,
-  MuscleLiveInset,
-} from "./MuscleContractionPanel";
+import { MuscleContractionPanel } from "./MuscleContractionPanel";
+import { MuscleLengthCoach } from "./MuscleLengthCoach";
 import { Motion3DView } from "./Motion3DView";
 import { Focus3, View3 } from "../domain/training3d";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
@@ -57,6 +55,10 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   const motion = useExerciseMotion(active, type, false);
   const [details, setDetails] = useState(true);
   const [anatomy, setAnatomy] = useState(true);
+  const [lessonDirection, setLessonDirection] = useState<"work" | "return">(
+    "work",
+  );
+  const [mechanismOpen, setMechanismOpen] = useState(false);
   const [selectedMuscle, setSelectedMuscle] = useState<Muscle>(
     muscleSpec(type).focus,
   );
@@ -81,7 +83,19 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
     setFocus("whole");
     setView("front");
     setSelectedMuscle(muscleSpec(type).focus);
+    setLessonDirection("work");
+    setMechanismOpen(false);
   }, [type]);
+  const inspectLesson = (direction: "work" | "return") => {
+    setLessonDirection(direction);
+    motion.seek(0.5, direction);
+  };
+  const selectMuscle = (muscle: Muscle) => {
+    setSelectedMuscle(muscle);
+    setFocus("muscles");
+    setTransparent(true);
+    setView(rearMuscles.includes(muscle) ? "back" : "front");
+  };
   const [trackWidth, setTrackWidth] = useState(1);
   const pose = exercisePose(type, motion.progress);
   const teaching = motionTeaching(type, pose);
@@ -223,11 +237,27 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
         )}
       </View>
       {anatomy && (
-        <MuscleLiveInset
+        <MuscleLengthCoach
           type={type}
           progress={motion.progress}
           phase={motion.phase}
-          selectedMuscle={selectedMuscle}
+          muscle={selectedMuscle}
+          direction={lessonDirection}
+          completed={motion.completedSegment}
+          onSelect={selectMuscle}
+          onInspect={(direction) => {
+            setLessonDirection(direction);
+            motion.seek(direction === "work" ? 0 : 1, direction);
+          }}
+          running={motion.running}
+          canPlay={motion.canPlay}
+          onPlay={() => {
+            if (motion.running) motion.toggle();
+            else {
+              if (focus !== "muscles") selectMuscle(selectedMuscle);
+              motion.playSegment(lessonDirection);
+            }
+          }}
         />
       )}
 
@@ -426,28 +456,33 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
         </Text>
       </View>
       {anatomy && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t("coach.details")}
+          accessibilityState={{ expanded: mechanismOpen }}
+          aria-expanded={mechanismOpen}
+          onPress={() => setMechanismOpen((v) => !v)}
+          style={styles.detailToggle}
+        >
+          <Text style={styles.detailTitle}>
+            {t("coach.details")}
+            {mechanismOpen ? " −" : " ＋"}
+          </Text>
+        </Pressable>
+      )}
+      {anatomy && mechanismOpen && (
         <MuscleContractionPanel
           key={type}
           type={type}
           progress={motion.progress}
           phase={motion.phase}
           selectedMuscle={selectedMuscle}
-          onSelect={(muscle) => {
-            setSelectedMuscle(muscle);
-            setFocus("muscles");
-            setTransparent(true);
-            setView(rearMuscles.includes(muscle) ? "back" : "front");
-          }}
-          onInspect={(direction) => motion.seek(0.5, direction)}
-          running={motion.running}
-          canPlay={motion.canPlay}
-          onSlowPlay={() => {
-            if (!motion.canPlay) return;
-            if (!motion.running) motion.setSpeed(0.25);
-            motion.toggle();
-          }}
+          onSelect={selectMuscle}
+          onInspect={inspectLesson}
+          compactDetails
         />
       )}
+
       <MotionCue
         key={`${type}:${language}:${width}:${fontScale}`}
         cues={cues}

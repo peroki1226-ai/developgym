@@ -126,11 +126,11 @@ test("muscle selection drives both 3D focus and SVG selection without resetting 
   );
   const slider = () =>
     view.getByRole("adjustable", { name: translate("ja", "motion.position") });
-  expect(slider().props.accessibilityValue.now).toBe(50);
+  expect(slider().props.accessibilityValue.now).toBe(100);
   await fireEvent.press(
     view.getByRole("radio", { name: translate("ja", "muscle.glutes") }),
   );
-  expect(slider().props.accessibilityValue.now).toBe(50);
+  expect(slider().props.accessibilityValue.now).toBe(100);
   expect(view.getByTestId("lesson-model").props.muscle).toBe("glutes");
   await fireEvent.press(
     view.getByRole("radio", { name: translate("ja", "scene.diagram") }),

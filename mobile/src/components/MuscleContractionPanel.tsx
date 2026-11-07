@@ -24,6 +24,7 @@ type Props = {
   onSlowPlay?: () => void;
   running?: boolean;
   canPlay?: boolean;
+  compactDetails?: boolean;
 };
 const red = "#b95749";
 function Arrow({
@@ -178,11 +179,12 @@ export function MuscleContractionPanel({
   onSlowPlay,
   running,
   canPlay,
+  compactDetails = false,
 }: Props) {
   const { t } = useI18n(),
     spec = muscleSpec(type);
   const [local, setLocal] = useState<Muscle>(spec.focus),
-    [detail, setDetail] = useState(false);
+    [detail, setDetail] = useState(compactDetails);
   const requested = selectedMuscle ?? local;
   const selected = spec.primary.includes(requested) ? requested : spec.focus;
   const lesson = muscleLoadLesson(type, selected, progress, phase),
@@ -192,29 +194,33 @@ export function MuscleContractionPanel({
     <View style={styles.panel} testID="muscle-contraction-panel">
       <Text style={styles.title}>{t("load.title")}</Text>
       <Text style={styles.note}>{t("load.current")}</Text>
-      <View
-        style={styles.choices}
-        accessibilityRole="radiogroup"
-        accessibilityLabel={t("muscle.select")}
-      >
-        {spec.primary.map((m) => (
-          <Pressable
-            key={m}
-            accessibilityRole="radio"
-            accessibilityLabel={t(`muscle.${m}`)}
-            accessibilityState={{ checked: selected === m }}
-            aria-checked={selected === m}
-            onPress={() => {
-              setLocal(m);
-              onSelect?.(m);
-            }}
-            style={[styles.choice, selected === m && styles.selected]}
+      {!compactDetails && (
+        <>
+          <View
+            style={styles.choices}
+            accessibilityRole="radiogroup"
+            accessibilityLabel={t("muscle.select")}
           >
-            <View style={styles.dot} />
-            <Text style={styles.choiceText}>{t(`muscle.${m}`)}</Text>
-          </Pressable>
-        ))}
-      </View>
+            {spec.primary.map((m) => (
+              <Pressable
+                key={m}
+                accessibilityRole="radio"
+                accessibilityLabel={t(`muscle.${m}`)}
+                accessibilityState={{ checked: selected === m }}
+                aria-checked={selected === m}
+                onPress={() => {
+                  setLocal(m);
+                  onSelect?.(m);
+                }}
+                style={[styles.choice, selected === m && styles.selected]}
+              >
+                <View style={styles.dot} />
+                <Text style={styles.choiceText}>{t(`muscle.${m}`)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </>
+      )}
       <Text testID="muscle-phase" style={styles.phase}>
         {t(frame.label)}
       </Text>
@@ -298,56 +304,61 @@ export function MuscleContractionPanel({
           {t(lesson.source)}
         </Text>
       </View>
-      <Text style={styles.subtitle}>{t("load.compare")}</Text>
-      <View style={styles.comparison}>
-        {(["work", "return"] as const).map((direction) => {
-          const f = contractionFrame(
-            type,
-            selected,
-            direction === "work" ? 1 : 0,
-            direction,
-          );
-          return (
-            <Pressable
-              key={direction}
-              accessibilityRole="button"
-              accessibilityLabel={t(
-                direction === "work" ? "load.shorten" : "load.lengthen",
-              )}
-              onPress={() => onInspect?.(direction)}
-              disabled={!onInspect}
-              style={[
-                styles.compareCard,
-                (phase === direction || frame.isometric) && styles.activeCard,
-              ]}
-            >
-              <Text style={styles.cardTitle}>
-                {t(
-                  frame.isometric
-                    ? "load.stabilizeCard"
-                    : direction === "work"
-                      ? "load.shortCard"
-                      : "load.longCard",
-                )}
-              </Text>
-              <Svg viewBox="0 0 260 100" style={styles.smallSvg}>
-                <Bundle
-                  length={f.length * 1.5}
-                  radius={f.radius * 1.8}
-                  y={50}
-                />
-              </Svg>
-            </Pressable>
-          );
-        })}
-      </View>
-      {onSlowPlay && (
-        <Button
-          title={t(running ? "motion.pause" : "load.slowPlay")}
-          onPress={onSlowPlay}
-          disabled={!canPlay}
-          variant="primary"
-        />
+      {!compactDetails && (
+        <>
+          <Text style={styles.subtitle}>{t("load.compare")}</Text>
+          <View style={styles.comparison}>
+            {(["work", "return"] as const).map((direction) => {
+              const f = contractionFrame(
+                type,
+                selected,
+                direction === "work" ? 1 : 0,
+                direction,
+              );
+              return (
+                <Pressable
+                  key={direction}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(
+                    direction === "work" ? "load.shorten" : "load.lengthen",
+                  )}
+                  onPress={() => onInspect?.(direction)}
+                  disabled={!onInspect}
+                  style={[
+                    styles.compareCard,
+                    (phase === direction || frame.isometric) &&
+                      styles.activeCard,
+                  ]}
+                >
+                  <Text style={styles.cardTitle}>
+                    {t(
+                      frame.isometric
+                        ? "load.stabilizeCard"
+                        : direction === "work"
+                          ? "load.shortCard"
+                          : "load.longCard",
+                    )}
+                  </Text>
+                  <Svg viewBox="0 0 260 100" style={styles.smallSvg}>
+                    <Bundle
+                      length={f.length * 1.5}
+                      radius={f.radius * 1.8}
+                      y={50}
+                    />
+                  </Svg>
+                </Pressable>
+              );
+            })}
+          </View>
+          {onSlowPlay && (
+            <Button
+              title={t(running ? "motion.pause" : "load.slowPlay")}
+              onPress={onSlowPlay}
+              disabled={!canPlay}
+              variant="primary"
+            />
+          )}
+        </>
       )}
       <Pressable
         accessibilityRole="button"

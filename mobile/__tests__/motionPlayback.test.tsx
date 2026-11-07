@@ -163,6 +163,8 @@ test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable 
   expect(screen.getByRole("image", { name: zoomLabel })).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: t("teaching.details") }));
   expect(screen.queryByRole("image", { name: zoomLabel })).toBeNull();
+  expect(screen.queryByTestId("muscle-contraction-panel")).toBeNull();
+  await fireEvent.press(screen.getByRole("button", { name: t("coach.details") }));
   expect(screen.getByTestId("muscle-contraction-panel")).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: t("muscle.toggle") }));
   expect(screen.queryByTestId("muscle-contraction-panel")).toBeNull();
@@ -170,4 +172,50 @@ test.each(["ja", "en"] as const)("%s: controls inspect endpoints and adjustable 
   expect(screen.getAllByRole("image")).toHaveLength(1);
   await fireEvent.press(screen.getByRole("button", { name: t("muscle.toggle") }));
   expect(screen.getByTestId("muscle-overlay")).toBeTruthy();
+});
+
+test("one-way lessons play slowly once and stop at the correct endpoint without another frame", async () => {
+  const { result } = await renderHook(() => useExerciseMotion(true, "machine", false));
+  for (const direction of ["work", "return"] as const) {
+    await act(() => result.current.playSegment(direction));
+    expect(result.current.speed).toBe(.25);
+    expect(result.current.progress).toBe(direction === "work" ? 0 : 1);
+    await frames(1); await frames(80, 50);
+    expect(result.current.progress).toBeGreaterThan(0); expect(result.current.progress).toBeLessThan(1);
+    await frames(720, 50);
+    expect(result.current.progress).toBe(direction === "work" ? 1 : 0);
+    expect(result.current.running).toBe(false); expect(result.current.completedSegment).toBe(direction);
+    expect(callbacks.size).toBe(0);
+    const stopped=result.current.progress;await frames(60);expect(result.current.progress).toBe(stopped);
+  }
+});
+
+test("pausing or backgrounding a one-way lesson preserves progress and its stopping point", async () => {
+  const { result } = await renderHook(() => useExerciseMotion(true, "machine", false));
+  await act(() => result.current.playSegment("return")); await frames(1); await frames(30,50);
+  await act(() => appChange("background")); const before=result.current.progress;
+  await frames(50); expect(result.current.progress).toBe(before);expect(callbacks.size).toBe(0);
+  await act(() => appChange("active"));await frames(1);expect(result.current.progress).toBe(before);
+  await act(() => result.current.toggle());await frames(60);expect(result.current.progress).toBe(before);
+  await act(() => result.current.toggle());await frames(1);await frames(1000,50);
+  expect(result.current.progress).toBe(0);expect(result.current.completedSegment).toBe("return");expect(callbacks.size).toBe(0);
+});
+
+test("manual inspection and a machine reset cancel an old segment completion", async () => {
+  const {result,rerender}=await renderHook(({id}: {id:string})=>useExerciseMotion(true,id,false),{initialProps:{id:"one"}});
+  await act(()=>result.current.playSegment("work"));await frames(1);await frames(10,50);
+  await act(()=>result.current.seek(.3,"return"));expect(result.current.completedSegment).toBeNull();
+  await act(()=>result.current.toggle());await frames(1);await frames(420,50);
+  expect(result.current.running).toBe(true);expect(result.current.completedSegment).toBeNull();
+  await act(()=>result.current.playSegment("work"));await frames(1);await frames(1000,50);
+  expect(result.current.completedSegment).toBe("work");await rerender({id:"two"});
+  expect(result.current.progress).toBe(0);expect(result.current.completedSegment).toBeNull();expect(callbacks.size).toBe(0);
+});
+
+test("reduced motion and inactive screens reject one-way autoplay", async () => {
+  const {result,rerender}=await renderHook(({active}: {active:boolean})=>useExerciseMotion(active,"machine",false),{initialProps:{active:true}});
+  await act(()=>reduceChange(true));await act(()=>result.current.playSegment("work"));
+  expect(result.current.progress).toBe(0);expect(callbacks.size).toBe(0);
+  await act(()=>reduceChange(false));await rerender({active:false});await act(()=>result.current.playSegment("return"));
+  expect(result.current.progress).toBe(0);expect(callbacks.size).toBe(0);
 });

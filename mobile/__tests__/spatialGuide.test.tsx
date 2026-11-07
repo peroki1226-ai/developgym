@@ -210,6 +210,7 @@ test.each(["ja", "en"] as const)(
       view.getByRole("button", { name: t("scene.return") }),
     );
     expect(view.getByRole("adjustable").props.accessibilityValue.now).toBe(50);
+    await fireEvent.press(view.getByRole("button", { name: t("coach.details") }));
     expect(view.getByTestId("muscle-phase").props.children).toBe(
       t("muscle.eccentric"),
     );

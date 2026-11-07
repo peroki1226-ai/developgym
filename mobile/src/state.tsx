@@ -9,8 +9,8 @@ import React, {
   useState,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View } from "react-native";
-import { Body, Button } from "./components/ui";
+import { ActivityIndicator, View } from "react-native";
+import { Body, Button, colors, LanguageSwitch } from "./components/ui";
 import { DietData, Meal, WeightEntry, upsertWeight } from "./domain/nutrition";
 import {
   applySpecs,
@@ -126,23 +126,23 @@ export function FitnessProvider({ children }: PropsWithChildren) {
         <View
           style={{
             flex: 1,
-            backgroundColor: "#000000",
+            backgroundColor: colors.background,
             padding: 24,
             justifyContent: "center",
           }}
         >
-          <Body>
-            {loadError
-              ? t(
-                  "保存データを読み込めませんでした。データは上書きしていません。",
-                )
-              : t("保存データを読み込み中…")}
-          </Body>
+          {!loadError && <ActivityIndicator color={colors.primary} />}
           {loadError && (
-            <Button
-              title={t("読み込みを再試行")}
-              onPress={() => setReload((n) => n + 1)}
-            />
+            <>
+              <LanguageSwitch />
+              <Body>
+                {t("保存データを読み込めませんでした。データは上書きしていません。")}
+              </Body>
+              <Button
+                title={t("読み込みを再試行")}
+                onPress={() => setReload((n) => n + 1)}
+              />
+            </>
           )}
         </View>
       </LocaleProvider>

@@ -1,5 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from "react";
 import { Language, Values, translate } from "./messages";
+import { LocaleDocument } from "./LocaleDocument";
 export { isLanguage, translate } from "./messages";
 export type { Language, Values } from "./messages";
 export function formatDate(value: string, language: Language) {
@@ -23,6 +24,7 @@ export function LocaleProvider({
 }: PropsWithChildren<Locale>) {
   return (
     <Context.Provider value={{ language, setLanguage }}>
+      <LocaleDocument language={language} />
       {children}
     </Context.Provider>
   );

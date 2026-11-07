@@ -17,12 +17,14 @@ function sourceHash() {
       for (const child of fs.readdirSync(absolute).sort()) add(relative + "/" + child);
     } else digest.update(relative).update("\0").update(fs.readFileSync(absolute)).update("\0");
   }
-  for (const file of ["App.tsx", "src", "assets", "app.json", "app.config.js", "package.json", "package-lock.json", "scripts/app-preview.cjs"])
+  for (const file of ["App.tsx", "src", "assets", "app.json", "app.config.js", "tsconfig.json", "package.json", "package-lock.json", "scripts/app-preview.cjs", "scripts/verify-language.cjs"])
     add(file);
+  digest.update("gym-app-preview.html").update(fs.readFileSync(path.join(root, "gym-app-preview.html")));
   return digest.digest("hex");
 }
 
 function build() {
+  execFileSync(process.execPath, [path.join(__dirname, "verify-language.cjs")], { cwd: mobile, stdio: "inherit" });
   const before = sourceHash();
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "gymfinder-app-preview-"));
   try {
@@ -79,7 +81,9 @@ function createPreviewServer({ directory = output, fingerprint = sourceHash, lau
     if (["index.html", "preview-info.json"].includes(relative)) {
       try {
         if (fingerprint() !== info.sourceHash)
-          return send(409, "text/plain; charset=utf-8", "ソースが更新されました。起動する側で npm run preview:app を再実行してください。");
+          return relative === "index.html"
+            ? send(409, "text/html; charset=utf-8", fs.readFileSync(launcher))
+            : send(409, "application/json", JSON.stringify({ error: "stale-preview" }));
       } catch { return send(503, "text/plain; charset=utf-8", "Cannot verify preview source. Restart preview:app."); }
     }
     const file = path.resolve(directory, relative);

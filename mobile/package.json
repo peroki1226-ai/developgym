@@ -9,8 +9,9 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "assets:generate": "node scripts/generate-assets.cjs",
-    "release:check": "node scripts/verify-release.cjs",
+    "release:check": "node scripts/verify-language.cjs && node scripts/verify-release.cjs",
     "test:web": "node scripts/verify-web-language.cjs",
+    "i18n:check": "node scripts/verify-language.cjs",
     "preview:build": "node scripts/build-preview.cjs",
     "preview:check": "node scripts/verify-preview.cjs",
     "preview:app": "node scripts/app-preview.cjs",
@@ -48,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/parser": "7.29.11",
     "@testing-library/react-native": "^14.1.0",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.3.0",

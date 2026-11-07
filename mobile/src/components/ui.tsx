@@ -41,7 +41,7 @@ export function Page({
   tools?: boolean;
   scrollKey?: string;
 }>) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
   useLayoutEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
@@ -49,6 +49,7 @@ export function Page({
   return (
     <ScrollView
       ref={scroll}
+      accessibilityLanguage={language === "en" ? "en-US" : "ja-JP"}
       key={title}
       style={s.page}
       contentContainerStyle={s.content}

@@ -56,7 +56,8 @@ describe("the app preview serves mobile code instead of the legacy prototype", (
       for (const url of ["/app-preview/", "/app-preview/preview-info.json"]) {
         const result = await request(url);
         expect(result.status).toBe(409);
-        expect(result.body).toContain("npm run preview:app");
+        if (url.endsWith(".json")) expect(JSON.parse(result.body).error).toBe("stale-preview");
+        else expect(result.body).toContain("npm run preview:app");
       }
     } finally { current = "built"; }
   });

@@ -12,29 +12,61 @@
   </head>
   <body>
     <main>
-      <h1>アプリ版プレビュー</h1>
-      <p id="status" role="status">最新のアプリ表示を確認しています…</p>
+      <h1 id="heading"></h1>
+      <p id="status" role="status">◌</p>
       <div id="help" hidden>
-        <p>プレビューを起動する側で、リポジトリの中から次を実行してください。</p>
+        <p id="instructions"></p>
         <code>cd mobile<br>npm run preview:app</code>
-        <p>表示されたアドレスを開くと、アプリと同じコードで動く模型を確認できます。</p>
-        <p><a href="./app-preview/">起動後にもう一度開く</a></p>
+        <p id="explanation"></p>
+        <p><a id="retry" href="./app-preview/"></a></p>
       </div>
       <noscript><a href="./app-preview/">アプリ版プレビューを開く</a></noscript>
     </main>
     <script>
       (async () => {
+        let language = "ja";
+        try {
+          const saved = JSON.parse(localStorage.getItem("@gymfinder/fitness/v1") || "null");
+          const preference = saved?.language || localStorage.getItem("gf_lang");
+          if (preference === "en") language = "en";
+        } catch {}
+        const messages = {
+          ja: {
+            heading: "アプリ版プレビュー",
+            checking: "最新のアプリ表示を確認しています…",
+            missing: "アプリ版プレビューがまだ起動していません。",
+            stale: "アプリが更新されました。起動する側でプレビューを作り直してください。",
+            instructions: "プレビューを起動する側で、リポジトリの中から次を実行してください。",
+            explanation: "表示されたアドレスを開くと、アプリと同じコードで動く模型を確認できます。",
+            retry: "起動後にもう一度開く",
+          },
+          en: {
+            heading: "App preview",
+            checking: "Checking the latest app preview…",
+            missing: "The app preview is not running yet.",
+            stale: "The app has changed. Rebuild the preview on the hosting computer.",
+            instructions: "On the computer hosting the preview, run the following inside the repository:",
+            explanation: "Open the address shown to view the moving model from the same source as the app.",
+            retry: "Open again after starting the preview",
+          },
+        };
+        const text = messages[language];
+        document.documentElement.lang = language;
+        document.title = text.heading;
+        for (const key of ["heading", "instructions", "explanation", "retry"])
+          document.getElementById(key).textContent = text[key];
+        document.getElementById("status").textContent = text.checking;
         try {
           const response = await fetch("./app-preview/preview-info.json", { cache:"no-store" });
-          if (!response.ok) throw new Error("Preview unavailable");
+          if (!response.ok) throw new Error(response.status === 409 ? "stale-preview" : "Preview unavailable");
           const info = await response.json();
           if (info.source !== "mobile/App.tsx" || info.kind !== "expo-app-preview")
             throw new Error("Wrong preview source");
           const target = new URL("./app-preview/", location.href);
           target.searchParams.set("revision", info.sourceHash);
           location.replace(target.href);
-        } catch {
-          document.getElementById("status").textContent = "アプリ版プレビューがまだ起動していません。";
+        } catch (error) {
+          document.getElementById("status").textContent = error.message === "stale-preview" ? text.stale : text.missing;
           document.getElementById("help").hidden = false;
         }
       })();

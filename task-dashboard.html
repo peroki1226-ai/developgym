@@ -76,17 +76,17 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">87%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">84%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">27</span> / <span id="stat-total" class="text-neutral-500">31</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">26</span> / <span id="stat-total" class="text-neutral-500">31</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">LGTM</div>
+          <div class="text-sm font-bold text-yellow-200 bg-yellow-950/60 border border-yellow-500/30 px-2 py-0.5 rounded">IN REVIEW</div>
         </div>
       </div>
     </header>
@@ -95,12 +95,14 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">27 / 31 TASKS COMPLETED (87%)</span>
+        <span class="font-num text-white">26 / 31 TASKS COMPLETED (84%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 87%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 84%"></div>
       </div>
     </div>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-016：英語切替の指摘を受け再監査。読み込み・復旧・プレビュー入口の翻訳漏れを修正し、辞書と固定文言の監査を追加。アプリ版で全24種目を含む83状態の表示を確認。Antigravity側への反映・受入待ち。<a class="underline" href="docs/ENGLISH_MODE.md">英語モードの確認手順</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-031：ユーザー差戻し。旧Web転送を廃止し、mobileの共通ソースを表示するプレビューを実装。ローカルで筋肉模型/三視点/低速再生を確認。Antigravityでの再起動・人体/器具の見え方の受入は未完了。TASK-029実物照合・実機/配布も未完了。<a class="underline" href="docs/APP_PREVIEW.md">アプリ版プレビューの表示手順</a></p>
 
@@ -392,10 +394,10 @@
         title: "完全言語分離（日英の併記撤廃）",
         category: "Mobile Feature",
         assignee: "Codex",
-        status: "DONE",
-        rating: "LGTM",
-        desc: "全画面・辞書を日英に分離。言語設定の保存競合と古いプレビュー参照を修正し、直接選択へ改善。",
-        review: "Antigravity受入完了。追加差分込み78テスト成功との報告。追加ソースも統合し、新UI込み88テスト成功。"
+        status: "IN REVIEW",
+        rating: "英語切替のユーザー指摘へ再対応・反映確認待ち",
+        desc: "読み込み/復旧/プレビュー入口の翻訳とブラウザー言語情報を修正。1,278対の辞書と固定文言585件を生成前に監査。",
+        review: "旧LGTM履歴を保全。32 suites/415 tests・型/設定・両OSバンドル合格。全24種目を含む実描画83状態で混入なし。入力/姿勢保持と英語保存復元を確認。Antigravity側の反映・受入待ち。"
       },
       {
         id: "TASK-017",

@@ -239,3 +239,56 @@ test("graphics initialization failure falls back to the diagram without losing t
   expect(view.getByTestId("muscle-overlay")).toBeTruthy();
   expect(view.getByRole("adjustable").props.accessibilityValue.now).toBe(100);
 });
+
+test("Smith guides, catches, safety stops and bench stay fixed throughout the press", () => {
+  const fixed = (progress: number) =>
+    trainingFrame3d("incline-smith", progress).equipment.filter(
+      (p) =>
+        p.id.startsWith("smith-") &&
+        !/smith-(carriage|sleeve|plate|collar)/.test(p.id),
+    );
+  const start = fixed(0);
+  for (let i = 0; i <= 40; i++) expect(fixed(i / 40)).toEqual(start);
+});
+
+test("Smith bar and both wrists travel only along the fixed guides without changing bone length", () => {
+  let initialBones: number[] | undefined;
+  for (let i = 0; i <= 40; i++) {
+    const f = trainingFrame3d("incline-smith", i / 40);
+    const bar = f.equipment.find((p) => p.id === "barbell")!;
+    expect(bar.a[1]).toBeCloseTo(40 + (29 * i) / 40);
+    expect(bar.a[1]).toBeCloseTo(bar.b![1]);
+    expect(bar.a[2]).toBe(11);
+    expect(bar.b![2]).toBe(11);
+    f.body.arms.forEach((arm, n) => {
+      expect(arm[2][0]).toBeCloseTo(n === 0 ? -22 : 22);
+      expect(arm[2][1]).toBeCloseTo(bar.a[1]);
+      expect(arm[2][2]).toBeCloseTo(11);
+    });
+    const lengths = f.body.arms.flatMap((a) => [
+      length3(sub3(a[1], a[0])),
+      length3(sub3(a[2], a[1])),
+    ]);
+    initialBones ??= lengths;
+    lengths.forEach((v, n) => expect(v).toBeCloseTo(initialBones![n], 8));
+    for (const side of [-1, 1]) {
+      const carriage = f.equipment.find(
+        (p) => p.id === "smith-carriage" + side,
+      )!;
+      const guide = f.equipment.find((p) => p.id === "smith-guide" + side)!;
+      expect(carriage.a).toEqual([side * 33, bar.a[1], 11]);
+      expect(guide.a[0]).toBe(carriage.a[0]);
+      expect(guide.a[2]).toBe(carriage.a[2]);
+    }
+  }
+});
+
+test("Smith and power rack have separate mechanisms; Smith has moving plate sleeves and fixed catches", () => {
+  const smith = trainingFrame3d("incline-smith", 0.5).equipment;
+  const rack = trainingFrame3d("power-rack", 0.5).equipment;
+  expect(smith.some((p) => p.id.startsWith("j-hook"))).toBe(false);
+  expect(rack.some((p) => p.id.startsWith("smith-"))).toBe(false);
+  expect(smith.filter((p) => p.id.startsWith("smith-guide"))).toHaveLength(2);
+  expect(smith.filter((p) => p.id.startsWith("smith-plate"))).toHaveLength(4);
+  expect(smith.find((p) => p.id === "backrest")!.size[0]).toBe(14);
+});

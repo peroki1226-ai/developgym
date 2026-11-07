@@ -234,6 +234,19 @@ export function body3d(raw: string, value: number): Body3 {
       solveBone3(a[0], a[2], 20, 19, [i === 0 ? -1 : 1, 0, -0.25]),
     );
   }
+  // A Smith bar follows its guide rails; the shoulder and bench stay fixed.
+  // This is a generic vertical-guide mechanism, pending manufacturer reference matching.
+  if (type === "incline-smith") {
+    arms = [-1, 1].map((side) =>
+      solveBone3(
+        add3(shoulder, [side * 9, 0, 0]),
+        [side * 22, 40 + 29 * p, 11],
+        20,
+        19,
+        [side, 0, -0.25],
+      ),
+    );
+  }
   if (type === "preacher-curl") {
     arms = arms.map(([a, e, h]) => {
       const elbow = add3(a, mul3(unit3(sub3(e, a)), 18));
@@ -390,7 +403,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
       "backrest",
       add3(add3(rest.hip, mul3(u, 2)), mul3(rest.forward, -7.2)),
       add3(add3(rest.shoulder, mul3(u, 2)), mul3(rest.forward, -7.2)),
-      25,
+      type === "incline-smith" ? 14 : 25,
       4,
       type !== "hack-squat",
     );
@@ -504,7 +517,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
       "bench-seat",
       add3(hip, mul3(forward, -3)),
       add3(hip, mul3(forward, 10)),
-      25,
+      type === "incline-smith" ? 16 : 25,
       4,
     );
     floorFrame("bench", hip[2]);
@@ -613,10 +626,133 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
       hands.forEach((h, i) => handle("row-handle" + i, h, [0, 1, 0]));
       break;
     }
-    case "incline-smith":
+    case "incline-smith": {
+      const bar = average3(hands);
+      const steel = (id: string, a: V3, b: V3, width = 3.5, depth = width) => {
+        const along = unit3(sub3(b, a));
+        const side =
+          Math.abs(along[0]) < 0.9
+            ? unit3(cross3(along, [1, 0, 0]))
+            : unit3(cross3(along, [0, 1, 0]));
+        box(id, mix3(a, b, 0.5), [width, length3(sub3(b, a)), depth], "metal", [
+          side,
+          along,
+          unit3(cross3(side, along)),
+        ]);
+      };
+      steel("smith-top", [-40, 89, 11], [40, 89, 11], 5);
+      steel("smith-base-cross", [-40, 2, -24], [40, 2, -24], 5);
+      for (const side of [-1, 1]) {
+        steel(
+          "smith-upright" + side,
+          [side * 39, 2, 11],
+          [side * 39, 89, 11],
+          5,
+        );
+        steel("smith-base" + side, [side * 39, 2, -28], [side * 39, 2, 37], 5);
+        steel(
+          "smith-brace" + side,
+          [side * 39, 4, -25],
+          [side * 39, 70, 11],
+          3.5,
+        );
+        beam(
+          "smith-guide" + side,
+          [side * 33, 14, 11],
+          [side * 33, 83, 11],
+          0.75,
+          "chrome",
+        );
+        // Fixed catches and lower safety stops, separate from the moving carriage.
+        for (let y = 20; y <= 78; y += 6)
+          box(
+            "smith-catch" + side + y,
+            [side * 36, y, 8],
+            [3, 1.5, 4],
+            "chrome",
+          );
+        box("smith-stop" + side, [side * 33, 20, 11], [4.5, 4, 5], "rubber");
+        box(
+          "smith-carriage" + side,
+          [side * 33, bar[1], 11],
+          [4, 8, 4],
+          "metal",
+        );
+        steel(
+          "smith-carriage-link" + side,
+          [side * 29, bar[1], 11],
+          [side * 33, bar[1], 11],
+          2,
+        );
+        beam(
+          "smith-sleeve" + side,
+          [side * 34, bar[1], 11],
+          [side * 47, bar[1], 11],
+          1.1,
+          "chrome",
+        );
+        for (let i = 0; i < 2; i++) {
+          const x = side * (37 + i * 2.1);
+          beam(
+            "smith-plate" + side + i,
+            [x - 0.9, bar[1], 11],
+            [x + 0.9, bar[1], 11],
+            9.5,
+            "rubber",
+          );
+        }
+        beam(
+          "smith-collar" + side,
+          [side * 43, bar[1], 11],
+          [side * 44.5, bar[1], 11],
+          1.8,
+          "metal",
+        );
+        for (const y of [23, 48]) {
+          beam(
+            "smith-storage-horn" + side + y,
+            [side * 39, y, -19],
+            [side * 48, y, -19],
+            0.9,
+            "chrome",
+          );
+          beam(
+            "smith-storage-plate" + side + y,
+            [side * 41, y, -19],
+            [side * 43, y, -19],
+            8,
+            "rubber",
+          );
+        }
+        for (const z of [-27, 36])
+          box(
+            "smith-foot" + side + z,
+            [side * 39, 0.7, z],
+            [8, 1.4, 8],
+            "rubber",
+          );
+      }
+      beam("barbell", [-47, bar[1], 11], [47, bar[1], 11], 0.65, "chrome");
+      // Bench adjustment hardware stays fixed while the guided bar moves.
+      const rest = mix3(hip, shoulder, 0.65);
+      steel(
+        "smith-bench-spine",
+        add3(hip, [0, -7, -7]),
+        add3(rest, [0, -5, -9]),
+        3,
+      );
+      steel(
+        "smith-bench-adjuster",
+        [0, 4, hip[2] - 5],
+        add3(rest, [0, -7, -9]),
+        2.5,
+      );
+      pivot("smith-bench-hinge", add3(hip, [0, -7, -7]));
+      break;
+    }
     case "power-rack": {
       const z = average3(hands)[2],
-        height = type === "power-rack" ? 94 : 90;
+        height = 94;
       for (const x of [-34, 34])
         for (const dz of [-16, 16])
           beam("rack-post" + x + dz, [x, 1, z + dz], [x, height, z + dz], 1.9);

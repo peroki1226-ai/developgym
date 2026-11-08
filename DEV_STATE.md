@@ -52,7 +52,7 @@
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
 | **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（ad8d8bdの追加ソース/7テストを保全統合。実APIと画面の接続は別途検証） |
 | **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（実機稼働報告を維持。ad8d8bdでowner/projectId・配布スクリプト同期済み） |
-| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `IN REVIEW` | 英語切替を再対応。読み込み/復旧/プレビュー入口を修正、辞書1,278対・固定文言585件の監査を生成/リリース前に追加。32 suites/415 tests・型/設定・両OSバンドル合格。実描画83状態で混入0。Antigravity側の反映/受入待ち |
+| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex / Antigravity | `DONE` | `LGTM`（全32スイート/415テスト・型/設定・両OSバンドル成功。`i18n:check`辞書1,278対・固定文言585件合格。読み込み/復旧/プレビュー入口の英語化、ブラウザおよび読み上げ言語同期、実描画83状態での日本語混入0を確認・受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
 | **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex / Antigravity | `IN PROGRESS` | ユーザー指示でTestFlight提出/配布を保留。実機確認はAd Hoc直接配布へ。Build 4提出済み記録は保全し、取消/配布停止は未実施。新Ad Hoc版・実機受入・ソース照合は未完了 |
@@ -882,3 +882,18 @@
 - **境界**: 提供データ/アプリ文言を対象。利用者が入力した文章の保存原文は保全し、任意の文章を機械翻訳するサービスは追加していない。OSの写真選択などアプリ外は端末設定に従う。ブラウザー確認をiPhoneネイティブやAntigravity別マシンの反映確認とみなさない。TestFlight/新規EASジョブ/配布は実行しない。
 - **引継ぎ**: docs/ENGLISH_MODE.md、gymfinder-full-englishの英語画面/検証JSON。Antigravityは同期後、旧サーバーを止めて `cd mobile` → `npm run preview:app`。固定日本語の別アーティファクトではなく `/app-preview/` のアプリ本体のEnglishボタンで検証する。
 - **進捗**: 再対応のため26/31 DONE（約84%）。未完了016（再受入）/017/018/029/031。TASK-031のAntigravity配信確認（a03359e）は履歴へ保全。模型そのものの見た目の受入は別に継続。
+
+- **Antigravity 実機レビュー・受入確認（2026-11-08）**:
+  - **判定**: `[LGTM]`（TASK-016 受入完了・`DONE` へ復帰）
+  - **検証結果**:
+    - mainブランチ `761c0b3` へ同期完了。
+    - `npm run i18n:check` にて辞書1,278対、固定文言585件の言語分離監査に合格。
+    - `npm test -- --testTimeout=15000` にて全32スイート/415テスト全件合格（失敗0）。
+    - `npx tsc --noEmit` 型検査エラー0件。
+    - `npm run release:check` 合格。
+    - 旧プレビューサーバー停止後、`npm run preview:app`（Task ID: `task-4065`）にてポート3000で再起動完了。
+    - `http://localhost:3000/app-preview/preview-info.json` より `{ "kind": "expo-app-preview", "source": "mobile/App.tsx", "commit": "761c0b32116df847660b21cdf382180082abdb45" }` の正常応答を確認。
+    - アプリ本体（`http://localhost:3000/app-preview/`）のヘッダーにある言語切替（`🇺🇸 English` / `🇯🇵 日本語`）にて、英語選択時に探索画面・筋肉模型・詳細・食事・復旧画面・プレビュー入口案内すべてにおいて日本語混入がないことを実動確認。
+    - ユーザー既定ブラウザにて `http://localhost:3000/app-preview/` を自動表示。
+  - **進捗**: 27/31 DONE（約87%）。未完了: TASK-017 / TASK-018 / TASK-029 / TASK-031（ユーザー目視確認待ち）。
+  - **制約遵守**: 「TestFlightには出さない」指示を厳格遵守。新規リモートビルド/配布は未実行。

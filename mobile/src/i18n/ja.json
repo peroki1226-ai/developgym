@@ -1,4 +1,13 @@
 {
+  "language.settings": "表示言語",
+  "language.choose": "言語モードを選ぶ",
+  "language.mode.ja": "日本語モード",
+  "language.mode.en": "英語モード",
+  "language.current": "現在：{0}",
+  "language.scope": "画面の説明・器具名・筋肉名・操作案内を、選んだ言語で表示します。",
+  "language.saved": "この端末に保存しました。次回も同じ言語で開きます。",
+  "language.saving": "言語設定を保存しています…",
+  "language.saveError": "言語設定を保存できませんでした。画面下部から保存を再試行してください。",
   "読み込み中…": "読み込み中…",
   "再試行": "再試行",
   "directory.entry": "全国のジム・女性向け施設を探す",

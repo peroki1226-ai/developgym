@@ -60,8 +60,11 @@ function createPreviewServer({ directory = output, fingerprint = sourceHash, lau
       response.setHeader("Allow", "GET, HEAD");
       return send(405, "text/plain; charset=utf-8", "Method not allowed");
     }
-    let pathname;
-    try { pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname); }
+    let pathname, requestUrl;
+    try {
+      requestUrl = new URL(request.url, "http://localhost");
+      pathname = decodeURIComponent(requestUrl.pathname);
+    }
     catch { return send(400, "text/plain; charset=utf-8", "Invalid path"); }
     if (pathname === "/sw.js") {
       // Retire only this origin's former preview worker. Do not erase saved app data.
@@ -69,7 +72,9 @@ function createPreviewServer({ directory = output, fingerprint = sourceHash, lau
       return send(200, "application/javascript", 'self.addEventListener("install",()=>self.skipWaiting());self.addEventListener("activate",e=>e.waitUntil(self.registration.unregister()));');
     }
     if (["/", "/index.html", "/app-preview"].includes(pathname)) {
-      response.writeHead(302, { Location: "/app-preview/" });
+      const modes = requestUrl.searchParams.getAll("lang");
+      const mode = modes.length === 1 && ["ja", "en"].includes(modes[0]) ? `?lang=${modes[0]}` : "";
+      response.writeHead(302, { Location: "/app-preview/" + mode });
       return response.end();
     }
     if (pathname === "/gym-app-preview.html")
@@ -111,7 +116,11 @@ if (require.main === module) {
         console.error(error.code === "EADDRINUSE" ? `Port ${port} is occupied. Stop the old preview server or use --port another-number.` : error.message);
         process.exitCode = 1;
       });
-      server.listen(port, "0.0.0.0", () => console.log(`Native app preview: http://localhost:${port}/app-preview/`));
+      server.listen(port, "0.0.0.0", () => {
+        console.log(`Native app preview: http://localhost:${port}/app-preview/`);
+        console.log(`Japanese mode: http://localhost:${port}/app-preview/?lang=ja`);
+        console.log(`English mode: http://localhost:${port}/app-preview/?lang=en`);
+      });
     }
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

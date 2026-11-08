@@ -1,4 +1,5 @@
 import { Language, isLanguage, LocaleProvider, translate } from "./i18n";
+import { getLaunchLanguage } from "./i18n/launchLanguage";
 import React, {
   createContext,
   PropsWithChildren,
@@ -61,7 +62,12 @@ type State = {
 };
 const Context = createContext<State | null>(null);
 export function FitnessProvider({ children }: PropsWithChildren) {
-  const [data, setData] = useState<FitnessData>(initialFitnessData);
+  const [launchLanguage] = useState(getLaunchLanguage);
+  const languageIntent = useRef(launchLanguage);
+  const [data, setData] = useState<FitnessData>(() => ({
+    ...initialFitnessData(),
+    ...(launchLanguage ? { language: launchLanguage } : {}),
+  }));
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [reload, setReload] = useState(0);
@@ -71,6 +77,7 @@ export function FitnessProvider({ children }: PropsWithChildren) {
   const t = (message: string) => translate(data.language, message);
   const setLanguage = (language: Language) => {
     if (!isLanguage(language)) throw new Error("Unsupported language");
+    languageIntent.current = language;
     setData((old) => (old.language === language ? old : { ...old, language }));
   };
   const queue = useRef<Promise<void>>(Promise.resolve());
@@ -81,7 +88,7 @@ export function FitnessProvider({ children }: PropsWithChildren) {
       .then((raw) => {
         const restored = decodeFitnessData(raw);
         if (active) {
-          setData(restored);
+          setData({ ...restored, language: languageIntent.current ?? restored.language });
           setReady(true);
         }
       })
@@ -122,7 +129,7 @@ export function FitnessProvider({ children }: PropsWithChildren) {
   });
   if (!ready)
     return (
-      <LocaleProvider language={data.language} setLanguage={setLanguage}>
+      <LocaleProvider language={data.language} setLanguage={setLanguage} syncDocument={loadError}>
         <View
           style={{
             flex: 1,

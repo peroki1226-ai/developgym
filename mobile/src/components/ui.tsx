@@ -94,6 +94,7 @@ export function LanguageSwitch() {
           accessibilityRole="button"
           accessibilityLabel={t(value === "ja" ? "🇯🇵 日本語" : "🇺🇸 English")}
           accessibilityState={{ selected: language === value }}
+          aria-pressed={language === value}
           onPress={() => setLanguage(value)}
           style={({ pressed }) => [
             s.language,

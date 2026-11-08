@@ -10,6 +10,7 @@ import { Text, View } from "react-native";
 import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
 import { GymContributionForm, GymPosts } from "../components/GymCommunity";
+import { LanguageSettings } from "../components/LanguageSettings";
 const systemExerciseNames = new Set(
   [...EQUIPMENTS, ...homeExercises].map((item) => item.name),
 );
@@ -54,6 +55,7 @@ export function MyPageScreen() {
           />
         </Card>
       )}
+      <LanguageSettings />
       <Body>{t("記録・お気に入り・自宅器具はこの端末に保存します。")}</Body>
       <Body>{t("🌐 言語は画面上部のボタンで切り替えられます。")}</Body>
       <Card>

@@ -102,7 +102,7 @@
       </div>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-016：英語切替の指摘を受け再監査。読み込み・復旧・プレビュー入口の翻訳漏れを修正し、辞書と固定文言の監査を追加。アプリ版で全24種目を含む83状態の表示を確認。Antigravity側への反映・受入待ち。<a class="underline" href="docs/ENGLISH_MODE.md">英語モードの確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-016：日本語モード/英語モードを明示する設定と、各モードの入口を追加。5タブ/全24種目を含む126状態で混入なし。記録保持、保存/再読み込み、ヘッダーと設定の連動を確認。追加分の受入待ち。<a class="underline" href="docs/BILINGUAL_MODES.md">二つの言語モード</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-031：ユーザー差戻し。旧Web転送を廃止し、mobileの共通ソースを表示するプレビューを実装。ローカルで筋肉模型/三視点/低速再生を確認。Antigravityでの再起動・人体/器具の見え方の受入は未完了。TASK-029実物照合・実機/配布も未完了。<a class="underline" href="docs/APP_PREVIEW.md">アプリ版プレビューの表示手順</a></p>
 
@@ -395,9 +395,9 @@
         category: "Mobile Feature",
         assignee: "Codex",
         status: "IN REVIEW",
-        rating: "英語切替のユーザー指摘へ再対応・反映確認待ち",
-        desc: "読み込み/復旧/プレビュー入口の翻訳とブラウザー言語情報を修正。1,278対の辞書と固定文言585件を生成前に監査。",
-        review: "旧LGTM履歴を保全。32 suites/415 tests・型/設定・両OSバンドル合格。全24種目を含む実描画83状態で混入なし。入力/姿勢保持と英語保存復元を確認。Antigravity側の反映・受入待ち。"
+        rating: "二つの言語モードを明示・追加分の受入待ち",
+        desc: "マイページに排他的な日本語/英語モードの設定。明示した言語で開くプレビュー入口、切替時のURL同期、ヘッダーと設定の連動を追加。",
+        review: "548d000のLGTMは履歴に保全。33 suites/422 tests・型/監査/設定・両OSバンドル合格。追加分は実描画126状態で混入なし。記録保持、異なる保存言語からの起動、再読み込みを確認。iPhone/別環境の受入は未完了。"
       },
       {
         id: "TASK-017",

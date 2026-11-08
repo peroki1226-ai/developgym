@@ -25,11 +25,14 @@
     <script>
       (async () => {
         let language = "ja";
+        const requested = new URLSearchParams(location.search).getAll("lang");
+        const mode = requested.length === 1 && ["ja", "en"].includes(requested[0]) ? requested[0] : null;
         try {
           const saved = JSON.parse(localStorage.getItem("@gymfinder/fitness/v1") || "null");
           const preference = saved?.language || localStorage.getItem("gf_lang");
           if (preference === "en") language = "en";
         } catch {}
+        if (mode) language = mode;
         const messages = {
           ja: {
             heading: "アプリ版プレビュー",
@@ -63,6 +66,9 @@
           if (info.source !== "mobile/App.tsx" || info.kind !== "expo-app-preview")
             throw new Error("Wrong preview source");
           const target = new URL("./app-preview/", location.href);
+          target.search = location.search;
+          target.hash = location.hash;
+          if (mode) target.searchParams.set("lang", mode);
           target.searchParams.set("revision", info.sourceHash);
           location.replace(target.href);
         } catch (error) {

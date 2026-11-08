@@ -21,10 +21,11 @@ export function LocaleProvider({
   language,
   setLanguage,
   children,
-}: PropsWithChildren<Locale>) {
+  syncDocument = true,
+}: PropsWithChildren<Locale & { syncDocument?: boolean }>) {
   return (
     <Context.Provider value={{ language, setLanguage }}>
-      <LocaleDocument language={language} />
+      {syncDocument && <LocaleDocument language={language} />}
       {children}
     </Context.Provider>
   );

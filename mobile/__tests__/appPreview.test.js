@@ -50,6 +50,14 @@ describe("the app preview serves mobile code instead of the legacy prototype", (
     expect(launch.body).not.toContain('url=./index.html');
     expect(launch.body).not.toContain('new URL("./index.html"');
   });
+  test("both language entries survive root redirects; invalid or duplicate modes are ignored", async () => {
+    for (const entry of ["/", "/index.html", "/app-preview"]) {
+      for (const mode of ["ja", "en"])
+        expect((await request(entry + "?lang=" + mode)).headers.location).toBe("/app-preview/?lang=" + mode);
+    }
+    for (const query of ["?lang=de", "?lang=en&lang=ja"])
+      expect((await request("/" + query)).headers.location).toBe("/app-preview/");
+  });
   test("source changes are refused until a fresh build, rather than displaying stale code", async () => {
     current = "edited";
     try {

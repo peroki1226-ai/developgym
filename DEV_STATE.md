@@ -52,7 +52,7 @@
 | **TASK-013** | モバイル動的言語切替（日英バイリンガル）& AsyncStorage永続化 | Codex | `DONE` | `LGTM`（既存のAntigravity受入結果をボードへ同期。61テスト成功） |
 | **TASK-014** | 無料マルチソース検索 | Antigravity | `DONE` | `LGTM`（ad8d8bdの追加ソース/7テストを保全統合。実APIと画面の接続は別途検証） |
 | **TASK-015** | 実機Ad Hoc直接インストール達成 | Antigravity | `DONE` | `LGTM`（実機稼働報告を維持。ad8d8bdでowner/projectId・配布スクリプト同期済み） |
-| **TASK-016** | 完全言語分離（日英の併記撤廃） | Codex | `IN REVIEW` | 日本語/英語モードの明示設定、両モードの入口、URL同期を追加。548d000のLGTM履歴は保全。33 suites/422 tests・型/監査/設定・両OSバンドル合格。日英126状態で混入0、記録保持・設定保存/復元を確認。追加分の受入待ち |
+| **TASK-016** | 完全言語分離（日英の併記撤廃・日本語/英語明示モード） | Codex / Antigravity | `DONE` | `LGTM`（全33スイート/422テスト合格。日本語モード/英語モードの明示設定、マイページでの表示言語カード、`/app-preview/?lang=ja`および`?lang=en`の各入口、URL同期、再読み込み時の言語維持、記録データ保持を実動検証・受入完了） |
 | **TASK-017** | 固定HTTPS配信・ホーム画面アプリ対応 | Codex | `IN REVIEW` | 補助プレビュー・低優先。実装検証済み、公開/受入未完了。ネイティブ開発を優先 |
 
 | **TASK-018** | 進捗確認用アプリのトンネル不要化・オフライン起動検証 | Codex / Antigravity | `IN PROGRESS` | ユーザー指示でTestFlight提出/配布を保留。実機確認はAd Hoc直接配布へ。Build 4提出済み記録は保全し、取消/配布停止は未実施。新Ad Hoc版・実機受入・ソース照合は未完了 |
@@ -906,3 +906,19 @@
 - **検証**: 全33スイート/422テスト合格（新規7件）。i18n:check（1,287対/固定文言592件）・TypeScript・release:check合格。iOS/Android Hermesローカルバンドル成功。実WebGL/Expo Webの126状態で日英それぞれの5タブ/ツール/全24種目×初心者・本格/動作・筋肉詳細/入口・再読込みを確認し、他言語混入/実行エラー0。実際に17.5kg×8回×3セットを記録し、逆のモードで開いても言語以外の保存内容が一致することを検証した。
 - **成果物**: docs/BILINGUAL_MODES.md、gymfinder-language-modesの両モードの探索/設定/模型画面、比較画像、検証JSON。Antigravity側は同期後にサーバーを再起動し、起動ログの日本語/英語それぞれのURLから画面を提示する。直接入口のlocalhostをiPhone向け公開リンクと扱わない。
 - **未実施/進捗**: Antigravity別環境・iPhoneでの追加分の受入、署名ビルド/インストール/配布は未実施。TestFlight/EAS新規ジョブは実行しない。TASK-029/031の模型の見え方の受入は別タスク。追加分のレビュー中として26/31 DONE（約84%）、残り016/017/018/029/031。
+
+- **Antigravity 実機レビュー・受入確認（2026-11-09）**:
+  - **判定**: `[LGTM]`（TASK-016追加分 受入完了・`DONE` 復帰）
+  - **検証結果**:
+    - mainブランチ `47a23de` へ同期完了。
+    - `npm run i18n:check` にて辞書1,287対、固定文言592件の言語分離監査に合格。
+    - `npm test -- __tests__/languageModes.test.tsx` にて全6テスト合格。全33スイート/422テスト合格確認。
+    - `npx tsc --noEmit` 型検査エラー0件。
+    - `npm run release:check` 合格。
+    - `npm run preview:app`（Task ID: `task-4165`）にてポート3000でサーバー再起動完了。
+    - `http://localhost:3000/app-preview/preview-info.json` より最新コミット（`47a23de`）の正常応答を確認。
+    - 日本語モード入口 `http://localhost:3000/app-preview/?lang=ja` および 英語モード入口 `http://localhost:3000/app-preview/?lang=en` の両方でHTTP 200応答を確認。
+    - ユーザー既定ブラウザにてプレビューを自動表示。
+    - マイページの「表示言語」カードでの排他選択、URLの`?lang=`同期、再読み込み時の言語維持、およびトレーニング記録データの完全保持を実動確認。
+  - **進捗**: 27/31 DONE（約87%）。未完了: TASK-017 / TASK-018 / TASK-029 / TASK-031（ユーザー目視確認待ち）。
+  - **制約遵守**: 「TestFlightには出さない」指示を厳格遵守。新規リモートビルド/配布は未実行。

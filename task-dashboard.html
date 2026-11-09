@@ -104,9 +104,9 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-016：日本語モード/英語モードを明示する設定と、各モードの入口を追加。5タブ/全24種目を含む126状態で混入なし。記録保持、保存/再読み込み、ヘッダーと設定の連動を確認。追加分もAntigravityのLGTM受入完了。<a class="underline" href="docs/BILINGUAL_MODES.md">二つの言語モード</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-029：器具の形・素材・可動部を再制作。プレート式プレス、スミス、滑車、ガイド、クッションと穴あきプレートを実表示で確認。メーカー実物照合とiPhoneは継続。<a class="underline" href="docs/REALISTIC_EQUIPMENT.md">器具の変更と確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-029：写真の胸2台と脚4構成を反映。座席移動/四十五度切替、膝伸展、内転、収縮矢印と状態表示。477テスト・100構成の実表示を確認。今回差分の見た目と実機は受入待ち。<a class="underline" href="docs/PHOTO_LEG_GUIDES.md">写真の脚4台と握りの確認手順</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-031：CC0の連続する人体メッシュへ置換。顔・指・関節・人体比率を修正し、筋肉の形を関節と連動。全24種目・日英96状態の実描画を確認。見た目の受入とiPhone確認、TASK-029の実物照合は未完了。<a class="underline" href="docs/REALISTIC_HUMAN_MODEL.md">新しい人体模型と確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-031：手のひら/親指をグリップへ合わせて修正し、内ももの可視領域と対象筋の変形を整理。器具形状へのユーザー評価は保全し、握り/人体の見た目を再受入依頼。<a class="underline" href="docs/PHOTO_CHEST_GUIDES.md">胸の写真型ガイド</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -523,13 +523,13 @@
       },
       {
         id: "TASK-029",
-        title: "器具の形・部材・固定/可動部の再制作",
-        category: "Native Spatial Learning",
+        title: "写真の胸2台・脚4構成と三方向フォームガイド",
+        category: "Native Form Guide",
         assignee: "Codex",
-        status: "IN PROGRESS",
-        rating: "今回差分レビュー依頼・メーカー実物照合は継続",
-        desc: "プレート式チェストプレス、スミス/ラットプル/両スレッドを修正。全24種目へ中空角パイプ、丸みのあるパッド、穴あきプレート、滑車/ベアリング/ボルトを適用。",
-        review: "34 suites/457 tests・型/監査/設定・両OSバンドル成功。日英×320/390幅×24種目=96状態の実WebGL確認。メーカー公式接続403のため型番/寸法一致は未確認。見た目/実物/iPhoneの受入・配布は未完了。"
+        status: "IN REVIEW",
+        rating: "写真型6構成・握り/筋収縮の差分レビュー依頼",
+        desc: "提供写真を基準にスタック式ペックフライ/チェストプレス、座席移動/四十五度プレス切替、膝伸展/内転の専用機構を反映。筋肉上の矢印と状態表示。",
+        review: "36 suites/477 tests・型/監査/両OSバンドル成功。日英・2幅・24種目と追加切替の100構成を実WebGL確認。今回差分の見た目/実機/メーカー実測照合は未完了。"
       },
       {
         id: "TASK-030",
@@ -543,13 +543,13 @@
       },
       {
         id: "TASK-031",
-        title: "自然な人体と、関節に沿う筋肉の変形",
-        category: "Native Anatomical Body",
+        title: "自然な人体・握りと対象筋の収縮",
+        category: "Native Form Guide",
         assignee: "Codex",
         status: "IN REVIEW",
-        rating: "連続する人体へ置換・見た目の再受入待ち",
-        desc: "CC0の人体メッシュ・骨格・スキンウェイトを同梱。顔/指/関節/成人比率、関節経路に沿う筋腹変形、固定拡大カメラ。全24種目へ対応。",
-        review: "33 suites/451 tests・型/監査/設定・両OSバンドル合格。日英×320/390幅×24種目=96状態の実WebGL、30対象筋と984姿勢の連続性を確認。同期後にpreview:appを再生成。見た目/実機/実物器具一致の受入は未完了。配布は保留。"
+        rating: "写真型6構成・握り/筋収縮の差分レビュー依頼",
+        desc: "実グリップの中心/軸へ手を配置し、手首/手のひら長と親指の回り込みを修正。内ももの可視領域と選択筋の変形、股関節のお尻経路を修正。",
+        review: "握り中心/骨長/固定可動機構/曲線形状の再利用解放/矢印/言語を477テストで確認。写真6構成の開始終了/三方向と握り拡大を実描画。実機とユーザーの見た目受入は未完了。"
       }
 
     ];

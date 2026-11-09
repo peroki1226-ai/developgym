@@ -41,26 +41,6 @@ test("all reusable equipment surfaces have finite normals and centred, positive 
   }
 });
 
-test("the plate-loaded chest press has fixed structural bearings and rigid loading arms, without a selector stack", () => {
-  const initial = trainingFrame3d("chest-press", 0);
-  const fixed = (p: ReturnType<typeof trainingFrame3d>["equipment"][number]) => /^(press-(base|rear|front|diagonal|back-brace|axis|storage|stored|foot|frame-bolt|travel-stop|seat))/.test(p.id);
-  const reference = initial.equipment.filter(fixed);
-  expect(initial.equipment.some(p => /stack|cable/.test(p.id))).toBe(false);
-  expect(initial.equipment.filter(p => p.kind === "plate")).toHaveLength(6);
-  for (let step = 0; step <= 40; step++) {
-    const frame = trainingFrame3d("chest-press", step / 40);
-    expect(frame.equipment.filter(fixed)).toEqual(reference);
-    for (const side of [-1, 1]) {
-      const arm = frame.equipment.find(p => p.id === "press-lever" + side)!;
-      const start = initial.equipment.find(p => p.id === arm.id)!;
-      expect(length3(sub3(arm.b!, arm.a))).toBeCloseTo(length3(sub3(start.b!, start.a)), 7);
-      const horn = frame.equipment.find(p => p.id === "press-loading-horn" + side)!;
-      const startHorn = initial.equipment.find(p => p.id === horn.id)!;
-      expect(length3(sub3(horn.a, arm.a))).toBeCloseTo(length3(sub3(startHorn.a, start.a)), 7);
-    }
-  }
-});
-
 test("weight stacks keep their bottom plates grounded while selected weights lift on the guides", () => {
   const start = trainingFrame3d("lat-pulldown", 0), end = trainingFrame3d("lat-pulldown", 1);
   for (const id of ["stack-weight0", "stack-weight3", "stack-back", "stack-rod-a", "stack-rod-b", "stack-side-1"]) {

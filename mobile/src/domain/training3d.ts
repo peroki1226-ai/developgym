@@ -4,6 +4,8 @@ export type V3 = readonly [number, number, number];
 export type Bone3 = readonly [V3, V3, V3];
 export type View3 = "front" | "side" | "back";
 export type Focus3 = "whole" | "hands" | "feet" | "muscles";
+export type LegPressVariant = "incline" | "seated";
+export type HandGrip3 = { centre: V3; axis: V3; radius: number };
 export const add3 = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 export const sub3 = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 export const mul3 = (a: V3, t: number): V3 => [a[0] * t, a[1] * t, a[2] * t];
@@ -37,12 +39,14 @@ export type Contact3 = {
 };
 export type Primitive3 = {
   id: string;
-  kind: "box" | "beam" | "sphere" | "tube" | "pad" | "cylinder" | "plate" | "pulley" | "bolt";
+  kind: "box" | "beam" | "sphere" | "tube" | "pad" | "cylinder" | "plate" | "pulley" | "bolt" | "curve";
   a: V3;
   b?: V3;
   size: V3;
-  color: "metal" | "pad" | "rubber" | "chrome";
+  color: "metal" | "satin" | "pad" | "rubber" | "chrome";
   axes?: readonly [V3, V3, V3];
+  points?: readonly V3[];
+  section?: number;
 };
 export interface TrainingFrame3 {
   type: string;
@@ -51,6 +55,8 @@ export interface TrainingFrame3 {
   equipment: Primitive3[];
   contacts: Contact3[];
   muscles: readonly Muscle[];
+  grips: HandGrip3[];
+  variant?: LegPressVariant;
 }
 
 // Approximate segment dimensions of the bundled adult reference mesh at its
@@ -59,7 +65,7 @@ export const HUMAN_SEGMENTS = {
   torso: 26,
   headOffset: 8.4,
   upperArm: 12.8,
-  forearmGrip: 13.7,
+  forearmGrip: 17.3,
   thigh: 20,
   shin: 21
 };
@@ -70,11 +76,13 @@ export const SMITH_PRESS = {
   guideZ: 11
 };
 function chestPressArc(shoulder: V3, progress: number) {
-  const startY = -5,
-    endY = 5,
-    startZ = 13,
-    endZ = 25;
-  const centreY = -22,
+  // The supplied selectorised press has its lever bearings near the floor.
+  // All handles and bent lever segments share this one rigid rotation.
+  const startY = -1,
+    endY = -6,
+    startZ = 12,
+    endZ = 28.5;
+  const centreY = 7 - shoulder[1],
     centreZ = (startZ + endZ) / 2 - (endY - startY) * (centreY - (startY + endY) / 2) / (endZ - startZ);
   const radius = Math.hypot(startY - centreY, startZ - centreZ);
   const a = Math.atan2(startY - centreY, startZ - centreZ),
@@ -83,7 +91,19 @@ function chestPressArc(shoulder: V3, progress: number) {
   const pivot = add3(shoulder, [0, centreY, centreZ]);
   return {
     pivot,
+    angle,
+    startAngle: a,
     hand: add3(pivot, [0, radius * Math.sin(angle), radius * Math.cos(angle)])
+  };
+}
+
+function pecFlyArc(shoulder: V3, side: number, progress: number) {
+  // A constant-radius horizontal sweep about the overhead vertical bearing.
+  const angle = (58 - 69.5 * progress) * Math.PI / 180;
+  return {
+    pivot: [shoulder[0], 83, shoulder[2]] as V3,
+    angle,
+    hand: add3(shoulder, [side * 28.5 * Math.sin(angle), -1, 28.5 * Math.cos(angle)])
   };
 }
 
@@ -123,8 +143,12 @@ function proportionedBody(raw: Body3, type: string, p: number): Body3 {
     let hand: V3 | undefined;
     let hint: V3 = [sign, 0, -.25];
     if (type === "chest-press") {
-      hand = chestPressArc(start, p).hand;
+      const grip = chestPressArc(start, p).hand;
+      hand = [sign * 14, grip[1], grip[2]];
       hint = [sign * .8, -.5, -.2];
+    } else if (type === "pec-fly") {
+      hand = pecFlyArc(start, sign, p).hand;
+      hint = [sign * .1, -1, -.1];
     } else if (type === "incline-smith") {
       hand = [sign * SMITH_PRESS.gripHalfWidth, SMITH_PRESS.startY + SMITH_PRESS.travelY * p, SMITH_PRESS.guideZ];
     } else if (type === "lat-pulldown") {
@@ -161,7 +185,32 @@ export function solveBone3(a: V3, c: V3, upper: number, lower: number, hint: V3)
     height = Math.sqrt(Math.max(0, upper * upper - along * along));
   return [a, add3(add3(a, mul3(u, along)), mul3(bend, height)), add3(a, mul3(u, d))];
 }
-export function body3d(raw: string, value: number): Body3 {
+function photoLegBody(base: Body3, type: string, p: number, variant?: LegPressVariant): Body3 {
+  if (type !== "leg-press" && type !== "leg-extension" && type !== "hip-adduction") return base;
+  const seated = type === "leg-press" && variant === "seated";
+  const hip: V3 = type === "leg-press" ? seated ? [0, 30 + 2 * p, 12 - 10 * p] : [0, 21, 0] : type === "leg-extension" ? [0, 29, 0] : [0, 32, 0];
+  const up = type === "hip-adduction" ? [0, 1, 0] as V3 : type === "leg-press" && !seated ? unit3([0, 1, -.7]) : unit3([0, 1, -.28]);
+  const shoulder = add3(hip, mul3(up, HUMAN_SEGMENTS.torso));
+  const forward = unit3(cross3([1, 0, 0], up));
+  const legs = [-1, 1].map(side => {
+    const root = add3(hip, [side * 5.2, 0, 0]);
+    if (type === "leg-press") return solveBone3(root, seated ? [side * 8, 12, 37] : [side * 8, 37 + 10 * p, 19 + 10 * p], 20, 21, [0, 1, -.25]);
+    if (type === "leg-extension") {
+      const knee = add3(root, [0, -1, Math.sqrt(399)]);
+      const angle = (8 + 72 * p) * Math.PI / 180;
+      return [root, knee, add3(knee, [0, -21 * Math.cos(angle), 21 * Math.sin(angle)])] as Bone3;
+    }
+    const angle = (55 - 47 * p) * Math.PI / 180;
+    const knee = add3(root, [side * Math.sqrt(399) * Math.sin(angle), -1, Math.sqrt(399) * Math.cos(angle)]);
+    return [root, knee, add3(knee, [0, -21, 0])] as Bone3;
+  });
+  const arms = [-1, 1].map(side => {
+    const start = add3(add3(shoulder, [side * 9, 0, 0]), add3(mul3(up, -4.8), mul3(forward, .4)));
+    return solveBone3(start, add3(hip, [side * 11, 1, 4]), HUMAN_SEGMENTS.upperArm, HUMAN_SEGMENTS.forearmGrip, [side, -1, 0]);
+  });
+  return { ...base, hip, shoulder, head: add3(shoulder, mul3(up, 8.4)), spine: [hip, shoulder], arms, legs, right: [1, 0, 0], forward };
+}
+export function body3d(raw: string, value: number, variant?: LegPressVariant): Body3 {
   const type = motionType(raw),
     p = clampProgress(value),
     pose = exercisePose(type, p);
@@ -244,7 +293,7 @@ export function body3d(raw: string, value: number): Body3 {
   if (type === "leg-extension" || type === "seated-leg-curl") legs = legs.map(([a, b, c]) => [a, add3(b, [0, 1.2, 0]), add3(c, [0, 1.2, 0])]);
   const right: V3 = [facing, 0, 0],
     forward = unit3(cross3(right, unit3(sub3(shoulder, hip))));
-  return proportionedBody({
+  return photoLegBody(proportionedBody({
     head,
     shoulder,
     hip,
@@ -254,9 +303,9 @@ export function body3d(raw: string, value: number): Body3 {
     right,
     forward,
     facing
-  }, type, p);
+  }, type, p), type, p, variant);
 }
-export function feet3d(type: string, body: Body3): Foot3[] {
+export function feet3d(type: string, body: Body3, variant?: LegPressVariant): Foot3[] {
   return body.legs.map(([, knee, ankle]) => {
     let up: V3 = [0, 1, 0],
       toe: V3 = [0, 0, body.facing];
@@ -265,8 +314,8 @@ export function feet3d(type: string, body: Body3): Foot3[] {
       toe = unit3([0, 0.6, 0.8]);
     }
     if (type === "leg-press") {
-      up = unit3([0, -1, -1]);
-      toe = unit3([0, 1, -1]);
+      up = variant === "seated" ? unit3([0, .1, -1]) : unit3([0, -1, -1]);
+      toe = variant === "seated" ? unit3([0, 1, .1]) : unit3([0, 1, -1]);
     }
     if (type === "hack-squat") {
       up = unit3([0, 1, 1]);
@@ -301,11 +350,11 @@ export function feet3d(type: string, body: Body3): Foot3[] {
 }
 
 /** Full equipment is generated around explicit contact surfaces, not placed behind a flat picture. */
-export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
+export function trainingFrame3d(raw: string, progress: number, variant?: LegPressVariant): TrainingFrame3 {
   const type = motionType(raw),
     p = clampProgress(progress),
-    body = body3d(type, p),
-    feet = feet3d(type, body),
+    body = body3d(type, p, variant),
+    feet = feet3d(type, body, variant),
     equipment: Primitive3[] = [];
   const {
       hip,
@@ -314,6 +363,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
       forward
     } = body,
     up = unit3(sub3(shoulder, hip));
+  const grips: HandGrip3[] = [];
   const box = (id: string, a: V3, size: V3, color: Primitive3["color"] = "metal", axes?: Primitive3["axes"]) => equipment.push({
     id,
     kind: color === "pad" ? "pad" : "box",
@@ -324,10 +374,10 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
   });
   const beam = (id: string, a: V3, b: V3, r = 1.4, color: Primitive3["color"] = "metal") => equipment.push({
     id,
-    kind: color === "metal" ? "tube" : "beam",
+    kind: color === "metal" || color === "satin" ? "tube" : "beam",
     a,
     b,
-    size: color === "metal" ? [r * 2, r * 2, r * 2] : [r, r, r],
+    size: color === "metal" || color === "satin" ? [r * 2, r * 2, r * 2] : [r, r, r],
     color
   });
   const axial = (id: string, kind: "cylinder" | "plate" | "pulley" | "bolt", a: V3, axis: V3, radius: number, thickness: number, color: Primitive3["color"] = "metal") => {
@@ -335,6 +385,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
     const x = unit3(cross3(y, Math.abs(y[2]) < .9 ? [0, 0, 1] : [0, 1, 0]));
     equipment.push({ id, kind, a, size: [radius, thickness, radius], color, axes: [x, y, unit3(cross3(x, y))] });
   };
+  const curve = (id: string, origin: V3, points: readonly V3[], section: number, color: Primitive3["color"], axes?: Primitive3["axes"]) => equipment.push({ id, kind: "curve", a: origin, points, section, size: [1, 1, 1], color, axes });
   const plate = (id: string, centre: V3, radius = 9.5, thickness = 1.7) => {
     axial(id, "plate", centre, right, radius, thickness, "rubber");
     axial(id + "-hub", "cylinder", centre, right, radius * .14, thickness + .25, "chrome");
@@ -361,7 +412,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
   };
   const seat = () => {
     const c = add3(hip, mul3(forward, 3));
-    box("seat", [c[0], hip[1] - 6, c[2]], [25, 4, 18], "pad");
+    box("seat", [c[0], hip[1] - 6, c[2]], [["chest-press", "pec-fly"].includes(type) ? 20 : 25, 4, 18], "pad");
     beam("seat-post", [0, 2, c[2]], [0, hip[1] - 8, c[2]], 2);
     box("seat-undertray", [c[0], hip[1] - 8.4, c[2]], [22, 1.2, 15]);
     axial("seat-adjustment-knob", "cylinder", [4, hip[1] - 11, c[2]], right, 1, 2, "rubber");
@@ -370,7 +421,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
   const back = () => {
     const rest = type === "abdominal-crunch" ? body3d(type, 0) : body,
       u = unit3(sub3(rest.shoulder, rest.hip));
-    pad("backrest", add3(add3(rest.hip, mul3(u, 2)), mul3(rest.forward, -7.2)), add3(add3(rest.shoulder, mul3(u, 2)), mul3(rest.forward, -7.2)), type === "incline-smith" ? 14 : 25, 4, type !== "hack-squat");
+    pad("backrest", add3(add3(rest.hip, mul3(u, 2)), mul3(rest.forward, -7.2)), add3(add3(rest.shoulder, mul3(u, 2)), mul3(rest.forward, -7.2)), ["incline-smith", "chest-press", "pec-fly"].includes(type) ? 14 : 25, 4, type !== "hack-squat" && !(type === "leg-press" && variant === "seated"));
   };
   const stack = (id: string, x: number, z: number, lift = p * 9, height = 75) => {
     box(id + "-back", [x, height / 2, z - 2.5], [14, height, 2]);
@@ -384,8 +435,29 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
     axial(id + "-selector-knob", "cylinder", [x + 1, 12.8 + lift, z + 5], [0, 0, 1], 1.05, .8, "rubber");
     floorFrame(id + "-floor", z, 20, 18, x);
   };
+  // Proportions traced from the two supplied photos, not manufacturer CAD.
+  const photoStack = (id: string, x: number, z: number, height: number, lift: number) => {
+    box(id + "-back", [x, height / 2, z - 3], [17, height - 4, 1.4], "satin");
+    for (const side of [-1, 1]) {
+      beam(id + "-guide" + side, [x + side * 3.5, 4, z + 1], [x + side * 3.5, height - 5, z + 1], .5, "chrome");
+      box(id + "-foot" + side, [x + side * 9, .7, z], [7, 1.4, 12], "rubber");
+    }
+    curve(id + "-frame", [x, 0, z], [[-9, 3, 0], [-9, height, 0], [9, height, 0], [9, 3, 0]], 3.2, "satin");
+    beam(id + "-base", [x - 9, 3, z], [x + 9, 3, z], 1.6, "satin");
+    for (let i = 0; i < 15; i++) {
+      const y = 5 + i * 1.55 + (i >= 6 ? lift : 0);
+      box(id + "-weight" + i, [x, y, z + 1], [11.5, 1.22, 6], "metal");
+      axial(id + "-pin-hole" + i, "cylinder", [x, y, z + 4.1], [0, 0, 1], .25, .12, "rubber");
+    }
+    const selectedY = 5 + 6 * 1.55 + lift;
+    axial(id + "-selector", "cylinder", [x, selectedY, z + 4.8], [0, 0, 1], .65, 1.5, "chrome");
+    axial(id + "-knob", "cylinder", [x, selectedY, z + 5.6], [0, 0, 1], .95, .7, "rubber");
+    beam(id + "-lift-cable", [x, 28 + lift, z + 1], [x, height - 3, z + 1], .15, "rubber");
+    box(id + "-instruction-panel", [x, height - 7, z + 3], [15, 6, .6], "rubber");
+  };
   const cable = (id: string, a: V3, b: V3) => beam(id, a, b, 0.18, "rubber");
   const handle = (id: string, hand: V3, axis: V3 = right) => {
+    grips.push({ centre: hand, axis: unit3(axis), radius: 1.05 });
     const a = add3(hand, mul3(axis, -3)),
       b = add3(hand, mul3(axis, 3));
     beam(id, a, b, 1.05, "rubber");
@@ -416,52 +488,44 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
   if (["chest-press", "pec-fly", "lat-pulldown", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)) back();
   if (type === "incline-smith" || type === "dumbbell-heavy" || type === "leg-press") {
     back();
-    pad("bench-seat", add3(hip, mul3(forward, -3)), add3(hip, mul3(forward, 10)), type === "incline-smith" ? 16 : 25, 4);
-    floorFrame("bench", hip[2]);
+    pad("bench-seat", add3(hip, mul3(forward, -3)), add3(hip, mul3(forward, 10)), type === "incline-smith" ? 16 : 25, 4, !(type === "leg-press" && variant === "seated"));
+    if (!(type === "leg-press" && variant === "seated")) floorFrame("bench", hip[2]);
   }
   const cabinetZ = hip[2] - 18;
-  if (!["chest-press", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
+  if (!["chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
   switch (type) {
-    case "chest-press":
-      {
-        // A standalone plate-loaded press. No selector stack/cable is mixed into
-        // the same mechanism. This is not a manufacturer-dimensioned replica.
-        const reference = body3d(type, 0);
-        const arc = chestPressArc(reference.arms[0][0], 0);
-        const rearZ = reference.hip[2] - 18;
-        for (const s of [-1, 1]) {
-          const axis: V3 = [s * 24, arc.pivot[1], arc.pivot[2]];
-          const hand = hands[s === -1 ? 0 : 1];
-          const tip: V3 = [s * 24, hand[1], hand[2]];
-          const heel: V3 = [s * 24, 3, rearZ];
-          const front: V3 = [s * 24, 3, arc.pivot[2] + 9];
-          const backTop: V3 = [s * 24, reference.shoulder[1] + 3, rearZ];
-          beam("press-base" + s, heel, front, 2.2);
-          beam("press-rear-upright" + s, heel, backTop, 1.9);
-          beam("press-front-support" + s, front, axis, 2.1);
-          beam("press-diagonal" + s, heel, axis, 1.8);
-          beam("press-back-brace" + s, backTop, add3(reference.hip, [s * 11, -9, -7]), 1.5);
-          beam("press-lever" + s, axis, tip, 2);
-          beam("press-grip-link" + s, tip, hand, 1.3);
-          pivot("press-axis" + s, axis);
-          handle("press-grip" + s, hand);
-          const horn = mix3(axis, tip, .56);
-          beam("press-loading-horn" + s, horn, add3(horn, [s * 17, 0, 0]), .95, "chrome");
-          for (let i = 0; i < 2; i++) plate("press-plate" + s + i, add3(horn, [s * (6 + i * 2), 0, 0]), 9.5);
-          axial("press-loading-collar" + s, "cylinder", add3(horn, [s * 13, 0, 0]), right, 1.4, 1.2, "chrome");
-          box("press-travel-stop" + s, add3(axis, [0, -4, -3]), [5, 3, 5], "rubber");
-          beam("press-storage-horn" + s, [s * 24, 14, rearZ], [s * 37, 14, rearZ], .95, "chrome");
-          plate("press-stored-plate" + s, [s * 29, 14, rearZ], 8);
-          for (const z of [rearZ, front[2]]) box("press-foot" + s + z, [s * 24, .7, z], [7, 1.4, 8], "rubber");
-          for (const joint of [heel, front, backTop]) axial("press-frame-bolt" + s + joint[2] + joint[1], "bolt", add3(joint, [s * 2.3, 0, 0]), right, .65, .6, "chrome");
-        }
-        beam("press-rear-crossmember", [-24, 10, rearZ], [24, 10, rearZ], 1.8);
-        beam("press-front-crossmember", [-24, 3, arc.pivot[2] + 9], [24, 3, arc.pivot[2] + 9], 1.8);
-        beam("press-seat-slide", [0, 3, reference.hip[2]], [0, reference.hip[1] - 8, reference.hip[2]], 2.2);
-        for (let y = 7; y < reference.hip[1] - 8; y += 3) axial("press-seat-hole" + y, "cylinder", [0, y, reference.hip[2] + 2.3], [0, 0, 1], .4, .15, "rubber");
-        axial("press-seat-adjuster", "cylinder", [0, reference.hip[1] - 10, reference.hip[2] + 3], [0, 0, 1], 1.2, 2.5, "rubber");
-        break;
+    case "chest-press": {
+      const reference = body3d(type, 0);
+      const arc = chestPressArc(reference.arms[0][0], p);
+      const rest = chestPressArc(reference.arms[0][0], 0);
+      const rotation = arc.angle - rest.angle;
+      const towerX = -29, towerZ = reference.hip[2] - 17;
+      const lift = Math.abs(rotation) * 14;
+      photoStack("press-stack", towerX, towerZ, 70, lift);
+      for (const side of [-1, 1]) {
+        const axis: V3 = [side * 22, rest.pivot[1], rest.pivot[2]];
+        const hand = hands[side === -1 ? 0 : 1];
+        const tip: V3 = [side * 22, hand[1], hand[2]];
+        const localTip: V3 = [0, rest.hand[1] - axis[1], rest.hand[2] - axis[2]];
+        curve("press-arm" + side, axis, [[0, 0, 0], [0, 15, -2], [0, 27, 9], [0, localTip[1] - 3, localTip[2] + 3], localTip], 3.2, "metal", [[1, 0, 0], [0, Math.cos(rotation), -Math.sin(rotation)], [0, Math.sin(rotation), Math.cos(rotation)]]);
+        beam("press-grip-link" + side, tip, hand, .8, "chrome");
+        handle("press-grip" + side, hand, unit3([side * .9, .25, -.15]));
+        pivot("press-axis" + side, axis);
+        beam("press-bearing-support" + side, [side * 22, 3, axis[2]], axis, 2, "satin");
+        beam("press-base" + side, [side * 22, 2, towerZ - 4], [side * 22, 2, 14], 1.8, "satin");
+        for (const z of [towerZ - 4, 14]) box("press-foot" + side + z, [side * 22, .7, z], [7, 1.4, 8], "rubber");
+        box("press-stop" + side, [side * 22, 4, axis[2] - 4], [4, 2, 5], "rubber");
       }
+      beam("press-base-front", [-22, 3, 12], [22, 3, 12], 1.8, "satin");
+      beam("press-base-rear", [towerX - 9, 3, towerZ], [22, 3, towerZ], 1.8, "satin");
+      beam("press-seat-rail", [0, 3, towerZ], [0, 3, 20], 1.6, "satin");
+      pulley("press-drive-pulley", [-22, 7, rest.pivot[2]]);
+      pulley("press-stack-pulley", [towerX, 7, towerZ + 1]);
+      cable("press-drive-cable", [-22, 7, rest.pivot[2] - 3], [towerX, 7, towerZ + 4]);
+      beam("press-pedal-link", [-20, 5, rest.pivot[2]], [-12, 5, 18], .8);
+      box("press-start-pedal", [-12, 5, 18], [6, 1.5, 7], "rubber");
+      break;
+    }
     case "shoulder-press":
     case "abdominal-crunch":
       {
@@ -477,7 +541,38 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         cable("press-cable", add3(axle, [10, 0, 0]), [26, 55, cabinetZ]);
         break;
       }
-    case "pec-fly":
+    case "pec-fly": {
+      const reference = body3d(type, 0);
+      const towerZ = reference.hip[2] - 18;
+      const angle = pecFlyArc(reference.arms[0][0], -1, p).angle;
+      photoStack("fly-stack", 0, towerZ, 84, (58 * Math.PI / 180 - angle) * 6);
+      for (const side of [-1, 1]) {
+        const index = side === -1 ? 0 : 1;
+        const arc = pecFlyArc(reference.arms[index][0], side, p);
+        const axis = arc.pivot, hand = hands[index];
+        const direction = unit3([side * Math.sin(arc.angle), 0, Math.cos(arc.angle)]);
+        const root = add3(axis, add3(mul3(direction, 6), [0, 3, 0]));
+        const tip: V3 = [hand[0], 83, hand[2]];
+        beam("fly-overhead-support" + side, [side * 9, 86, towerZ], add3(axis, [0, 3, 0]), 1.7, "satin");
+        beam("fly-arm-root" + side, axis, root, 1.4);
+        beam("fly-arm" + side, root, tip, 1.4);
+        beam("fly-hanger" + side, tip, [hand[0], hand[1] - 4, hand[2]], 1.15);
+        const inward = unit3([-side * Math.cos(arc.angle), 0, Math.sin(arc.angle)]);
+        beam("fly-lower-grip" + side, add3(hand, [0, -4, 0]), add3(add3(hand, [0, -4, 0]), mul3(inward, 2.2)), .8, "rubber");
+        handle("fly-grip" + side, hand, [0, 1, 0]);
+        pivot("fly-axis" + side, axis, [0, 1, 0]);
+        axial("fly-cam" + side, "pulley", add3(axis, [0, 2, 0]), [0, 1, 0], 4, 1.2, "metal");
+        axial("fly-moving-pin" + side, "bolt", add3(add3(axis, [0, 3, 0]), mul3(direction, 3)), [0, 1, 0], .65, .6, "chrome");
+        cable("fly-upper-cable" + side, add3(axis, [0, 2.6, 0]), [0, 85.6, towerZ + 1]);
+        beam("fly-rear-leg" + side, [side * 9, 3, towerZ], [side * 20, 2, towerZ - 15], 1.6, "satin");
+        beam("fly-rear-brace" + side, [side * 9, 22, towerZ], [side * 20, 2, towerZ - 15], 1.4, "satin");
+        box("fly-rear-foot" + side, [side * 20, .7, towerZ - 15], [7, 1.4, 8], "rubber");
+      }
+      beam("fly-seat-pedestal", [0, 3, 8], [0, hip[1] - 8, hip[2] + 3], 1.7, "satin");
+      beam("fly-forward-base", [0, 2, towerZ], [0, 2, 23], 1.7, "satin");
+      box("fly-forward-foot", [0, .7, 23], [8, 1.4, 7], "rubber");
+      break;
+    }
     case "rear-delt-fly":
       {
         for (const s of [-1, 1]) {
@@ -613,6 +708,26 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
     case "leg-press":
     case "hack-squat":
       {
+        if (type === "leg-press" && variant === "seated") {
+          photoStack("seated-press-stack", -27, -15, 72, p * 7.8);
+          const direction = unit3([0, -.2, 1]);
+          for (const side of [-1, 1]) {
+            const a: V3 = [side * 15, 26, -8], b: V3 = [side * 15, 18.8, 28];
+            beam("seated-press-rail" + side, a, b, 1.8, "satin");
+            beam("seated-press-guide" + side, add3(a, [side * 2.5, 1.2, 0]), add3(b, [side * 2.5, 1.2, 0]), .8, "chrome");
+            const carriage = [side * 17.5, hip[1] - 6.8, hip[2]] as V3;
+            box("seated-press-bearing" + side, carriage, [4, 8, 4], "metal", [right, direction, unit3(cross3(right, direction))]);
+            beam("seated-press-seat-link" + side, carriage, add3(hip, [side * 9, -7, 0]), 1.5);
+            beam("seated-press-foot-post" + side, [side * 20, 2, 40], [side * 20, 26, 40], 1.7, "satin");
+            beam("seated-press-brace" + side, [side * 20, 2, 40], b, 1.6, "satin");
+          }
+          beam("seated-press-back-spine", add3(hip, [0, -7, -3]), add3(mix3(hip, shoulder, .55), mul3(forward, -9)), 1.5);
+          const f = feet[0], centre = average3(feet.map(f => f.contact));
+          platform("footplate", centre, f.up, f.toe, 35, 26);
+          floorFrame("seated-press-base", 12, 46, 64);
+          hands.forEach((h, i) => handle("seated-press-grip" + i, h));
+          break;
+        }
         const f = feet[0],
           centre = average3(feet.map(v => v.contact));
         platform("footplate", centre, f.up, f.toe, 38, 26);
@@ -640,9 +755,28 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
           beam("sled-loading-horn" + s, add3(hub, [-s * 7, 0, 0]), add3(hub, [s * 5, 0, 0]), .95, "chrome");
           plate("sled-weight" + s, hub, 9);
         }
+        hands.forEach((h, i) => handle("sled-seat-grip" + i, h));
         break;
       }
-    case "leg-extension":
+    case "leg-extension": {
+      photoStack("extension-stack", -27, -17, 72, p * 8);
+      const knees = average3(body.legs.map(l => l[1]));
+      const shin = unit3(sub3(body.legs[0][2], body.legs[0][1]));
+      const outward = unit3([0, shin[2], -shin[1]]);
+      const roller = add3(mix3(knees, average3(body.legs.map(l => l[2])), .88), mul3(outward, 2.4));
+      for (const side of [-1, 1]) {
+        const axis = add3(knees, [side * 15, 0, 0]);
+        pivot("extension-knee-axis" + side, axis);
+        beam("extension-fixed-support" + side, [side * 15, 3, knees[2]], axis, 1.7, "satin");
+        beam("extension-moving-crank" + side, axis, add3(roller, [side * 15, 0, 0]), 1.5);
+      }
+      beam("extension-roller", add3(roller, [-14, 0, 0]), add3(roller, [14, 0, 0]), 2.6, "pad");
+      pulley("extension-cam", add3(knees, [-17, 0, 0]));
+      cable("extension-drive", add3(knees, [-17, 2, 0]), [-27, 5, -17]);
+      floorFrame("extension-base", 9, 43, 46);
+      hands.forEach((h, i) => handle("extension-grip" + i, h));
+      break;
+    }
     case "seated-leg-curl":
       {
         body.legs.forEach((l, i) => {
@@ -656,8 +790,28 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         hands.forEach((h, i) => handle("leg-hand" + i, h));
         break;
       }
+    case "hip-adduction": {
+      photoStack("adductor-stack", -30, -17, 72, p * 8);
+      axial("adductor-turntable", "cylinder", add3(hip, [0, -9, 0]), [0, 1, 0], 12, 3, "chrome");
+      body.legs.forEach((leg, i) => {
+        const side = i === 0 ? -1 : 1;
+        const radial = unit3([leg[1][0] - leg[0][0], 0, leg[1][2] - leg[0][2]]);
+        const normal = unit3([side * radial[2], 0, -side * radial[0]]);
+        const padCentre = add3(add3(leg[1], mul3(normal, -3.5)), [0, -2, 0]);
+        box("adductor-inner-pad" + i, padCentre, [3, 12, 9], "pad", [normal, [0, 1, 0], unit3(cross3(normal, [0, 1, 0]))]);
+        const pivotAt = add3(leg[0], [0, -9, 0]);
+        pivot("adductor-axis" + i, pivotAt, [0, 1, 0]);
+        beam("adductor-swing-arm" + i, pivotAt, add3(leg[1], [0, -8, 0]), 1.6);
+        beam("adductor-pad-stalk" + i, add3(leg[1], [0, -8, 0]), padCentre, 1.1);
+        platform("adductor-foot" + i, feet[i].contact, feet[i].up, feet[i].toe, 10, 11);
+        beam("adductor-foot-link" + i, add3(leg[1], [0, -8, 0]), feet[i].contact, 1.3);
+      });
+      floorFrame("adductor-base", 1, 48, 42);
+      hands.forEach((h, i) => handle("adductor-grip" + i, h));
+      break;
+    }
     case "hip-abduction":
-    case "hip-adduction":
+
       {
         body.legs.forEach((l, i) => {
           const side = i === 0 ? -1 : 1;
@@ -740,6 +894,8 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
   }
   return {
     type,
+    variant,
+    grips,
     body,
     feet,
     equipment,

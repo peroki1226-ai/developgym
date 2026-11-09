@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import asset from "../data/human/makehuman.json";
 import { Muscle } from "../domain/muscleMotion";
-import { TrainingFrame3, V3, add3, mix3, mul3, sub3, unit3, length3, cross3, trainingFrame3d } from "../domain/training3d";
+import { TrainingFrame3, V3, add3, mix3, mul3, sub3, unit3, length3, cross3, dot3, trainingFrame3d } from "../domain/training3d";
 type Rest = {
   head: number[];
   tail: number[];
@@ -94,6 +94,22 @@ function targets(frame: TrainingFrame3) {
   const point = (position: number) => as3(curve.getPoint(clamp(position)).toArray());
   const span = neckRest[1] - rootRest[1];
   const rootRotation = basis([0, 0, 0], up, body.right);
+  const handMatrices = new Map<number, THREE.Matrix4>();
+  const wrists = new Map<number, V3>();
+  for (const side of ["R", "L"] as const) {
+    const i = sideIndex(frame, side), arm = body.arms[i];
+    const grip = frame.grips.find(g => length3(sub3(g.centre, arm[2])) < .01);
+    if (!grip) continue;
+    const source = asset.grips[side];
+    const axis = vec(grip.axis).normalize();
+    if (Math.abs(axis.y) < .5 && axis.x * (i === 0 ? -1 : 1) > 0) axis.negate();
+    const approach = vec(sub3(arm[1], grip.centre)).addScaledVector(axis, -vec(sub3(arm[1], grip.centre)).dot(axis)).normalize();
+    const targetFrame = new THREE.Matrix4().makeBasis(axis, approach, new THREE.Vector3().crossVectors(axis, approach).normalize()).setPosition(...grip.centre);
+    const sourceFrame = new THREE.Matrix4().makeBasis(vec(source.axis), vec(source.approach), new THREE.Vector3().crossVectors(vec(source.axis), vec(source.approach)).normalize()).setPosition(...as3(source.centre));
+    const matrix = targetFrame.scale(new THREE.Vector3(SCALE, SCALE, SCALE)).multiply(sourceFrame.invert());
+    handMatrices.set(i, matrix);
+    wrists.set(i, as3(vec(source.wrist).applyMatrix4(matrix).toArray()));
+  }
   // Fit the authored sole to the existing contact plane instead of guessing an
   // ankle height from the old ellipsoid shoe. The shin follows the same ankle.
   const ankles: V3[] = [];
@@ -133,7 +149,7 @@ function targets(frame: TrainingFrame3) {
         arm = body.arms[i],
         leg = body.legs[i];
       const foreDirection = unit3(sub3(arm[2], arm[1])),
-        wrist = add3(arm[2], mul3(foreDirection, -1.7));
+        wrist = wrists.get(i) ?? add3(arm[2], mul3(foreDirection, -4.4));
       const ankle = ankles[i];
       if (name.startsWith("clavicle")) {
         const height = (source.head[1] - rootRest[1]) / span;
@@ -146,6 +162,7 @@ function targets(frame: TrainingFrame3) {
         start = arm[1];
         end = wrist;
       } else if (name.startsWith("hand")) {
+        if (handMatrices.has(i)) return handMatrices.get(i)!;
         start = wrist;
         end = add3(start, mul3(foreDirection, length3(sub3(as3(source.tail), as3(source.head))) * SCALE));
       } else if (name.startsWith("thigh")) {
@@ -218,6 +235,12 @@ export function musclePathLength(frame: TrainingFrame3, muscle: Muscle): number 
         insertion = arm[0];
         break;
       case "glutes":
+        if (frame.type === "leg-press") {
+          // A posterior hip path wraps around the joint; a straight chord can
+          // incorrectly lengthen on extension. This is nominal excursion only.
+          const flexion = Math.acos(clamp(dot3(unit3(sub3(leg[1], leg[0])), mul3(up, -1)), -1, 1));
+          return 8 + 4 * flexion;
+        }
         origin = add3(add3(b.hip, mul3(up, 3)), mul3(b.forward, -4));
         insertion = mix3(leg[0], leg[1], .35);
         break;
@@ -245,13 +268,14 @@ export function musclePathLength(frame: TrainingFrame3, muscle: Muscle): number 
   }).reduce((a, b) => a + b, 0) / 2;
 }
 const references = new Map<string, Record<Muscle, number>>();
-function reference(type: string) {
-  if (!references.has(type)) {
-    const a = trainingFrame3d(type, 0),
-      b = trainingFrame3d(type, 1);
-    references.set(type, Object.fromEntries(muscleNames.map(m => [m, Math.max(musclePathLength(a, m), musclePathLength(b, m))])) as Record<Muscle, number>);
+function reference(type: string, variant?: TrainingFrame3["variant"]) {
+  const key = type + "/" + (variant ?? "incline");
+  if (!references.has(key)) {
+    const a = trainingFrame3d(type, 0, variant),
+      b = trainingFrame3d(type, 1, variant);
+    references.set(key, Object.fromEntries(muscleNames.map(m => [m, Math.max(musclePathLength(a, m), musclePathLength(b, m))])) as Record<Muscle, number>);
   }
-  return references.get(type)!;
+  return references.get(key)!;
 }
 export type HumanMuscleState = {
   muscle: Muscle;
@@ -294,9 +318,11 @@ export function createRealisticHuman(parent: THREE.Group) {
     red = new THREE.Color("#b94b3e"),
     cloth = new THREE.Color("#333333"),
     eye = new THREE.Color("#555555");
-  for (let i = 0; i < asset.vertexCount; i++) {
+  function bindActiveMuscles(active: readonly Muscle[]) {
+    dominant.fill(255);
+    for (let i = 0; i < asset.vertexCount; i++) {
     let best = 0;
-    for (let m = 0; m < muscleNames.length; m++) if (masks[muscleNames[m]][i] > best) {
+    for (let m = 0; m < muscleNames.length; m++) if (active.includes(muscleNames[m]) && masks[muscleNames[m]][i] > best) {
       best = masks[muscleNames[m]][i];
       dominant[i] = m;
     }
@@ -324,14 +350,24 @@ export function createRealisticHuman(parent: THREE.Group) {
     fibres[i * 2] = t;
     fibres[i * 2 + 1] = (base[i * 3] * .7 + base[i * 3 + 2]) / Math.max(.4, span * .25);
   }
+  }
+  let activeKey = "";
   let disposed = false,
     lastStates: HumanMuscleState[] = [];
   return {
     mesh,
     draw(frame: TrainingFrame3, anatomy: boolean) {
       if (disposed) return;
+      const key = frame.muscles.join("/");
+      if (activeKey !== key) { bindActiveMuscles(frame.muscles); activeKey = key; (geometry.attributes.muscleCoord as THREE.BufferAttribute).needsUpdate = true; }
       const transforms = targets(frame),
-        ref = reference(frame.type);
+        ref = reference(frame.type, frame.variant);
+      mesh.userData.handContacts = (["R", "L"] as const).flatMap(side => {
+        const i = sideIndex(frame, side), grip = frame.grips.find(g => length3(sub3(g.centre, frame.body.arms[i][2])) < .01);
+        if (!grip) return [];
+        const centre = vec(asset.grips[side].centre).applyMatrix4(transforms[asset.bones.indexOf("hand." + side)]);
+        return [{ side, centre: centre.toArray(), error: centre.distanceTo(vec(grip.centre)) }];
+      });
       const states = muscleNames.map(m => {
         const length = musclePathLength(frame, m),
           shortening = clamp((ref[m] - length) / Math.max(.01, ref[m]), 0, .28);

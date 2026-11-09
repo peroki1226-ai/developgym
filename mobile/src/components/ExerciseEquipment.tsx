@@ -2,6 +2,8 @@ import React from "react";
 import { Circle, Ellipse, G, Line, Path, Polygon, Rect } from "react-native-svg";
 import { ExercisePose, motionType, Point } from "../domain/exerciseMotion";
 import { beamSurface, boxSurface, polygonPoints } from "../domain/equipmentSurface";
+import { LegPressVariant } from "../domain/training3d";
+import { PhotoChestEquipment } from "./PhotoChestEquipment";
 
 const machine = "#686868", frame = "#a8a8a8", person = "#666666";
 function Segment({ a, b, color = machine, width = 2 }: { a: Point; b: Point; color?: string; width?: number }) {
@@ -99,20 +101,13 @@ export function EquipmentGrips({ type, pose }: { type: string; pose: ExercisePos
     </G>;
   })}</G>;
 }
-export function ExerciseEquipment({ type: raw, pose, progress: p }: { type: string; pose: ExercisePose; progress: number }) {
+export function ExerciseEquipment({ type: raw, pose, progress: p, variant }: { type: string; pose: ExercisePose; progress: number; variant?: LegPressVariant }) {
   const type = motionType(raw), hand = pose.grips[0], foot = pose.legs[0]?.[2] ?? [0, 0];
+  if (["leg-press", "leg-extension", "hip-adduction"].includes(type)) return <PhotoChestEquipment type={type} progress={p} variant={variant} />;
   switch (type) {
     case "chest-press":
-      return <G><Stack x={18} lift={p * 9} /><Seat />
-        <Segment a={[43, 32]} b={[43, 64]} width={5} />
-        <Segment a={[29, 17]} b={[65, 18]} color={frame} width={3} />
-        <Segment a={[65, 18]} b={hand} width={3} /><Pivot cx={65} cy={18} r={2.5} fill={machine} />
-      </G>;
     case "pec-fly":
-      return <G><Rect x={44} y={18} width={32} height={8} rx={3} fill={machine} />
-        {pose.arms.map((arm, i) => <Segment key={i} a={arm[0]} b={arm[2]} width={5} color={frame} />)}
-        <Ellipse cx={60} cy={44} rx={12} ry={10} fill="#eef2f5" stroke={frame} />
-      </G>;
+      return <PhotoChestEquipment type={type} progress={p} />;
     case "cable-machine":
       return <G><Stack x={8} lift={p * 8} /><Stack x={101} lift={p * 8} />
         <Segment a={[13, 18]} b={pose.grips[0]} /><Segment a={[106, 18]} b={pose.grips[1]} />

@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
 import { Muscle } from "../domain/muscleMotion";
 import { Circle, Ellipse, G, Line, Path, Polyline, Text as SvgText } from "react-native-svg";
-import { exercisePose, ExercisePose, motionContact, Point } from "../domain/exerciseMotion";
+import { ExercisePose, motionContact, Point } from "../domain/exerciseMotion";
 import { motionTeaching } from "../domain/motionTeaching";
 import { EquipmentContacts, EquipmentGrips, EquipmentRearFrame, ExerciseEquipment } from "./ExerciseEquipment";
 import { HumanFigure } from "./HumanFigure";
+import { LegPressVariant } from "../domain/training3d";
+import { guidePose } from "../domain/photoChestProjection";
 
 const frame = "#bcbcbc", person = "#666666";
 const points = (items: readonly Point[]) => items.map((p) => p.join(",")).join(" ");
@@ -19,16 +21,16 @@ function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset
     <SvgText x={x} y={y + 1.5} fontSize={4.5} textAnchor="middle" fontWeight="bold" fill={color}>{number}</SvgText>
   </G>;
 }
-export function ExerciseMotionScene({ type, progress, details = false, returning = false, anatomy = true, selectedMuscle }: { type: string; progress: number; details?: boolean; returning?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
-  const pose = exercisePose(type, progress);
+export function ExerciseMotionScene({ type, progress, details = false, returning = false, anatomy = true, selectedMuscle, variant }: { type: string; variant?: LegPressVariant; progress: number; details?: boolean; returning?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
+  const pose = guidePose(type, progress, variant);
   const { start, trace, trajectory } = useMemo(() => {
     const contact = (p: ExercisePose) => motionContact(type, p);
-    const start = exercisePose(type, 0);
-    const trace = Array.from({ length: 17 }, (_, i) => contact(exercisePose(type, i / 16)));
+    const start = guidePose(type, 0, variant);
+    const trace = Array.from({ length: 17 }, (_, i) => contact(guidePose(type, i / 16, variant)));
     return { start, trace, trajectory: points(trace) };
-  }, [type]);
-  const before = motionContact(type, exercisePose(type, Math.max(0, progress - 0.025)));
-  const after = motionContact(type, exercisePose(type, Math.min(1, progress + 0.025)));
+  }, [type, variant]);
+  const before = motionContact(type, guidePose(type, Math.max(0, progress - 0.025), variant));
+  const after = motionContact(type, guidePose(type, Math.min(1, progress + 0.025), variant));
   const sign = returning ? -1 : 1;
   const dx = (after[0] - before[0]) * sign, dy = (after[1] - before[1]) * sign, length = Math.hypot(dx, dy) || 1;
   const current = motionContact(type, pose);
@@ -41,7 +43,7 @@ export function ExerciseMotionScene({ type, progress, details = false, returning
     <Ellipse cx={60} cy={89} rx={50} ry={3} fill="#f2f2f2" />
     <Line x1={10} y1={88} x2={110} y2={88} stroke={frame} strokeWidth={1.5} />
     <EquipmentRearFrame type={type} />
-    <ExerciseEquipment type={type} pose={pose} progress={progress} />
+    <ExerciseEquipment type={type} pose={pose} progress={progress} variant={variant} />
     <EquipmentGrips type={type} pose={pose} />
     <HumanFigure type={type} pose={start} ghost />
     <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />

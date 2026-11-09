@@ -46,6 +46,7 @@ def joint(bone, end):
     return np.mean(verts[skel['joints'][skel['bones'][bone][end]]], axis=0)
 # Pose the authored finger chains into a relaxed cylindrical grip before collapsing
 # facial/twist controls. Keep the real hand topology and original weighted skinning.
+bind_verts = verts.copy()
 finger_matrices = {}
 def rotation(axis, angle):
     axis = axis / max(np.linalg.norm(axis), 1e-9)
@@ -81,6 +82,55 @@ for name, entries in weights['weights'].items():
     transformed = verts[vi] @ m[:3,:3].T + m[:3,3]
     np.add.at(posed,vi,transformed*value[:,None]); np.add.at(totals,vi,value)
 has_weights = totals>1e-8
+verts[has_weights] = posed[has_weights]/totals[has_weights,None]
+# The closed-finger channel supplies an actual palm anchor and grip axis.
+# Fit its nominal circle to the authored middle-finger chain after posing.
+grips = {}
+def bind_joint(name, end):
+    return np.mean(bind_verts[skel['joints'][skel['bones'][name][end]]], axis=0)
+for side in ['R', 'L']:
+    wrist = bind_joint('wrist.'+side, 'head')
+    mcp = bind_joint('finger3-1.'+side, 'head')
+    along = mcp-wrist; along /= np.linalg.norm(along)
+    across = bind_joint('finger2-1.'+side,'head')-bind_joint('finger5-1.'+side,'head'); across /= np.linalg.norm(across)
+    palm = np.cross(flex_axes[side], along); palm /= np.linalg.norm(palm)
+    chain = []
+    for name, end in [('finger3-1.'+side,'head')]+[('finger3-'+str(k)+'.'+side,'tail') for k in [1,2,3]]:
+        chain.append((finger_matrices[name] @ np.r_[bind_joint(name,end),1])[:3])
+    uv = np.array([[(v-mcp)@along,(v-mcp)@palm] for v in chain])
+    fit = np.linalg.lstsq(np.c_[2*uv,np.ones(4)], (uv*uv).sum(axis=1),rcond=None)[0]
+    centre = mcp + along*fit[0] + palm*fit[1]
+    approach = wrist-centre; approach -= across*np.dot(approach,across); approach /= np.linalg.norm(approach)
+    grips[side] = {'centre':centre.tolist(),'axis':across.tolist(),'approach':approach.tolist(),'wrist':wrist.tolist()}
+# Oppose the thumb toward the closed index finger instead of leaving it dangling.
+# CCD preserves each authored phalanx length; this is an offline reference pose.
+for side in ['R', 'L']:
+    names = ['finger1-'+str(k)+'.'+side for k in [1,2,3]]
+    original = [(finger_matrices[names[0]] @ np.r_[bind_joint(names[0],'head'),1])[:3]] + [(finger_matrices[n] @ np.r_[bind_joint(n,'tail'),1])[:3] for n in names]
+    chain = [v.copy() for v in original]
+    index = [(finger_matrices['finger2-'+str(k)+'.'+side] @ np.r_[bind_joint('finger2-'+str(k)+'.'+side,'tail'),1])[:3] for k in [1,2]]
+    target = (index[0]+index[1])*.5 + np.array(grips[side]['axis'])*.18
+    for iteration in range(12):
+        for j in [2,1,0]:
+            v = chain[-1]-chain[j]; w = target-chain[j]
+            v /= max(np.linalg.norm(v),1e-9); w /= max(np.linalg.norm(w),1e-9)
+            axis = np.cross(v,w); sine = np.linalg.norm(axis)
+            if sine < 1e-8: continue
+            angle = min(np.arctan2(sine,np.clip(v@w,-1,1)),np.deg2rad(18))
+            turn = rotation(axis,angle)
+            for k in range(j+1,4): chain[k] = chain[j]+turn@(chain[k]-chain[j])
+    for j,name in enumerate(names):
+        v = original[j+1]-original[j]; w = chain[j+1]-chain[j]
+        v /= np.linalg.norm(v); w /= np.linalg.norm(w); axis=np.cross(v,w)
+        turn = np.eye(4)
+        if np.linalg.norm(axis)>1e-8: turn[:3,:3] = rotation(axis,np.arctan2(np.linalg.norm(axis),np.clip(v@w,-1,1)))
+        turn[:3,3] = chain[j]-turn[:3,:3]@original[j]
+        finger_matrices[name] = turn@finger_matrices[name]
+posed = np.zeros_like(verts); totals = np.zeros(len(verts))
+for name,entries in weights['weights'].items():
+    matrix = finger_matrices[name]
+    vi = np.array([v for v,_ in entries]); value = np.array([w for _,w in entries])
+    np.add.at(posed,vi,(bind_verts[vi]@matrix[:3,:3].T+matrix[:3,3])*value[:,None]); np.add.at(totals,vi,value)
 verts[has_weights] = posed[has_weights]/totals[has_weights,None]
 # Collapse only twist/facial controls. Preserve the author's spatial skin weights.
 bones = ['hip'] + ['spine%02d' % n for n in [5,4,3,2,1]] + ['neck', 'head']
@@ -166,12 +216,13 @@ for side in ['R','L']:
                 masks[muscle]=np.maximum(masks.get(muscle,np.zeros(n,dtype=np.uint8)),np.round(shoulder*facing*base*255).astype(np.uint8))
         if kind=='thigh':
             for muscle,facing in [('adductors',soft(-sign*normal[:,0]-.05,.5)),('hipAbductors',soft(sign*normal[:,0]-.05,.5))]:
-                mask=region_weight*band(t,-.05,.8,.15)*facing
+                visible = np.maximum(facing, surface_front*soft(-sign*radial[:,0]-.05,.35)*.65) if muscle=='adductors' else facing
+                mask=region_weight*band(t,-.05,.8,.15)*visible
                 masks[muscle]=np.maximum(masks.get(muscle,np.zeros(n,dtype=np.uint8)),np.round(mask*base*255).astype(np.uint8))
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 output=Path(__file__).resolve().parents[1]/'src/data/human/makehuman.json'
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')
 print(json.dumps({'output':str(output),'vertices':n,'triangles':len(indices)//3,'bones':len(bones),'muscles':{k:int(np.sum(v>0)) for k,v in masks.items()},'bytes':output.stat().st_size},indent=2))

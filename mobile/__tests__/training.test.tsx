@@ -70,7 +70,7 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     // Filter by Legs
     await fireEvent.press(screen.getByText("脚"));
     expect(
-      screen.getByRole("button", { name: "45° レッグプレスマシン" }),
+      screen.getByRole("button", { name: "レッグプレス" }),
     ).toBeTruthy();
   });
 

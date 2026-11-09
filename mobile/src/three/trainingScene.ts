@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { createRealisticHuman } from "./realisticHuman";
-import { createEquipmentGeometries } from "./equipmentGeometry";
-import { camera3d, TrainingFrame3, V3, View3, Focus3, trainingFrame3d, add3, sub3, mul3, unit3, cross3, mix3 } from "../domain/training3d";
+import { createCurvedEquipmentGeometry, createEquipmentGeometries } from "./equipmentGeometry";
+import { camera3d, Primitive3, TrainingFrame3, V3, View3, Focus3, trainingFrame3d, add3, sub3, mul3, unit3, cross3, mix3, length3 } from "../domain/training3d";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 export type SceneInput = {
   type: string;
@@ -11,6 +11,8 @@ export type SceneInput = {
   focus: Focus3;
   transparent: boolean;
   muscle?: Muscle;
+  variant?: TrainingFrame3["variant"];
+  returning?: boolean;
 };
 const v = (a: V3) => new THREE.Vector3(...a);
 const yAxis = new THREE.Vector3(0, 1, 0);
@@ -51,10 +53,12 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   scene.add(group);
   const materials = {
     metal: material("#474c51", 0.65, 0.4),
+    satin: material("#989fa6", 0.65, 0.42),
     pad: material("#202326", 0.02, 0.72),
     rubber: material("#25282b", 0.01, 0.86),
     chrome: material("#c5cbd0", 0.9, 0.2),
-    pin: material("#fff", 0, 0.45)
+    pin: material("#fff", 0, 0.45),
+    flow: new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 1, depthTest: false, depthWrite: false })
   };
   const geometries = createEquipmentGeometries();
   const human = createRealisticHuman(group);
@@ -69,10 +73,12 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
-  function mesh(id: string, shape: keyof typeof geometries, mat: THREE.Material) {
+  function mesh(id: string, shape: keyof typeof geometries | "curve", mat: THREE.Material, item?: Primitive3) {
     let node = nodes.get(id);
     if (!node) {
-      node = new THREE.Mesh(geometries[shape], mat);
+      const geometry = shape === "curve" ? createCurvedEquipmentGeometry(item!.points!, item!.section!) : geometries[shape];
+      node = new THREE.Mesh(geometry, mat);
+      node.userData.ownsGeometry = shape === "curve";
       node.castShadow = true;
       node.receiveShadow = true;
       node.name = id;
@@ -94,31 +100,35 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
     return node;
   }
   function reset() {
-    nodes.forEach(n => group.remove(n));
+    nodes.forEach(n => {
+      group.remove(n);
+      if (n.userData.ownsGeometry) n.geometry.dispose();
+    });
     nodes.clear();
     focusedBounds.clear();
   }
   function draw(input: SceneInput) {
     if (disposed) return;
-    const sourceFrame = trainingFrame3d(input.type, input.progress);
+    const sourceFrame = trainingFrame3d(input.type, input.progress, input.variant);
     const selected = input.muscle && muscleSpec(input.type).primary.includes(input.muscle) ? input.muscle : undefined;
     const frame = selected ? {
       ...sourceFrame,
       muscles: [selected]
     } : sourceFrame;
-    if (currentType !== frame.type) {
+    const modelKey = frame.type + "/" + (input.variant ?? "incline");
+    if (currentType !== modelKey) {
       reset();
-      currentType = frame.type;
+      currentType = modelKey;
     }
     nodes.forEach(n => n.visible = false);
-    for (const mat of [materials.metal, materials.pad, materials.rubber, materials.chrome]) {
+    for (const mat of [materials.metal, materials.satin, materials.pad, materials.rubber, materials.chrome]) {
       if (mat.transparent !== input.transparent) mat.needsUpdate = true;
       mat.transparent = input.transparent;
       mat.opacity = input.transparent ? 0.26 : 1;
       mat.depthWrite = !input.transparent;
     }
     frame.equipment.forEach(item => {
-      const node = mesh("gear-" + item.id, item.kind, materials[item.color]);
+      const node = mesh("gear-" + item.id, item.kind, materials[item.color], item);
       node.castShadow = !input.transparent;
       node.position.set(...item.a);
       node.quaternion.identity();
@@ -133,6 +143,32 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       }
     });
     human.draw(frame, input.anatomy);
+    const flowMuscle = selected ?? muscleSpec(frame.type).focus;
+    if (input.anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(frame.type)) {
+      frame.body.legs.forEach((leg, i) => {
+        const side = i === 0 ? -1 : 1;
+        const along = flowMuscle === "glutes" ? unit3(sub3(frame.body.shoulder, frame.body.hip)) : unit3(sub3(leg[1], leg[0]));
+        const anterior = unit3(cross3(along, frame.body.right));
+        const centre = flowMuscle === "glutes"
+          ? add3(add3(frame.body.hip, [side * 4, 3, 0]), mul3(frame.body.forward, -4.2))
+          : add3(add3(mix3(leg[0], leg[1], .5), mul3(anterior, 4.5)), flowMuscle === "adductors" ? [-side * 2, 0, 0] : [0, 0, 0]);
+        const span = 8 - 2.5 * input.progress;
+        for (const end of [-1, 1]) {
+          const from = add3(centre, mul3(along, end * span * .5));
+          const to = add3(centre, mul3(along, end * (input.returning ? span * .5 + .8 : .3)));
+          const direction = v(sub3(to, from)).normalize();
+          const shaft = mesh(`muscle-flow-${i}-${end}`, "beam", materials.flow);
+          shaft.renderOrder = 20;
+          shaft.position.copy(v(mix3(from, to, .5)));
+          shaft.quaternion.setFromUnitVectors(yAxis, direction);
+          shaft.scale.set(.18, length3(sub3(to, from)), .18);
+          const tip = mesh(`muscle-flow-tip-${i}-${end}`, "cone", materials.flow);
+          tip.renderOrder = 20;
+          tip.position.copy(v(to).addScaledVector(direction, -.5));
+          tip.quaternion.copy(shaft.quaternion); tip.scale.set(.5, 1, .5);
+        }
+      });
+    }
     const contact = input.focus === "hands" ? frame.contacts[1] : input.focus === "feet" ? frame.contacts[2] : null;
     contact?.points.forEach((p, i) => sphere("contact" + i, p, [1.6, 1.6, 1.6], materials.pin));
     group.updateMatrixWorld(true);
@@ -143,11 +179,11 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       const muscle = selected ?? muscleSpec(frame.type).focus;
       const lower = ["quads", "hamstrings", "glutes", "hipAbductors", "adductors", "soleus"].includes(muscle);
       const arm = ["frontShoulder", "sideShoulder", "rearShoulder", "biceps", "triceps"].includes(muscle);
-      const cacheKey = `${frame.type}/${input.focus}/${muscle}`;
+      const cacheKey = `${modelKey}/${input.focus}/${muscle}`;
       if (!focusedBounds.has(cacheKey)) {
         const points: THREE.Vector3[] = [];
         for (let step = 0; step <= 20; step++) {
-          const body = trainingFrame3d(frame.type, step / 20).body;
+          const body = trainingFrame3d(frame.type, step / 20, input.variant).body;
           const musclePoints = lower ? body.legs.flat() : arm ? body.arms.flat() : [body.hip, body.shoulder, body.head, ...body.arms.map(a => a[0])];
           const posePoints = input.focus === "hands" ? body.arms.flat() : input.focus === "feet" ? body.legs.flat() : musclePoints;
           points.push(...posePoints.map(v));

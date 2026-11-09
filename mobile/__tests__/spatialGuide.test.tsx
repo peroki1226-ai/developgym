@@ -218,19 +218,22 @@ test.each(MOTION_TYPES)("%s keeps adult reference segment lengths throughout the
     }
   }
 });
-test("chest press hands and lever follow the same fixed-radius arc", () => {
+test("photo chest-press rigid curves retain their shape and meet the hands through their grip links", () => {
   const start = trainingFrame3d("chest-press", 0);
-  const levers = start.equipment.filter(p => p.id.startsWith("press-lever"));
   for (let i = 0; i <= 40; i++) {
     const frame = trainingFrame3d("chest-press", i / 40);
-    for (const [j, lever] of frame.equipment.filter(p => p.id.startsWith("press-lever")).entries()) {
-      expect(lever.a).toEqual(levers[j].a);
-      expect(length3(sub3(lever.b!, lever.a))).toBeCloseTo(length3(sub3(levers[j].b!, levers[j].a)), 6);
-      expect(lever.b![1]).toBeCloseTo(frame.body.arms[j][2][1], 7);
-      expect(lever.b![2]).toBeCloseTo(frame.body.arms[j][2][2], 7);
-      const link = frame.equipment.find(p => p.id === "press-grip-link" + (j === 0 ? -1 : 1))!;
-      expect(link.a).toEqual(lever.b);
-      expect(link.b).toEqual(frame.body.arms[j][2]);
+    for (const [index, side] of [-1, 1].entries()) {
+      const arm = frame.equipment.find(p => p.id === "press-arm" + side)!;
+      const original = start.equipment.find(p => p.id === arm.id)!;
+      expect(arm.a).toEqual(original.a);
+      expect(arm.points).toEqual(original.points);
+      const tip = arm.points!.at(-1)!;
+      const world = [0, 1, 2].map(k => arm.a[k] + arm.axes![0][k] * tip[0] + arm.axes![1][k] * tip[1] + arm.axes![2][k] * tip[2]);
+      const link = frame.equipment.find(p => p.id === "press-grip-link" + side)!;
+      world.forEach((v, k) => expect(v).toBeCloseTo(link.a[k], 7));
+      expect(link.b).toEqual(frame.body.arms[index][2]);
+      const oldLink = start.equipment.find(p => p.id === link.id)!;
+      expect(length3(sub3(link.b!, link.a))).toBeCloseTo(length3(sub3(oldLink.b!, oldLink.a)), 7);
     }
   }
 });

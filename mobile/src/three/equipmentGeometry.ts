@@ -1,5 +1,26 @@
 import * as THREE from "three";
 
+/** A rigid bent steel section. Round only the corners; keep long runs straight. */
+export function createCurvedEquipmentGeometry(points: readonly (readonly [number, number, number])[], width: number, rounding = 4) {
+  const path = new THREE.CurvePath<THREE.Vector3>();
+  const vertices = points.map(p => new THREE.Vector3(...p));
+  let last = vertices[0];
+  for (let i = 1; i < vertices.length - 1; i++) {
+    const centre = vertices[i], before = vertices[i - 1], after = vertices[i + 1];
+    const cut = Math.min(rounding, centre.distanceTo(before) * .35, centre.distanceTo(after) * .35);
+    const approach = centre.clone().addScaledVector(before.clone().sub(centre).normalize(), cut);
+    const exit = centre.clone().addScaledVector(after.clone().sub(centre).normalize(), cut);
+    path.add(new THREE.LineCurve3(last, approach));
+    path.add(new THREE.QuadraticBezierCurve3(approach, centre, exit));
+    last = exit;
+  }
+  path.add(new THREE.LineCurve3(last, vertices[vertices.length - 1]));
+  const shape = roundedRectangle(width, width, width * .2);
+  const hole = roundedRectangle(width * .68, width * .68, width * .12);
+  shape.holes.push(new THREE.Path(hole.getPoints(4).reverse()));
+  return new THREE.ExtrudeGeometry(shape, { extrudePath: path, steps: 72, bevelEnabled: false, curveSegments: 3 });
+}
+
 // Locally authored geometry. A dimensioned industrial silhouette is more useful
 // than a downloaded decorative model that cannot follow the exercise mechanism.
 function roundedRectangle(width: number, height: number, radius: number) {
@@ -99,6 +120,7 @@ export function createEquipmentGeometries() {
     pulley: pulley(),
     bolt: new THREE.CylinderGeometry(1, 1, 1, 6),
     cylinder: new THREE.CylinderGeometry(1, 1, 1, 32),
+    cone: new THREE.ConeGeometry(1, 1, 16),
     sphere: new THREE.SphereGeometry(1, 20, 14),
     beam: new THREE.CylinderGeometry(1, 1, 1, 24),
   };

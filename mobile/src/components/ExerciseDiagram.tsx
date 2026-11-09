@@ -22,7 +22,8 @@ import { MotionJointDetail } from "./MotionJointDetail";
 import { MuscleContractionPanel } from "./MuscleContractionPanel";
 import { MuscleLengthCoach } from "./MuscleLengthCoach";
 import { Motion3DView } from "./Motion3DView";
-import { Focus3, View3 } from "../domain/training3d";
+import { Focus3, View3, LegPressVariant } from "../domain/training3d";
+import { MuscleQuickCue } from "./MuscleQuickCue";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 import { rearMuscles } from "../domain/muscleLoad";
 import { MotionCue } from "./MotionCue";
@@ -68,6 +69,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   const [transparent, setTransparent] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [legPressVariant, setLegPressVariant] = useState<LegPressVariant>("seated");
   const fail = useCallback(() => {
     setFailed(true);
     setReady(false);
@@ -195,6 +197,11 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           ))}
         </View>
       )}
+      {type === "leg-press" && <View style={styles.speeds} accessibilityRole="radiogroup" accessibilityLabel={t("machine.legPressType")}>
+        {(["seated", "incline"] as const).map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={t(`machine.${value}`)} accessibilityState={{ checked: legPressVariant === value }} aria-checked={legPressVariant === value} style={[styles.speedButton, legPressVariant === value && styles.selectedSpeed]} onPress={() => { motion.seek(0); setLegPressVariant(value); }}>
+          <Text style={styles.speedText}>{t(`machine.${value}`)}</Text>
+        </Pressable>)}
+      </View>}
       <View
         style={[styles.canvas, mode === "spatial" && styles.spatialCanvas]}
         accessible
@@ -207,12 +214,14 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           <>
             <Motion3DView
               type={type}
+              variant={type === "leg-press" ? legPressVariant : undefined}
+              returning={motion.phase === "return"}
               progress={motion.progress}
               anatomy={anatomy}
               view={view}
               focus={focus}
               transparent={transparent}
-              muscle={focus === "muscles" ? selectedMuscle : undefined}
+              muscle={focus === "muscles" || ["leg-press", "leg-extension", "hip-adduction"].includes(type) ? selectedMuscle : undefined}
               onReady={loaded}
               onFailure={fail}
             />
@@ -227,6 +236,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           <Svg viewBox="0 0 120 96" style={styles.svg}>
             <ExerciseMotionScene
               type={type}
+              variant={type === "leg-press" ? legPressVariant : undefined}
               progress={motion.progress}
               details={details}
               returning={motion.phase === "return" || motion.phase === "hold"}
@@ -235,6 +245,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
             />
           </Svg>
         )}
+        {anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
       </View>
       {anatomy && (
         <MuscleLengthCoach

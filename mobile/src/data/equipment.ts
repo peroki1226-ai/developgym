@@ -62,7 +62,7 @@ export const EQUIPMENTS: EquipmentItem[] = [
     category: "マシン",
     bodyPart: "chest",
     bodyPartLabel: "胸（内側） / 肩後部",
-    primaryMuscles: ["大胸筋（内転作用）", "三角筋後部"],
+    primaryMuscles: ["大胸筋（内転作用）"],
     secondaryMuscles: ["烏口腕筋", "前鋸筋"],
     pof: "Contracted（コントラクト・収縮種目）",
     svgType: "pec-fly",
@@ -285,8 +285,8 @@ export const EQUIPMENTS: EquipmentItem[] = [
       "足裏全体（特にかかと側）で力強くフットプレートを押し上げる"
     ],
     ngPoints: ["膝を伸ばしきって関節をロックする（重大な怪我のリスク）", "深く下ろしすぎてお尻がシートから浮く"],
-    startWeightMale: "60〜100 kg",
-    startWeightFemale: "30〜50 kg",
+    startWeightMale: "最軽量で動作を確認",
+    startWeightFemale: "最軽量で動作を確認",
     proBiomechanics: "スクワットに比べて脊柱の軸圧（アキシャルロード）がゼロに近く、中枢神経の疲労を抑えながら脚の筋線維を限界まで追い込める。",
     proAnatomy: "大腿直筋、内側広筋、外側広筋、大臀筋",
     proVariations: [

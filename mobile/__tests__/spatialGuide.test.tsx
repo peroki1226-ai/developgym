@@ -200,7 +200,7 @@ test("Smith and power rack have separate mechanisms; Smith has moving plate slee
   expect(smith.some(p => p.id.startsWith("j-hook"))).toBe(false);
   expect(rack.some(p => p.id.startsWith("smith-"))).toBe(false);
   expect(smith.filter(p => p.id.startsWith("smith-guide"))).toHaveLength(2);
-  expect(smith.filter(p => p.id.startsWith("smith-plate"))).toHaveLength(4);
+  expect(smith.filter(p => p.id.startsWith("smith-plate") && p.kind === "plate")).toHaveLength(4);
   expect(smith.find(p => p.id === "backrest")!.size[0]).toBe(14);
 });
 
@@ -226,7 +226,11 @@ test("chest press hands and lever follow the same fixed-radius arc", () => {
     for (const [j, lever] of frame.equipment.filter(p => p.id.startsWith("press-lever")).entries()) {
       expect(lever.a).toEqual(levers[j].a);
       expect(length3(sub3(lever.b!, lever.a))).toBeCloseTo(length3(sub3(levers[j].b!, levers[j].a)), 6);
-      expect(lever.b).toEqual(frame.body.arms[j][2]);
+      expect(lever.b![1]).toBeCloseTo(frame.body.arms[j][2][1], 7);
+      expect(lever.b![2]).toBeCloseTo(frame.body.arms[j][2][2], 7);
+      const link = frame.equipment.find(p => p.id === "press-grip-link" + (j === 0 ? -1 : 1))!;
+      expect(link.a).toEqual(lever.b);
+      expect(link.b).toEqual(frame.body.arms[j][2]);
     }
   }
 });

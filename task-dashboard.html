@@ -104,6 +104,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-016：日本語モード/英語モードを明示する設定と、各モードの入口を追加。5タブ/全24種目を含む126状態で混入なし。記録保持、保存/再読み込み、ヘッダーと設定の連動を確認。追加分もAntigravityのLGTM受入完了。<a class="underline" href="docs/BILINGUAL_MODES.md">二つの言語モード</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-029：器具の形・素材・可動部を再制作。プレート式プレス、スミス、滑車、ガイド、クッションと穴あきプレートを実表示で確認。メーカー実物照合とiPhoneは継続。<a class="underline" href="docs/REALISTIC_EQUIPMENT.md">器具の変更と確認手順</a></p>
+
     <p class="text-xs text-neutral-400 px-1">TASK-031：CC0の連続する人体メッシュへ置換。顔・指・関節・人体比率を修正し、筋肉の形を関節と連動。全24種目・日英96状態の実描画を確認。見た目の受入とiPhone確認、TASK-029の実物照合は未完了。<a class="underline" href="docs/REALISTIC_HUMAN_MODEL.md">新しい人体模型と確認手順</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
@@ -521,13 +523,13 @@
       },
       {
         id: "TASK-029",
-        title: "人体/器具の三次元表示・実物形状の再制作",
+        title: "器具の形・部材・固定/可動部の再制作",
         category: "Native Spatial Learning",
         assignee: "Codex",
         status: "IN PROGRESS",
-        rating: "ユーザー差戻し・スミス修正済み/メーカー照合待ち",
-        desc: "ハンマーストレングスを主基準とし、スミスを対象に含める。スミスの固定ガイドと可動スリーブ・固定受け/安全止めを修正。実機照合は未完了。",
-        review: "27 suites/337 tests・型/設定・両OSバンドル成功。スミスの機構と4画面状態/36姿勢視点を確認。公式資料の接続設定案は保存済み・未適用。HS製品模型の再制作/実物形状受入/実機/配布は未完了。"
+        rating: "今回差分レビュー依頼・メーカー実物照合は継続",
+        desc: "プレート式チェストプレス、スミス/ラットプル/両スレッドを修正。全24種目へ中空角パイプ、丸みのあるパッド、穴あきプレート、滑車/ベアリング/ボルトを適用。",
+        review: "34 suites/457 tests・型/監査/設定・両OSバンドル成功。日英×320/390幅×24種目=96状態の実WebGL確認。メーカー公式接続403のため型番/寸法一致は未確認。見た目/実物/iPhoneの受入・配布は未完了。"
       },
       {
         id: "TASK-030",

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { createRealisticHuman } from "./realisticHuman";
+import { createEquipmentGeometries } from "./equipmentGeometry";
 import { camera3d, TrainingFrame3, V3, View3, Focus3, trainingFrame3d, add3, sub3, mul3, unit3, cross3, mix3 } from "../domain/training3d";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 export type SceneInput = {
@@ -49,17 +50,13 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   const group = new THREE.Group();
   scene.add(group);
   const materials = {
-    metal: material("#747474", 0.65, 0.42),
-    pad: material("#303030", 0.02, 0.88),
-    rubber: material("#242424", 0.01, 0.82),
-    chrome: material("#bdbdbd", 0.8, 0.28),
+    metal: material("#474c51", 0.65, 0.4),
+    pad: material("#202326", 0.02, 0.72),
+    rubber: material("#25282b", 0.01, 0.86),
+    chrome: material("#c5cbd0", 0.9, 0.2),
     pin: material("#fff", 0, 0.45)
   };
-  const geometries = {
-    box: new THREE.BoxGeometry(1, 1, 1),
-    sphere: new THREE.SphereGeometry(1, 20, 14),
-    beam: new THREE.CylinderGeometry(1, 1, 1, 16)
-  };
+  const geometries = createEquipmentGeometries();
   const human = createRealisticHuman(group);
   const nodes = new Map<string, THREE.Mesh>();
   const focusedBounds = new Map<string, THREE.Box3>();
@@ -125,10 +122,10 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       node.castShadow = !input.transparent;
       node.position.set(...item.a);
       node.quaternion.identity();
-      if (item.kind === "beam") {
+      if (item.kind === "beam" || item.kind === "tube") {
         const d = v(sub3(item.b!, item.a));
         node.position.copy(v(mix3(item.a, item.b!, 0.5)));
-        node.scale.set(item.size[0], d.length(), item.size[0]);
+        node.scale.set(item.size[0], d.length(), item.size[2]);
         node.quaternion.setFromUnitVectors(yAxis, d.normalize());
       } else {
         node.scale.set(...item.size);

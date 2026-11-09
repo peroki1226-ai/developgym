@@ -37,7 +37,7 @@ export type Contact3 = {
 };
 export type Primitive3 = {
   id: string;
-  kind: "box" | "beam" | "sphere";
+  kind: "box" | "beam" | "sphere" | "tube" | "pad" | "cylinder" | "plate" | "pulley" | "bolt";
   a: V3;
   b?: V3;
   size: V3;
@@ -70,11 +70,11 @@ export const SMITH_PRESS = {
   guideZ: 11
 };
 function chestPressArc(shoulder: V3, progress: number) {
-  const startY = -3,
-    endY = -.5,
-    startZ = 17,
-    endZ = 26.2;
-  const centreY = 21,
+  const startY = -5,
+    endY = 5,
+    startZ = 13,
+    endZ = 25;
+  const centreY = -22,
     centreZ = (startZ + endZ) / 2 - (endY - startY) * (centreY - (startY + endY) / 2) / (endZ - startZ);
   const radius = Math.hypot(startY - centreY, startZ - centreZ);
   const a = Math.atan2(startY - centreY, startZ - centreZ),
@@ -316,7 +316,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
     up = unit3(sub3(shoulder, hip));
   const box = (id: string, a: V3, size: V3, color: Primitive3["color"] = "metal", axes?: Primitive3["axes"]) => equipment.push({
     id,
-    kind: "box",
+    kind: color === "pad" ? "pad" : "box",
     a,
     size,
     color,
@@ -324,35 +324,47 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
   });
   const beam = (id: string, a: V3, b: V3, r = 1.4, color: Primitive3["color"] = "metal") => equipment.push({
     id,
-    kind: "beam",
+    kind: color === "metal" ? "tube" : "beam",
     a,
     b,
-    size: [r, r, r],
+    size: color === "metal" ? [r * 2, r * 2, r * 2] : [r, r, r],
     color
   });
-  const ball = (id: string, a: V3, size: V3, color: Primitive3["color"] = "chrome") => equipment.push({
-    id,
-    kind: "sphere",
-    a,
-    size,
-    color
-  });
+  const axial = (id: string, kind: "cylinder" | "plate" | "pulley" | "bolt", a: V3, axis: V3, radius: number, thickness: number, color: Primitive3["color"] = "metal") => {
+    const y = unit3(axis);
+    const x = unit3(cross3(y, Math.abs(y[2]) < .9 ? [0, 0, 1] : [0, 1, 0]));
+    equipment.push({ id, kind, a, size: [radius, thickness, radius], color, axes: [x, y, unit3(cross3(x, y))] });
+  };
+  const plate = (id: string, centre: V3, radius = 9.5, thickness = 1.7) => {
+    axial(id, "plate", centre, right, radius, thickness, "rubber");
+    axial(id + "-hub", "cylinder", centre, right, radius * .14, thickness + .25, "chrome");
+  };
   const pad = (id: string, a: V3, b: V3, width = 25, thickness = 4, post = true) => {
     const along = unit3(sub3(b, a));
     box(id, mix3(a, b, 0.5), [width, length3(sub3(b, a)), thickness], "pad", [right, along, unit3(cross3(right, along))]);
+    // A shallow rear shell and edge piping give upholstery a visible depth.
+    const normal = unit3(cross3(right, along));
+    const outward = Math.abs(normal[1]) > .7 && normal[1] < 0 ? mul3(normal, -1) : normal;
+    box(id + "-shell", add3(mix3(a, b, .5), mul3(outward, -thickness * .44)), [width * .96, length3(sub3(b, a)) * .97, .8], "metal", [right, along, normal]);
+    for (const side of [-1, 1]) {
+      const edge = add3(mul3(right, side * width * .43), mul3(outward, thickness * .46));
+      beam(id + "-seam" + side, add3(a, edge), add3(b, edge), .11, "rubber");
+    }
     if (post) beam(id + "-support", mix3(a, b, 0.5), [mix3(a, b, 0.5)[0], 2, mix3(a, b, 0.5)[2]], 1.5);
   };
-  const floorFrame = (id: string, z: number, width = 36, depth = 30) => {
+  const floorFrame = (id: string, z: number, width = 36, depth = 30, x = 0) => {
     for (const s of [-1, 1]) {
-      beam(id + "-foot" + s, [s * width / 2, 1, z - depth / 2], [s * width / 2, 1, z + depth / 2], 1.5);
-      box(id + "-rubber" + s, [s * width / 2, 0.7, z + depth / 2], [5, 1.4, 6], "rubber");
+      beam(id + "-foot" + s, [x + s * width / 2, 1.8, z - depth / 2], [x + s * width / 2, 1.8, z + depth / 2], 1.5);
+      for (const end of [-1, 1]) box(id + "-rubber" + s + end, [x + s * width / 2, .65, z + end * depth / 2], [5, 1.3, 6], "rubber");
     }
-    beam(id + "-cross", [-width / 2, 2, z], [width / 2, 2, z], 1.5);
+    beam(id + "-cross", [x - width / 2, 2, z], [x + width / 2, 2, z], 1.5);
   };
   const seat = () => {
     const c = add3(hip, mul3(forward, 3));
     box("seat", [c[0], hip[1] - 6, c[2]], [25, 4, 18], "pad");
     beam("seat-post", [0, 2, c[2]], [0, hip[1] - 8, c[2]], 2);
+    box("seat-undertray", [c[0], hip[1] - 8.4, c[2]], [22, 1.2, 15]);
+    axial("seat-adjustment-knob", "cylinder", [4, hip[1] - 11, c[2]], right, 1, 2, "rubber");
     floorFrame("seat-base", c[2]);
   };
   const back = () => {
@@ -364,20 +376,33 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
     box(id + "-back", [x, height / 2, z - 2.5], [14, height, 2]);
     beam(id + "-rod-a", [x - 4, 3, z], [x - 4, height - 3, z], 0.6, "chrome");
     beam(id + "-rod-b", [x + 4, 3, z], [x + 4, height - 3, z], 0.6, "chrome");
-    for (let i = 0; i < 10; i++) box(id + "-weight" + i, [x, 4 + i * 2.2 + lift, z], [11, 1.8, 7], "metal");
+    for (let i = 0; i < 10; i++) box(id + "-weight" + i, [x, 4 + i * 2.2 + (i >= 4 ? lift : 0), z], [11, 1.8, 7], "metal");
     box(id + "-top", [x, height, z], [16, 3, 12]);
-    floorFrame(id + "-floor", z, 20, 18);
+    for (const side of [-1, 1]) beam(id + "-side" + side, [x + side * 8, 2, z], [x + side * 8, height, z], 1.2);
+    beam(id + "-lift-cable", [x, 25 + lift, z], [x, height - 3, z], .16, "rubber");
+    axial(id + "-selector", "cylinder", [x + 1, 12.8 + lift, z + 4], [0, 0, 1], .65, 2, "chrome");
+    axial(id + "-selector-knob", "cylinder", [x + 1, 12.8 + lift, z + 5], [0, 0, 1], 1.05, .8, "rubber");
+    floorFrame(id + "-floor", z, 20, 18, x);
   };
   const cable = (id: string, a: V3, b: V3) => beam(id, a, b, 0.18, "rubber");
   const handle = (id: string, hand: V3, axis: V3 = right) => {
     const a = add3(hand, mul3(axis, -3)),
       b = add3(hand, mul3(axis, 3));
     beam(id, a, b, 1.05, "rubber");
-    for (let i = -2; i <= 2; i++) ball(id + "-rib" + i, add3(hand, mul3(axis, i)), [1.12, 0.13, 1.12], "rubber");
+    for (let i = -2; i <= 2; i++) axial(id + "-rib" + i, "cylinder", add3(hand, mul3(axis, i)), axis, 1.09, .12, "rubber");
+    for (const end of [-1, 1]) axial(id + "-end" + end, "cylinder", add3(hand, mul3(axis, end * 3)), axis, 1.15, .25, "chrome");
   };
-  const pivot = (id: string, a: V3) => {
-    ball(id, a, [2.8, 2.8, 2.8]);
-    ball(id + "-bolt", add3(a, mul3(right, 2)), [0.7, 0.7, 0.7], "rubber");
+  const pivot = (id: string, a: V3, axis: V3 = right) => {
+    axial(id, "cylinder", a, axis, 2.6, 3.4);
+    axial(id + "-bearing", "cylinder", a, axis, 1.7, 3.8, "rubber");
+    for (const end of [-1, 1]) axial(id + "-bolt" + end, "bolt", add3(a, mul3(axis, end * 2)), axis, .9, .6, "chrome");
+  };
+  const pulley = (id: string, at: V3, axis: V3 = right) => {
+    axial(id, "pulley", at, axis, 3, 1.5, "rubber");
+    for (const end of [-1, 1]) {
+      axial(id + "-cheek" + end, "cylinder", add3(at, mul3(axis, end * 1.2)), axis, 1.7, .3);
+      axial(id + "-bolt" + end, "bolt", add3(at, mul3(axis, end * 1.5)), axis, .7, .4, "chrome");
+    }
   };
   const platform = (id: string, contact: V3, normal: V3, toe: V3, width = 27, depth = 15) => {
     const lateral = unit3(cross3(normal, toe));
@@ -395,13 +420,52 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
     floorFrame("bench", hip[2]);
   }
   const cabinetZ = hip[2] - 18;
-  if (!["cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
+  if (!["chest-press", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
   switch (type) {
     case "chest-press":
+      {
+        // A standalone plate-loaded press. No selector stack/cable is mixed into
+        // the same mechanism. This is not a manufacturer-dimensioned replica.
+        const reference = body3d(type, 0);
+        const arc = chestPressArc(reference.arms[0][0], 0);
+        const rearZ = reference.hip[2] - 18;
+        for (const s of [-1, 1]) {
+          const axis: V3 = [s * 24, arc.pivot[1], arc.pivot[2]];
+          const hand = hands[s === -1 ? 0 : 1];
+          const tip: V3 = [s * 24, hand[1], hand[2]];
+          const heel: V3 = [s * 24, 3, rearZ];
+          const front: V3 = [s * 24, 3, arc.pivot[2] + 9];
+          const backTop: V3 = [s * 24, reference.shoulder[1] + 3, rearZ];
+          beam("press-base" + s, heel, front, 2.2);
+          beam("press-rear-upright" + s, heel, backTop, 1.9);
+          beam("press-front-support" + s, front, axis, 2.1);
+          beam("press-diagonal" + s, heel, axis, 1.8);
+          beam("press-back-brace" + s, backTop, add3(reference.hip, [s * 11, -9, -7]), 1.5);
+          beam("press-lever" + s, axis, tip, 2);
+          beam("press-grip-link" + s, tip, hand, 1.3);
+          pivot("press-axis" + s, axis);
+          handle("press-grip" + s, hand);
+          const horn = mix3(axis, tip, .56);
+          beam("press-loading-horn" + s, horn, add3(horn, [s * 17, 0, 0]), .95, "chrome");
+          for (let i = 0; i < 2; i++) plate("press-plate" + s + i, add3(horn, [s * (6 + i * 2), 0, 0]), 9.5);
+          axial("press-loading-collar" + s, "cylinder", add3(horn, [s * 13, 0, 0]), right, 1.4, 1.2, "chrome");
+          box("press-travel-stop" + s, add3(axis, [0, -4, -3]), [5, 3, 5], "rubber");
+          beam("press-storage-horn" + s, [s * 24, 14, rearZ], [s * 37, 14, rearZ], .95, "chrome");
+          plate("press-stored-plate" + s, [s * 29, 14, rearZ], 8);
+          for (const z of [rearZ, front[2]]) box("press-foot" + s + z, [s * 24, .7, z], [7, 1.4, 8], "rubber");
+          for (const joint of [heel, front, backTop]) axial("press-frame-bolt" + s + joint[2] + joint[1], "bolt", add3(joint, [s * 2.3, 0, 0]), right, .65, .6, "chrome");
+        }
+        beam("press-rear-crossmember", [-24, 10, rearZ], [24, 10, rearZ], 1.8);
+        beam("press-front-crossmember", [-24, 3, arc.pivot[2] + 9], [24, 3, arc.pivot[2] + 9], 1.8);
+        beam("press-seat-slide", [0, 3, reference.hip[2]], [0, reference.hip[1] - 8, reference.hip[2]], 2.2);
+        for (let y = 7; y < reference.hip[1] - 8; y += 3) axial("press-seat-hole" + y, "cylinder", [0, y, reference.hip[2] + 2.3], [0, 0, 1], .4, .15, "rubber");
+        axial("press-seat-adjuster", "cylinder", [0, reference.hip[1] - 10, reference.hip[2] + 3], [0, 0, 1], 1.2, 2.5, "rubber");
+        break;
+      }
     case "shoulder-press":
     case "abdominal-crunch":
       {
-        const axle: V3 = type === "chest-press" ? [0, chestPressArc(body.arms[0][0], 0).pivot[1], chestPressArc(body.arms[0][0], 0).pivot[2]] : type === "shoulder-press" ? [0, 54, -28] : [0, 60, -22];
+        const axle: V3 = type === "shoulder-press" ? [0, 54, -28] : [0, 60, -22];
         for (const s of [-1, 1]) {
           const a = add3(axle, [s * 9, 0, 0]),
             hand = hands[s === -1 ? 0 : 1];
@@ -420,7 +484,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
           const a: V3 = [s * 12, shoulder[1] + 8, 0];
           beam("fly-column" + s, [s * 20, 2, -12], a, 2);
           beam("fly-arm" + s, a, hands[s === -1 ? 0 : 1], 1.5);
-          pivot("fly-axis" + s, a);
+          pivot("fly-axis" + s, a, [0, 1, 0]);
           handle("fly-grip" + s, hands[s === -1 ? 0 : 1], [0, 1, 0]);
         }
         if (type === "rear-delt-fly") pad("chest-pad", add3(hip, [0, 5, 7]), add3(shoulder, [0, -4, 7]), 17, 4);
@@ -431,7 +495,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         for (const s of [-1, 1]) {
           stack("tower" + s, s * 47, -18, p * 8, 86);
           const a: V3 = [s * 47, shoulder[1] + 2, -15];
-          pivot("pulley" + s, a);
+          pulley("pulley" + s, a);
           cable("crossover" + s, a, hands[s === -1 ? 0 : 1]);
           handle("crossover-grip" + s, hands[s === -1 ? 0 : 1], [0, 1, 0]);
         }
@@ -446,8 +510,17 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         beam("lat-top", [-33, 83, -12], [33, 83, -12], 2);
         beam("lat-bar", hands[0], hands[1], 1);
         if (type === "lat-pulldown") {
-          cable("lat-cable", [0, 83, -12], [0, barY, hands[0][2]]);
-          for (const s of [-1, 1]) beam("thigh-pad" + s, [s * 6 - 4, hip[1] + 3, 12], [s * 6 + 4, hip[1] + 3, 12], 2.8, "pad");
+          const z = hands[0][2];
+          beam("lat-overhead-boom", [0, 83, -12], [0, 83, z - 3], 1.7);
+          pulley("lat-front-pulley", [0, 80, z - 3]);
+          pulley("lat-rear-pulley", [0, 80, -12]);
+          cable("lat-cable", [0, 80, z], [0, barY, z]);
+          cable("lat-overhead-cable", [0, 83, z - 3], [0, 83, -12]);
+          for (const s of [-1, 1]) {
+            beam("thigh-pad" + s, [s * 6 - 4, hip[1] + 3, 12], [s * 6 + 4, hip[1] + 3, 12], 2.8, "pad");
+            beam("thigh-bracket" + s, [s * 12, hip[1] + 3, 12], [s * 12, 5, 12], 1.4);
+            beam("lat-bar-wing" + s, [s * 17, barY, z], [s * 24, barY - 2, z], .8, "chrome");
+          }
         } else {
           stack("assist-stack", 43, -18, -p * 8, 84);
           const k = average3(body.legs.map(l => l[1]));
@@ -462,7 +535,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         const anchor: V3 = [0, shoulder[1] - 10, hip[2] + 55];
         cable("row-cable", anchor, average3(hands));
         beam("row-pulley-post", [0, 2, anchor[2]], anchor, 2);
-        pivot("row-pulley", anchor);
+        pulley("row-pulley", anchor);
         feet.forEach((f, i) => platform("row-foot" + i, f.contact, f.up, f.toe, 11, 10));
         hands.forEach((h, i) => handle("row-handle" + i, h, [0, 1, 0]));
         break;
@@ -486,18 +559,21 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
           for (let y = 20; y <= 78; y += 6) box("smith-catch" + side + y, [side * 36, y, 8], [3, 1.5, 4], "chrome");
           box("smith-stop" + side, [side * 33, 20, 11], [4.5, 4, 5], "rubber");
           box("smith-carriage" + side, [side * 33, bar[1], 11], [4, 8, 4], "metal");
+          for (const end of [-1, 1]) axial("smith-carriage-bearing" + side + end, "cylinder", [side * 33, bar[1] + end * 4, 11], [0, 1, 0], 1.35, .5, "chrome");
           steel("smith-carriage-link" + side, [side * 29, bar[1], 11], [side * 33, bar[1], 11], 2);
+          steel("smith-carriage-hook" + side, [side * 33, bar[1] - 1, 9], [side * 36, bar[1] - 1, 8], 1.2);
           beam("smith-sleeve" + side, [side * 34, bar[1], 11], [side * 47, bar[1], 11], 1.1, "chrome");
           for (let i = 0; i < 2; i++) {
             const x = side * (37 + i * 2.1);
-            beam("smith-plate" + side + i, [x - 0.9, bar[1], 11], [x + 0.9, bar[1], 11], 9.5, "rubber");
+            plate("smith-plate" + side + i, [x, bar[1], 11]);
           }
           beam("smith-collar" + side, [side * 43, bar[1], 11], [side * 44.5, bar[1], 11], 1.8, "metal");
           for (const y of [23, 48]) {
             beam("smith-storage-horn" + side + y, [side * 39, y, -19], [side * 48, y, -19], 0.9, "chrome");
-            beam("smith-storage-plate" + side + y, [side * 41, y, -19], [side * 43, y, -19], 8, "rubber");
+            plate("smith-storage-plate" + side + y, [side * 42, y, -19], 8);
           }
           for (const z of [-27, 36]) box("smith-foot" + side + z, [side * 39, 0.7, z], [8, 1.4, 8], "rubber");
+          for (const y of [5, 85]) axial("smith-frame-bolt" + side + y, "bolt", [side * 41.7, y, 11], right, .8, .7, "chrome");
         }
         beam("barbell", [-47, bar[1], 11], [47, bar[1], 11], 0.65, "chrome");
         // Bench adjustment hardware stays fixed while the guided bar moves.
@@ -521,7 +597,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         beam("barbell", add3(centre, [-42, 0, 0]), add3(centre, [42, 0, 0]), 0.65, "chrome");
         for (const s of [-1, 1]) {
           box("j-hook" + s, [s * 34, centre[1] - 2, z], [3, 3, 4], "rubber");
-          for (let i = 0; i < 3; i++) ball("plate" + s + i, add3(centre, [s * (33 + i * 1.6), 0, 0]), [1, 8, 8], "rubber");
+          for (let i = 0; i < 3; i++) plate("plate" + s + i, add3(centre, [s * (33 + i * 1.6), 0, 0]), 8, 1.5);
         }
         floorFrame("rack-base", z, 70, 40);
         break;
@@ -542,16 +618,28 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         platform("footplate", centre, f.up, f.toe, 38, 26);
         const a: V3 = type === "leg-press" ? [0, 7, 0] : [0, 2, -28],
           b: V3 = type === "leg-press" ? [0, 59, 52] : [0, 75, 45];
+        const carriageCentre = type === "leg-press" ? centre : add3(hip, mul3(body.forward, -8));
+        const railDirection = unit3(sub3(b, a));
         for (const s of [-1, 1]) {
           beam("sled-rail" + s, add3(a, [s * 20, 0, 0]), add3(b, [s * 20, 0, 0]), 1.8);
-          if (type === "leg-press") beam("sled-carriage" + s, add3(centre, [s * 15, 0, 0]), add3(centre, [s * 20, -8.5, 8.5]), 1.8);
+          const guideStart = add3(a, [s * 24, 0, 0]);
+          const guideEnd = add3(b, [s * 24, 0, 0]);
+          const slide = add3(guideStart, mul3(railDirection, dot3(sub3(carriageCentre, guideStart), railDirection)));
+          beam("sled-guide" + s, guideStart, guideEnd, .8, "chrome");
+          box("sled-bearing" + s, slide, [4, 9, 4], "metal", [right, railDirection, unit3(cross3(right, railDirection))]);
+          beam("sled-carriage" + s, add3(carriageCentre, [s * 15, 0, 0]), slide, 1.8);
+          for (const end of [-1, 1]) axial("sled-bearing-seal" + s + end, "cylinder", add3(slide, mul3(railDirection, end * 4.5)), railDirection, 1.25, .35, "rubber");
         }
         if (type === "hack-squat") {
           back();
           for (const s of [-1, 1]) box("shoulder-pad" + s, add3(shoulder, [s * 8, 2, -2]), [6, 4, 9], "pad");
         }
         floorFrame("sled", hip[2] + 8, 50, 75);
-        for (const s of [-1, 1]) ball("sled-weight" + s, add3(centre, [s * 26, -3, 5]), [2, 9, 9], "rubber");
+        for (const s of [-1, 1]) {
+          const hub = add3(carriageCentre, [s * 26, -3, 5]);
+          beam("sled-loading-horn" + s, add3(hub, [-s * 7, 0, 0]), add3(hub, [s * 5, 0, 0]), .95, "chrome");
+          plate("sled-weight" + s, hub, 9);
+        }
         break;
       }
     case "leg-extension":
@@ -617,7 +705,7 @@ export function trainingFrame3d(raw: string, progress: number): TrainingFrame3 {
         stack("pushdown-stack", 25, hip[2] + 30, p * 9, 96);
         const a: V3 = [0, 94, hip[2] + 28];
         beam("pushdown-top", [25, 94, hip[2] + 30], a, 1.8);
-        pivot("pushdown-pulley", a);
+        pulley("pushdown-pulley", a);
         cable("pushdown-cable", a, average3(hands));
         beam("pushdown-handle", hands[0], hands[1], 0.9, "rubber");
         break;

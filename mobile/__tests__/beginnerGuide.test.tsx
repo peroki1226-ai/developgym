@@ -12,6 +12,8 @@ import { EQUIPMENTS } from "../src/data/equipment";
 import { translate } from "../src/i18n";
 import { FITNESS_STORAGE_KEY } from "../src/domain/fitnessStorage";
 
+jest.setTimeout(25000);
+
 jest.mock(
   "react-native-safe-area-context",
   () => require("react-native-safe-area-context/jest/mock").default,

@@ -52,3 +52,28 @@ python mobile/scripts/human_pectoral_masks.py --check
 
 The refresh preserves all other asset fields. Boundaries and deformations remain
 educational illustrations, not a clinical anatomical atlas or an activation map.
+
+## Muscular adult profile (photo-reference revision)
+
+The `muscular-adult-v2` profile uses the pinned CC0 pectoral, deltoid, arm, back,
+abdomen, thigh, calf and neck morphs. Bounded surface refinements add muscle-belly
+volume, paired rectus bellies and shallow tendon grooves while keeping skeletal
+helpers and joint ends fixed. Coefficients are in `build-human-model.py`.
+
+The full converter recomputes rest frames, grip anchors, normals and all learning
+masks from this surface. It transfers body weights to the shorts shell and gives
+it a small clearance so it follows the hips and thighs instead of intersecting
+them. Runtime torso retargeting preserves cross-sections along the spine rather
+than tilting the chest downward with each independent rest-bone direction. A
+straight two-point spine uses linear interpolation to avoid endpoint distortion.
+
+`surfaceOcclusion` bakes a mild, geometry-derived cavity term (one byte per vertex)
+for real surface folds. It has no painted muscle outlines or activity estimate.
+Shape and cavity shading remain when target-muscle colour is off. The profile
+retains 13,905 vertices, 27,720 triangles and one human mesh; it adds no rendering
+loop, runtime texture/model download or new dependency.
+
+The photograph guides muscular volume and transitions, not identity or exact
+body measurements. Full regeneration from the pinned source is required for this
+profile; the pectoral-only refresh command still changes only its two masks.
+The earlier geometry/mask digests are intentionally replaced for this resculpt.

@@ -27,8 +27,8 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#f2f2f2");
   const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 700);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x969696, 2));
-  const key = new THREE.DirectionalLight(0xffffff, 3.1);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x969696, 1.1));
+  const key = new THREE.DirectionalLight(0xffffff, 3.4);
   key.position.set(60, 130, 90);
   key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024);
@@ -39,7 +39,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   key.shadow.camera.far = 350;
   key.shadow.bias = -0.001;
   scene.add(key);
-  const fill = new THREE.DirectionalLight(0xffffff, 1.2);
+  const fill = new THREE.DirectionalLight(0xffffff, .55);
   fill.position.set(-70, 70, -40);
   scene.add(fill);
   const groundMat = material("#eeeeee"),

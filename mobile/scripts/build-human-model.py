@@ -9,6 +9,7 @@ from human_pectoral_masks import pectoral_masks
 PIN = 'a8bc2d54ff0ac92e78ff71431b1023eda42bf482'
 p = argparse.ArgumentParser()
 p.add_argument('--source-root', required=True, type=Path)
+p.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1]/'src/data/human/makehuman.json')
 a = p.parse_args()
 head = subprocess.check_output(['git','-C',str(a.source_root),'rev-parse','HEAD'], text=True).strip()
 if head != PIN:
@@ -33,18 +34,60 @@ def morph(name):
     return delta
 for ethnic in ['asian', 'caucasian', 'african']:
     verts += morph('macrodetails/' + ethnic + '-male-young') / 3
-verts += morph('macrodetails/universal-male-young-maxmuscle-averageweight') * .75
-verts += morph('macrodetails/universal-male-young-maxmuscle-minweight') * .25
+verts += morph('macrodetails/universal-male-young-maxmuscle-averageweight') * .65
+verts += morph('macrodetails/universal-male-young-maxmuscle-minweight') * .35
 pectoral_shape = morph('torso/torso-muscle-pectoral-incr')
-verts += pectoral_shape * .2
+verts += pectoral_shape * .3
+verts += morph('torso/torso-muscle-dorsi-incr') * .55
+verts += morph('torso/torso-vshape-incr') * .35
+verts += morph('stomach/stomach-tone-incr') * .9
+verts += morph('neck/neck-scale-horiz-incr') * .25
 for side in ['l', 'r']:
-    for area in ['upperarm', 'lowerarm', 'upperleg', 'lowerleg']:
-        verts += morph('armslegs/' + side + '-' + area + '-muscle-incr') * .12
+    for area, amount in [('upperarm', .75), ('lowerarm', .35), ('upperleg', .75), ('lowerleg', .55)]:
+        verts += morph('armslegs/' + side + '-' + area + '-muscle-incr') * amount
+    verts += morph('armslegs/' + side + '-upperarm-shoulder-muscle-incr') * .95
 skel = json.loads(read('rigs/default.mhskel'))
 weights = json.loads(read('rigs/default_weights.mhw'))
 assert skel['license'] == 'CC0' and weights['license'] == 'CC0'
 def joint(bone, end):
     return np.mean(verts[skel['joints'][skel['bones'][bone][end]]], axis=0)
+# Bounded muscle-belly refinement on the authored surface. Keep skeletal helpers,
+# hands, feet and joint ends fixed; skin and its clothing shell share the sculpt.
+sculptable=np.zeros(len(verts),dtype=bool)
+for group,poly in faces:
+    if group in ['body','helper-tights']: sculptable[poly]=True
+for side in ['L','R']:
+    for prefix,start_bone,end_bone,amount in [
+        ('upperarm','upperarm01','lowerarm01',.14),
+        ('upperleg','upperleg01','lowerleg01',.16),
+        ('lowerleg','lowerleg01','foot',.08),
+    ]:
+        h=joint(start_bone+'.'+side,'head'); tail=joint(end_bone+'.'+side,'head')
+        axis=tail-h; length=np.linalg.norm(axis); axis/=length
+        t=((verts-h)@axis)/length
+        radial=verts-h-t[:,None]*length*axis
+        region_weight=np.zeros(len(verts))
+        for name,entries in weights['weights'].items():
+            if name.startswith(prefix) and name.endswith('.'+side):
+                for vertex,value in entries: region_weight[vertex]+=value
+        window=np.sin(np.pi*np.clip((t-.08)/.84,0,1))**2
+        factor=amount*window*np.clip(region_weight,0,1)*sculptable
+        verts+=radial*factor[:,None]
+# Surface-only anatomy refinement: broad upper pectorals and paired rectus
+# bellies, with shallow actual tendon grooves. Never move joint helper points.
+skin=np.zeros(len(verts),dtype=bool)
+for group,poly in faces:
+    if group=='body': skin[poly]=True
+x=np.abs(verts[:,0]); y=verts[:,1]; z=verts[:,2]
+clavicle=joint('clavicle.L','head')[1]
+front=np.clip((z-.4)/.5,0,1)*skin
+gauss=lambda cx,cy,sx,sy: np.exp(-((x-cx)/sx)**2-((y-cy)/sy)**2)
+relief=-.14*gauss(.78,clavicle-1.48,.62,.42)+.12*gauss(.85,clavicle-.72,.7,.5)
+for level in [3.85,3.05,2.3]: relief+=.12*gauss(.38,level,.28,.32)
+ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
+relief-=.028*np.exp(-(x/.085)**2)*ab_window
+for level in [3.45,2.67]: relief-=.018*gauss(.35,level,.7,.08)
+verts[:,2]+=relief*front
 # Pose the authored finger chains into a relaxed cylindrical grip before collapsing
 # facial/twist controls. Keep the real hand topology and original weighted skinning.
 bind_verts = verts.copy()
@@ -177,7 +220,40 @@ indices=np.array(indices,dtype='<u2'); normal=np.zeros_like(positions)
 tri=positions[indices.reshape(-1,3)]; fn=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])
 for k in range(3): np.add.at(normal,indices.reshape(-1,3)[:,k],fn)
 normal/=np.maximum(np.linalg.norm(normal,axis=1)[:,None],1e-9)
-ww=w[ids]; order=np.argsort(ww,axis=1)[:,-4:]; small=np.take_along_axis(ww,order,axis=1)
+# The source helper garment has no authored skin weights in some regions.
+# Transfer nearby body influences instead of fixing the shorts to the pelvis;
+# this prevents holes when the muscular hips/thighs bend against the fabric.
+ww=w[ids].copy()
+body_ids=np.flatnonzero(materials==0)
+for i in np.flatnonzero(materials==1):
+    distance=np.sum((positions[body_ids]-positions[i])**2,axis=1)
+    nearest=body_ids[np.argpartition(distance,3)[:3]]
+    blend=1/np.maximum(np.sum((positions[nearest]-positions[i])**2,axis=1),1e-8)
+    blend/=blend.sum()
+    ww[i]=np.sum(ww[nearest]*blend[:,None],axis=0)
+    outside=np.sum(normal[nearest]*blend[:,None],axis=0); outside/=max(np.linalg.norm(outside),1e-8)
+    support=np.sum(positions[nearest]*blend[:,None],axis=0)
+    clearance=(positions[i]-support)@outside
+    if clearance<.065: positions[i]+=outside*(.065-clearance)
+tri=positions[indices.reshape(-1,3)]; fn=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])
+normal=np.zeros_like(positions)
+for k in range(3): np.add.at(normal,indices.reshape(-1,3)[:,k],fn)
+normal/=np.maximum(np.linalg.norm(normal,axis=1)[:,None],1e-9)
+# Mild, geometry-derived cavity shading makes real sculpted folds legible.
+# No painted muscle outlines or runtime textures; computed once offline.
+triangles=indices.reshape(-1,3)
+edges=np.concatenate([triangles[:,[0,1]],triangles[:,[1,2]],triangles[:,[2,0]]])
+edges=np.concatenate([edges,edges[:,::-1]])
+counts=np.maximum(np.bincount(edges[:,0],minlength=len(positions)),1)
+neighbours=np.zeros_like(positions)
+np.add.at(neighbours,edges[:,0],positions[edges[:,1]])
+neighbours/=counts[:,None]
+edge_lengths=np.linalg.norm(positions[edges[:,0]]-positions[edges[:,1]],axis=1)
+local_size=np.maximum(np.bincount(edges[:,0],weights=edge_lengths,minlength=len(positions))/counts,1e-6)
+cavity=np.maximum(0,np.sum((neighbours-positions)*normal,axis=1)/local_size)
+occlusion=np.round((1-.28*np.clip(cavity*3,0,1)) * 255).astype(np.uint8)
+occlusion[materials!=0]=255
+order=np.argsort(ww,axis=1)[:,-4:]; small=np.take_along_axis(ww,order,axis=1)
 small/=np.maximum(small.sum(axis=1)[:,None],1e-9)
 missing=small.sum(axis=1)<.1; order[missing]=bones.index('hip'); small[missing]=[1,0,0,0]
 # Muscle maps live on this continuous mesh. No separate leaf/striped sticker geometry.
@@ -220,7 +296,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
-output=Path(__file__).resolve().parents[1]/'src/data/human/makehuman.json'
+out={'version':1,'profile':'muscular-adult-v2','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+output=a.output
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')
 print(json.dumps({'output':str(output),'vertices':n,'triangles':len(indices)//3,'bones':len(bones),'muscles':{k:int(np.sum(v>0)) for k,v in masks.items()},'bytes':output.stat().st_size},indent=2))

@@ -29,6 +29,7 @@ const indices = new Uint16Array(decode(asset.indices).buffer);
 const boneIds = decode(asset.skinIndices);
 const weights = new Float32Array(decode(asset.skinWeights).buffer);
 const clothes = decode(asset.materials);
+const surfaceOcclusion = decode(asset.surfaceOcclusion);
 const masks = Object.fromEntries(muscleNames.map(name => [name, decode((asset.muscleMasks as Record<string, string>)[name])])) as Record<Muscle, Uint8Array>;
 const as3 = (p: readonly number[]) => p as V3;
 
@@ -91,7 +92,11 @@ function targets(frame: TrainingFrame3) {
     } = frame,
     up = unit3(sub3(body.shoulder, body.hip));
   const curve = new THREE.CatmullRomCurve3(body.spine.map(p => vec(p)), false, "centripetal");
-  const point = (position: number) => as3(curve.getPoint(clamp(position)).toArray());
+  // CatmullRomCurve3's two-point endpoint extrapolation shares a temporary
+  // vector and is not linear. A straight spine must retain anatomical height.
+  const point = (position: number): V3 => body.spine.length === 2
+    ? mix3(body.spine[0], body.spine[1], clamp(position))
+    : as3(curve.getPoint(clamp(position)).toArray());
   const span = neckRest[1] - rootRest[1];
   const rootRotation = basis([0, 0, 0], up, body.right);
   const handMatrices = new Map<number, THREE.Matrix4>();
@@ -131,14 +136,22 @@ function targets(frame: TrainingFrame3) {
   return asset.bones.map((name, index) => {
     if (name.startsWith("foot")) return footTransform(frame, index, ankles[sideIndex(frame, name.at(-1)!)]);
     const source = rest[name];
+    if (name === "hip" || name.startsWith("spine")) {
+      // Retarget torso cross-sections coherently. Aligning each authored curved
+      // spine bone independently used to tilt anterior chest vertices down and
+      // produce a hanging chest even when the reference mesh was muscular.
+      const start = point((source.head[1] - rootRest[1]) / span);
+      const end = point((source.tail[1] - rootRest[1]) / span);
+      const vertical = sub3(end, start);
+      const forward = unit3(cross3(body.right, unit3(vertical)));
+      return new THREE.Matrix4().makeBasis(
+        vec(mul3(body.right, SCALE)),
+        vec(mul3(vertical, 1 / (source.tail[1] - source.head[1]))),
+        vec(mul3(forward, SCALE)),
+      ).setPosition(...start).multiply(new THREE.Matrix4().makeTranslation(-source.head[0], -source.head[1], -source.head[2]));
+    }
     let start: V3, end: V3;
-    if (name === "hip") {
-      start = body.hip;
-      end = add3(start, mul3(up, length3(sub3(as3(source.tail), as3(source.head))) * SCALE));
-    } else if (name.startsWith("spine")) {
-      start = point((source.head[1] - rootRest[1]) / span);
-      end = point((source.tail[1] - rootRest[1]) / span);
-    } else if (name === "neck") {
+    if (name === "neck") {
       start = body.shoulder;
       end = add3(body.head, mul3(up, -3.7));
     } else if (name === "head") {
@@ -295,7 +308,7 @@ export function createRealisticHuman(parent: THREE.Group) {
   for (const [name, data, size] of [["position", positions, 3], ["normal", posedNormals, 3], ["color", colours, 3], ["muscleCoord", fibres, 2], ["muscleTint", tint, 1]] as const) geometry.setAttribute(name, new THREE.BufferAttribute(data, size).setUsage(THREE.DynamicDrawUsage));
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
-    roughness: .68,
+    roughness: .55,
     metalness: 0
   });
   material.onBeforeCompile = shader => {
@@ -438,6 +451,7 @@ export function createRealisticHuman(parent: THREE.Group) {
         tint[i] = clamp(mask * 1.6);
         colour.copy(clothes[i] === 1 ? cloth : clothes[i] === 2 ? eye : neutral);
         if (clothes[i] !== 2) colour.lerp(red, tint[i]);
+        colour.multiplyScalar(surfaceOcclusion[i] / 255);
         colours[k] = colour.r;
         colours[k + 1] = colour.g;
         colours[k + 2] = colour.b;

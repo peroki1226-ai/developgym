@@ -38,13 +38,13 @@ test("the clavicular portion is above the whole-muscle centroid and stays inside
   expect(weightedHeight(masks.upperChest)).toBeGreaterThan(weightedHeight(masks.chest) + .2);
   masks.upperChest.forEach((value, i) => expect(value).toBeLessThanOrEqual(masks.chest[i]));
 });
-test("repositioning the learning masks preserves the authored human geometry, skin weights and materials", () => {
+test("the mask-refresh baseline pins the intentionally resculpted muscular adult surface and other regions", () => {
   const digest = createHash('sha256');
   for (const field of ['positions', 'normals', 'indices', 'skinIndices', 'skinWeights', 'materials'] as const) digest.update(asset[field]);
-  expect(digest.digest('hex')).toBe('887f55e2a7430d150cda473631334f51e2b55df2bfc11a7f58be41da9d3831c2');
+  expect(digest.digest('hex')).toBe('4d6f5973afda5191d3d428e00677ce92e05ac3be28ef3f8359680cfa2dd281d5');
   const otherMasks = createHash('sha256');
   for (const key of Object.keys(asset.muscleMasks).filter(k => !['chest','upperChest'].includes(k)).sort()) otherMasks.update(key).update(asset.muscleMasks[key as keyof typeof asset.muscleMasks]);
-  expect(otherMasks.digest('hex')).toBe('6abeaf06e4be57c93cf17af0f4136239199e2b489d961796ac8b81a7e2a25e11');
+  expect(otherMasks.digest('hex')).toBe('753056f0998c29aed5a1b66887e77ca7c2786bf458fc3f5ea8d75141a045d67f');
 });
 test.each(['chest-press','pec-fly','incline-smith','dumbbell-heavy','cable-machine','assisted-dip'])("%s: chest colour follows the upper ribcage throughout the movement without changing grips", type => {
   const human = createRealisticHuman(new THREE.Group());
@@ -63,7 +63,7 @@ test.each(['chest-press','pec-fly','incline-smith','dumbbell-heavy','cable-machi
         sum += at * value; weight += value;
       }
       expect(weight).toBeGreaterThan(1);
-      expect(sum / weight).toBeGreaterThan(.65);
+      expect(sum / weight).toBeGreaterThan(.7);
       expect(sum / weight).toBeLessThan(.94);
       for (const grip of human.mesh.userData.handContacts) expect(grip.error).toBeLessThan(1e-6);
       expect(Array.from(human.mesh.geometry.attributes.muscleCoord.array).every(Number.isFinite)).toBe(true);

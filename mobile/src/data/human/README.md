@@ -34,3 +34,21 @@ not a scan, fascicle/force measurement, clinical musculoskeletal simulation or a
 manufacturer-matched machine model. Shown colour on the shorts projects the target
 region through the garment. The asset ships with the app; no model download or
 external image/texture service is used at runtime.
+
+Pectoral learning masks use the authored clavicle and upper-arm landmarks. Their
+lower border rises toward the axilla, excludes the abdomen and preserves a small
+sternal separation; the clavicular region is a subset of the whole pectoral fan.
+They do not use the pectoral morph's displacement magnitude, which overemphasized
+the lower bulge. Geometry, skeleton, weights and CC0 source hashes remain authored
+data. The runtime's qualitative fibre directions fan toward the upper arm.
+
+A full conversion uses `scripts/human_pectoral_masks.py`. To refresh **only** the
+two pectoral masks in an existing bundled asset, without an upstream checkout:
+
+```sh
+python mobile/scripts/human_pectoral_masks.py
+python mobile/scripts/human_pectoral_masks.py --check
+```
+
+The refresh preserves all other asset fields. Boundaries and deformations remain
+educational illustrations, not a clinical anatomical atlas or an activation map.

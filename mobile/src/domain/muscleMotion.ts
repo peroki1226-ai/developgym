@@ -66,8 +66,8 @@ export function muscleRegions(type: string, pose: ExercisePose, requested: reado
   for (const muscle of requested) {
     switch (muscle) {
       case "chest": case "upperChest":
-        if (front) for (const sign of [-1, 1]) regions.push({ muscle, a: local(sign * 0.8, 0.3), b: local(sign * 8, 0.14), radius: pose.camera === "top" ? 2 : 3.4, fan: true, clip: "torso" });
-        else regions.push({ muscle, a: local(-0.4, muscle === "upperChest" ? 0.3 : 0.43), b: local(-3.1, 0.08), radius: 3, fan: true, clip: "torso" });
+        if (front) for (const sign of [-1, 1]) regions.push({ muscle, a: local(sign * 0.8, muscle === "upperChest" ? 0.11 : 0.26), b: local(sign * 8, muscle === "upperChest" ? 0.08 : 0.12), radius: muscle === "upperChest" ? 1.6 : pose.camera === "top" ? 2 : 2.6, fan: true, clip: "torso" });
+        else regions.push({ muscle, a: local(-0.4, muscle === "upperChest" ? 0.16 : 0.26), b: local(-3.1, 0.08), radius: muscle === "upperChest" ? 1.7 : 2.4, fan: true, clip: "torso" });
         break;
       case "lats":
         for (const sign of front ? [-1, 1] : [1]) {

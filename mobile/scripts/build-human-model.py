@@ -4,6 +4,7 @@ No MakeHuman application code is used. Run with Python + NumPy and --source-root
 import argparse, base64, hashlib, json, subprocess
 from pathlib import Path
 import numpy as np
+from human_pectoral_masks import pectoral_masks
 
 PIN = 'a8bc2d54ff0ac92e78ff71431b1023eda42bf482'
 p = argparse.ArgumentParser()
@@ -190,10 +191,7 @@ base=(materials!=2).astype(float)
 def put(name,mask,t=None,across=None):
     masks[name]=np.round(np.clip(mask*base,0,1)*255).astype(np.uint8)
     if t is not None: coords[name]=np.array([t,across]).T.astype('<f4')
-pec = np.linalg.norm(pectoral_shape[ids],axis=1)
-pec = np.clip(pec/max(np.percentile(pec[pec>0],85),1e-8),0,1)
-put('chest', pec*band(y,4.0,5.95)*front)
-put('upperChest', pec*band(y,4.9,6)*front)
+masks.update(pectoral_masks(positions, normal, materials, rest, indices))
 put('abs', band(y,1.25,4.5)*band(x,-.2,1.0)*front)
 put('lats',band(y,1.6,5)*band(x,.5,2.4)*(back*.8+soft(x-1.2,.4)*.4))
 put('midBack',band(y,4.2,6.3)*band(x,.2,2.1)*back)

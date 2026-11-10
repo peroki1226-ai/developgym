@@ -76,17 +76,17 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">30</span> / <span id="stat-total" class="text-neutral-500">32</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">30</span> / <span id="stat-total" class="text-neutral-500">33</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-green-200 bg-green-950/60 border border-green-500/30 px-2 py-0.5 rounded">LGTM</div>
+          <div class="text-sm font-bold text-yellow-200 bg-yellow-950/60 border border-yellow-500/30 px-2 py-0.5 rounded">IN REVIEW</div>
         </div>
       </div>
     </header>
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">30 / 32 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">30 / 33 TASKS COMPLETED (91%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 91%"></div>
       </div>
     </div>
 
@@ -109,6 +109,8 @@
     <p class="text-xs text-neutral-400 px-1">TASK-031：手のひら/親指をグリップへ合わせて修正し、内ももの可視領域と対象筋の変形を整理。器具形状へのユーザー評価は保全し、2026-11-10 AntigravityのLGTM受入済み。<a class="underline" href="docs/PHOTO_CHEST_GUIDES.md">胸の写真型ガイド</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-032：これまでの動く模型へ、初心者向けの姿勢/手/足/動作ガイドを統合。2026-11-10 AntigravityのLGTM受入完了。<a class="underline" href="docs/BEGINNER_MODEL_LESSON.md">使い方と再表示手順</a></p>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-033：胸の位置が低いという指摘に対応。<a class="underline" href="docs/CHEST_MUSCLE_PLACEMENT.md">変更内容と比較手順</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -562,6 +564,16 @@
         rating: "LGTM",
         desc: "既存の人体/器具模型を姿勢・手・足・動作の4段階で操作。局面に応じた呼吸/手順/開始重量/注意点を表示し、片道ずつ四分の一速で再生。詳細操作と本格モードを維持。",
         review: "37 suites/491 tests成功。日英/320・390幅、全24種目で4段階/実描画、呼吸/局面/注意点/重量、低速/停止、入力保持、動きを減らす対応を確認。2026-11-10 Antigravity受入完了。24種目ループのテスト待機上限は25000ms。実機配布確認はTASK-018で指示待ち。"
+      },
+      {
+        id: "TASK-033",
+        title: "大胸筋の高さ・領域と筋繊維の向きを修正",
+        category: "Native Muscle Learning",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "胸部の見た目をレビュー依頼",
+        desc: "胸の着色が低い問題に対応。鎖骨/胸骨/上腕に基づく扇形の領域、上胸部の区別、筋繊維の収束方向を修正。人体・器具の接点と他部位を保全。",
+        review: "38 suites/501 tests、型/言語/設定検査、両OSバンドル成功。日英/320・390幅×胸6種×開始終了×三方向=144状態で実WebGL確認。エラー0。実機と見た目の受入は別途。"
       }
 
     ];

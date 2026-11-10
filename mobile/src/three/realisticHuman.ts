@@ -336,8 +336,12 @@ export function createRealisticHuman(parent: THREE.Group) {
       span = length3(sub3(as3(bone.tail), as3(bone.head)));
     if (["chest", "upperChest"].includes(name)) {
       origin = [0, base[i * 3 + 1], 0];
-      axis = [side === "R" ? -1 : 1, 0, 0];
-      span = 2;
+      // Sternal and clavicular fibres fan into the upper arm rather than
+      // running as horizontal strips across the lower ribcage.
+      const insertion = as3(rest["upperarm." + side].head);
+      const path: V3 = [insertion[0], insertion[1] - origin[1], 0];
+      axis = unit3(path);
+      span = length3(path);
     } else if (["abs", "lats", "midBack", "erectors", "glutes"].includes(name)) {
       origin = rootRest;
       axis = [0, 1, 0];
@@ -349,6 +353,11 @@ export function createRealisticHuman(parent: THREE.Group) {
     axes.set(axis, i * 3);
     fibres[i * 2] = t;
     fibres[i * 2 + 1] = (base[i * 3] * .7 + base[i * 3 + 2]) / Math.max(.4, span * .25);
+    if (["chest", "upperChest"].includes(name)) {
+      const insertion = rest["upperarm." + side].head;
+      const lateral = clamp(Math.abs(base[i * 3] / insertion[0]), 0, .9);
+      fibres[i * 2 + 1] = (base[i * 3 + 1] - insertion[1] * lateral) / (1 - lateral);
+    }
   }
   }
   let activeKey = "";

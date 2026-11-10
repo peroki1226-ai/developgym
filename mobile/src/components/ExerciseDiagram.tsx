@@ -28,6 +28,7 @@ import { Muscle, muscleSpec } from "../domain/muscleMotion";
 import { rearMuscles } from "../domain/muscleLoad";
 import { MotionCue } from "./MotionCue";
 import { Button, colors } from "./ui";
+import { BeginnerGuideData, BeginnerMachineSteps, BeginnerSetupNotes, LEARNING_STEPS, LearningStep } from "./BeginnerMachineSteps";
 
 type Props = {
   type: string;
@@ -35,6 +36,8 @@ type Props = {
   compact?: boolean;
   label?: string;
   active?: boolean;
+  beginner?: boolean;
+  beginnerGuide?: BeginnerGuideData;
 };
 export function ExerciseDiagram(props: Props) {
   if (props.compact)
@@ -50,7 +53,7 @@ export function ExerciseDiagram(props: Props) {
     );
   return <MotionDiagram {...props} />;
 }
-function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
+function MotionDiagram({ type, muscleTag, label, active = true, beginner = false, beginnerGuide }: Props) {
   const { t, language } = useI18n();
   const { width, fontScale } = useWindowDimensions();
   const motion = useExerciseMotion(active, type, false);
@@ -69,6 +72,9 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   const [transparent, setTransparent] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [learningStep, setLearningStep] = useState<LearningStep>("posture");
+  const [advanced, setAdvanced] = useState(false);
+  const controlsVisible = !beginner || advanced;
   const [legPressVariant, setLegPressVariant] = useState<LegPressVariant>("seated");
   const fail = useCallback(() => {
     setFailed(true);
@@ -88,6 +94,18 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
     setLessonDirection("work");
     setMechanismOpen(false);
   }, [type]);
+  useEffect(() => {
+    if (!beginner) return;
+    motion.seek(0, "work");
+    setLearningStep("posture"); setAdvanced(false);
+    setFocus("whole"); setView("front"); setTransparent(false);
+  }, [type, beginner]);
+  const chooseLearningStep = (step: LearningStep) => {
+    motion.seek(0, "work"); setLearningStep(step);
+    setFocus(step === "hands" ? "hands" : step === "feet" ? "feet" : "whole");
+    setView(step === "posture" || step === "move" ? "side" : "front");
+    setTransparent(false);
+  };
   const inspectLesson = (direction: "work" | "return") => {
     setLessonDirection(direction);
     motion.seek(0.5, direction);
@@ -101,6 +119,19 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
   const [trackWidth, setTrackWidth] = useState(1);
   const pose = exercisePose(type, motion.progress);
   const teaching = motionTeaching(type, pose);
+  const footHint = ["assisted-pull-up", "assisted-dip"].includes(type) ? "scene.kneeHint"
+    : type === "leg-extension" ? "learn.extensionFeet"
+    : type === "seated-leg-curl" ? "learn.curlFeet"
+    : type === "hip-adduction" ? "learn.adductionFeet"
+    : type === "hip-abduction" ? "learn.abductionFeet"
+    : type === "back-extension" ? "learn.backExtensionFeet" : "learn.feetHint";
+  const phaseStep = motion.phase === "start" ? 0 : motion.phase === "return" ? 2 : 1;
+  const phaseInstruction = motion.phase === "hold" ? teaching.holdCue
+    : beginnerGuide?.beginnerSteps[phaseStep] ?? (motion.phase === "start" ? "teaching.start" : motion.phase === "return" ? teaching.returnCue : teaching.workCue);
+  const learningHint = learningStep === "posture" ? t("learn.setup", { 0: t(beginnerGuide?.seatSetup ?? "learn.postureHint") })
+    : learningStep === "hands" ? t(type === "back-extension" ? "scene.crossHandsHint" : "learn.handsHint")
+    : learningStep === "feet" ? t(footHint) : t(phaseInstruction);
+  const breathing = t(`learn.breath.${motion.phase}`);
   const phaseLabel =
     motion.phase === "work"
       ? motionAction[motionType(type)]
@@ -125,6 +156,8 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
         <Text style={styles.caption}>{t("motion.title")}</Text>
         <Text style={styles.badge}>{t(muscleTag)}</Text>
       </View>
+      {beginner && !advanced && <BeginnerMachineSteps step={learningStep} onSelect={chooseLearningStep} hint={learningHint} breathing={learningStep === "move" ? breathing : undefined} />}
+      {controlsVisible && <>
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel={t("scene.mode")}
@@ -197,6 +230,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           ))}
         </View>
       )}
+      </>}
       {type === "leg-press" && <View style={styles.speeds} accessibilityRole="radiogroup" accessibilityLabel={t("machine.legPressType")}>
         {(["seated", "incline"] as const).map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={t(`machine.${value}`)} accessibilityState={{ checked: legPressVariant === value }} aria-checked={legPressVariant === value} style={[styles.speedButton, legPressVariant === value && styles.selectedSpeed]} onPress={() => { motion.seek(0); setLegPressVariant(value); }}>
           <Text style={styles.speedText}>{t(`machine.${value}`)}</Text>
@@ -246,8 +280,25 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           </Svg>
         )}
         {anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
+        {beginner && !advanced && learningStep === "move" && <View pointerEvents="none" testID="beginner-phase-overlay" style={styles.phaseOverlay}>
+          <Text style={styles.detailTitle}>{t(`learn.phase.${motion.phase}`)}</Text>
+          <Text style={styles.note}>{breathing}</Text>
+        </View>}
       </View>
-      {anatomy && (
+      {beginner && !advanced && learningStep === "posture" && beginnerGuide && <BeginnerSetupNotes guide={beginnerGuide} />}
+      {beginner && !advanced && <View style={{ gap: 8 }}>
+        {learningStep !== "move" ? <Button title={t("learn.next", { 0: t(`learn.${LEARNING_STEPS[LEARNING_STEPS.indexOf(learningStep) + 1]}`) })} onPress={() => chooseLearningStep(LEARNING_STEPS[LEARNING_STEPS.indexOf(learningStep) + 1])} /> : <>
+          <Button title={t(motion.running ? "learn.pause" : "learn.playWork")} disabled={!motion.canPlay} onPress={() => motion.running ? motion.toggle() : motion.playSegment("work")} />
+          <Button title={t("learn.playReturn")} disabled={!motion.canPlay || motion.running} variant="quiet" onPress={() => motion.playSegment("return")} />
+          <View style={styles.controls}>
+            <Button title={t("motion.startPose")} variant="quiet" onPress={() => motion.seek(0, "work")} />
+            <Button title={t("motion.endPose")} variant="quiet" onPress={() => motion.seek(1, "work")} />
+          </View>
+          {motion.reduced && <Text style={styles.note}>{t("motion.reducedHint")}</Text>}
+        </>}
+      </View>}
+      {beginner && <Button title={t(advanced ? "learn.simple" : "learn.advanced")} variant="quiet" onPress={() => { if (advanced) chooseLearningStep(learningStep); setAdvanced(!advanced); }} />}
+      {anatomy && controlsVisible && (
         <MuscleLengthCoach
           type={type}
           progress={motion.progress}
@@ -277,6 +328,7 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
           {t("scene.failed")}
         </Text>
       )}
+      {controlsVisible && <>
       {mode === "spatial" && (
         <>
           <View
@@ -576,10 +628,12 @@ function MotionDiagram({ type, muscleTag, label, active = true }: Props) {
         {t(mode === "spatial" ? "scene.legend" : "motion.legend")}
       </Text>
       <Text style={styles.note}>{t("motion.hint")}</Text>
+      </>}
     </View>
   );
 }
 const styles = StyleSheet.create({
+  phaseOverlay: { position: "absolute", top: 8, left: 8, right: 8, borderRadius: 8, padding: 8, backgroundColor: "rgba(255,255,255,0.92)", gap: 3 },
   container: {
     backgroundColor: colors.surface,
     borderWidth: 1,

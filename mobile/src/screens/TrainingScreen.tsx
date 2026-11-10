@@ -105,6 +105,8 @@ export function TrainingScreen({
           muscleTag={selected.muscleTag}
           label={selected.name}
           active={active}
+          beginner={!pro}
+          beginnerGuide={selected}
         />
 
         {/* Detailed Guide Card */}

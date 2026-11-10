@@ -60,6 +60,7 @@ test("an open machine guide switches language without losing equipment, weight o
   await screen.findByText("理想のジムを探そう。");
   await fireEvent.press(screen.getByRole("button", { name: translate("ja", "guide.open") }));
   await fireEvent.changeText(screen.getByLabelText("重量キログラム"), "17.5");
+  await fireEvent.press(screen.getByRole("button", { name: translate("ja", "learn.advanced") }));
   await fireEvent.press(screen.getByRole("button", { name: translate("ja", "motion.endPose") }));
   await fireEvent.press(screen.getByRole("button", { name: /🇺🇸/ }));
   expect(screen.getByText("Seat & equipment setup")).toBeTruthy();

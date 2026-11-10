@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">87%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">27</span> / <span id="stat-total" class="text-neutral-500">31</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">29</span> / <span id="stat-total" class="text-neutral-500">32</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,18 +95,20 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">27 / 31 TASKS COMPLETED (87%)</span>
+        <span class="font-num text-white">29 / 32 TASKS COMPLETED (91%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 87%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 91%"></div>
       </div>
     </div>
 
     <p class="text-xs text-neutral-400 px-1">TASK-016：日本語モード/英語モードを明示する設定と、各モードの入口を追加。5タブ/全24種目を含む126状態で混入なし。記録保持、保存/再読み込み、ヘッダーと設定の連動を確認。追加分もAntigravityのLGTM受入完了。<a class="underline" href="docs/BILINGUAL_MODES.md">二つの言語モード</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-029：写真の胸2台と脚4構成を反映。座席移動/四十五度切替、膝伸展、内転、収縮矢印と状態表示。477テスト・100構成の実表示を確認。今回差分の見た目と実機は受入待ち。<a class="underline" href="docs/PHOTO_LEG_GUIDES.md">写真の脚4台と握りの確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-029：写真の胸2台と脚4構成を反映。座席移動/四十五度切替、膝伸展、内転、収縮矢印と状態表示。477テスト・100構成の実表示を確認。2026-11-10 AntigravityのLGTM受入済み。<a class="underline" href="docs/PHOTO_LEG_GUIDES.md">写真の脚4台と握りの確認手順</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-031：手のひら/親指をグリップへ合わせて修正し、内ももの可視領域と対象筋の変形を整理。器具形状へのユーザー評価は保全し、握り/人体の見た目を再受入依頼。<a class="underline" href="docs/PHOTO_CHEST_GUIDES.md">胸の写真型ガイド</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-031：手のひら/親指をグリップへ合わせて修正し、内ももの可視領域と対象筋の変形を整理。器具形状へのユーザー評価は保全し、2026-11-10 AntigravityのLGTM受入済み。<a class="underline" href="docs/PHOTO_CHEST_GUIDES.md">胸の写真型ガイド</a></p>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-032：これまでの動く模型へ、初心者向けの姿勢/手/足/動作ガイドを統合。<a class="underline" href="docs/BEGINNER_MODEL_LESSON.md">使い方と再表示手順</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -526,10 +528,10 @@
         title: "写真の胸2台・脚4構成と三方向フォームガイド",
         category: "Native Form Guide",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "写真型6構成・握り/筋収縮の差分レビュー依頼",
+        status: "DONE",
+        rating: "LGTM",
         desc: "提供写真を基準にスタック式ペックフライ/チェストプレス、座席移動/四十五度プレス切替、膝伸展/内転の専用機構を反映。筋肉上の矢印と状態表示。",
-        review: "36 suites/477 tests・型/監査/両OSバンドル成功。日英・2幅・24種目と追加切替の100構成を実WebGL確認。今回差分の見た目/実機/メーカー実測照合は未完了。"
+        review: "36 suites/477 tests・型/監査/両OSバンドル成功。日英・2幅・24種目と追加切替の100構成を実WebGL確認。2026-11-10 Antigravityが写真型機構/見た目を受入。TASK-018の配布検証とメーカー実測照合は別項目。"
       },
       {
         id: "TASK-030",
@@ -546,10 +548,20 @@
         title: "自然な人体・握りと対象筋の収縮",
         category: "Native Form Guide",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "写真型6構成・握り/筋収縮の差分レビュー依頼",
+        status: "DONE",
+        rating: "LGTM",
         desc: "実グリップの中心/軸へ手を配置し、手首/手のひら長と親指の回り込みを修正。内ももの可視領域と選択筋の変形、股関節のお尻経路を修正。",
-        review: "握り中心/骨長/固定可動機構/曲線形状の再利用解放/矢印/言語を477テストで確認。写真6構成の開始終了/三方向と握り拡大を実描画。実機とユーザーの見た目受入は未完了。"
+        review: "握り中心/骨長/固定可動機構/曲線形状の再利用解放/矢印/言語を477テストで確認。写真6構成の開始終了/三方向と握り拡大を実描画。2026-11-10 Antigravityが握り/対象筋変形を受入。TASK-018の配布検証は別項目。"
+      },
+      {
+        id: "TASK-032",
+        title: "動く模型で覚える初心者向けマシンの使い方",
+        category: "Native Form Guide",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "初心者ガイドの受入レビュー依頼",
+        desc: "既存の人体/器具模型を姿勢・手・足・動作の4段階で操作。局面に応じた呼吸/手順/開始重量/注意点を表示し、片道ずつ四分の一速で再生。詳細操作と本格モードを維持。",
+        review: "37 suites/491 tests成功。日英/320・390幅、全24種目で4段階/実描画、呼吸/局面/注意点/重量、低速/停止、入力保持、動きを減らす対応を確認。実iPhoneと見た目の受入は別途。"
       }
 
     ];

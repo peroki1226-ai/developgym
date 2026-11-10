@@ -121,6 +121,9 @@ test.each(["ja", "en"] as const)(
         }),
       ).toBeTruthy();
       expect(screen.getByText(t(equipment.seatSetup))).toBeTruthy();
+      expect(screen.getByTestId("beginner-machine-lesson")).toBeTruthy();
+      for (const step of ["posture", "hands", "feet", "move"])
+        expect(screen.getByRole("radio", { name: t(`learn.${step}`) })).toBeTruthy();
       expect(
         screen.getByRole("button", { name: t("🔰 初心者モード") }).props
           .accessibilityState.selected,

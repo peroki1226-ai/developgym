@@ -76,7 +76,7 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -98,7 +98,7 @@
         <span class="font-num text-white">32 / 34 TASKS COMPLETED (94%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 91%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
       </div>
     </div>
 
@@ -112,7 +112,7 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-033：胸の位置が低いという指摘に対応。<a class="underline" href="docs/CHEST_MUSCLE_PLACEMENT.md">変更内容と比較手順</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-034：写真を参考に筋肉のある全身形状と自然な変形を再制作。<a class="underline" href="docs/MUSCULAR_HUMAN_MODEL.md">変更内容・実表示の手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-034：写真を参考に筋肉のある全身形状と自然な変形を再制作。AntigravityのLGTM受入完了。<a class="underline" href="docs/MUSCULAR_HUMAN_MODEL.md">変更内容・実表示の手順</a></p>
 
     <p class="text-xs text-neutral-300 px-1">2026-11-05 方針更新：mobile/のネイティブアプリを本体に、登録済みiPhoneへのAd Hoc直接配布で操作確認。TestFlight・ストア配布はユーザーの明示的な再開指示まで保留。Web/PWAは補助用途です。</p>
 
@@ -581,11 +581,11 @@
         id: "TASK-034",
         title: "写真参考の全身筋肉模型・自然な胴体と衣服の変形",
         category: "Native Human Model",
-        assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "写真に対する見た目をレビュー依頼",
+        assignee: "Codex / Antigravity",
+        status: "DONE",
+        rating: "LGTM",
         desc: "肩/胸/腕/腹/脚の実形状、断面を保つ胴体変形、衣服追従、陰影を再制作。着色OFFでも筋肉の輪郭を表示。既存の器具接点/初心者/日英/記録を維持。",
-        review: "39 suites/508 tests・型/監査/両OSバンドル成功。全24種×日英×2幅×開始終了×三方向=576状態の実WebGLでエラー0。実機と写真に対する見た目は受入待ち。"
+        review: "39 suites/508 tests・型/監査/両OSバンドル成功。全24種×日英×2幅×開始終了×三方向=576状態の実WebGLでエラー0。2026-11-10 Antigravityがa210c96の差分を受入（d9a3fbb）。実機配布確認はTASK-018で指示待ち。"
       }
 
     ];

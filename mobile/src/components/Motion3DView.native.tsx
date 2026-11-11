@@ -44,6 +44,7 @@ export function Motion3DView(props: Motion3DProps) {
     props.muscle,
     props.variant,
     props.returning,
+    props.guidance,
   ]);
   const create = (gl: ExpoWebGLRenderingContext) => {
     if (!alive.current) return;

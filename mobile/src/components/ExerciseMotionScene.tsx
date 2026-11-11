@@ -1,3 +1,5 @@
+import { chestMotionPaths } from "../domain/chestMotion";
+import { projectPhotoChest } from "../domain/photoChestProjection";
 import React, { useMemo } from "react";
 import { Muscle } from "../domain/muscleMotion";
 import { Circle, Ellipse, G, Line, Path, Polyline, Text as SvgText } from "react-native-svg";
@@ -21,7 +23,7 @@ function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset
     <SvgText x={x} y={y + 1.5} fontSize={4.5} textAnchor="middle" fontWeight="bold" fill={color}>{number}</SvgText>
   </G>;
 }
-export function ExerciseMotionScene({ type, progress, details = false, returning = false, anatomy = true, selectedMuscle, variant }: { type: string; variant?: LegPressVariant; progress: number; details?: boolean; returning?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
+export function ExerciseMotionScene({ type, progress, details = false, returning = false, guidance = false, anatomy = true, selectedMuscle, variant }: { type: string; variant?: LegPressVariant; progress: number; details?: boolean; returning?: boolean; guidance?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
   const pose = guidePose(type, progress, variant);
   const { start, trace, trajectory } = useMemo(() => {
     const contact = (p: ExercisePose) => motionContact(type, p);
@@ -50,6 +52,12 @@ export function ExerciseMotionScene({ type, progress, details = false, returning
     {details && <Polyline points={points(partial)} stroke={person} strokeWidth={1.5} fill="none" opacity={0.75} />}
     <HumanFigure type={type} pose={pose} progress={progress} anatomy={anatomy} selectedMuscle={selectedMuscle} />
     <EquipmentContacts type={type} pose={pose} />
+    {guidance && chestMotionPaths(type,progress,returning).map((path,index)=>{
+      const a=projectPhotoChest(type,path.tail), b=projectPhotoChest(type,path.tip), angle=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;
+      return <G key={index}><Polyline points={points(path.points.map(p=>projectPhotoChest(type,p)))} stroke="#879aa8" strokeWidth={.45} strokeDasharray="1 1" fill="none"/>
+        <Line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#254f70" strokeWidth={1.1}/>
+        <Path d="M-3 -2 L0 0 L-3 2" transform={`translate(${b[0]} ${b[1]}) rotate(${angle})`} fill="none" stroke="#254f70" strokeWidth={1.1}/></G>;
+    })}
     {details && <>
       <Marker point={teaching.fixed} number={1} offset={8} />
       <Marker point={teaching.moving} number={2} offset={-8} />

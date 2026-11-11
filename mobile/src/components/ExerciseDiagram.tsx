@@ -1,3 +1,5 @@
+import { ChestLiveLesson } from "./ChestLiveLesson";
+import { chestCyclePose, chestCyclePosition } from "../domain/chestMotion";
 import { chestLesson } from "../domain/chestLessons";
 import { guidePose } from "../domain/photoChestProjection";
 import React, { useState, useEffect, useCallback } from "react";
@@ -99,6 +101,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   useEffect(() => {
     if (!beginner) return;
     motion.seek(type === "chest-dip" ? 1 : 0, "work");
+    if (chestLesson(type)) motion.setSpeed(.5);
     setLearningStep("posture"); setAdvanced(false);
     setFocus("whole"); setView("front"); setTransparent(false);
   }, [type, beginner]);
@@ -134,6 +137,21 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const learningHint = learningStep === "posture" ? t("learn.setup", { 0: t(beginnerGuide?.seatSetup ?? "learn.postureHint") })
     : learningStep === "hands" ? t(lesson ? `${lesson.prefix}.hands` : type === "back-extension" ? "scene.crossHandsHint" : "learn.handsHint")
     : learningStep === "feet" ? t(lesson ? `${lesson.prefix}.feet` : footHint) : t(phaseInstruction);
+  const guidedChest = beginner && !advanced && !!lesson;
+  const prepareChestMotion = () => {
+    if (learningStep !== "move") { chooseLearningStep("move"); motion.seek(type === "chest-dip" ? 1 : 0, "work"); }
+    setAnatomy(true);
+  };
+  const playChest = () => {
+    prepareChestMotion();
+    if (motion.running || motion.repetitionActive) motion.toggle();
+    else motion.playRepetition(type === "chest-dip");
+  };
+  const inspectChest = (position: number) => {
+    if (learningStep !== "move") chooseLearningStep("move");
+    const pose = chestCyclePose(type, position);
+    motion.inspectRepetition(pose.progress, pose.direction, pose.completed);
+  };
   const breathing = t(`learn.breath.${motion.phase}`);
   const phaseLabel =
     motion.phase === "work"
@@ -160,6 +178,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         <Text style={styles.badge}>{t(muscleTag)}</Text>
       </View>
       {beginner && !advanced && <BeginnerMachineSteps step={learningStep} onSelect={chooseLearningStep} hint={learningHint} breathing={learningStep === "move" ? breathing : undefined} />}
+      {guidedChest && learningStep !== "move" && <Button title={t("chest.live.watch")} onPress={playChest} disabled={!motion.canPlay} />}
       {controlsVisible && <>
       <View
         accessibilityRole="radiogroup"
@@ -252,6 +271,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
             <Motion3DView
               type={type}
               variant={type === "leg-press" ? legPressVariant : undefined}
+              guidance={guidedChest && learningStep === "move"}
               returning={motion.phase === "return"}
               progress={motion.progress}
               anatomy={anatomy}
@@ -276,6 +296,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
               variant={type === "leg-press" ? legPressVariant : undefined}
               progress={motion.progress}
               details={details}
+              guidance={guidedChest && learningStep === "move"}
               returning={motion.phase === "return" || motion.phase === "hold"}
               anatomy={anatomy}
               selectedMuscle={focus === "muscles" ? selectedMuscle : undefined}
@@ -288,8 +309,15 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
+      {guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
+        running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} focused={focus === "muscles"}
+        onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
+        onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}
+        onView={value => {setView(value);setTransparent(value === "back" || focus === "muscles");}}
+        onFocus={() => {if(focus === "muscles"){setFocus("whole");setTransparent(false);}else{setSelectedMuscle(muscleSpec(type).focus);setFocus("muscles");setView("front");setTransparent(true);}}}/>}
       {beginner && !advanced && learningStep === "posture" && beginnerGuide && <BeginnerSetupNotes guide={beginnerGuide} />}
       {beginner && !advanced && <View style={{ gap: 8 }}>
+        {guidedChest && learningStep === "move" && <Text style={styles.note}>{t("chest.live.phases")}</Text>}
         {learningStep !== "move" ? <Button title={t("learn.next", { 0: t(`learn.${LEARNING_STEPS[LEARNING_STEPS.indexOf(learningStep) + 1]}`) })} onPress={() => chooseLearningStep(LEARNING_STEPS[LEARNING_STEPS.indexOf(learningStep) + 1])} /> : <>
           <Button title={t(motion.running ? "learn.pause" : "learn.playWork")} disabled={!motion.canPlay} onPress={() => motion.running ? motion.toggle() : motion.playSegment("work")} />
           <Button title={t("learn.playReturn")} disabled={!motion.canPlay || motion.running} variant="quiet" onPress={() => motion.playSegment("return")} />
@@ -297,7 +325,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
             <Button title={t("motion.startPose")} variant="quiet" onPress={() => motion.seek(0, "work")} />
             <Button title={t("motion.endPose")} variant="quiet" onPress={() => motion.seek(1, "work")} />
           </View>
-          {motion.reduced && <Text style={styles.note}>{t("motion.reducedHint")}</Text>}
+          {motion.reduced && !guidedChest && <Text style={styles.note}>{t("motion.reducedHint")}</Text>}
         </>}
       </View>}
       {beginner && <Button title={t(advanced ? "learn.simple" : "learn.advanced")} variant="quiet" onPress={() => { if (advanced) chooseLearningStep(learningStep); setAdvanced(!advanced); }} />}

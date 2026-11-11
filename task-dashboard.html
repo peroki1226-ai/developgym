@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">33</span> / <span id="stat-total" class="text-neutral-500">35</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">33</span> / <span id="stat-total" class="text-neutral-500">36</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">33 / 35 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">33 / 36 TASKS COMPLETED (92%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 91%"></div>
@@ -122,7 +122,9 @@
       <a class="text-xs underline" href="https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785" target="_blank" rel="noopener noreferrer">対象ビルドの状況をExpoで確認</a>
     </div>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-035：胸５種目の初心者フォーム解説と動く人体模型を実装。40 suites/542 tests・型/監査/両OSバンドル・実画面検証成功、レビュー待ち。<a class="underline" href="docs/CHEST_BEGINNER_GUIDES.md">開き方と受入手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-035：胸５種目の初心者フォーム解説と動く人体模型はAntigravity受入完了。40 suites/542 tests・型/監査/両OSバンドル成功。<a class="underline" href="docs/CHEST_BEGINNER_GUIDES.md">開き方と受入手順</a></p>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-036：模型を実際に再生・ドラッグして、正しい動きと効かせ方を学ぶ操作を実装。552テスト・型/監査/両OSバンドル・実タッチ確認成功、レビュー待ち。<a class="underline" href="docs/INTERACTIVE_CHEST_LESSON.md">操作とレビュー手順</a></p>
 
     <!-- View Switcher -->
     <div class="flex items-center justify-between border-b border-white/15 pb-3">
@@ -595,10 +597,17 @@
         title: "胸５種目の初心者フォーム・狙い/意識/注意/コツと動く模型",
         category: "Native Chest Lessons",
         assignee: "Codex",
-        status: "IN REVIEW",
-        rating: "PENDING",
+        status: "DONE",
+        rating: "LGTM",
         desc: "インクラインダンベル・チェストプレス・ペックフライ・胸ディップス・インクラインハンマー。筋肉のある模型と日英の詳細解説、狙いの図、間違いと直し方、補助付き導線。",
         review: "40 suites/542 tests・型/言語/設定検査・両OS Hermes書き出し成功。日英/320・390幅×5種×開始終了×三方向120状態と教材80画面を実WebGLで確認、エラー0。器具と握り・狙う部位・修正手順をAntigravityへ受入依頼。TestFlight/EAS配布は保留。"
+      }
+
+      ,{
+        id: "TASK-036", title: "ユーザー指定：模型で正しい動き・効かせ方を学ぶ操作",
+        category: "Interactive Chest Lesson", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "胸５種目の１往復再生、停止・再開、指で動かすバー、三方向と拡大、軌道矢印と収縮・伸張の同期。",
+        review: "41 suites/552 tests・型/監査・両OSバンドル成功。日英/320・390幅の実タッチ20ケース、停止/再開/１往復終了/マウス操作を確認、エラー0。ユーザー指定範囲のみ受入依頼。その他タスク・配布は進めない。"
       }
 
     ];

@@ -1,3 +1,4 @@
+import { chestMotionPaths } from "../domain/chestMotion";
 import * as THREE from "three";
 import { createRealisticHuman } from "./realisticHuman";
 import { createCurvedEquipmentGeometry, createEquipmentGeometries } from "./equipmentGeometry";
@@ -13,6 +14,7 @@ export type SceneInput = {
   muscle?: Muscle;
   variant?: TrainingFrame3["variant"];
   returning?: boolean;
+  guidance?: boolean;
 };
 const v = (a: V3) => new THREE.Vector3(...a);
 const yAxis = new THREE.Vector3(0, 1, 0);
@@ -58,6 +60,8 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
     rubber: material("#25282b", 0.01, 0.86),
     chrome: material("#c5cbd0", 0.9, 0.2),
     pin: material("#fff", 0, 0.45),
+    motionPath: new THREE.MeshBasicMaterial({ color: "#879aa8", transparent: true, opacity: .4, depthTest: false, depthWrite: false }),
+    motionArrow: new THREE.MeshBasicMaterial({ color: "#254f70", depthTest: false, depthWrite: false }),
     flow: new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 1, depthTest: false, depthWrite: false })
   };
   const geometries = createEquipmentGeometries();
@@ -169,6 +173,17 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
         }
       });
     }
+    if (input.guidance) chestMotionPaths(frame.type,input.progress,!!input.returning).forEach((path,index)=>{
+      const line = (id: string, a: V3, b: V3, radius: number, mat: THREE.Material) => {
+        const node = mesh(id,"beam",mat), direction=v(sub3(b,a));
+        node.position.copy(v(mix3(a,b,.5)));node.quaternion.setFromUnitVectors(yAxis,direction.clone().normalize());
+        node.scale.set(radius,direction.length(),radius);node.renderOrder=15;
+      };
+      path.points.slice(1).forEach((point,i)=>line(`lesson-path-${index}-${i}`,path.points[i],point,.17,materials.motionPath));
+      line(`lesson-arrow-${index}`,path.tail,path.tip,.4,materials.motionArrow);
+      const tip=mesh(`lesson-arrow-tip-${index}`,"cone",materials.motionArrow);
+      tip.position.copy(v(path.tip));tip.quaternion.setFromUnitVectors(yAxis,v(path.direction));tip.scale.set(.9,1.8,.9);tip.renderOrder=16;
+    });
     const contact = input.focus === "hands" ? frame.contacts[1] : input.focus === "feet" ? frame.contacts[2] : null;
     contact?.points.forEach((p, i) => sphere("contact" + i, p, [1.6, 1.6, 1.6], materials.pin));
     group.updateMatrixWorld(true);

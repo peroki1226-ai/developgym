@@ -27,9 +27,11 @@ export function useExerciseMotion(
   const [frame, setFrame] = useState<MotionFrame>(() => sampleMotion(0));
   const current = useRef(frame);
   const elapsed = useRef(0);
-  const segment = useRef<{ direction: "work" | "return"; end: number } | null>(
+  const segment = useRef<{ direction: "work" | "return" | "cycle"; end: number } | null>(
     null,
   );
+  const [repetitionActive, setRepetitionActive] = useState(false);
+  const [completedRepetition, setCompletedRepetition] = useState(false);
   const [completedSegment, setCompletedSegment] = useState<
     "work" | "return" | null
   >(null);
@@ -42,6 +44,7 @@ export function useExerciseMotion(
   useLayoutEffect(() => {
     elapsed.current = 0;
     segment.current = null;
+    setRepetitionActive(false); setCompletedRepetition(false);
     setCompletedSegment(null);
     publish(sampleMotion(0));
     setRequested(autoPlay);
@@ -89,7 +92,9 @@ export function useExerciseMotion(
       if (segment.current && next >= segment.current.end) {
         elapsed.current = segment.current.end;
         publish(sampleMotion(elapsed.current));
-        setCompletedSegment(segment.current.direction);
+        const finished = segment.current.direction;
+        setCompletedSegment(finished === "cycle" ? null : finished);
+        setCompletedRepetition(finished === "cycle"); setRepetitionActive(false);
         segment.current = null;
         setRequested(false);
         return;
@@ -108,6 +113,7 @@ export function useExerciseMotion(
   function seek(value: number, direction?: "work" | "return") {
     const progress = clampProgress(value);
     segment.current = null;
+    setRepetitionActive(false); setCompletedRepetition(false);
     setCompletedSegment(null);
     const returning = direction
       ? direction === "return"
@@ -137,6 +143,7 @@ export function useExerciseMotion(
   }
   function step(direction: -1 | 1) {
     segment.current = null;
+    setRepetitionActive(false); setCompletedRepetition(false);
     setCompletedSegment(null);
     const position = framePosition(current.current, elapsed.current);
     const next =
@@ -160,8 +167,21 @@ export function useExerciseMotion(
     canStepBack: position > 1e-7,
     canStepForward: position < 40 - 1e-7,
     completedSegment,
+    repetitionActive, completedRepetition,
+    playRepetition: (fromTop = false) => {
+      if (!active || !foreground || reduced !== false) return;
+      let start = elapsed.current % MOTION_CYCLE_MS;
+      if (completedRepetition) start = fromTop ? 2250 : 0;
+      else if (fromTop) start = start < 1800 ? start + MOTION_CYCLE_MS : start < 2250 ? 2250 : start;
+      else if (start >= 4650) start = 0;
+      elapsed.current = start;
+      segment.current = {direction: "cycle", end: fromTop ? MOTION_CYCLE_MS + 1800 : 4650};
+      setCompletedSegment(null); setCompletedRepetition(false); setRepetitionActive(true);
+      publish(sampleMotion(start)); setRequested(true);
+    },
     playSegment: (direction: "work" | "return") => {
       if (!active || !foreground || reduced !== false) return;
+      setRepetitionActive(false); setCompletedRepetition(false);
       segment.current = { direction, end: direction === "work" ? 1800 : 4650 };
       elapsed.current = direction === "work" ? 0 : 2250;
       setCompletedSegment(null);
@@ -175,6 +195,9 @@ export function useExerciseMotion(
     },
     setSpeed: (value: PlaybackSpeed) => {
       if (PLAYBACK_SPEEDS.includes(value)) setSpeedValue(value);
+    },
+    inspectRepetition: (progress: number, direction: "work" | "return", completed: boolean) => {
+      seek(progress, direction); setCompletedRepetition(completed);
     },
     seek,
     step,

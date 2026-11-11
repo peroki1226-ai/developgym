@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">92%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">34</span> / <span id="stat-total" class="text-neutral-500">36</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">34</span> / <span id="stat-total" class="text-neutral-500">37</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">34 / 36 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">34 / 37 TASKS COMPLETED (92%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 91%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 92%"></div>
       </div>
     </div>
 
@@ -124,7 +124,9 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-035：胸５種目の初心者フォーム解説と動く人体模型はAntigravity受入完了。40 suites/542 tests・型/監査/両OSバンドル成功。<a class="underline" href="docs/CHEST_BEGINNER_GUIDES.md">開き方と受入手順</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-036：模型を実際に再生・ドラッグして、正しい動きと効かせ方を学ぶ操作を実装。552テスト・型/監査/両OSバンドル・実タッチ確認成功、レビュー待ち。<a class="underline" href="docs/INTERACTIVE_CHEST_LESSON.md">操作とレビュー手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-036：模型を実際に再生・ドラッグする操作はAntigravity受入済み。552テスト・型/監査/両OSバンドル成功。<a class="underline" href="docs/INTERACTIVE_CHEST_LESSON.md">操作とレビュー手順</a></p>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-037：人体の形・曲げた関節・肌と目の質感を修正。558テスト・両OSバンドル・624状態成功、見た目の受入待ち。<a class="underline" href="docs/NATURAL_HUMAN_MODEL.md">変更内容と比較手順</a></p>
 
     <!-- View Switcher -->
     <div class="flex items-center justify-between border-b border-white/15 pb-3">
@@ -605,9 +607,16 @@
 
       ,{
         id: "TASK-036", title: "ユーザー指定：模型で正しい動き・効かせ方を学ぶ操作",
-        category: "Interactive Chest Lesson", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        category: "Interactive Chest Lesson", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "胸５種目の１往復再生、停止・再開、指で動かすバー、三方向と拡大、軌道矢印と収縮・伸張の同期。",
         review: "41 suites/552 tests・型/監査・両OSバンドル成功。日英/320・390幅の実タッチ20ケース、停止/再開/１往復終了/マウス操作を確認、エラー0。ユーザー指定範囲のみ受入依頼。その他タスク・配布は進めない。"
+      }
+
+      ,{
+        id: "TASK-037", title: "ユーザー指定：人体の形状・関節変形・質感を実物へ近づける",
+        category: "Natural Human Model", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "肩/胸/腕/脚の膨らみを整え、関節の体積を保つ変形と肌・目の質感を導入。器具と握り・再生操作を維持。",
+        review: "43 suites/558 tests、型/監査、両OSバンドル成功。再生成一致・全26種/日英/2幅/三方向624状態と胸5種の実再生を確認、エラー0。比較画像/動画で見た目の受入待ち。他タスク・配布へは進めない。"
       }
 
     ];

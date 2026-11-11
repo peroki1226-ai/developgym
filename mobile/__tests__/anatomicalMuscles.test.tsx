@@ -70,6 +70,8 @@ test("the bundled base, morphs, skeleton and weights have pinned CC0 provenance"
 test("colour selection and transparency never change human shape or make the body transparent", () => {
   const app = setup();
   for (const type of MOTION_TYPES) for (const muscle of muscleSpec(type).primary) {
+    app.handle.draw({...input,type,muscle,anatomy:false,transparent:true});
+    const neutralColours=Array.from(app.mesh().geometry.attributes.color.array);
     app.handle.draw({
       ...input,
       type,
@@ -88,9 +90,8 @@ test("colour selection and transparency never change human shape or make the bod
     });
     expect(Array.from(app.mesh().geometry.attributes.position.array)).toEqual(before);
     const c = app.mesh().geometry.attributes.color;
-    expect(Array.from({
-      length: c.count
-    }, (_, i) => c.getX(i) === c.getY(i) && c.getY(i) === c.getZ(i)).every(Boolean)).toBe(true);
+    expect(Array.from(c.array)).toEqual(neutralColours);
+    expect(Array.from(app.mesh().geometry.attributes.muscleTint.array).every(value=>value===0)).toBe(true);
     expect((app.mesh().material as THREE.Material).transparent).toBe(false);
   }
   app.handle.dispose();

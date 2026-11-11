@@ -34,18 +34,18 @@ def morph(name):
     return delta
 for ethnic in ['asian', 'caucasian', 'african']:
     verts += morph('macrodetails/' + ethnic + '-male-young') / 3
-verts += morph('macrodetails/universal-male-young-maxmuscle-averageweight') * .65
-verts += morph('macrodetails/universal-male-young-maxmuscle-minweight') * .35
+verts += morph('macrodetails/universal-male-young-maxmuscle-averageweight') * .35
+verts += morph('macrodetails/universal-male-young-maxmuscle-minweight') * .65
 pectoral_shape = morph('torso/torso-muscle-pectoral-incr')
-verts += pectoral_shape * .3
-verts += morph('torso/torso-muscle-dorsi-incr') * .55
-verts += morph('torso/torso-vshape-incr') * .35
+verts += pectoral_shape * .15
+verts += morph('torso/torso-muscle-dorsi-incr') * .4
+verts += morph('torso/torso-vshape-incr') * .2
 verts += morph('stomach/stomach-tone-incr') * .9
-verts += morph('neck/neck-scale-horiz-incr') * .25
+verts += morph('neck/neck-scale-horiz-incr') * .35
 for side in ['l', 'r']:
-    for area, amount in [('upperarm', .75), ('lowerarm', .35), ('upperleg', .75), ('lowerleg', .55)]:
+    for area, amount in [('upperarm', .5), ('lowerarm', .3), ('upperleg', .6), ('lowerleg', .45)]:
         verts += morph('armslegs/' + side + '-' + area + '-muscle-incr') * amount
-    verts += morph('armslegs/' + side + '-upperarm-shoulder-muscle-incr') * .95
+    verts += morph('armslegs/' + side + '-upperarm-shoulder-muscle-incr') * .5
 skel = json.loads(read('rigs/default.mhskel'))
 weights = json.loads(read('rigs/default_weights.mhw'))
 assert skel['license'] == 'CC0' and weights['license'] == 'CC0'
@@ -58,9 +58,9 @@ for group,poly in faces:
     if group in ['body','helper-tights']: sculptable[poly]=True
 for side in ['L','R']:
     for prefix,start_bone,end_bone,amount in [
-        ('upperarm','upperarm01','lowerarm01',.14),
-        ('upperleg','upperleg01','lowerleg01',.16),
-        ('lowerleg','lowerleg01','foot',.08),
+        ('upperarm','upperarm01','lowerarm01',.08),
+        ('upperleg','upperleg01','lowerleg01',.10),
+        ('lowerleg','lowerleg01','foot',.06),
     ]:
         h=joint(start_bone+'.'+side,'head'); tail=joint(end_bone+'.'+side,'head')
         axis=tail-h; length=np.linalg.norm(axis); axis/=length
@@ -82,7 +82,7 @@ x=np.abs(verts[:,0]); y=verts[:,1]; z=verts[:,2]
 clavicle=joint('clavicle.L','head')[1]
 front=np.clip((z-.4)/.5,0,1)*skin
 gauss=lambda cx,cy,sx,sy: np.exp(-((x-cx)/sx)**2-((y-cy)/sy)**2)
-relief=-.14*gauss(.78,clavicle-1.48,.62,.42)+.12*gauss(.85,clavicle-.72,.7,.5)
+relief=-.25*gauss(.78,clavicle-1.48,.62,.42)+.20*gauss(.85,clavicle-.72,.7,.5)
 for level in [3.85,3.05,2.3]: relief+=.12*gauss(.38,level,.28,.32)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
 relief-=.028*np.exp(-(x/.085)**2)*ab_window
@@ -296,7 +296,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'muscular-adult-v2','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'natural-athletic-adult-v3','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 output=a.output
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')
 print(json.dumps({'output':str(output),'vertices':n,'triangles':len(indices)//3,'bones':len(bones),'muscles':{k:int(np.sum(v>0)) for k,v in masks.items()},'bytes':output.stat().st_size},indent=2))

@@ -1,3 +1,5 @@
+import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
+import { VolumeSkinner } from "./volumeSkinning";
 import * as THREE from "three";
 import asset from "../data/human/makehuman.json";
 import { Muscle } from "../domain/muscleMotion";
@@ -83,7 +85,7 @@ function footTransform(frame: TrainingFrame3, index: number, ankle: V3) {
     foot = frame.feet[i];
   const end = add3(add3(ankle, mul3(foot.toe, 3)), mul3(foot.up, -1.5));
   const scale = length3(sub3(end, ankle)) / length3(sub3(as3(rest[name].tail), as3(rest[name].head)));
-  const radial = SCALE * clamp(Math.sqrt(scale / SCALE), .85, 1.35);
+  const radial = SCALE;
   return basis(ankle, end, frame.body.right).scale(new THREE.Vector3(radial, scale, radial)).multiply(inverseBind[index]);
 }
 function targets(frame: TrainingFrame3) {
@@ -189,7 +191,7 @@ function targets(frame: TrainingFrame3) {
       }
     }
     const scaleY = length3(sub3(end, start)) / Math.max(.01, length3(sub3(as3(source.tail), as3(source.head))));
-    const radial = SCALE * clamp(Math.sqrt(scaleY / SCALE), .85, 1.35);
+    const radial = SCALE;
     // Swing from the authored rest direction. A bend-plane sign must never flip
     // the skin through 180 degrees as a limb approaches its straight position.
     const originalDirection = vec(sub3(as3(source.tail), as3(source.head))).normalize().applyMatrix4(rootRotation);
@@ -308,7 +310,7 @@ export function createRealisticHuman(parent: THREE.Group) {
   for (const [name, data, size] of [["position", positions, 3], ["normal", posedNormals, 3], ["color", colours, 3], ["muscleCoord", fibres, 2], ["muscleTint", tint, 1]] as const) geometry.setAttribute(name, new THREE.BufferAttribute(data, size).setUsage(THREE.DynamicDrawUsage));
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
-    roughness: .55,
+    roughness: HUMAN_SURFACE.roughness,
     metalness: 0
   });
   material.onBeforeCompile = shader => {
@@ -326,11 +328,9 @@ export function createRealisticHuman(parent: THREE.Group) {
     strength = new Float32Array(asset.vertexCount),
     sourceT = new Float32Array(asset.vertexCount),
     axes = new Float32Array(base.length);
-  const normalMatrices = asset.bones.map(() => new THREE.Matrix3());
-  const neutral = new THREE.Color("#b7b7b7"),
-    red = new THREE.Color("#b94b3e"),
-    cloth = new THREE.Color("#333333"),
-    eye = new THREE.Color("#555555");
+  const skinner = new VolumeSkinner(asset.bones.length, SCALE);
+  const neutralColours = humanSurfaceColours(base,clothes);
+  const red = new THREE.Color("#b94b3e");
   function bindActiveMuscles(active: readonly Muscle[]) {
     dominant.fill(255);
     for (let i = 0; i < asset.vertexCount; i++) {
@@ -401,7 +401,7 @@ export function createRealisticHuman(parent: THREE.Group) {
           colouredVertices: 0
         };
       });
-      transforms.forEach((matrix, i) => normalMatrices[i].getNormalMatrix(matrix));
+      skinner.update(transforms);
       const sourcePoint = new THREE.Vector3(),
         sourceNormal = new THREE.Vector3(),
         point = new THREE.Vector3(),
@@ -416,32 +416,9 @@ export function createRealisticHuman(parent: THREE.Group) {
         const axial = (0.5 - sourceT[i]) * amount * .35 * strength[i] * window;
         sourcePoint.set(base[k] + normals[k] * bulge + axes[k] * axial, base[k + 1] + normals[k + 1] * bulge + axes[k + 1] * axial, base[k + 2] + normals[k + 2] * bulge + axes[k + 2] * axial);
         sourceNormal.set(normals[k], normals[k + 1], normals[k + 2]);
-        let px = 0,
-          py = 0,
-          pz = 0,
-          nx = 0,
-          ny = 0,
-          nz = 0;
-        for (let j = 0; j < 4; j++) {
-          const w = weights[i * 4 + j];
-          if (!w) continue;
-          const id = boneIds[i * 4 + j];
-          point.copy(sourcePoint).applyMatrix4(transforms[id]);
-          n.copy(sourceNormal).applyMatrix3(normalMatrices[id]);
-          px += point.x * w;
-          py += point.y * w;
-          pz += point.z * w;
-          nx += n.x * w;
-          ny += n.y * w;
-          nz += n.z * w;
-        }
-        positions[k] = px;
-        positions[k + 1] = py;
-        positions[k + 2] = pz;
-        n.set(nx, ny, nz).normalize();
-        posedNormals[k] = n.x;
-        posedNormals[k + 1] = n.y;
-        posedNormals[k + 2] = n.z;
+        skinner.apply(sourcePoint,sourceNormal,boneIds,weights,i*4,point,n);
+        positions[k] = point.x; positions[k + 1] = point.y; positions[k + 2] = point.z;
+        posedNormals[k] = n.x; posedNormals[k + 1] = n.y; posedNormals[k + 2] = n.z;
         let mask = 0;
         if (anatomy && clothes[i] !== 2) for (const active of frame.muscles) {
           const value = masks[active]?.[i] ?? 0;
@@ -449,7 +426,7 @@ export function createRealisticHuman(parent: THREE.Group) {
           if (value > 35) states[muscleNames.indexOf(active)].colouredVertices++;
         }
         tint[i] = clamp(mask * 1.6);
-        colour.copy(clothes[i] === 1 ? cloth : clothes[i] === 2 ? eye : neutral);
+        colour.fromArray(neutralColours,k);
         if (clothes[i] !== 2) colour.lerp(red, tint[i]);
         colour.multiplyScalar(surfaceOcclusion[i] / 255);
         colours[k] = colour.r;

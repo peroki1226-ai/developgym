@@ -14,10 +14,10 @@ const influence = (vertex: number, bone: number) => {
 // P90 radial distances measured on the previous shipped reference, in authored
 // mesh units. Keep this visual-change baseline explicit, not a human body claim.
 test.each([
-  ['upperarm.L', .6398608029713332, 1.10],
-  ['thigh.L', 1.1768379298549618, 1.07],
-  ['shin.L', .8037548006800376, 1.10],
-] as const)("%s: the actual muscle surface has more volume than the earlier model", (name, previous, increase) => {
+  ['upperarm.L', 0.7334245052826617, .8],
+  ['thigh.L', 1.3108028330607069, .8],
+  ['shin.L', 0.9147077530547915, .8],
+] as const)("%s: the leaner muscle surface retains bounded volume without the earlier exaggerated bulk", (name, previous, increase) => {
   const bone = asset.bones.indexOf(name), rest = asset.rest[name];
   const axis = unit3(sub3(rest.tail as [number,number,number],rest.head as [number,number,number]));
   const span = length3(sub3(rest.tail as [number,number,number],rest.head as [number,number,number]));
@@ -33,10 +33,10 @@ test.each([
   const index = .9*(distances.length-1), low = Math.floor(index);
   const current = distances[low]+(distances[Math.ceil(index)]-distances[low])*(index-low);
   expect(current).toBeGreaterThan(previous*increase);
-  expect(current).toBeLessThan(previous*1.35); // Muscle bellies, not swollen joints.
+  expect(current).toBeLessThan(previous*1.02); // Muscle bellies, not swollen joints.
 });
 test("the muscular profile retains pinned CC0 source data including its new regional morphs", () => {
-  expect(asset.profile).toBe('muscular-adult-v2');
+  expect(asset.profile).toBe('natural-athletic-adult-v3');
   const files=asset.source.files.map(f=>f.file);
   expect(files).toEqual(expect.arrayContaining([
     'targets/armslegs/l-upperarm-shoulder-muscle-incr.target',

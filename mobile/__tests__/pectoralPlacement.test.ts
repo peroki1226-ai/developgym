@@ -38,13 +38,13 @@ test("the clavicular portion is above the whole-muscle centroid and stays inside
   expect(weightedHeight(masks.upperChest)).toBeGreaterThan(weightedHeight(masks.chest) + .2);
   masks.upperChest.forEach((value, i) => expect(value).toBeLessThanOrEqual(masks.chest[i]));
 });
-test("the mask-refresh baseline pins the intentionally resculpted muscular adult surface and other regions", () => {
+test("the mask-refresh baseline pins the intentionally resculpted natural athletic adult surface and other regions", () => {
   const digest = createHash('sha256');
   for (const field of ['positions', 'normals', 'indices', 'skinIndices', 'skinWeights', 'materials'] as const) digest.update(asset[field]);
-  expect(digest.digest('hex')).toBe('4d6f5973afda5191d3d428e00677ce92e05ac3be28ef3f8359680cfa2dd281d5');
+  expect(digest.digest('hex')).toBe('1c7a2acd3fc1de454b35fc8f87e691b7010b6b6336bee183ddc1d7b9c50abf37');
   const otherMasks = createHash('sha256');
   for (const key of Object.keys(asset.muscleMasks).filter(k => !['chest','upperChest'].includes(k)).sort()) otherMasks.update(key).update(asset.muscleMasks[key as keyof typeof asset.muscleMasks]);
-  expect(otherMasks.digest('hex')).toBe('753056f0998c29aed5a1b66887e77ca7c2786bf458fc3f5ea8d75141a045d67f');
+  expect(otherMasks.digest('hex')).toBe('14e071c0fe15e2e3946f7fc3624c2ac69a1a30f33a9e907b02a69ef7b5d48497');
 });
 test.each(['chest-press','pec-fly','incline-smith','dumbbell-heavy','cable-machine','assisted-dip'])("%s: chest colour follows the upper ribcage throughout the movement without changing grips", type => {
   const human = createRealisticHuman(new THREE.Group());

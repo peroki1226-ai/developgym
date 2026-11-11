@@ -77,3 +77,26 @@ The photograph guides muscular volume and transitions, not identity or exact
 body measurements. Full regeneration from the pinned source is required for this
 profile; the pectoral-only refresh command still changes only its two masks.
 The earlier geometry/mask digests are intentionally replaced for this resculpt.
+
+## Natural athletic profile (v3; supersedes the muscular v2 shape)
+
+`natural-athletic-adult-v3` uses the same pinned CC0 source, topology and 23 source
+files. The blend is leaner, with less added deltoid/arm/thigh bulk and lower-pec
+projection, and more evenly distributed upper-pectoral relief. This is a revised
+illustrative adult, not a claim that the earlier bulky body type is impossible.
+Full regeneration updates the rest landmarks, garment weights and muscle masks;
+the mask-only refresh must preserve this new profile's shape digest.
+
+Runtime skinning now blends rigid motion with dual quaternions and retains an
+affine stretch residual for the retargeted skeleton. This preserves joint volume
+through bending/twisting while retaining exact single-bone transformations.
+Authored limb/foot cross-sections stay at the common body scale, instead of
+thickening when a target bone is longer. Grip targets, machine mechanisms and
+exercise IDs are unchanged. Fully rigid vertices use a direct affine fast path.
+
+The matte muted skin and eye-white/iris/pupil vertex colours are separate from
+the target-muscle overlay. Switching off the overlay restores those natural
+surface colours. There are no skin photographs, runtime textures, additional
+meshes or animation clocks. The neutral skin is an illustrative palette, not a
+reconstruction of a particular person. Real-device performance and visual
+acceptance remain separate from automated tests and desktop WebGL inspection.

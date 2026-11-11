@@ -1,3 +1,4 @@
+import { CHEST_EQUIPMENT } from "./chestEquipment";
 import { ADDITIONAL_EQUIPMENTS } from "./equipmentAdditions";
 
 export interface EquipmentItem {
@@ -24,7 +25,7 @@ export interface EquipmentItem {
   builderTip: string;
 }
 
-export const EQUIPMENTS: EquipmentItem[] = [
+const BASE_EQUIPMENTS: EquipmentItem[] = [
   {
     id: "chest-press",
     name: "チェストプレス",
@@ -388,3 +389,5 @@ export const EQUIPMENTS: EquipmentItem[] = [
   },
   ...ADDITIONAL_EQUIPMENTS,
 ];
+
+export const EQUIPMENTS: EquipmentItem[] = BASE_EQUIPMENTS.map(item => CHEST_EQUIPMENT.find(chest => chest.id === item.id) ?? item).concat(CHEST_EQUIPMENT.filter(chest => !BASE_EQUIPMENTS.some(item => item.id === chest.id)));

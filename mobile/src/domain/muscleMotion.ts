@@ -5,6 +5,8 @@ export type Muscle = "chest" | "upperChest" | "lats" | "midBack" | "frontShoulde
   | "biceps" | "triceps" | "quads" | "glutes" | "hamstrings" | "hipAbductors" | "adductors" | "soleus" | "abs" | "erectors";
 export type MuscleSpec = { primary: readonly Muscle[]; focus: Muscle; stabilizing?: readonly Muscle[] };
 export const MUSCLE_SPECS: Record<MotionType, MuscleSpec> = {
+  "chest-dip": { primary: ["chest"], focus: "chest" },
+  "incline-hammer-press": { primary: ["upperChest"], focus: "upperChest" },
   "chest-press": { primary: ["chest"], focus: "chest" },
   "pec-fly": { primary: ["chest"], focus: "chest" },
   "incline-smith": { primary: ["upperChest"], focus: "upperChest" },

@@ -103,7 +103,7 @@ export function EquipmentGrips({ type, pose }: { type: string; pose: ExercisePos
 }
 export function ExerciseEquipment({ type: raw, pose, progress: p, variant }: { type: string; pose: ExercisePose; progress: number; variant?: LegPressVariant }) {
   const type = motionType(raw), hand = pose.grips[0], foot = pose.legs[0]?.[2] ?? [0, 0];
-  if (["leg-press", "leg-extension", "hip-adduction"].includes(type)) return <PhotoChestEquipment type={type} progress={p} variant={variant} />;
+  if (["dumbbell-heavy", "chest-dip", "incline-hammer-press", "leg-press", "leg-extension", "hip-adduction"].includes(type)) return <PhotoChestEquipment type={type} progress={p} variant={variant} />;
   switch (type) {
     case "chest-press":
     case "pec-fly":

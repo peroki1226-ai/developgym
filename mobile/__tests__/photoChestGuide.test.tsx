@@ -87,7 +87,7 @@ test("both photo machines stay registered as separate chest lessons with pure Ja
   }
   expect(translate("ja", "ペックフライ / リアデルト")).toBe("ペックフライ");
   expect(translate("en", "ペックフライ / リアデルト")).toBe("Pec Fly");
-  expect(EQUIPMENTS.find(p => p.id === "pec-fly")!.primaryMuscles).toEqual(["大胸筋（内転作用）"]);
+  expect(EQUIPMENTS.find(p => p.id === "pec-fly")!.primaryMuscles.map(m => translate("ja", m))).toEqual(["大胸筋全体"]);
 });
 
 

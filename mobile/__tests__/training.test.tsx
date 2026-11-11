@@ -17,8 +17,8 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     jest.spyOn(Alert, "alert").mockImplementation(() => {});
   });
 
-  test("contains 24 complete equipment guides covering all major muscle groups", () => {
-    expect(EQUIPMENTS).toHaveLength(24);
+  test("contains 26 complete equipment guides covering all major muscle groups", () => {
+    expect(EQUIPMENTS).toHaveLength(26);
 
     const parts = new Set(EQUIPMENTS.map((e) => e.bodyPart));
     expect(parts.has("chest")).toBe(true);
@@ -100,7 +100,7 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     await render(<FitnessProvider><TrainingScreen /></FitnessProvider>);
     await screen.findByText("確かなフォームで鍛えよう。");
     await fireEvent.press(screen.getByRole("button", { name: "別のマシン・種目を選ぶ" }));
-    expect(screen.getByRole("button", { name: "全24種目" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "全26種目" })).toBeTruthy();
     await fireEvent.press(screen.getByRole("button", { name: "腕" }));
     expect(screen.queryByRole("button", { name: "レッグエクステンション" })).toBeNull();
     await fireEvent.press(screen.getByRole("button", { name: "アームカールマシン" }));

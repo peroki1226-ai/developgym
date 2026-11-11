@@ -1,3 +1,5 @@
+import { ChestCoursePicker, ChestCoachingPanel } from "../components/ChestCoaching";
+import { chestLesson } from "../domain/chestLessons";
 import { useI18n } from "../i18n";
 import React, { useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
@@ -25,10 +27,15 @@ export function TrainingScreen({
   const [selected, setSelected] = useState<EquipmentItem>(
     () => EQUIPMENTS.find((e) => e.id === initialEquipmentId) ?? EQUIPMENTS[0],
   );
-  const [weight, setWeight] = useState("30");
+  const [weight, setWeight] = useState(initialEquipmentId === "chest-dip" ? "0" : "");
   const [reps, setReps] = useState("10");
   const [sets, setSets] = useState("3");
   const { addLog } = useFitness();
+  const lesson = chestLesson(selected.id);
+  function selectEquipment(id: string) {
+    const next = EQUIPMENTS.find(e => e.id === id);
+    if (next && next.id !== selected.id) { setSelected(next); setWeight(id === "chest-dip" ? "0" : ""); }
+  }
   const filteredEquipments = EQUIPMENTS.filter(
     (e) => selectedPart === "all" || e.bodyPart === selectedPart,
   );
@@ -98,6 +105,7 @@ export function TrainingScreen({
           />
         </View>
 
+        {!pro && <ChestCoursePicker selected={selected.id} onSelect={selectEquipment} />}
         {/* SVG Form & Trajectory Diagram */}
         <Heading>{t(selected.name)}</Heading>
         <ExerciseDiagram
@@ -109,6 +117,7 @@ export function TrainingScreen({
           beginnerGuide={selected}
         />
 
+        {!pro && lesson && <ChestCoachingPanel key={lesson.id} lesson={lesson} onAssisted={() => selectEquipment("assisted-dip")} />}
         {/* Detailed Guide Card */}
         <Card>
           <View style={styles.titleRow}>
@@ -160,11 +169,9 @@ export function TrainingScreen({
               ))}
 
               <Heading>{t("推奨スタート重量の目安")}</Heading>
-              <Body>
-                {t("男性: ")}
-                {t(selected.startWeightMale)}
-                {t(" / 女性:")} {t(selected.startWeightFemale)}
-              </Body>
+              <Body>{selected.startWeightMale === selected.startWeightFemale ? t(selected.startWeightMale) : <>
+                {t("男性: ")}{t(selected.startWeightMale)}{t(" / 女性:")} {t(selected.startWeightFemale)}
+              </>}</Body>
 
               <Heading>{t("フォームの注意点（NG）")}</Heading>
               {selected.ngPoints.map((point) => (
@@ -174,6 +181,7 @@ export function TrainingScreen({
           )}
         </Card>
 
+        {lesson && <Body>{t(`${lesson.prefix}.record`)}</Body>}
         <Disclosure title={t("guide.changeMachine")}>
           {/* Body Part Filter */}
           <Heading>{t("部位で絞り込む")}</Heading>
@@ -217,7 +225,7 @@ export function TrainingScreen({
                   const first = EQUIPMENTS.find(
                     (e) => p.id === "all" || e.bodyPart === p.id,
                   );
-                  if (first) setSelected(first);
+                  if (first) selectEquipment(first.id);
                 }}
               />
             ))}
@@ -235,7 +243,7 @@ export function TrainingScreen({
                 key={eq.id}
                 title={t(eq.name)}
                 selected={eq.id === selected.id}
-                onPress={() => setSelected(eq)}
+                onPress={() => selectEquipment(eq.id)}
               />
             ))}
           </View>

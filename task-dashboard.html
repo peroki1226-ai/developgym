@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">91%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">32</span> / <span id="stat-total" class="text-neutral-500">34</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">32</span> / <span id="stat-total" class="text-neutral-500">35</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">32 / 34 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">32 / 35 TASKS COMPLETED (91%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 91%"></div>
       </div>
     </div>
 
@@ -121,6 +121,8 @@
       <p class="text-xs text-neutral-400">コード受入済み → ビルド進行中 → TestFlight提出未確認 → iPhone更新・データ保持未確認</p>
       <a class="text-xs underline" href="https://expo.dev/accounts/peroki1226/projects/gymfinder/builds/9ba7dd8b-a1e4-4c34-a2cb-4ee5b225c785" target="_blank" rel="noopener noreferrer">対象ビルドの状況をExpoで確認</a>
     </div>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-035：胸５種目の初心者フォーム解説と動く人体模型を実装。40 suites/542 tests・型/監査/両OSバンドル・実画面検証成功、レビュー待ち。<a class="underline" href="docs/CHEST_BEGINNER_GUIDES.md">開き方と受入手順</a></p>
 
     <!-- View Switcher -->
     <div class="flex items-center justify-between border-b border-white/15 pb-3">
@@ -586,6 +588,17 @@
         rating: "LGTM",
         desc: "肩/胸/腕/腹/脚の実形状、断面を保つ胴体変形、衣服追従、陰影を再制作。着色OFFでも筋肉の輪郭を表示。既存の器具接点/初心者/日英/記録を維持。",
         review: "39 suites/508 tests・型/監査/両OSバンドル成功。全24種×日英×2幅×開始終了×三方向=576状態の実WebGLでエラー0。2026-11-10 Antigravityがa210c96の差分を受入（d9a3fbb）。実機配布確認はTASK-018で指示待ち。"
+      }
+
+      ,{
+        id: "TASK-035",
+        title: "胸５種目の初心者フォーム・狙い/意識/注意/コツと動く模型",
+        category: "Native Chest Lessons",
+        assignee: "Codex",
+        status: "IN REVIEW",
+        rating: "PENDING",
+        desc: "インクラインダンベル・チェストプレス・ペックフライ・胸ディップス・インクラインハンマー。筋肉のある模型と日英の詳細解説、狙いの図、間違いと直し方、補助付き導線。",
+        review: "40 suites/542 tests・型/言語/設定検査・両OS Hermes書き出し成功。日英/320・390幅×5種×開始終了×三方向120状態と教材80画面を実WebGLで確認、エラー0。器具と握り・狙う部位・修正手順をAntigravityへ受入依頼。TestFlight/EAS配布は保留。"
       }
 
     ];

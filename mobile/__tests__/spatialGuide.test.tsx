@@ -97,6 +97,8 @@ test("renderer reuses meshes, fits all views, keeps the human solid and disposes
       if (n instanceof THREE.Mesh && n.geometry.attributes.normal) expect(Array.from(n.geometry.attributes.normal.array).every(Number.isFinite)).toBe(true);
     });
   }
+  // Warm the same machine before asserting camera/anatomy changes reuse nodes.
+  handle.draw({type: "rear-delt-fly", progress: .5, view: "front", focus: "whole", anatomy: true, transparent: false});
   const before = handle.stats();
   handle.draw({
     type: "rear-delt-fly",

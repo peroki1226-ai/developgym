@@ -48,8 +48,10 @@ export function BeginnerSetupNotes({ guide }: { guide: BeginnerGuideData }) {
   return <View testID="beginner-setup-notes" style={styles.lesson}>
     <Text style={styles.title}>{t("learn.startWeight")}</Text>
     <View style={[styles.row, { flexWrap: "wrap" }]}>
-      <Text style={styles.weight}>{t("男性: ")}{t(guide.startWeightMale)}</Text>
-      <Text style={styles.weight}>{t("learn.femaleWeight", { 0: t(guide.startWeightFemale) })}</Text>
+      {guide.startWeightMale === guide.startWeightFemale ? <Text style={styles.weight}>{t(guide.startWeightMale)}</Text> : <>
+        <Text style={styles.weight}>{t("男性: ")}{t(guide.startWeightMale)}</Text>
+        <Text style={styles.weight}>{t("learn.femaleWeight", { 0: t(guide.startWeightFemale) })}</Text>
+      </>}
     </View>
     {guide.ngPoints.map(point => <Text key={point} style={styles.hint}>{t("learn.caution", { 0: t(point) })}</Text>)}
   </View>;

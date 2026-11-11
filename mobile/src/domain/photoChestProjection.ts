@@ -1,7 +1,7 @@
 import { ExercisePose, Limb, Point, exercisePose } from "./exerciseMotion";
 import { V3, LegPressVariant, body3d } from "./training3d";
 
-export const isPhotoGuide = (type: string) => ["chest-press", "pec-fly", "leg-press", "leg-extension", "hip-adduction"].includes(type);
+export const isPhotoGuide = (type: string) => ["dumbbell-heavy", "chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-press", "leg-extension", "hip-adduction"].includes(type);
 
 /** The SVG fallback projects the same skeleton/mechanism as the native scene. */
 export function projectPhotoChest(type: string, p: V3): Point {

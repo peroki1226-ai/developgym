@@ -54,7 +54,7 @@ test.each(["ja", "en"] as const)("%s: the four steps control the existing model,
   await press("button", t("learn.next", { 0: t("learn.hands") }));
   expect(model.focus).toBe("hands");
   expect(model.view).toBe("front");
-  expect(screen.getByTestId("beginner-step-hint").props.children).toBe(t("learn.handsHint"));
+  expect(screen.getByTestId("beginner-step-hint").props.children).toBe(t("chest.press.hands"));
   await press("button", t("learn.next", { 0: t("learn.feet") }));
   expect(model.focus).toBe("feet");
   await press("button", t("learn.next", { 0: t("learn.move") }));
@@ -151,12 +151,12 @@ test("switching language translates the open lesson without changing its step or
   await press("radio", translate("ja", "learn.hands"));
   await app.rerender(lesson("en"));
   expect(screen.getByRole("radio", { name: "Hands" }).props.accessibilityState.checked).toBe(true);
-  expect(screen.getByTestId("beginner-step-hint").props.children).toBe(translate("en", "learn.handsHint"));
+  expect(screen.getByTestId("beginner-step-hint").props.children).toBe(translate("en", "chest.press.hands"));
   expect(model.focus).toBe("hands");
   expect(model.progress).toBe(0);
   await app.rerender(lesson("ja"));
   expect(screen.getByRole("radio", { name: "手" }).props.accessibilityState.checked).toBe(true);
-  expect(screen.getByTestId("beginner-step-hint").props.children).toBe(translate("ja", "learn.handsHint"));
+  expect(screen.getByTestId("beginner-step-hint").props.children).toBe(translate("ja", "chest.press.hands"));
 });
 
 test.each(["ja", "en"] as const)("%s: setup badges, cautions, breathing and instructions follow the actual animation phase", async language => {
@@ -164,8 +164,7 @@ test.each(["ja", "en"] as const)("%s: setup badges, cautions, breathing and inst
   const equipment = EQUIPMENTS[0];
   await render(lesson(language));
   expect(screen.getByTestId("beginner-setup-notes")).toBeTruthy();
-  expect(screen.getByText(t("男性: ") + t(equipment.startWeightMale))).toBeTruthy();
-  expect(screen.getByText(t("learn.femaleWeight", { 0: t(equipment.startWeightFemale) }))).toBeTruthy();
+  expect(screen.getByText(t(equipment.startWeightMale))).toBeTruthy();
   for (const point of equipment.ngPoints) expect(screen.getByText(t("learn.caution", { 0: t(point) }))).toBeTruthy();
   await press("radio", t("learn.move"));
   expect(screen.queryByTestId("beginner-setup-notes")).toBeNull();

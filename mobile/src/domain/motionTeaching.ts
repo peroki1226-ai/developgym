@@ -2,6 +2,8 @@ import { ExercisePose, Limb, MotionType, motionContact, motionType, Point } from
 
 export interface TeachingSpec { fixedLabel: string; movingLabel: string; jointLabel: string; workCue: string; returnCue: string; holdCue: string; }
 export const MOTION_TEACHING: Record<MotionType, TeachingSpec> = {
+  "chest-dip": { fixedLabel: "握ったままのグリップ", movingLabel: "上体の動き", jointLabel: "肘の曲げ伸ばし", workCue: "chest.dip.work", returnCue: "chest.dip.return", holdCue: "chest.dip.hold" },
+  "incline-hammer-press": { fixedLabel: "座席につけた骨盤", movingLabel: "グリップの軌道", jointLabel: "肘の曲げ伸ばし", workCue: "chest.hammer.work", returnCue: "chest.hammer.return", holdCue: "chest.hammer.hold" },
   "chest-press": {
     "fixedLabel": "座席につけた骨盤",
     "movingLabel": "グリップの軌道",
@@ -212,7 +214,7 @@ export function motionTeaching(rawType: string, pose: ExercisePose) {
     fixed = [82, 88]; joint = [pose.legs[0][1], pose.legs[0][2], fixed];
   } else if (["preacher-curl", "triceps-pushdown"].includes(type)) {
     fixed = pose.arms[0][1];
-  } else if (["assisted-pull-up", "assisted-dip"].includes(type)) {
+  } else if (["assisted-pull-up", "assisted-dip", "chest-dip"].includes(type)) {
     fixed = pose.grips[0];
   } else if (type === "back-extension") {
     joint = [pose.legs[0][1], pose.hip, pose.shoulder];

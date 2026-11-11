@@ -1,3 +1,5 @@
+import { chestLesson } from "../domain/chestLessons";
+import { guidePose } from "../domain/photoChestProjection";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ActivityIndicator,
@@ -96,12 +98,12 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   }, [type]);
   useEffect(() => {
     if (!beginner) return;
-    motion.seek(0, "work");
+    motion.seek(type === "chest-dip" ? 1 : 0, "work");
     setLearningStep("posture"); setAdvanced(false);
     setFocus("whole"); setView("front"); setTransparent(false);
   }, [type, beginner]);
   const chooseLearningStep = (step: LearningStep) => {
-    motion.seek(0, "work"); setLearningStep(step);
+    motion.seek(type === "chest-dip" && step !== "move" ? 1 : 0, "work"); setLearningStep(step);
     setFocus(step === "hands" ? "hands" : step === "feet" ? "feet" : "whole");
     setView(step === "posture" || step === "move" ? "side" : "front");
     setTransparent(false);
@@ -117,7 +119,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     setView(rearMuscles.includes(muscle) ? "back" : "front");
   };
   const [trackWidth, setTrackWidth] = useState(1);
-  const pose = exercisePose(type, motion.progress);
+  const pose = guidePose(type, motion.progress, legPressVariant);
+  const lesson = chestLesson(type);
   const teaching = motionTeaching(type, pose);
   const footHint = ["assisted-pull-up", "assisted-dip"].includes(type) ? "scene.kneeHint"
     : type === "leg-extension" ? "learn.extensionFeet"
@@ -126,11 +129,11 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     : type === "hip-abduction" ? "learn.abductionFeet"
     : type === "back-extension" ? "learn.backExtensionFeet" : "learn.feetHint";
   const phaseStep = motion.phase === "start" ? 0 : motion.phase === "return" ? 2 : 1;
-  const phaseInstruction = motion.phase === "hold" ? teaching.holdCue
+  const phaseInstruction = motion.phase === "hold" ? (lesson ? `${lesson.prefix}.hold` : teaching.holdCue)
     : beginnerGuide?.beginnerSteps[phaseStep] ?? (motion.phase === "start" ? "teaching.start" : motion.phase === "return" ? teaching.returnCue : teaching.workCue);
   const learningHint = learningStep === "posture" ? t("learn.setup", { 0: t(beginnerGuide?.seatSetup ?? "learn.postureHint") })
-    : learningStep === "hands" ? t(type === "back-extension" ? "scene.crossHandsHint" : "learn.handsHint")
-    : learningStep === "feet" ? t(footHint) : t(phaseInstruction);
+    : learningStep === "hands" ? t(lesson ? `${lesson.prefix}.hands` : type === "back-extension" ? "scene.crossHandsHint" : "learn.handsHint")
+    : learningStep === "feet" ? t(lesson ? `${lesson.prefix}.feet` : footHint) : t(phaseInstruction);
   const breathing = t(`learn.breath.${motion.phase}`);
   const phaseLabel =
     motion.phase === "work"

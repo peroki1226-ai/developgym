@@ -185,6 +185,40 @@ export function solveBone3(a: V3, c: V3, upper: number, lower: number, hint: V3)
     height = Math.sqrt(Math.max(0, upper * upper - along * along));
   return [a, add3(add3(a, mul3(u, along)), mul3(bend, height)), add3(a, mul3(u, d))];
 }
+/** Supported postures for the chest lessons; educational proportions, not manufacturer CAD. */
+export function inclineHammerGrip(side: number, p: number): V3 {
+  const a = p * Math.PI / 12;
+  return [side * 15, 86 - 30 * Math.cos(a) + 21 * Math.sin(a), -9 + 21 * Math.cos(a) + 30 * Math.sin(a)];
+}
+function chestLessonBody(base: Body3, type: string, p: number): Body3 {
+  if (!["dumbbell-heavy", "chest-dip", "incline-hammer-press"].includes(type)) return base;
+  const dip = type === "chest-dip", dumbbell = type === "dumbbell-heavy";
+  const angle = (dip ? 75 : dumbbell ? 30 : 70) * Math.PI / 180;
+  const up: V3 = [0, Math.sin(angle), (dip ? 1 : -1) * Math.cos(angle)];
+  const hip: V3 = dip ? [0, 49 + 8.8 * p, -4] : [0, dumbbell ? 24 : 30, 0];
+  const shoulder = add3(hip, mul3(up, HUMAN_SEGMENTS.torso));
+  const forward = unit3(cross3([1, 0, 0], up));
+  const arms = [-1, 1].map(side => {
+    const root = add3(add3(shoulder, [side * 9, 0, 0]), add3(mul3(up, -4.8), mul3(forward, .4)));
+    if (dumbbell) {
+      const direction = unit3(mix3([side * 10, -3.5, 6], [side * 1.6, 12.4, 2.6], p));
+      const elbow = add3(root, mul3(direction, HUMAN_SEGMENTS.upperArm));
+      return [root, elbow, add3(elbow, [0, HUMAN_SEGMENTS.forearmGrip, 0])] as Bone3;
+    }
+    return solveBone3(root, dip ? [side * 13, 50, 8] : inclineHammerGrip(side, p),
+      HUMAN_SEGMENTS.upperArm, HUMAN_SEGMENTS.forearmGrip, dip ? [side * .4, 0, -1] : [side * .3, -1, 0]);
+  });
+  const legs = [-1, 1].map(side => {
+    const root = add3(hip, [side * 5.2, 0, 0]);
+    if (dip) {
+      const knee = add3(root, [0, -19, -Math.sqrt(39)]);
+      return [root, knee, add3(knee, [0, Math.sqrt(39), -Math.sqrt(402)])] as Bone3;
+    }
+    return solveBone3(root, [side * 8, 2, dumbbell ? 19 : 20], 20, 21, [0, .3, 1]);
+  });
+  return { ...base, hip, shoulder, head: add3(shoulder, mul3(up, 8.4)), spine: [hip, shoulder],
+    arms, legs, right: [1, 0, 0], forward };
+}
 function photoLegBody(base: Body3, type: string, p: number, variant?: LegPressVariant): Body3 {
   if (type !== "leg-press" && type !== "leg-extension" && type !== "hip-adduction") return base;
   const seated = type === "leg-press" && variant === "seated";
@@ -293,7 +327,7 @@ export function body3d(raw: string, value: number, variant?: LegPressVariant): B
   if (type === "leg-extension" || type === "seated-leg-curl") legs = legs.map(([a, b, c]) => [a, add3(b, [0, 1.2, 0]), add3(c, [0, 1.2, 0])]);
   const right: V3 = [facing, 0, 0],
     forward = unit3(cross3(right, unit3(sub3(shoulder, hip))));
-  return photoLegBody(proportionedBody({
+  return photoLegBody(chestLessonBody(proportionedBody({
     head,
     shoulder,
     hip,
@@ -303,7 +337,7 @@ export function body3d(raw: string, value: number, variant?: LegPressVariant): B
     right,
     forward,
     facing
-  }, type, p), type, p, variant);
+  }, type, p), type, p), type, p, variant);
 }
 export function feet3d(type: string, body: Body3, variant?: LegPressVariant): Foot3[] {
   return body.legs.map(([, knee, ankle]) => {
@@ -421,7 +455,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
   const back = () => {
     const rest = type === "abdominal-crunch" ? body3d(type, 0) : body,
       u = unit3(sub3(rest.shoulder, rest.hip));
-    pad("backrest", add3(add3(rest.hip, mul3(u, 2)), mul3(rest.forward, -7.2)), add3(add3(rest.shoulder, mul3(u, 2)), mul3(rest.forward, -7.2)), ["incline-smith", "chest-press", "pec-fly"].includes(type) ? 14 : 25, 4, type !== "hack-squat" && !(type === "leg-press" && variant === "seated"));
+    pad("backrest", add3(add3(rest.hip, mul3(u, 2)), mul3(rest.forward, -7.2)), add3(add3(type === "dumbbell-heavy" ? rest.head : rest.shoulder, mul3(u, type === "dumbbell-heavy" ? 1 : 2)), mul3(rest.forward, -7.2)), ["dumbbell-heavy", "incline-hammer-press", "incline-smith", "chest-press", "pec-fly"].includes(type) ? 14 : 25, 4, type !== "hack-squat" && !(type === "leg-press" && variant === "seated"));
   };
   const stack = (id: string, x: number, z: number, lift = p * 9, height = 75) => {
     box(id + "-back", [x, height / 2, z - 2.5], [14, height, 2]);
@@ -483,16 +517,16 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
     for (let i = -2; i <= 2; i++) beam(id + "-tread" + i, add3(add3(contact, mul3(toe, i * 2)), mul3(lateral, -width * 0.4)), add3(add3(contact, mul3(toe, i * 2)), mul3(lateral, width * 0.4)), 0.16, "metal");
   };
   const hands = body.arms.map(a => a[2]);
-  const seated = ["chest-press", "pec-fly", "lat-pulldown", "seated-row", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction", "seated-calf-raise", "lateral-raise", "preacher-curl", "rear-delt-fly"].includes(type);
+  const seated = ["incline-hammer-press", "chest-press", "pec-fly", "lat-pulldown", "seated-row", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction", "seated-calf-raise", "lateral-raise", "preacher-curl", "rear-delt-fly"].includes(type);
   if (seated) seat();
-  if (["chest-press", "pec-fly", "lat-pulldown", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)) back();
+  if (["incline-hammer-press", "chest-press", "pec-fly", "lat-pulldown", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)) back();
   if (type === "incline-smith" || type === "dumbbell-heavy" || type === "leg-press") {
     back();
-    pad("bench-seat", add3(hip, mul3(forward, -3)), add3(hip, mul3(forward, 10)), type === "incline-smith" ? 16 : 25, 4, !(type === "leg-press" && variant === "seated"));
+    pad("bench-seat", add3(hip, mul3(forward, -3)), add3(hip, mul3(forward, 10)), ["incline-smith", "dumbbell-heavy"].includes(type) ? 16 : 25, 4, !(type === "leg-press" && variant === "seated"));
     if (!(type === "leg-press" && variant === "seated")) floorFrame("bench", hip[2]);
   }
   const cabinetZ = hip[2] - 18;
-  if (!["chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
+  if (!["chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
   switch (type) {
     case "chest-press": {
       const reference = body3d(type, 0);
@@ -697,9 +731,45 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
         floorFrame("rack-base", z, 70, 40);
         break;
       }
+    case "chest-dip": {
+      for (const side of [-1, 1]) {
+        const x = side * 13;
+        beam("dip-front-post" + side, [x, 2, 16], [x, 50, 16], 2.4);
+        beam("dip-back-post" + side, [x, 2, -10], [x, 50, -10], 2.4);
+        beam("dip-parallel-bar" + side, [x, 50, -10], [x, 50, 20], 1.05, "chrome");
+        handle("dip-grip" + side, [x, 50, 8], [0, 0, 1]);
+        beam("dip-diagonal" + side, [x, 3, -10], [x, 38, 16], 1.6);
+      }
+      floorFrame("dip-base", 4, 40, 44);
+      box("dip-entry-step", [0, 10, 23], [17, 3, 8], "rubber");
+      break;
+    }
+    case "incline-hammer-press": {
+      const angle = p * Math.PI / 12;
+      const rotate = (side: number, y: number, z: number): V3 =>
+        [side * 26, 86 + y * Math.cos(angle) + z * Math.sin(angle), -9 + z * Math.cos(angle) - y * Math.sin(angle)];
+      for (const side of [-1, 1]) {
+        const axis: V3 = [side * 26, 86, -9], hand = hands[side === -1 ? 0 : 1];
+        beam("hammer-upright" + side, [side * 26, 2, -20], axis, 3.2);
+        beam("hammer-brace" + side, [side * 26, 2, 24], [side * 26, 63, -12], 2.6);
+        pivot("hammer-pivot" + side, axis);
+        const tip = rotate(side, -30, 21), bend = rotate(side, -20, 7);
+        beam("hammer-upper-arm" + side, axis, bend, 3);
+        beam("hammer-lower-arm" + side, bend, tip, 3);
+        beam("hammer-grip-link" + side, tip, hand, 1.4, "chrome");
+        handle("hammer-grip" + side, hand);
+        const horn = rotate(side, -15, 15);
+        beam("hammer-loading-horn" + side, horn, add3(horn, [side * 11, 0, 0]), .8, "chrome");
+        for (let i = 0; i < 2; i++) plate("hammer-plate" + side + i, add3(horn, [side * (5 + i * 1.6), 0, 0]), 7.5, 1.5);
+      }
+      floorFrame("hammer-base", 0, 64, 58);
+      beam("hammer-top-cross", [-26, 86, -9], [26, 86, -9], 2.4);
+      break;
+    }
     case "dumbbell-heavy":
       {
         hands.forEach((h, i) => {
+          handle("dumbbell-grip" + i, h);
           beam("dumbbell-bar" + i, add3(h, [-7, 0, 0]), add3(h, [7, 0, 0]), 0.7, "chrome");
           for (const s of [-1, 1]) box("dumbbell" + i + s, add3(h, [s * 6, 0, 0]), [4, 9, 9], "rubber");
         });

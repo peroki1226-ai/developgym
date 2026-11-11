@@ -13,7 +13,7 @@ export function MachineGuideEntry() {
   if (!d) return null;
   const first = EQUIPMENTS[0];
   return (
-    <Pressable
+    <View style={{ gap: 8 }}><Pressable
       accessibilityRole="button"
       accessibilityLabel={t("guide.open")}
       onPress={() => d.openGuide(first.id)}
@@ -47,5 +47,9 @@ export function MachineGuideEntry() {
       </View>
       <TravelIcon name="arrow" size={18} color={colors.primary} />
     </Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel={t("chest.course.open")} onPress={() => d.openGuide("dumbbell-heavy")}
+      style={{ minHeight: 50, padding: 14, borderRadius: 10, backgroundColor: "#edf3f5", justifyContent: "center" }}>
+      <Text style={{ color: colors.primary, fontSize: 14, fontWeight: "600" }}>{t("chest.course.open")} →</Text>
+    </Pressable></View>
   );
 }

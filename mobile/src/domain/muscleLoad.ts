@@ -5,6 +5,8 @@ export const LOAD_SOURCES: Record<
   MotionType,
   "machine" | "cable" | "gravity" | "body" | "assist"
 > = {
+  "chest-dip": "body",
+  "incline-hammer-press": "gravity",
   "chest-press": "machine",
   "pec-fly": "machine",
   "incline-smith": "gravity",

@@ -1,4 +1,5 @@
 import { chestContractionEmphasis } from "../domain/chestLessons";
+import { dipFinishAmount } from "../domain/training3d";
 import * as THREE from "three";
 import asset from "../data/human/makehuman.json";
 import { TrainingFrame3 } from "../domain/training3d";
@@ -90,6 +91,15 @@ export function createPectoralFibres(parent: THREE.Group, skin: THREE.BufferGeom
   });
   const markerGeometry = new THREE.SphereGeometry(.28, 8, 6);
   const markers = Array.from({length:4},()=>{const marker=new THREE.Mesh(markerGeometry,arrowMaterial);group.add(marker);return marker;});
+  // An attention cue on the lower pectoral fan, not a force/activation map.
+  const focusGroup=new THREE.Group();focusGroup.name="dip-finish-attention";group.add(focusGroup);focusGroup.visible=false;
+  const focusGeometry=new THREE.BufferGeometry();
+  const focusPositions=new Float32Array(2*12*6);
+  focusGeometry.setAttribute("position",new THREE.BufferAttribute(focusPositions,3).setUsage(THREE.DynamicDrawUsage));
+  const focusLines=new THREE.LineSegments(focusGeometry,activeMaterial);focusLines.frustumCulled=false;focusGroup.add(focusLines);
+  const focusArrows=[0,1].map(()=>{const n=new THREE.Mesh(arrowGeometry,arrowMaterial);n.scale.setScalar(1.4);focusGroup.add(n);return n;});
+  const ringGeometry=new THREE.TorusGeometry(.8,.09,8,24);
+  const ring=new THREE.Mesh(ringGeometry,arrowMaterial);ring.name="dip-attention-ring";focusGroup.add(ring);
   const axis = new THREE.Vector3(0, 1, 0);
   let disposed = false;
   return {
@@ -110,6 +120,21 @@ export function createPectoralFibres(parent: THREE.Group, skin: THREE.BufferGeom
       }));
       let offset = 0, activeOffset = 0, arrowIndex = 0;
       const segments = paths.map(path => contractileSegment(path, progress, chestContractionEmphasis(frame.type)));
+      focusGroup.visible=frame.type==="chest-dip"&&dipFinishAmount(progress)>.05&&!returning;
+      if(focusGroup.visible){
+        // Lowest fan on each side is anchored to chest skin, above the abdomen.
+        const lower=[paths[8],paths[17]],centre=lower[0][0].clone().add(lower[1][0]).multiplyScalar(.5);
+        let k=0;
+        lower.forEach((path,index)=>{
+          const middle=Math.floor(path.length*.55);
+          for(let j=middle;j>0;j--){path[j].toArray(focusPositions,k);path[j-1].toArray(focusPositions,k+3);k+=6;}
+          const direction=path[0].clone().sub(path[2]).normalize();
+          focusArrows[index].position.copy(path[1]);focusArrows[index].quaternion.setFromUnitVectors(axis,direction);
+        });
+        ring.position.copy(centre);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(...frame.body.forward));
+        focusGeometry.setDrawRange(0,k/3);focusGeometry.attributes.position.needsUpdate=true;
+        group.userData.dipAttention={meaning:"attention",centre:centre.toArray()};
+      }
       paths.forEach((path, i) => {
         // Clavicular emphasis keeps the upper fan bright without falsely isolating
         // a separate muscle or painting the abdomen/arms.
@@ -135,7 +160,7 @@ export function createPectoralFibres(parent: THREE.Group, skin: THREE.BufferGeom
     },
     dispose() {
       if (disposed) return; disposed = true;
-      parent.remove(group); geometry.dispose(); material.dispose(); activeGeometry.dispose(); activeMaterial.dispose(); markerGeometry.dispose(); arrowGeometry.dispose(); arrowMaterial.dispose();
+      parent.remove(group); geometry.dispose(); material.dispose(); activeGeometry.dispose(); activeMaterial.dispose(); markerGeometry.dispose(); arrowGeometry.dispose(); arrowMaterial.dispose();focusGeometry.dispose();ringGeometry.dispose();
     }
   };
 }

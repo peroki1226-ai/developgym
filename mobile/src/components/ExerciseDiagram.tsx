@@ -29,7 +29,7 @@ import { MotionJointDetail } from "./MotionJointDetail";
 import { MuscleContractionPanel } from "./MuscleContractionPanel";
 import { MuscleLengthCoach } from "./MuscleLengthCoach";
 import { Motion3DView } from "./Motion3DView";
-import { Focus3, View3, LegPressVariant } from "../domain/training3d";
+import { Focus3, View3, LegPressVariant, dipFinishAmount } from "../domain/training3d";
 import { MuscleQuickCue } from "./MuscleQuickCue";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 import { rearMuscles } from "../domain/muscleLoad";
@@ -306,6 +306,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         {guidedChest && lesson && anatomy && <View testID="chest-anatomy-overlay" pointerEvents="none" style={anatomyStyles.overlay}>
           <Text style={anatomyStyles.target}>{t("anatomy.target",{0:t(`${lesson.prefix}.target`)})}</Text>
           <Text testID="chest-anatomy-state" style={anatomyStyles.state}>{t(motion.progress < .03 ? "anatomy.long" : motion.progress > .97 ? "anatomy.short" : motion.phase === "return" ? "anatomy.lengthening" : "anatomy.shortening")}</Text>
+          {type === "chest-dip" && dipFinishAmount(motion.progress)>.05 && motion.phase !== "return" && <Text testID="dip-attention-caption" style={styles.note}>{t("dip.finish.marker")}</Text>}
         </View>}
         {anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
         {beginner && !advanced && learningStep === "move" && <View pointerEvents="none" testID="beginner-phase-overlay" style={styles.phaseOverlay}>

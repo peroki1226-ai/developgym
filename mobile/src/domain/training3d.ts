@@ -227,16 +227,25 @@ function addedChestBody(base: Body3,type: string,p: number): Body3 {
   const legs=[-1,1].map(side=>solveBone3(add3(hip,[side*5.2,0,0]),[side*8,2,cable?(side===-1?12:-7):19],20,21,[0,.3,1]));
   return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,right:[1,0,0],forward};
 }
+export const DIP_FINISH = Object.freeze({ bottomY:43, topY:57.8, maxUpperBackDegrees:8 });
+export function dipFinishAmount(value: number) {
+  const t=clampProgress((clampProgress(value)-.65)/.35);
+  return t*t*(3-2*t);
+}
 function chestLessonBody(base: Body3, type: string, p: number): Body3 {
   if (!["dumbbell-heavy", "chest-dip", "incline-hammer-press"].includes(type)) return base;
   const dip = type === "chest-dip", dumbbell = type === "dumbbell-heavy";
   const angle = (dip ? 75 : dumbbell ? 30 : 70) * Math.PI / 180;
   const up: V3 = [0, Math.sin(angle), (dip ? 1 : -1) * Math.cos(angle)];
-  const hip: V3 = dip ? [0, 46 + 11.8 * p, -4] : [0, dumbbell ? 24 : 30, 0];
-  const shoulder = add3(hip, mul3(up, HUMAN_SEGMENTS.torso));
-  const forward = unit3(cross3([1, 0, 0], up));
+  const hip: V3 = dip ? [0, DIP_FINISH.bottomY + (DIP_FINISH.topY-DIP_FINISH.bottomY)*p, -4] : [0, dumbbell ? 24 : 30, 0];
+  const finish=dip?dipFinishAmount(p):0;
+  const upperAngle=angle-finish*DIP_FINISH.maxUpperBackDegrees*Math.PI/180;
+  const upperUp:V3=dip?[0,Math.sin(upperAngle),Math.cos(upperAngle)]:up;
+  const middle=add3(hip,mul3(up,HUMAN_SEGMENTS.torso*.5));
+  const shoulder=dip?add3(middle,mul3(upperUp,HUMAN_SEGMENTS.torso*.5)):add3(hip,mul3(up,HUMAN_SEGMENTS.torso));
+  const forward = unit3(cross3([1, 0, 0], upperUp));
   const arms = [-1, 1].map(side => {
-    const root = add3(add3(shoulder, [side * 9, 0, 0]), add3(mul3(up, -4.8), mul3(forward, .4)));
+    const root = add3(add3(shoulder, [side * 9, 0, 0]), add3(mul3(upperUp, -4.8), mul3(forward, .4)));
     if (dumbbell) {
       const direction = unit3(mix3([side * 10, -3.5, 6], [side * 1.6, 12.4, 2.6], p));
       const elbow = add3(root, mul3(direction, HUMAN_SEGMENTS.upperArm));
@@ -253,7 +262,7 @@ function chestLessonBody(base: Body3, type: string, p: number): Body3 {
     }
     return solveBone3(root, [side * 8, 2, dumbbell ? 19 : 20], 20, 21, [0, .3, 1]);
   });
-  return { ...base, hip, shoulder, head: add3(shoulder, mul3(up, 8.4)), spine: [hip, shoulder],
+  return { ...base, hip, shoulder, head: add3(shoulder, mul3(upperUp, 8.4)), spine: dip ? [hip,middle,shoulder] : [hip, shoulder],
     arms, legs, right: [1, 0, 0], forward };
 }
 function photoLegBody(base: Body3, type: string, p: number, variant?: LegPressVariant): Body3 {

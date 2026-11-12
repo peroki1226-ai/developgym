@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { G, Line, Path } from "react-native-svg";
 import { MotionFrame, PlaybackSpeed } from "../domain/exerciseMotion";
 import { ChestLesson, chestContractionEmphasis } from "../domain/chestLessons";
-import { View3, benchViews } from "../domain/training3d";
+import { View3, benchViews, dipFinishAmount } from "../domain/training3d";
 import { useI18n } from "../i18n";
 import { MotionScrubber } from "./MotionScrubber";
 import { Button, colors } from "./ui";
@@ -56,6 +56,11 @@ export function ChestLiveLesson(p:Props) {
         })}
       </Svg>
       <Text testID="chest-live-cue" style={styles.text}>{t(`${p.lesson.prefix}.${returning?"returnCue":"moveCue"}`)}</Text>
+      {p.lesson.id === "chest-dip" && <View testID="dip-finish-coaching" style={styles.dipCue}>
+        <Text style={styles.muscleTitle}>{t(returning?"dip.finish.release":dipFinishAmount(progress)>.05?"dip.finish.active":"dip.finish.path")}</Text>
+        <Text style={styles.text}>{t("dip.finish.image")}</Text>
+        <Text style={styles.note}>{t("dip.finish.limit")}</Text>
+      </View>}
       <Text style={styles.note}>{t("chest.live.schematic")}</Text>
     </View>
     <Text style={styles.note}>{t("chest.live.legend")}</Text>
@@ -64,4 +69,4 @@ export function ChestLiveLesson(p:Props) {
     {p.reduced&&<Text style={styles.note}>{t("motion.reducedHint")}</Text>}
   </View>;
 }
-const styles=StyleSheet.create({panel:{gap:10,borderWidth:1,borderColor:colors.border,borderRadius:12,padding:12,backgroundColor:"#fff"},title:{fontSize:15,fontWeight:"600",color:colors.text},note:{fontSize:12,lineHeight:19,color:colors.muted},row:{flexDirection:"row",alignItems:"center",gap:6,flexWrap:"wrap"},option:{flex:1,minHeight:48,borderWidth:1,borderColor:colors.border,borderRadius:9,justifyContent:"center",alignItems:"center",padding:6},selected:{borderColor:colors.primary,backgroundColor:"#edf3f5"},text:{fontSize:13,lineHeight:21,color:colors.text},percent:{fontSize:12,color:colors.muted},muscle:{padding:10,borderRadius:10,backgroundColor:"#faf1ee",gap:5},muscleTitle:{fontSize:14,fontWeight:"600",color:"#7d3d35"}});
+const styles=StyleSheet.create({dipCue:{gap:4,padding:9,borderWidth:1,borderColor:"#dfc89e",borderRadius:9,backgroundColor:"#fffaf0"},panel:{gap:10,borderWidth:1,borderColor:colors.border,borderRadius:12,padding:12,backgroundColor:"#fff"},title:{fontSize:15,fontWeight:"600",color:colors.text},note:{fontSize:12,lineHeight:19,color:colors.muted},row:{flexDirection:"row",alignItems:"center",gap:6,flexWrap:"wrap"},option:{flex:1,minHeight:48,borderWidth:1,borderColor:colors.border,borderRadius:9,justifyContent:"center",alignItems:"center",padding:6},selected:{borderColor:colors.primary,backgroundColor:"#edf3f5"},text:{fontSize:13,lineHeight:21,color:colors.text},percent:{fontSize:12,color:colors.muted},muscle:{padding:10,borderRadius:10,backgroundColor:"#faf1ee",gap:5},muscleTitle:{fontSize:14,fontWeight:"600",color:"#7d3d35"}});

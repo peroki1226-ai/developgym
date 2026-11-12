@@ -1,3 +1,4 @@
+import { CHEST_MENU_GUIDES } from "../domain/chestLessons";
 import React, { useContext, useMemo, useState } from "react";
 import { Alert, Linking, Text, View } from "react-native";
 import { NavigationContext } from "@react-navigation/native";
@@ -129,14 +130,14 @@ export function SearchMenuScreen() {
         />
       </Card>
       <Heading>{t("travel.availableMenus")}</Heading>
-      {filtered.map((m) => (
-        <Button
-          key={m.id}
-          title={t(m.name)}
-          selected={d.profile.menuIds.includes(m.id)}
-          onPress={() => d.update({ menuIds: toggle(d.profile.menuIds, m.id) })}
-        />
-      ))}
+      {filtered.map((m) => {
+        const guide = EQUIPMENTS.find(e => e.id === CHEST_MENU_GUIDES[m.id]);
+        return <View key={m.id} style={{gap:4}}>
+          <Button title={t(m.name)} selected={d.profile.menuIds.includes(m.id)}
+            onPress={() => d.update({menuIds:toggle(d.profile.menuIds,m.id)})}/>
+          {guide && <Button title={t("chest.menu.form",{0:t(guide.name)})} variant="quiet" onPress={()=>d.openGuide(guide.id)}/>}
+        </View>;
+      })}
       {!filtered.length && <Body>{t("travel.noMenus")}</Body>}
       <Button
         title={t("travel.seeResults")}

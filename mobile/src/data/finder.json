@@ -95,6 +95,18 @@
       "name": "Smith Machine Hip Thrust",
       "part": "ham-glute",
       "reqEquip": "incline-smith"
+    },
+    {
+      "id": "m-incline-bench",
+      "name": "chest.inclineBench.name",
+      "part": "chest-upper",
+      "reqEquip": "incline-bench-press"
+    },
+    {
+      "id": "m-incline-hammer",
+      "name": "chest.hammer.name",
+      "part": "chest-upper",
+      "reqEquip": "incline-hammer-press"
     }
   ],
   "parts": [
@@ -221,6 +233,18 @@
       "name": "Heavy Dumbbells & Bench",
       "brand": "Ivanko / Rogue",
       "bodyPart": "arm"
+    },
+    {
+      "id": "incline-bench-press",
+      "name": "chest.inventory.incline",
+      "brand": "chest.inventory.unknownBrand",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "incline-hammer-press",
+      "name": "chest.inventory.hammer",
+      "brand": "chest.inventory.unknownBrand",
+      "bodyPart": "chest"
     }
   ],
   "gyms": [

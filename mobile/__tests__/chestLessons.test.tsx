@@ -86,7 +86,7 @@ test("incline Hammer arms rotate about fixed bearings and plates travel rigidly 
   }
 });
 
-test.each(["ja","en"] as const)("%s: five lessons switch, show targets and paired corrections, and translate their hand/foot cues", async language => {
+test.each(["ja","en"] as const)("%s: all chest lessons switch, show targets and paired corrections, and translate their hand/foot cues", async language => {
   const t=(key:string,values={})=>translate(language,key,values);
   await render(<FitnessProvider><LocaleProvider language={language} setLanguage={()=>{}}><TrainingScreen /></LocaleProvider></FitnessProvider>);
   for(const lesson of CHEST_LESSONS) {

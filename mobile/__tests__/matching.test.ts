@@ -31,7 +31,7 @@ test("65/20/15 weighting gives 92% for 7 of 8 exercises; available/missing are e
 });
 
 test("full match preserves the prototype 99% rule; zero preferences is unscored", () => {
-  expect(calculateMatch(gyms[0], all).percent).toBe(99);
+  expect(calculateMatch({...gyms[0],installed:[...new Set(menus.map(m=>m.reqEquip))]}, all).percent).toBe(99);
   expect(calculateMatch(gyms[0], { ...all, menuIds: [] }).percent).toBeNull();
   expect(
     calculateMatch(gyms[0], { ...all, menuIds: ["m-bench", "m-bench"] })

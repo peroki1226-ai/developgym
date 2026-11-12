@@ -108,7 +108,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const chooseLearningStep = (step: LearningStep) => {
     motion.seek(type === "chest-dip" && step !== "move" ? 1 : 0, "work"); setLearningStep(step);
     setFocus(step === "hands" ? "hands" : step === "feet" ? "feet" : "whole");
-    setView(step === "posture" || step === "move" ? "side" : "front");
+    setView((step === "posture" || step === "move") && !["incline-bench-press","barbell-bench-press","cable-machine"].includes(type) ? "side" : "front");
     setTransparent(false);
   };
   const inspectLesson = (direction: "work" | "return") => {

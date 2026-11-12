@@ -92,7 +92,7 @@ export function EquipmentRearFrame({ type }: { type: string }) {
 }
 
 export function EquipmentGrips({ type, pose }: { type: string; pose: ExercisePose }) {
-  const bar = ["incline-smith", "dumbbell-heavy", "power-rack", "lat-pulldown", "assisted-pull-up"].includes(type);
+  const bar = ["incline-bench-press", "barbell-bench-press", "incline-smith", "dumbbell-heavy", "power-rack", "lat-pulldown", "assisted-pull-up"].includes(type);
   return <G testID="equipment-grips">{pose.arms.map(([, e, hand],i)=>{
     const angle = bar ? 0 : Math.atan2(hand[1]-e[1],hand[0]-e[0])*180/Math.PI + 90;
     return <G key={i} transform={`translate(${hand[0]} ${hand[1]}) rotate(${angle})`}>
@@ -103,7 +103,7 @@ export function EquipmentGrips({ type, pose }: { type: string; pose: ExercisePos
 }
 export function ExerciseEquipment({ type: raw, pose, progress: p, variant }: { type: string; pose: ExercisePose; progress: number; variant?: LegPressVariant }) {
   const type = motionType(raw), hand = pose.grips[0], foot = pose.legs[0]?.[2] ?? [0, 0];
-  if (["dumbbell-heavy", "chest-dip", "incline-hammer-press", "leg-press", "leg-extension", "hip-adduction"].includes(type)) return <PhotoChestEquipment type={type} progress={p} variant={variant} />;
+  if (["incline-bench-press", "barbell-bench-press", "cable-machine", "dumbbell-heavy", "chest-dip", "incline-hammer-press", "leg-press", "leg-extension", "hip-adduction"].includes(type)) return <PhotoChestEquipment type={type} progress={p} variant={variant} />;
   switch (type) {
     case "chest-press":
     case "pec-fly":

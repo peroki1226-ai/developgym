@@ -67,7 +67,7 @@ function sourceSide(name: string): V3 {
 const restFrames = asset.bones.map(name => basis(as3(rest[name].head), as3(rest[name].tail), sourceSide(name)));
 const inverseBind = restFrames.map(matrix => matrix.clone().invert());
 const restRotations = restFrames.map(matrix => new THREE.Matrix4().extractRotation(matrix));
-const floorSupported = new Set(["incline-hammer-press", "chest-press", "pec-fly", "lat-pulldown", "shoulder-press", "abdominal-crunch", "incline-smith", "dumbbell-heavy", "lateral-raise", "preacher-curl", "triceps-pushdown", "cable-machine", "rear-delt-fly", "power-rack"]);
+const floorSupported = new Set(["incline-bench-press", "barbell-bench-press", "incline-hammer-press", "chest-press", "pec-fly", "lat-pulldown", "shoulder-press", "abdominal-crunch", "incline-smith", "dumbbell-heavy", "lateral-raise", "preacher-curl", "triceps-pushdown", "cable-machine", "rear-delt-fly", "power-rack"]);
 const soleSamples = new Map<number, number[]>();
 for (const side of ["R", "L"]) {
   const bone = asset.bones.indexOf("foot." + side),

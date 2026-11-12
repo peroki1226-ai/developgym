@@ -14,7 +14,7 @@ export const MOTION_TYPES = [
   "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction",
   "seated-calf-raise", "lateral-raise", "preacher-curl", "triceps-pushdown",
   "assisted-pull-up", "assisted-dip", "back-extension", "rear-delt-fly",
-  "chest-dip", "incline-hammer-press",
+  "chest-dip", "incline-hammer-press", "incline-bench-press", "barbell-bench-press",
 ] as const;
 export type MotionType = typeof MOTION_TYPES[number];
 
@@ -53,6 +53,7 @@ export function inspectionFrame(value: number): { frame: MotionFrame; elapsed: n
   return { frame: { progress, phase: direction }, elapsed: elapsedForProgress(progress, direction) };
 }
 export const motionAction: Record<MotionType, string> = {
+  "incline-bench-press":"motion.push", "barbell-bench-press":"motion.push",
   "chest-dip": "motion.push", "incline-hammer-press": "motion.push",
   "chest-press": "motion.push", "pec-fly": "motion.close",
   "incline-smith": "motion.push", "cable-machine": "motion.close",
@@ -118,6 +119,8 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
       ];
       break;
     }
+    case "incline-bench-press":
+    case "barbell-bench-press":
     case "incline-hammer-press":
     case "incline-smith":
     case "dumbbell-heavy":

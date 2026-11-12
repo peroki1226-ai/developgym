@@ -40,7 +40,7 @@ test.each(CHEST_LESSONS)("$id: full cycle maps every manual position and has rev
   });
  }
 });
-test.each(["ja","en"] as const)("%s: five actual models move, pause/resume without resetting, complete one repetition and scrub manually",async language=>{
+test.each(["ja","en"] as const)("%s: all chest models move, pause/resume without resetting, complete one repetition and scrub manually",async language=>{
  const t=(key:string)=>translate(language,key);
  for(const lesson of CHEST_LESSONS){
   const app=await render(renderLesson(lesson.id,language));

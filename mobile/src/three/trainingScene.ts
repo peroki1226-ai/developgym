@@ -227,7 +227,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       const d = new THREE.Vector3(x, y, z).sub(target);
       distance = Math.max(distance, d.dot(direction) + Math.max(Math.abs(d.dot(screenRight)) / (tangent * camera.aspect), Math.abs(d.dot(screenUp)) / tangent));
     }
-    camera.position.copy(target).addScaledVector(direction, distance * 1.12);
+    camera.position.copy(target).addScaledVector(direction, distance * 1.035);
     camera.lookAt(target);
     camera.updateMatrixWorld();
     renderer.render(scene, camera);

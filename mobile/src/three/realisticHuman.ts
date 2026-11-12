@@ -1,3 +1,4 @@
+import { chestContractionEmphasis } from "../domain/chestLessons";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
 import * as THREE from "three";
@@ -415,8 +416,8 @@ export function createRealisticHuman(parent: THREE.Group) {
         const pectoral = ["chest", "upperChest"].includes(muscleNames[m]);
         // Make the belly change readable at phone scale while keeping sternum,
         // tendon ends, skeleton and hand contact targets anchored.
-        const bulge = (Math.sqrt(1 / (1 - amount)) - 1) * (pectoral ? 2.2 : .9) * strength[i] * window;
-        const axial = (0.5 - sourceT[i]) * amount * .35 * strength[i] * window;
+        const bulge = (Math.sqrt(1 / (1 - amount)) - 1) * (pectoral ? 2.2 * chestContractionEmphasis(frame.type) : .9) * strength[i] * window;
+        const axial = (0.5 - sourceT[i]) * amount * .35 * (pectoral ? chestContractionEmphasis(frame.type) : 1) * strength[i] * window;
         sourcePoint.set(base[k] + normals[k] * bulge + axes[k] * axial, base[k + 1] + normals[k + 1] * bulge + axes[k + 1] * axial, base[k + 2] + normals[k + 2] * bulge + axes[k + 2] * axial);
         sourceNormal.set(normals[k], normals[k + 1], normals[k + 2]);
         skinner.apply(sourcePoint,sourceNormal,boneIds,weights,i*4,point,n);

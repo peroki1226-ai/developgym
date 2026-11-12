@@ -1,3 +1,4 @@
+import { chestContractionEmphasis } from "../domain/chestLessons";
 import * as THREE from "three";
 import asset from "../data/human/makehuman.json";
 import { TrainingFrame3 } from "../domain/training3d";
@@ -57,10 +58,10 @@ export const PECTORAL_FIBRES: readonly Fibre[] = [-1, 1].flatMap(side =>
  * Skin can stretch as the humerus moves even while the muscle shortens. Keep
  * the full skin-following fan as orientation context; shorten this inner segment
  * by arc length so the learning cue cannot accidentally depict lengthening. */
-export function contractileSegment(path: readonly THREE.Vector3[], progress: number) {
+export function contractileSegment(path: readonly THREE.Vector3[], progress: number, emphasis = 1) {
   const distance = [0];
   path.slice(1).forEach((p, i) => distance.push(distance[i] + p.distanceTo(path[i])));
-  const length = distance.at(-1)!, inset = .08 + .18 * Math.max(0, Math.min(1, progress));
+  const length = distance.at(-1)!, inset = .08 + .18 * Math.min(1.35, Math.max(1, emphasis)) * Math.max(0, Math.min(1, progress));
   const at = (value: number) => {
     let i = 1;
     while (i < distance.length - 1 && distance[i] < value) i++;
@@ -108,7 +109,7 @@ export function createPectoralFibres(parent: THREE.Group, skin: THREE.BufferGeom
         return point.addScaledVector(normal.normalize(), .13);
       }));
       let offset = 0, activeOffset = 0, arrowIndex = 0;
-      const segments = paths.map(path => contractileSegment(path, progress));
+      const segments = paths.map(path => contractileSegment(path, progress, chestContractionEmphasis(frame.type)));
       paths.forEach((path, i) => {
         // Clavicular emphasis keeps the upper fan bright without falsely isolating
         // a separate muscle or painting the abdomen/arms.

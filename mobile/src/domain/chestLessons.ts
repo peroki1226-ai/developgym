@@ -21,3 +21,6 @@ export const CHEST_MENU_GUIDES: Readonly<Record<string,string>> = {
   "m-pec-fly":"pec-fly", "m-cable-cross":"cable-machine",
   "m-incline-bench":"incline-bench-press", "m-incline-hammer":"incline-hammer-press",
 };
+
+/** Illustration gain only. Equipment paths, loads and muscle-length estimates stay unchanged. */
+export const chestContractionEmphasis = (type: string) => ["chest-dip", "pec-fly"].includes(type) ? 1.35 : 1;

@@ -87,7 +87,14 @@ test("renderer reuses meshes, fits all views, keeps the human solid and disposes
       transparent: false
     });
     const group = fake.getScene().children.find(n => n instanceof THREE.Group)!;
-    const bounds = new THREE.Box3().setFromObject(group);
+    // Hidden fibre buffers retain previous poses and spare capacity at the
+    // origin; they are not visible equipment and must not govern framing.
+    const bounds = new THREE.Box3();
+    group.children.filter(n=>n.visible&&n.name!=="pectoral-fibre-guide").forEach(n=>bounds.expandByObject(n));
+    const fibres=group.getObjectByName("pectoral-fibre-guide");
+    if(fibres?.visible)for(const p of (fibres.userData.paths as THREE.Vector3[][]).flat()){
+      const point=p.clone().project(fake.getCamera());expect(Math.abs(point.x)).toBeLessThan(1);expect(Math.abs(point.y)).toBeLessThan(1);
+    }
     for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
       const p = new THREE.Vector3(x, y, z).project(fake.getCamera());
       expect(Math.abs(p.x)).toBeLessThan(1);

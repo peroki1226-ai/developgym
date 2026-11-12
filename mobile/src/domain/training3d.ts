@@ -193,6 +193,11 @@ export function inclineHammerGrip(side: number, p: number): V3 {
   const a = p * Math.PI / 12;
   return [side * 15, 86 - 30 * Math.cos(a) + 21 * Math.sin(a), -9 + 21 * Math.cos(a) + 30 * Math.sin(a)];
 }
+/** Fixed world-space bed for the flat bench, independent of animated bones. */
+export const FLAT_BENCH = Object.freeze({
+  foot: Object.freeze([0, 16.8, 8] as const), head: Object.freeze([0, 16.8, -35.4] as const),
+  frameY: 13.5,
+});
 /** A free bar follows a shallow arc over the chest, with no Smith rails. */
 export function freeBenchGrip(type: string, side: number, value: number): V3 {
   const p=clampProgress(value),incline=type==="incline-bench-press",angle=(incline?30:0)*Math.PI/180;
@@ -765,13 +770,19 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
     case "incline-bench-press":
     case "barbell-bench-press": {
       const top=freeBenchGrip(type,1,1),bottom=freeBenchGrip(type,1,0);
-      pad("free-bench-back",add3(add3(hip,mul3(up,-8)),mul3(forward,-7.2)),add3(add3(body.head,mul3(up,1)),mul3(forward,-7.2)),14,4,false);
-      const backStart=add3(add3(hip,mul3(up,-8)),mul3(forward,-10.5));
-      const backEnd=add3(add3(body.head,mul3(up,1)),mul3(forward,-10.5));
-      beam("free-bench-spine",backStart,backEnd,1.5);
-      beam("free-bench-adjuster",[0,3,-26],mix3(backStart,backEnd,.7),1.5);
+      if (type === "barbell-bench-press") {
+        pad("free-bench-back",FLAT_BENCH.foot,FLAT_BENCH.head,14,4,false);
+        beam("free-bench-spine",[0,FLAT_BENCH.frameY,8],[0,FLAT_BENCH.frameY,-35.4],1.5);
+        for(const z of [-24,7])beam("free-bench-support"+z,[0,2,z],[0,FLAT_BENCH.frameY,z],2);
+      } else {
+        pad("free-bench-back",add3(add3(hip,mul3(up,-8)),mul3(forward,-7.2)),add3(add3(body.head,mul3(up,1)),mul3(forward,-7.2)),14,4,false);
+        const backStart=add3(add3(hip,mul3(up,-8)),mul3(forward,-10.5));
+        const backEnd=add3(add3(body.head,mul3(up,1)),mul3(forward,-10.5));
+        beam("free-bench-spine",backStart,backEnd,1.5);
+        beam("free-bench-adjuster",[0,3,-26],mix3(backStart,backEnd,.7),1.5);
+        for(const z of [-24,7])beam("free-bench-support"+z,[0,2,z],[0,17,z],2);
+      }
       floorFrame("free-bench-base",-8,28,55);
-      for(const z of [-24,7])beam("free-bench-support"+z,[0,2,z],[0,17,z],2);
       for(const side of [-1,1]){
         const x=side*27,z=top[2]-7;
         beam("free-rack-post"+side,[x,2,z],[x,top[1]+12,z],2.8);

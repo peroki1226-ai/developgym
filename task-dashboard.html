@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">92%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">93%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">36</span> / <span id="stat-total" class="text-neutral-500">39</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">37</span> / <span id="stat-total" class="text-neutral-500">40</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">37 / 39 TASKS COMPLETED (92%)</span>
+        <span class="font-num text-white">37 / 40 TASKS COMPLETED (93%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 92%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93%"></div>
       </div>
     </div>
 
@@ -148,6 +148,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-039：ベンチを上から確認し、筋肉のある模型と胸の拡大・筋繊維の短縮/伸張を同時表示。<a class="underline" href="docs/CHEST_ANATOMY_VISUALS.md">変更内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-040：水平な固定台、約８％近い視点、ディップス/ペックフライの収縮強調。<a class="underline" href="docs/BENCH_VIEW_REFINEMENT.md">変更内容と確認手順</a></p>
+
     <!-- Kanban View -->
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -158,7 +160,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
             <h2 class="font-bold text-sm tracking-wider uppercase text-white">実行済みタスク（DONE）</h2>
           </div>
-          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">36</span>
+          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">37</span>
         </div>
         <div id="col-done" class="space-y-3">
           <!-- Rendered via JS -->
@@ -635,6 +637,13 @@
         category: "Chest Anatomy Visuals", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "ベンチ系4種に上方視点、筋腹のある人体v4、胸に沿う筋繊維・短縮区間・方向矢印、狙いと局面の表示、拡大と両端姿勢の比較。",
         review: "【LGTM / DONE 受入完了】全45スイート/604テスト・型検査・リリース監査全合格。ベンチ系4種の上方斜め俯瞰、筋肉模型v4、胸部拡大、模型上の筋繊維短縮伸長模式表示とリアルタイム局面・狙い同期表示の実動検証完了。37/39完了（95%）。"
+      }
+
+      ,{
+        id: "TASK-040", title: "ユーザー指定：水平ベンチ・近い視点・胸の収縮強調",
+        category: "Bench View Refinement", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "通常ベンチの台/裏板/縁/フレームを床基準で水平固定し、平面表示も面投影へ。カメラを約8%近づけ、ディップス/ペックフライの胸の変形と短縮区間を強調。",
+        review: "46 suites/609 tests、型/監査・両OSバンドル成功。対象3種12タッチ操作・全28種704描画状態、前後比較とSVGを確認、エラー0。水平な台・近さ・２種の収縮強調を受入依頼。EAS/TestFlight配布は保留。"
       }
 
     ];

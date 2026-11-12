@@ -1,3 +1,4 @@
+import { Orbit, clampZoom } from "../domain/guideCamera";
 import { createPectoralFibres } from "./pectoralFibres";
 import { chestMotionPaths } from "../domain/chestMotion";
 import * as THREE from "three";
@@ -6,6 +7,8 @@ import { createCurvedEquipmentGeometry, createEquipmentGeometries } from "./equi
 import { camera3d, Primitive3, TrainingFrame3, V3, View3, Focus3, trainingFrame3d, add3, sub3, mul3, unit3, cross3, mix3, length3 } from "../domain/training3d";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 export type SceneInput = {
+  orbit?: Orbit;
+  zoom?: number;
   type: string;
   progress: number;
   anatomy: boolean;
@@ -70,6 +73,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   const pectorals = createPectoralFibres(group, human.mesh.geometry);
   const nodes = new Map<string, THREE.Mesh>();
   const focusedBounds = new Map<string, THREE.Box3>();
+  let humanPoseKey = "", fibrePoseKey = "";
   let currentType = "",
     disposed = false;
   renderer.setPixelRatio(pixelRatio);
@@ -148,8 +152,11 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
         if (item.axes) axes(node, ...item.axes);
       }
     });
-    human.draw(frame, input.anatomy);
-    pectorals.draw(frame, input.anatomy, !!input.returning, input.progress);
+    const poseKey = `${modelKey}/${input.progress}/${input.anatomy}/${frame.muscles.join("/")}`;
+    // Orbit/zoom changes reuse posed skin and fibre buffers while paused.
+    if (poseKey !== humanPoseKey) { human.draw(frame, input.anatomy); humanPoseKey = poseKey; }
+    const fibresKey=poseKey+"/"+!!input.returning;
+    if(fibresKey !== fibrePoseKey){pectorals.draw(frame,input.anatomy,!!input.returning,input.progress);fibrePoseKey=fibresKey;}
     const flowMuscle = selected ?? muscleSpec(frame.type).focus;
     if (input.anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(frame.type)) {
       frame.body.legs.forEach((leg, i) => {
@@ -217,7 +224,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       bounds.copy(focusedBounds.get(cacheKey)!);
     }
     const target = bounds.getCenter(new THREE.Vector3()),
-      base = camera3d(frame, input.view, input.focus),
+      base = camera3d(frame, input.view, input.focus, input.orbit),
       direction = v(sub3(base.position, base.target)).normalize();
     const screenRight = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize(),
       screenUp = new THREE.Vector3().crossVectors(direction, screenRight).normalize();
@@ -227,7 +234,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       const d = new THREE.Vector3(x, y, z).sub(target);
       distance = Math.max(distance, d.dot(direction) + Math.max(Math.abs(d.dot(screenRight)) / (tangent * camera.aspect), Math.abs(d.dot(screenUp)) / tangent));
     }
-    camera.position.copy(target).addScaledVector(direction, distance * 1.035);
+    camera.position.copy(target).addScaledVector(direction, distance * 1.035 / clampZoom(input.zoom ?? 1));
     camera.lookAt(target);
     camera.updateMatrixWorld();
     renderer.render(scene, camera);

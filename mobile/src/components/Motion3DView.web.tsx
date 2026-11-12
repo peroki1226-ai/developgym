@@ -71,6 +71,9 @@ export function Motion3DView(props: Motion3DProps) {
     props.variant,
     props.returning,
     props.guidance,
+    props.zoom,
+    props.orbit?.yaw,
+    props.orbit?.pitch,
   ]);
   return React.createElement("canvas", {
     ref: canvas,

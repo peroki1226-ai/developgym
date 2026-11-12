@@ -23,7 +23,7 @@ test("bench cameras include a non-singular overhead direction that reveals the s
     expect(a[1]).toBeGreaterThan(.9); expect(a[1]).toBeGreaterThan(f[1] * 3);
     expect(Math.hypot(a[0], a[2])).toBeGreaterThan(.1); expect(JSON.stringify(frame)).toBe(copy);
   }
-  expect(benchViews("pec-fly")).not.toContain("above");
+  expect(benchViews("pec-fly")).toEqual(expect.arrayContaining(["above","below","right","side"]));
 });
 test("fibre fans are sampled on anterior chest triangles, not the abdomen, and retain valid barycentric anchors", () => {
   const mask = Uint8Array.from(atob(asset.muscleMasks.chest), c => c.charCodeAt(0));

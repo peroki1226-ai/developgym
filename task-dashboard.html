@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">37</span> / <span id="stat-total" class="text-neutral-500">40</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">38</span> / <span id="stat-total" class="text-neutral-500">41</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">38 / 40 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">38 / 41 TASKS COMPLETED (93%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93%"></div>
@@ -150,6 +150,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-040：水平な固定台、約８％近い視点、ディップス/ペックフライの収縮強調。<a class="underline" href="docs/BENCH_VIEW_REFINEMENT.md">変更内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-041：２種の可動域・初期115%の拡大と６方向/自由回転/二本指ズーム。<a class="underline" href="docs/ORBIT_AND_CHEST_RANGE.md">変更内容と確認手順</a></p>
+
     <!-- Kanban View -->
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -160,7 +162,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
             <h2 class="font-bold text-sm tracking-wider uppercase text-white">実行済みタスク（DONE）</h2>
           </div>
-          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">37</span>
+          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">38</span>
         </div>
         <div id="col-done" class="space-y-3">
           <!-- Rendered via JS -->
@@ -641,9 +643,16 @@
 
       ,{
         id: "TASK-040", title: "ユーザー指定：水平ベンチ・近い視点・胸の収縮強調",
-        category: "Bench View Refinement", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        category: "Bench View Refinement", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "通常ベンチの台/裏板/縁/フレームを床基準で水平固定し、平面表示も面投影へ。カメラを約8%近づけ、ディップス/ペックフライの胸の変形と短縮区間を強調。",
         review: "【LGTM / DONE 受入完了】全46スイート/609テスト・型検査・リリース監査全合格。通常ベンチ台の床基準水平固定・平面投影面化、約8%近接カメラ視点、ディップス/ペックフライ大胸筋収縮1.35倍強調の実動検証完了。38/40完了（95%）。"
+      }
+
+      ,{
+        id: "TASK-041", title: "ユーザー指定：２種の可動域・ズームと四方八方の視点",
+        category: "Orbit and Chest Range", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "ディップスの沈み込みを増し、ペックフライは手を肩の少し後ろから。初期115%〜250%、全28種に6方向/自由回転/ピンチ、全体復帰。",
+        review: "47 suites/616 tests、型/監査・両OSバンドル成功。672描画状態、日英/2幅の12操作と実タッチ360度一周を確認、エラー0。前後画像/動画で動きと視点の分かりやすさを受入依頼。EAS/TestFlight配布は保留。"
       }
 
     ];

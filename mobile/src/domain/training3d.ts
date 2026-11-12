@@ -1,11 +1,11 @@
+import { Orbit, normaliseOrbit, orbitForView } from "./guideCamera";
 import { clampProgress, exercisePose, motionType, Point } from "./exerciseMotion";
 import { Muscle, muscleSpec } from "./muscleMotion";
 export type V3 = readonly [number, number, number];
 export type Bone3 = readonly [V3, V3, V3];
-export type View3 = "front" | "side" | "back" | "above";
-export const benchViews = (type: string): readonly View3[] =>
-  ["barbell-bench-press", "incline-bench-press", "incline-smith", "dumbbell-heavy"].includes(type)
-    ? ["front", "side", "back", "above"] : ["front", "side", "back"];
+export type View3 = "front" | "side" | "back" | "right" | "above" | "below";
+// Retained public name for existing guide callers; all machines now have six directions.
+export const benchViews = (_type: string): readonly View3[] => ["front", "side", "back", "right", "above", "below"];
 export type Focus3 = "whole" | "hands" | "feet" | "muscles";
 export type LegPressVariant = "incline" | "seated";
 export type HandGrip3 = { centre: V3; axis: V3; radius: number };
@@ -100,13 +100,14 @@ function chestPressArc(shoulder: V3, progress: number) {
   };
 }
 
+export const PEC_FLY = Object.freeze({ startDegrees: 95, endDegrees: -11.5, radius: 28.5 });
 function pecFlyArc(shoulder: V3, side: number, progress: number) {
   // A constant-radius horizontal sweep about the overhead vertical bearing.
-  const angle = (58 - 69.5 * progress) * Math.PI / 180;
+  const angle = (PEC_FLY.startDegrees + (PEC_FLY.endDegrees - PEC_FLY.startDegrees) * progress) * Math.PI / 180;
   return {
     pivot: [shoulder[0], 83, shoulder[2]] as V3,
     angle,
-    hand: add3(shoulder, [side * 28.5 * Math.sin(angle), -1, 28.5 * Math.cos(angle)])
+    hand: add3(shoulder, [side * PEC_FLY.radius * Math.sin(angle), -1, PEC_FLY.radius * Math.cos(angle)])
   };
 }
 
@@ -228,7 +229,7 @@ function chestLessonBody(base: Body3, type: string, p: number): Body3 {
   const dip = type === "chest-dip", dumbbell = type === "dumbbell-heavy";
   const angle = (dip ? 75 : dumbbell ? 30 : 70) * Math.PI / 180;
   const up: V3 = [0, Math.sin(angle), (dip ? 1 : -1) * Math.cos(angle)];
-  const hip: V3 = dip ? [0, 49 + 8.8 * p, -4] : [0, dumbbell ? 24 : 30, 0];
+  const hip: V3 = dip ? [0, 46 + 11.8 * p, -4] : [0, dumbbell ? 24 : 30, 0];
   const shoulder = add3(hip, mul3(up, HUMAN_SEGMENTS.torso));
   const forward = unit3(cross3([1, 0, 0], up));
   const arms = [-1, 1].map(side => {
@@ -612,7 +613,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
       const reference = body3d(type, 0);
       const towerZ = reference.hip[2] - 18;
       const angle = pecFlyArc(reference.arms[0][0], -1, p).angle;
-      photoStack("fly-stack", 0, towerZ, 84, (58 * Math.PI / 180 - angle) * 6);
+      photoStack("fly-stack", 0, towerZ, 84, (PEC_FLY.startDegrees * Math.PI / 180 - angle) * 6);
       for (const side of [-1, 1]) {
         const index = side === -1 ? 0 : 1;
         const arc = pecFlyArc(reference.arms[index][0], side, p);
@@ -1046,18 +1047,11 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
     muscles: muscleSpec(type).primary
   };
 }
-export function camera3d(frame: TrainingFrame3, view: View3, focus: Focus3) {
-  const body = frame.body,
-    whole: V3 = [0, 42, 8];
+export function camera3d(frame: TrainingFrame3, view: View3, focus: Focus3, orbit?: Orbit) {
+  const body = frame.body, whole: V3 = [0, 42, 8];
   const target = focus === "hands" ? average3(body.arms.map(a => a[2])) : focus === "feet" ? average3(frame.contacts[2].points) : focus === "muscles" ? mix3(body.hip, body.shoulder, 0.6) : whole;
-  const angle = (view === "front" ? -25 : view === "side" ? -90 : -155) * Math.PI / 180;
+  const angles=normaliseOrbit(orbit??orbitForView(view)),yaw=angles.yaw*Math.PI/180,pitch=angles.pitch*Math.PI/180;
   const radius = focus === "whole" ? frame.type === "cable-machine" ? 160 : 135 : focus === "hands" ? 65 : focus === "feet" ? 65 : 75;
-  return {
-    target,
-    // An oblique overhead view keeps left/right and the sternum visible without
-    // the singular lookAt basis of a perfectly vertical camera.
-    position: add3(target, view === "above" ? [-radius * .12, radius * 1.2, radius * .36]
-      : [Math.sin(angle) * radius * body.facing, radius * 0.24, Math.cos(angle) * radius * body.facing]),
-    radius
-  };
+  const facing=!orbit&&(view === "above"||view === "below")?1:body.facing;
+  return { target, position:add3(target,[Math.sin(yaw)*Math.cos(pitch)*radius*facing,Math.sin(pitch)*radius,Math.cos(yaw)*Math.cos(pitch)*radius*facing]),radius };
 }

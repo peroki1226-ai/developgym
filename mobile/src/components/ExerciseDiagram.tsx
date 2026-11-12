@@ -1,3 +1,6 @@
+import { GuideCameraControls } from "./GuideCameraControls";
+import { OrbitGesture } from "./OrbitGesture";
+import { Orbit, DEFAULT_GUIDE_ZOOM, orbitForView } from "../domain/guideCamera";
 import { ChestLiveLesson } from "./ChestLiveLesson";
 import { chestCyclePose, chestCyclePosition } from "../domain/chestMotion";
 import { chestLesson } from "../domain/chestLessons";
@@ -26,7 +29,7 @@ import { MotionJointDetail } from "./MotionJointDetail";
 import { MuscleContractionPanel } from "./MuscleContractionPanel";
 import { MuscleLengthCoach } from "./MuscleLengthCoach";
 import { Motion3DView } from "./Motion3DView";
-import { Focus3, View3, LegPressVariant, benchViews } from "../domain/training3d";
+import { Focus3, View3, LegPressVariant } from "../domain/training3d";
 import { MuscleQuickCue } from "./MuscleQuickCue";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 import { rearMuscles } from "../domain/muscleLoad";
@@ -72,6 +75,10 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   );
   const [mode, setMode] = useState<"spatial" | "diagram">("spatial");
   const [view, setView] = useState<View3>("front");
+  const [orbit,setOrbit]=useState<Orbit>();
+  const [zoom,setZoom]=useState(DEFAULT_GUIDE_ZOOM);
+  const [rotating,setRotating]=useState(false);
+  const chooseView=(value:View3)=>{setView(value);setOrbit(undefined);setTransparent(value === "back" || focus === "muscles");};
   const [focus, setFocus] = useState<Focus3>("whole");
   const [transparent, setTransparent] = useState(false);
   const [ready, setReady] = useState(false);
@@ -82,6 +89,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const [legPressVariant, setLegPressVariant] = useState<LegPressVariant>("seated");
   const fail = useCallback(() => {
     setFailed(true);
+    setRotating(false);
     setReady(false);
     setMode("diagram");
   }, []);
@@ -93,7 +101,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   }, [mode, ready, fail]);
   useEffect(() => {
     setFocus("whole");
-    setView("front");
+    setView("front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);
     setSelectedMuscle(muscleSpec(type).focus);
     setLessonDirection("work");
     setMechanismOpen(false);
@@ -140,7 +148,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const guidedChest = beginner && !advanced && !!lesson;
   const focusChest = () => {
     if (focus === "muscles") { setFocus("whole"); setTransparent(false); }
-    else { setSelectedMuscle(muscleSpec(type).focus); setFocus("muscles"); setView(benchViews(type).includes("above") ? "above" : "front"); setTransparent(true); }
+    else { setSelectedMuscle(muscleSpec(type).focus); setFocus("muscles"); setView(["barbell-bench-press","incline-bench-press","dumbbell-heavy","incline-smith"].includes(type) ? "above" : "front");setOrbit(undefined); setTransparent(true); }
   };
   const prepareChestMotion = () => {
     if (learningStep !== "move") {
@@ -202,6 +210,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
             aria-checked={mode === value}
             onPress={() => {
               if (value === mode) return;
+              setRotating(false);
               if (value === "spatial") {
                 setFailed(false);
                 setReady(false);
@@ -240,46 +249,23 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Text style={styles.speedText}>{t(`machine.${value}`)}</Text>
         </Pressable>)}
       </View>}
-      {(controlsVisible || guidedChest) && mode === "spatial" && (
-        <View
-          accessibilityRole="radiogroup"
-          accessibilityLabel={t("scene.camera")}
-          style={styles.speeds}
-        >
-          {benchViews(type).map((value) => (
-            <Pressable
-              key={value}
-              accessibilityRole="radio"
-              accessibilityLabel={t(`scene.${value}`)}
-              accessibilityState={{ checked: view === value }}
-              aria-checked={view === value}
-              onPress={() => {
-                setView(value);
-                setTransparent(value === "back" || focus === "muscles");
-              }}
-              style={[
-                styles.speedButton,
-                view === value && styles.selectedSpeed,
-              ]}
-            >
-              <Text style={styles.speedText}>{t(`scene.${value}`)}</Text>
-            </Pressable>
-          ))}
-        </View>
-      )}
+      {mode === "spatial" && <GuideCameraControls type={type} view={view} orbit={orbit} zoom={zoom} rotating={rotating}
+        onView={chooseView} onOrbit={setOrbit} onZoom={setZoom} onRotate={()=>setRotating(v=>!v)}
+        onFit={()=>{setZoom(1);setFocus("whole");setTransparent(false);}}
+        onReset={()=>{setView("front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);setTransparent(focus === "muscles");}}/>}
       {guidedChest && <View style={styles.speeds}>
         <Button title={t(focus === "muscles" ? "anatomy.showWhole" : "anatomy.inspect")} variant="quiet" onPress={focusChest}/>
       </View>}
       <View
         style={[styles.canvas, mode === "spatial" && styles.spatialCanvas]}
-        accessible
-        accessibilityRole="image"
+        accessible={!rotating}
+        accessibilityRole={rotating?undefined:"image"}
         accessibilityLabel={t("guide.diagramLabel", {
           0: t(label ?? muscleTag),
         })}
       >
         {mode === "spatial" ? (
-          <>
+          <OrbitGesture enabled={rotating} orbit={orbit??orbitForView(view)} zoom={zoom} onOrbit={setOrbit} onZoom={setZoom}>
             <Motion3DView
               type={type}
               variant={type === "leg-press" ? legPressVariant : undefined}
@@ -288,6 +274,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
               progress={motion.progress}
               anatomy={anatomy}
               view={view}
+              orbit={orbit}
+              zoom={zoom}
               focus={focus}
               transparent={transparent}
               muscle={focus === "muscles" || ["leg-press", "leg-extension", "hip-adduction"].includes(type) ? selectedMuscle : undefined}
@@ -300,7 +288,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
                 <Text style={styles.note}>{t("scene.loading")}</Text>
               </View>
             )}
-          </>
+          </OrbitGesture>
         ) : (
           <Svg viewBox="0 0 120 96" style={styles.svg}>
             <ExerciseMotionScene
@@ -329,7 +317,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
         onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}
-        onView={value => {setView(value);setTransparent(value === "back" || focus === "muscles");}}
+        onView={chooseView}
         onFocus={focusChest}/>}
       {beginner && !advanced && learningStep === "posture" && beginnerGuide && <BeginnerSetupNotes guide={beginnerGuide} />}
       {beginner && !advanced && <View style={{ gap: 8 }}>
@@ -708,7 +696,7 @@ const styles = StyleSheet.create({
   phase: { color: colors.text, fontWeight: "600", fontSize: 16 },
   phaseHeader: { gap: 2, minHeight: 44 },
   canvas: { borderRadius: 12, backgroundColor: "#fbfbfb", overflow: "hidden" },
-  spatialCanvas: { height: 350 },
+  spatialCanvas: { height: 400 },
   loading: {
     position: "absolute",
     left: 0,

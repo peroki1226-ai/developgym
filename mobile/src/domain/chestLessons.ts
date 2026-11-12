@@ -8,7 +8,7 @@ export const CHEST_LESSONS: readonly ChestLesson[] = [
   { id: "pec-fly", prefix: "chest.fly", emphasis: "whole" },
   { id: "chest-dip", prefix: "chest.dip", emphasis: "lower" },
   { id: "incline-hammer-press", prefix: "chest.hammer", emphasis: "upper" },
-  { id: "incline-bench-press", prefix: "chest.inclineBench", emphasis: "upper" },
+  { id: "incline-bench-press", prefix: "chest.inclineSmith", emphasis: "upper" },
   { id: "cable-machine", prefix: "chest.cable", emphasis: "whole" },
   { id: "barbell-bench-press", prefix: "chest.bench", emphasis: "whole" },
 ];
@@ -19,7 +19,7 @@ export const chestLesson = (id: string) => CHEST_LESSONS.find(lesson => lesson.i
 export const CHEST_MENU_GUIDES: Readonly<Record<string,string>> = {
   "m-bench":"barbell-bench-press", "m-incline-db":"dumbbell-heavy",
   "m-pec-fly":"pec-fly", "m-cable-cross":"cable-machine",
-  "m-incline-bench":"incline-bench-press", "m-incline-hammer":"incline-hammer-press",
+  "m-incline-bench":"incline-bench-press", "m-incline-smith":"incline-bench-press", "m-incline-hammer":"incline-hammer-press",
 };
 
 /** Illustration gain only. Equipment paths, loads and muscle-length estimates stay unchanged. */

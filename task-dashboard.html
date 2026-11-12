@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">93%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">38</span> / <span id="stat-total" class="text-neutral-500">41</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">38</span> / <span id="stat-total" class="text-neutral-500">42</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">38 / 41 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">38 / 42 TASKS COMPLETED (90%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90%"></div>
       </div>
     </div>
 
@@ -152,6 +152,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-041：２種の可動域・初期115%の拡大と６方向/自由回転/二本指ズーム。<a class="underline" href="docs/ORBIT_AND_CHEST_RANGE.md">変更内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-042：写真を参考にしたスミス式インクラインへ。<a class="underline" href="docs/SMITH_INCLINE_PHOTO.md">変更内容と再表示手順</a></p>
+
     <!-- Kanban View -->
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -176,7 +178,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
             <h2 class="font-bold text-sm tracking-wider uppercase text-amber-300">実行中・レビュー中</h2>
           </div>
-          <span class="text-xs font-num bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">3</span>
+          <span class="text-xs font-num bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">4</span>
         </div>
         <div id="col-progress" class="space-y-3">
           <!-- Rendered via JS -->
@@ -653,6 +655,13 @@
         category: "Orbit and Chest Range", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
         desc: "ディップスの沈み込みを増し、ペックフライは手を肩の少し後ろから。初期115%〜250%、全28種に6方向/自由回転/ピンチ、全体復帰。",
         review: "47 suites/616 tests、型/監査・両OSバンドル成功。672描画状態、日英/2幅の12操作と実タッチ360度一周を確認、エラー0。前後画像/動画で動きと視点の分かりやすさを受入依頼。EAS/TestFlight配布は保留。"
+      }
+
+      ,{
+        id: "TASK-042", title: "ユーザー指定：写真型スミス・インクラインベンチプレス",
+        category: "Photo Smith Incline", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "胸コースの同じ種目を写真型スミスへ。銀色枠/固定レール/垂直バー/30度ベンチ/握り、日英教材・Smith必要器具・新旧記録を整合。",
+        review: "48 suites/621 tests、型/監査・両OSバンドル成功。348描画状態、日英/２幅４操作と記録再読み込みを確認、エラー0。写真との形状・握り・教材/履歴の受入依頼。041も受入待ち。EAS/TestFlight配布は保留。"
       }
 
     ];

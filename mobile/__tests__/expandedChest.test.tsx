@@ -17,7 +17,7 @@ test("eight chest lessons include all four requested names without duplicate cab
  expect(CHEST_MENU_GUIDES["m-bench"]).toBe("barbell-bench-press");
  expect(CHEST_MENU_GUIDES["m-cable-cross"]).toBe("cable-machine");
 });
-test.each(["barbell-bench-press","incline-bench-press"])("%s: free bar, both hands and plates move together while rack and feet remain fixed",type=>{
+test.each(["barbell-bench-press"])("%s: free bar, both hands and plates move together while rack and feet remain fixed",type=>{
  const start=trainingFrame3d(type,0);let lastY=0;
  for(let i=0;i<=40;i++){
   const f=trainingFrame3d(type,i/40),up=sub3(f.body.shoulder,f.body.hip),bar=f.equipment.find(e=>e.id==="free-barbell")!;
@@ -52,18 +52,18 @@ test("new matching choices retain old saved menu IDs and do not infer Hammer or 
  const missing=calculateMatch({...gyms[0],installed:["chest-press","power-rack"]},pref);
  expect(missing.available).toHaveLength(0);expect(missing.missing).toHaveLength(2);
  expect(menus.filter(m=>m.id==="m-bench")).toHaveLength(1);
- const verified=calculateMatch({...gyms[0],installed:["incline-bench-press","incline-hammer-press"]},pref);expect(verified.available).toHaveLength(2);
+ const verified=calculateMatch({...gyms[0],installed:["incline-smith","incline-hammer-press"]},pref);expect(verified.available).toHaveLength(2);
 });
-test.each(["ja","en"] as const)("%s: normal chest menu opens the exact moving barbell guide, logs it and preserves search/selection on return",async language=>{
+test.each(["ja","en"] as const)("%s: normal chest menu opens the exact moving Smith guide, logs it and preserves search/selection on return",async language=>{
  jest.spyOn(Alert,"alert").mockImplementation(()=>{});const t=(k:string,v={})=>translate(language,k,v);
  await render(<App/>);await screen.findByText("理想のジムを探そう。");if(language==="en")await fireEvent.press(screen.getByRole("button",{name:/🇺🇸/}));
  await fireEvent.press(screen.getByRole("button",{name:t("travel.nav.menu")}));
- const name=t("chest.inclineBench.name");await fireEvent.changeText(screen.getByLabelText(t("travel.menuSearch")),name);
+ const name=t("chest.inclineSmith.name");await fireEvent.changeText(screen.getByLabelText(t("travel.menuSearch")),name);
  await fireEvent.press(screen.getByRole("button",{name}));await fireEvent.press(screen.getByRole("button",{name:t("chest.menu.form",{0:name})}));
  expect(screen.getByRole("button",{name:t("chest.live.watch")})).toBeTruthy();
  expect(screen.getByRole("image",{name:t("guide.diagramLabel",{0:name})})).toBeTruthy();
  await fireEvent.changeText(screen.getByLabelText(t("重量kg")),"20");await fireEvent.press(screen.getByRole("button",{name:t("ジムトレーニングを記録")}));
- await waitFor(async()=>expect(JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!).logs[0]).toMatchObject({name:"chest.inclineBench.name",weight:20,location:"gym"}));
+ await waitFor(async()=>expect(JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!).logs[0]).toMatchObject({name:"chest.inclineSmith.name",weight:20,location:"gym"}));
  await fireEvent.press(screen.getByRole("button",{name:t("guide.back")}));expect(screen.getByLabelText(t("travel.menuSearch")).props.value).toBe(name);
  expect(screen.getByRole("button",{name:t("travel.removeMenu",{0:name})})).toBeTruthy();
  await waitFor(async()=>expect(JSON.parse((await AsyncStorage.getItem(SEARCH_STORAGE_KEY))!).profile.menuIds).toContain("m-incline-bench"));

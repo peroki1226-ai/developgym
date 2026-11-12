@@ -24,7 +24,7 @@ test("flat bench pad, shell, seams and frame remain horizontal and motionless th
   for(const id of ["free-bench-back-seam-1","free-bench-back-seam1","free-bench-spine"]){const p=f.equipment.find(e=>e.id===id)!;expect(p.a[1]).toBe(p.b![1]);expect(p).toEqual(start.equipment.find(e=>e.id===id));}
   const supports=f.equipment.filter(e=>e.id.startsWith("free-bench-support"));expect(supports).toHaveLength(2);expect(supports[0].b![1]).toBe(supports[1].b![1]);
  }
- const incline=trainingFrame3d("incline-bench-press",0).equipment.find(e=>e.id==="free-bench-back")!;
+ const incline=trainingFrame3d("incline-bench-press",0).equipment.find(e=>e.id==="smith-incline-back")!;
  expect(Math.asin(incline.axes![1][1])*180/Math.PI).toBeCloseTo(30,7);
 });
 test("SVG fallback projects the actual flat pad plane rather than an upright screen rectangle",async()=>{

@@ -2,7 +2,7 @@ import { ExercisePose, Limb, MotionType, motionContact, motionType, Point } from
 
 export interface TeachingSpec { fixedLabel: string; movingLabel: string; jointLabel: string; workCue: string; returnCue: string; holdCue: string; }
 export const MOTION_TEACHING: Record<MotionType, TeachingSpec> = {
-  "incline-bench-press": {fixedLabel:"座席につけた骨盤",movingLabel:"バーの軌道",jointLabel:"肘の曲げ伸ばし",workCue:"chest.inclineBench.work",returnCue:"chest.inclineBench.return",holdCue:"chest.inclineBench.hold"},
+  "incline-bench-press": {fixedLabel:"座席につけた骨盤",movingLabel:"バーの軌道",jointLabel:"肘の曲げ伸ばし",workCue:"chest.inclineSmith.work",returnCue:"chest.inclineSmith.return",holdCue:"chest.inclineSmith.hold"},
   "barbell-bench-press": {fixedLabel:"座席につけた骨盤",movingLabel:"バーの軌道",jointLabel:"肘の曲げ伸ばし",workCue:"chest.bench.work",returnCue:"chest.bench.return",holdCue:"chest.bench.hold"},
   "chest-dip": { fixedLabel: "握ったままのグリップ", movingLabel: "上体の動き", jointLabel: "肘の曲げ伸ばし", workCue: "chest.dip.work", returnCue: "chest.dip.return", holdCue: "chest.dip.hold" },
   "incline-hammer-press": { fixedLabel: "座席につけた骨盤", movingLabel: "グリップの軌道", jointLabel: "肘の曲げ伸ばし", workCue: "chest.hammer.work", returnCue: "chest.hammer.return", holdCue: "chest.hammer.hold" },

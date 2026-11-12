@@ -78,6 +78,9 @@ export const SMITH_PRESS = {
   gripHalfWidth: 17,
   guideZ: 11
 };
+/** Photo-reference Smith: about 30-degree bench, fixed vertical bar plane. */
+export const SMITH_INCLINE = Object.freeze({ startY:47, travelY:18, gripHalfWidth:24, guideZ:-9.16, hipY:29, hipZ:6 });
+export const smithInclineGrip = (side:number,value:number):V3 => [side*SMITH_INCLINE.gripHalfWidth,SMITH_INCLINE.startY+SMITH_INCLINE.travelY*clampProgress(value),SMITH_INCLINE.guideZ];
 function chestPressArc(shoulder: V3, progress: number) {
   // The supplied selectorised press has its lever bearings near the floor.
   // All handles and bent lever segments share this one rigid rotation.
@@ -211,11 +214,11 @@ function addedChestBody(base: Body3,type: string,p: number): Body3 {
   const bar=["incline-bench-press","barbell-bench-press"].includes(type),cable=type==="cable-machine";
   if(!bar&&!cable)return base;
   const angle=(cable?82:type==="incline-bench-press"?30:0)*Math.PI/180;
-  const up:V3=[0,Math.sin(angle),(cable?1:-1)*Math.cos(angle)],hip:V3=[0,cable?38:24,0];
+  const up:V3=[0,Math.sin(angle),(cable?1:-1)*Math.cos(angle)],hip:V3=[0,cable?38:type === "incline-bench-press"?SMITH_INCLINE.hipY:24,type === "incline-bench-press"?SMITH_INCLINE.hipZ:0];
   const shoulder=add3(hip,mul3(up,26)),forward=unit3(cross3([1,0,0],up));
   const arms=[-1,1].map(side=>{
     const root=add3(add3(shoulder,[side*9,0,0]),add3(mul3(up,-4.8),mul3(forward,.4)));
-    if(bar)return solveBone3(root,freeBenchGrip(type,side,p),HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,[side*.5,-1,.4]);
+    if(bar)return solveBone3(root,type === "incline-bench-press" ? smithInclineGrip(side,p) : freeBenchGrip(type,side,p),HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,[side*.5,-1,.4]);
     const a=(65-61.5*p)*Math.PI/180,b=a-25*Math.PI/180;
     const direction=(angle:number):V3=>add3([side*Math.sin(angle),0,0],mul3(forward,Math.cos(angle)));
     const elbow=add3(root,mul3(direction(a),HUMAN_SEGMENTS.upperArm));
@@ -707,46 +710,65 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
         break;
       }
     case "incline-smith":
+    case "incline-bench-press":
       {
-        const bar = average3(hands);
+        const photo = type === "incline-bench-press", bar = average3(hands);
+        const guideZ = photo ? SMITH_INCLINE.guideZ : SMITH_PRESS.guideZ;
+        const plateX=photo?44:37,barHalf=photo?54:47;
+        const stopY=photo?SMITH_INCLINE.startY-6:20;
         const steel = (id: string, a: V3, b: V3, width = 3.5, depth = width) => {
           const along = unit3(sub3(b, a));
           const side = Math.abs(along[0]) < 0.9 ? unit3(cross3(along, [1, 0, 0])) : unit3(cross3(along, [0, 1, 0]));
-          box(id, mix3(a, b, 0.5), [width, length3(sub3(b, a)), depth], "metal", [side, along, unit3(cross3(side, along))]);
+          box(id, mix3(a, b, 0.5), [width, length3(sub3(b, a)), depth], photo ? "satin" : "metal", [side, along, unit3(cross3(side, along))]);
         };
-        steel("smith-top", [-40, 89, 11], [40, 89, 11], 5);
-        steel("smith-base-cross", [-40, 2, -24], [40, 2, -24], 5);
+        steel("smith-top", [-40, 89, guideZ], [40, 89, guideZ], 5);
+        steel("smith-base-cross", [-40, 2, guideZ-35], [40, 2, guideZ-35], 5);
         for (const side of [-1, 1]) {
-          steel("smith-upright" + side, [side * 39, 2, 11], [side * 39, 89, 11], 5);
-          steel("smith-base" + side, [side * 39, 2, -28], [side * 39, 2, 37], 5);
-          steel("smith-brace" + side, [side * 39, 4, -25], [side * 39, 70, 11], 3.5);
-          beam("smith-guide" + side, [side * 33, 14, 11], [side * 33, 83, 11], 0.75, "chrome");
+          steel("smith-upright" + side, [side * 39, 2, guideZ], [side * 39, 89, guideZ], 5);
+          steel("smith-base" + side, [side * 39, 2, guideZ-39], [side * 39, 2, guideZ+26], 5);
+          steel("smith-brace" + side, [side * 39, 4, guideZ-36], [side * 39, 70, guideZ], 3.5);
+          beam("smith-guide" + side, [side * 33, 14, guideZ], [side * 33, 83, guideZ], 0.75, "chrome");
           // Fixed catches and lower safety stops, separate from the moving carriage.
-          for (let y = 20; y <= 78; y += 6) box("smith-catch" + side + y, [side * 36, y, 8], [3, 1.5, 4], "chrome");
-          box("smith-stop" + side, [side * 33, 20, 11], [4.5, 4, 5], "rubber");
-          box("smith-carriage" + side, [side * 33, bar[1], 11], [4, 8, 4], "metal");
-          for (const end of [-1, 1]) axial("smith-carriage-bearing" + side + end, "cylinder", [side * 33, bar[1] + end * 4, 11], [0, 1, 0], 1.35, .5, "chrome");
-          steel("smith-carriage-link" + side, [side * 29, bar[1], 11], [side * 33, bar[1], 11], 2);
-          steel("smith-carriage-hook" + side, [side * 33, bar[1] - 1, 9], [side * 36, bar[1] - 1, 8], 1.2);
-          beam("smith-sleeve" + side, [side * 34, bar[1], 11], [side * 47, bar[1], 11], 1.1, "chrome");
+          for (let y = 20; y <= 78; y += 6) box("smith-catch" + side + y, [side * 36, y, guideZ-3], [3, 1.5, 4], "chrome");
+          box("smith-stop" + side, [side * 33, stopY, guideZ], [4.5, 4, 5], "rubber");
+          box("smith-carriage" + side, [side * 33, bar[1], guideZ], [4, 8, 4], "metal");
+          for (const end of [-1, 1]) axial("smith-carriage-bearing" + side + end, "cylinder", [side * 33, bar[1] + end * 4, guideZ], [0, 1, 0], 1.35, .5, "chrome");
+          steel("smith-carriage-link" + side, [side * 29, bar[1], guideZ], [side * 33, bar[1], guideZ], 2);
+          steel("smith-carriage-hook" + side, [side * 33, bar[1] - 1, guideZ-2], [side * 36, bar[1] - 1, guideZ-3], 1.2);
+          beam("smith-sleeve" + side, [side * 34, bar[1], guideZ], [side * barHalf, bar[1], guideZ], 1.1, "chrome");
           for (let i = 0; i < 2; i++) {
-            const x = side * (37 + i * 2.1);
-            plate("smith-plate" + side + i, [x, bar[1], 11]);
+            const x = side * (plateX + i * 2.1);
+            plate("smith-plate" + side + i, [x, bar[1], guideZ]);
           }
-          beam("smith-collar" + side, [side * 43, bar[1], 11], [side * 44.5, bar[1], 11], 1.8, "metal");
+          beam("smith-collar" + side, [side * (photo?50:43), bar[1], guideZ], [side * (photo?51.5:44.5), bar[1], guideZ], 1.8, "metal");
           for (const y of [23, 48]) {
-            beam("smith-storage-horn" + side + y, [side * 39, y, -19], [side * 48, y, -19], 0.9, "chrome");
-            plate("smith-storage-plate" + side + y, [side * 42, y, -19], 8);
+            beam("smith-storage-horn" + side + y, [side * 39, y, guideZ-30], [side * (photo?54:48), y, guideZ-30], 0.9, "chrome");
+            plate("smith-storage-plate" + side + y, [side * (photo?46:42), y, guideZ-30], 8);
           }
-          for (const z of [-27, 36]) box("smith-foot" + side + z, [side * 39, 0.7, z], [8, 1.4, 8], "rubber");
-          for (const y of [5, 85]) axial("smith-frame-bolt" + side + y, "bolt", [side * 41.7, y, 11], right, .8, .7, "chrome");
+          for (const z of [guideZ-38, guideZ+25]) box("smith-foot" + side + z, [side * 39, 0.7, z], [8, 1.4, 8], "rubber");
+          for (const y of [5, 85]) axial("smith-frame-bolt" + side + y, "bolt", [side * 41.7, y, guideZ], right, .8, .7, "chrome");
+          if(photo)handle("smith-bar-grip"+side,hands[side === -1 ? 0 : 1]);
         }
-        beam("barbell", [-47, bar[1], 11], [47, bar[1], 11], 0.65, "chrome");
+        beam("barbell", [-barHalf, bar[1], guideZ], [barHalf, bar[1], guideZ], 0.65, "chrome");
+        if(photo){
+          // A full head/back pad and separate near-horizontal seat, as in the photo.
+          const backStart=add3(add3(hip,mul3(up,-8)),mul3(forward,-7.2));
+          const backEnd=add3(add3(body.head,mul3(up,1)),mul3(forward,-7.2));
+          pad("smith-incline-back",backStart,backEnd,14,4,false);
+          pad("smith-incline-seat",[0,hip[1]-5.6,hip[2]+6],[0,hip[1]-5.6,hip[2]-4],14,4,false);
+          const lowerStart=add3(backStart,mul3(forward,-3.3)),lowerEnd=add3(backEnd,mul3(forward,-3.3));
+          steel("smith-bench-spine",lowerStart,lowerEnd,2.5);
+          steel("smith-bench-adjuster",[0,3,-24],mix3(lowerStart,lowerEnd,.7),2.3);
+          steel("smith-bench-front-post",[0,2,8],[0,hip[1]-9,8],2.5);
+          pivot("smith-bench-hinge",lowerStart);
+          floorFrame("smith-bench-base",-8,26,55);
+        }else{
         // Bench adjustment hardware stays fixed while the guided bar moves.
         const rest = mix3(hip, shoulder, 0.65);
         steel("smith-bench-spine", add3(hip, [0, -7, -7]), add3(rest, [0, -5, -9]), 3);
         steel("smith-bench-adjuster", [0, 4, hip[2] - 5], add3(rest, [0, -7, -9]), 2.5);
         pivot("smith-bench-hinge", add3(hip, [0, -7, -7]));
+        }
         break;
       }
     case "power-rack":
@@ -768,21 +790,11 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
         floorFrame("rack-base", z, 70, 40);
         break;
       }
-    case "incline-bench-press":
     case "barbell-bench-press": {
       const top=freeBenchGrip(type,1,1),bottom=freeBenchGrip(type,1,0);
-      if (type === "barbell-bench-press") {
-        pad("free-bench-back",FLAT_BENCH.foot,FLAT_BENCH.head,14,4,false);
-        beam("free-bench-spine",[0,FLAT_BENCH.frameY,8],[0,FLAT_BENCH.frameY,-35.4],1.5);
-        for(const z of [-24,7])beam("free-bench-support"+z,[0,2,z],[0,FLAT_BENCH.frameY,z],2);
-      } else {
-        pad("free-bench-back",add3(add3(hip,mul3(up,-8)),mul3(forward,-7.2)),add3(add3(body.head,mul3(up,1)),mul3(forward,-7.2)),14,4,false);
-        const backStart=add3(add3(hip,mul3(up,-8)),mul3(forward,-10.5));
-        const backEnd=add3(add3(body.head,mul3(up,1)),mul3(forward,-10.5));
-        beam("free-bench-spine",backStart,backEnd,1.5);
-        beam("free-bench-adjuster",[0,3,-26],mix3(backStart,backEnd,.7),1.5);
-        for(const z of [-24,7])beam("free-bench-support"+z,[0,2,z],[0,17,z],2);
-      }
+      pad("free-bench-back",FLAT_BENCH.foot,FLAT_BENCH.head,14,4,false);
+      beam("free-bench-spine",[0,FLAT_BENCH.frameY,8],[0,FLAT_BENCH.frameY,-35.4],1.5);
+      for(const z of [-24,7])beam("free-bench-support"+z,[0,2,z],[0,FLAT_BENCH.frameY,z],2);
       floorFrame("free-bench-base",-8,28,55);
       for(const side of [-1,1]){
         const x=side*27,z=top[2]-7;

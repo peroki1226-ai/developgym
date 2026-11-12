@@ -98,9 +98,9 @@
     },
     {
       "id": "m-incline-bench",
-      "name": "chest.inclineBench.name",
+      "name": "chest.inclineSmith.name",
       "part": "chest-upper",
-      "reqEquip": "incline-bench-press"
+      "reqEquip": "incline-smith"
     },
     {
       "id": "m-incline-hammer",

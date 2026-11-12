@@ -19,7 +19,7 @@ export function PhotoChestEquipment({ type, progress, variant }: { type: string;
       const width = item.size[0] * (item.kind === "tube" ? .84 : 1.68);
       return <Line key={item.id} testID={"photo-gear-" + item.id} x1={x} y1={y} x2={x2} y2={y2} stroke={fill} strokeWidth={width} strokeLinecap="round" />;
     }
-    if (item.axes && ["free-bench-back", "free-bench-back-shell"].includes(item.id)) {
+    if (item.axes && ["box", "pad"].includes(item.kind) && (["free-bench-back", "free-bench-back-shell"].includes(item.id) || item.id.startsWith("smith-"))) {
       // Project the actual pad plane. An upright screen Rect discards its axes
       // and makes a horizontal bench look like a vertical/sloped backrest.
       const corner = (u: number, v: number, w: number) => project(add3(item.a, add3(

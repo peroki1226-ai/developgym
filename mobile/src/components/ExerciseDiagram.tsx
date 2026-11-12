@@ -26,7 +26,7 @@ import { MotionJointDetail } from "./MotionJointDetail";
 import { MuscleContractionPanel } from "./MuscleContractionPanel";
 import { MuscleLengthCoach } from "./MuscleLengthCoach";
 import { Motion3DView } from "./Motion3DView";
-import { Focus3, View3, LegPressVariant } from "../domain/training3d";
+import { Focus3, View3, LegPressVariant, benchViews } from "../domain/training3d";
 import { MuscleQuickCue } from "./MuscleQuickCue";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 import { rearMuscles } from "../domain/muscleLoad";
@@ -138,8 +138,16 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     : learningStep === "hands" ? t(lesson ? `${lesson.prefix}.hands` : type === "back-extension" ? "scene.crossHandsHint" : "learn.handsHint")
     : learningStep === "feet" ? t(lesson ? `${lesson.prefix}.feet` : footHint) : t(phaseInstruction);
   const guidedChest = beginner && !advanced && !!lesson;
+  const focusChest = () => {
+    if (focus === "muscles") { setFocus("whole"); setTransparent(false); }
+    else { setSelectedMuscle(muscleSpec(type).focus); setFocus("muscles"); setView(benchViews(type).includes("above") ? "above" : "front"); setTransparent(true); }
+  };
   const prepareChestMotion = () => {
-    if (learningStep !== "move") { chooseLearningStep("move"); motion.seek(type === "chest-dip" ? 1 : 0, "work"); }
+    if (learningStep !== "move") {
+      chooseLearningStep("move"); setView(view);
+      if (focus === "muscles") {setFocus(focus);setTransparent(true);}
+      motion.seek(type === "chest-dip" ? 1 : 0, "work");
+    }
     setAnatomy(true);
   };
   const playChest = () => {
@@ -148,7 +156,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     else motion.playRepetition(type === "chest-dip");
   };
   const inspectChest = (position: number) => {
-    if (learningStep !== "move") chooseLearningStep("move");
+    prepareChestMotion();
     const pose = chestCyclePose(type, position);
     motion.inspectRepetition(pose.progress, pose.direction, pose.completed);
   };
@@ -225,13 +233,20 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         ))}
       </View>
       <Text style={styles.note}>{t("scene.stepHint")}</Text>
-      {mode === "spatial" && (
+
+      </>}
+      {type === "leg-press" && <View style={styles.speeds} accessibilityRole="radiogroup" accessibilityLabel={t("machine.legPressType")}>
+        {(["seated", "incline"] as const).map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={t(`machine.${value}`)} accessibilityState={{ checked: legPressVariant === value }} aria-checked={legPressVariant === value} style={[styles.speedButton, legPressVariant === value && styles.selectedSpeed]} onPress={() => { motion.seek(0); setLegPressVariant(value); }}>
+          <Text style={styles.speedText}>{t(`machine.${value}`)}</Text>
+        </Pressable>)}
+      </View>}
+      {(controlsVisible || guidedChest) && mode === "spatial" && (
         <View
           accessibilityRole="radiogroup"
           accessibilityLabel={t("scene.camera")}
           style={styles.speeds}
         >
-          {(["front", "side", "back"] as const).map((value) => (
+          {benchViews(type).map((value) => (
             <Pressable
               key={value}
               accessibilityRole="radio"
@@ -252,11 +267,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           ))}
         </View>
       )}
-      </>}
-      {type === "leg-press" && <View style={styles.speeds} accessibilityRole="radiogroup" accessibilityLabel={t("machine.legPressType")}>
-        {(["seated", "incline"] as const).map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={t(`machine.${value}`)} accessibilityState={{ checked: legPressVariant === value }} aria-checked={legPressVariant === value} style={[styles.speedButton, legPressVariant === value && styles.selectedSpeed]} onPress={() => { motion.seek(0); setLegPressVariant(value); }}>
-          <Text style={styles.speedText}>{t(`machine.${value}`)}</Text>
-        </Pressable>)}
+      {guidedChest && <View style={styles.speeds}>
+        <Button title={t(focus === "muscles" ? "anatomy.showWhole" : "anatomy.inspect")} variant="quiet" onPress={focusChest}/>
       </View>}
       <View
         style={[styles.canvas, mode === "spatial" && styles.spatialCanvas]}
@@ -303,6 +315,10 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
             />
           </Svg>
         )}
+        {guidedChest && lesson && anatomy && <View testID="chest-anatomy-overlay" pointerEvents="none" style={anatomyStyles.overlay}>
+          <Text style={anatomyStyles.target}>{t("anatomy.target",{0:t(`${lesson.prefix}.target`)})}</Text>
+          <Text testID="chest-anatomy-state" style={anatomyStyles.state}>{t(motion.progress < .03 ? "anatomy.long" : motion.progress > .97 ? "anatomy.short" : motion.phase === "return" ? "anatomy.lengthening" : "anatomy.shortening")}</Text>
+        </View>}
         {anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
         {beginner && !advanced && learningStep === "move" && <View pointerEvents="none" testID="beginner-phase-overlay" style={styles.phaseOverlay}>
           <Text style={styles.detailTitle}>{t(`learn.phase.${motion.phase}`)}</Text>
@@ -310,11 +326,11 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </View>}
       </View>
       {guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
-        running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} focused={focus === "muscles"}
+        running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
         onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}
         onView={value => {setView(value);setTransparent(value === "back" || focus === "muscles");}}
-        onFocus={() => {if(focus === "muscles"){setFocus("whole");setTransparent(false);}else{setSelectedMuscle(muscleSpec(type).focus);setFocus("muscles");setView("front");setTransparent(true);}}}/>}
+        onFocus={focusChest}/>}
       {beginner && !advanced && learningStep === "posture" && beginnerGuide && <BeginnerSetupNotes guide={beginnerGuide} />}
       {beginner && !advanced && <View style={{ gap: 8 }}>
         {guidedChest && learningStep === "move" && <Text style={styles.note}>{t("chest.live.phases")}</Text>}
@@ -769,4 +785,9 @@ const styles = StyleSheet.create({
     borderColor: "#ffffff",
   },
   note: { color: colors.muted, fontSize: 11, lineHeight: 18 },
+});
+
+const anatomyStyles = StyleSheet.create({
+  overlay:{position:"absolute",bottom:8,left:8,right:8,padding:9,borderRadius:10,backgroundColor:"rgba(255,255,255,.95)",borderLeftWidth:4,borderLeftColor:"#b94b3e",gap:3},
+  target:{fontSize:12,fontWeight:"700",color:"#803426"},state:{fontSize:13,fontWeight:"600",color:"#222f39"},
 });

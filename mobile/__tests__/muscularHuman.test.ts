@@ -11,13 +11,13 @@ const influence = (vertex: number, bone: number) => {
   for (let j = 0; j < 4; j++) if (ids[vertex*4+j] === bone) total += weights[vertex*4+j];
   return total;
 };
-// P90 radial distances measured on the previous shipped reference, in authored
+// P90 radial distances measured on the previous natural athletic adult v3 reference, in authored
 // mesh units. Keep this visual-change baseline explicit, not a human body claim.
 test.each([
-  ['upperarm.L', 0.7334245052826617, .8],
-  ['thigh.L', 1.3108028330607069, .8],
-  ['shin.L', 0.9147077530547915, .8],
-] as const)("%s: the leaner muscle surface retains bounded volume without the earlier exaggerated bulk", (name, previous, increase) => {
+  ['upperarm.L', 0.6948824408808659, 1.08],
+  ['thigh.L', 1.22512621851725, 1.07],
+  ['shin.L', 0.8540106768065523, 1.06],
+] as const)("%s: muscle bellies gain bounded teaching volume while joint ends stay tapered", (name, previous, increase) => {
   const bone = asset.bones.indexOf(name), rest = asset.rest[name];
   const axis = unit3(sub3(rest.tail as [number,number,number],rest.head as [number,number,number]));
   const span = length3(sub3(rest.tail as [number,number,number],rest.head as [number,number,number]));
@@ -33,10 +33,10 @@ test.each([
   const index = .9*(distances.length-1), low = Math.floor(index);
   const current = distances[low]+(distances[Math.ceil(index)]-distances[low])*(index-low);
   expect(current).toBeGreaterThan(previous*increase);
-  expect(current).toBeLessThan(previous*1.02); // Muscle bellies, not swollen joints.
+  expect(current).toBeLessThan(previous*1.20); // Muscle bellies, not swollen joints.
 });
 test("the muscular profile retains pinned CC0 source data including its new regional morphs", () => {
-  expect(asset.profile).toBe('natural-athletic-adult-v3');
+  expect(asset.profile).toBe('muscular-teaching-adult-v4');
   const files=asset.source.files.map(f=>f.file);
   expect(files).toEqual(expect.arrayContaining([
     'targets/armslegs/l-upperarm-shoulder-muscle-incr.target',

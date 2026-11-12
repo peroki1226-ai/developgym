@@ -100,3 +100,24 @@ surface colours. There are no skin photographs, runtime textures, additional
 meshes or animation clocks. The neutral skin is an illustrative palette, not a
 reconstruction of a particular person. Real-device performance and visual
 acceptance remain separate from automated tests and desktop WebGL inspection.
+
+
+## Muscular teaching profile (v4; user-requested anatomy visibility)
+
+`muscular-teaching-adult-v4` retains v3's skeleton, authored grips, topology,
+23 CC0 inputs, tapered joints and volume-preserving skinning. Surface-only
+belly sculpting adds visible upper-arm, thigh and calf volume; upper-pectoral
+relief is broader. Joint helper points and hand/foot targets are unchanged.
+Normals, cavity shading, clothing clearance/weights and masks are regenerated
+from this surface together, rather than retaining masks from a different shape.
+
+The runtime draws a small, reusable fan guide on barycentric samples of the
+posed anterior chest. Full fan lines show orientation; a bright inner segment
+illustrates shortening/lengthening, with endpoint markers and reversible arrows.
+This segment is a learning aid, not a measured fascicle or a skin strain estimate:
+skin may stretch over the moving shoulder while the underlying muscle shortens.
+The muscle belly changes with the existing qualitative muscle-path model. No
+colour intensity or illustrated distance is claimed as measured activation/force.
+Guides hide with anatomy off and for other target muscles. There are no network
+assets or additional animation clocks. Bench exercises also have an oblique
+overhead camera and a fixed chest inspection window.

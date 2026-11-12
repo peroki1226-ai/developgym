@@ -1630,5 +1630,18 @@
   "chest.cable.returnCue": "Open while controlling the pull with the chest; stop before the shoulders are pulled too far back.",
   "chest.cable.tip1": "Think of bringing the upper arms together rather than just touching the hands.",
   "chest.cable.tip2": "Maintain a soft elbow bend and trace an arc through the chest.",
-  "chest.cable.tip3": "Start with 1–2 sets: close, pause and open slowly with a light load. Ask staff about pulley positions and machine adjustments."
+  "chest.cable.tip3": "Start with 1–2 sets: close, pause and open slowly with a light load. Ask staff about pulley positions and machine adjustments.",
+  "scene.above": "Above",
+  "anatomy.inspect": "Inspect muscle contraction",
+  "anatomy.showWhole": "Show body and equipment",
+  "anatomy.target": "Target: {0}",
+  "anatomy.long": "Chest lengthened · press or bring the arms together",
+  "anatomy.short": "Chest shortened · return slowly from here",
+  "anatomy.shortening": "Press / bring together → chest shortens under tension",
+  "anatomy.lengthening": "Return slowly → chest lengthens under tension",
+  "anatomy.inspectLong": "Inspect lengthened pose",
+  "anatomy.inspectShort": "Inspect shortened pose",
+  "anatomy.legend": "Red: primary target · pale gold lines: fibre orientation · arrows: shortening / lengthening",
+  "anatomy.note": "Fibre paths and deformation are learning illustrations. Colour intensity does not measure force or activation. Shoulders and arms also assist; a chest region is emphasised rather than completely isolated.",
+  "anatomy.band": "A shorter gold segment shows shortening; a longer segment shows lengthening. It illustrates a portion of a fibre."
 }

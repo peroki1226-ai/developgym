@@ -317,9 +317,9 @@ export function createRealisticHuman(parent: THREE.Group) {
     shader.vertexShader = "attribute vec2 muscleCoord; attribute float muscleTint; varying vec2 vFibre; varying float vTint;\n" + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvFibre = muscleCoord; vTint = muscleTint;");
     shader.fragmentShader = "varying vec2 vFibre; varying float vTint;\n" + shader.fragmentShader;
-    shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 90.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.045;");
+    shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 50.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.10;");
   };
-  material.customProgramCacheKey = () => "makehuman-muscle-fibre-v1";
+  material.customProgramCacheKey = () => "makehuman-muscle-fibre-v2";
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "human-surface";
   mesh.castShadow = mesh.receiveShadow = true;
@@ -412,7 +412,10 @@ export function createRealisticHuman(parent: THREE.Group) {
           m = dominant[i],
           amount = m === 255 ? 0 : states[m].shortening,
           window = Math.sin(Math.PI * sourceT[i]) ** 2;
-        const bulge = (Math.sqrt(1 / (1 - amount)) - 1) * .9 * strength[i] * window;
+        const pectoral = ["chest", "upperChest"].includes(muscleNames[m]);
+        // Make the belly change readable at phone scale while keeping sternum,
+        // tendon ends, skeleton and hand contact targets anchored.
+        const bulge = (Math.sqrt(1 / (1 - amount)) - 1) * (pectoral ? 2.2 : .9) * strength[i] * window;
         const axial = (0.5 - sourceT[i]) * amount * .35 * strength[i] * window;
         sourcePoint.set(base[k] + normals[k] * bulge + axes[k] * axial, base[k + 1] + normals[k + 1] * bulge + axes[k + 1] * axial, base[k + 2] + normals[k + 2] * bulge + axes[k + 2] * axial);
         sourceNormal.set(normals[k], normals[k + 1], normals[k + 2]);

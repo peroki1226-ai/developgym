@@ -2,7 +2,10 @@ import { clampProgress, exercisePose, motionType, Point } from "./exerciseMotion
 import { Muscle, muscleSpec } from "./muscleMotion";
 export type V3 = readonly [number, number, number];
 export type Bone3 = readonly [V3, V3, V3];
-export type View3 = "front" | "side" | "back";
+export type View3 = "front" | "side" | "back" | "above";
+export const benchViews = (type: string): readonly View3[] =>
+  ["barbell-bench-press", "incline-bench-press", "incline-smith", "dumbbell-heavy"].includes(type)
+    ? ["front", "side", "back", "above"] : ["front", "side", "back"];
 export type Focus3 = "whole" | "hands" | "feet" | "muscles";
 export type LegPressVariant = "incline" | "seated";
 export type HandGrip3 = { centre: V3; axis: V3; radius: number };
@@ -1040,7 +1043,10 @@ export function camera3d(frame: TrainingFrame3, view: View3, focus: Focus3) {
   const radius = focus === "whole" ? frame.type === "cable-machine" ? 160 : 135 : focus === "hands" ? 65 : focus === "feet" ? 65 : 75;
   return {
     target,
-    position: add3(target, [Math.sin(angle) * radius * body.facing, radius * 0.24, Math.cos(angle) * radius * body.facing]),
+    // An oblique overhead view keeps left/right and the sternum visible without
+    // the singular lookAt basis of a perfectly vertical camera.
+    position: add3(target, view === "above" ? [-radius * .12, radius * 1.2, radius * .36]
+      : [Math.sin(angle) * radius * body.facing, radius * 0.24, Math.cos(angle) * radius * body.facing]),
     radius
   };
 }

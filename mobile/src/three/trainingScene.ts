@@ -1,3 +1,4 @@
+import { createPectoralFibres } from "./pectoralFibres";
 import { chestMotionPaths } from "../domain/chestMotion";
 import * as THREE from "three";
 import { createRealisticHuman } from "./realisticHuman";
@@ -66,6 +67,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   };
   const geometries = createEquipmentGeometries();
   const human = createRealisticHuman(group);
+  const pectorals = createPectoralFibres(group, human.mesh.geometry);
   const nodes = new Map<string, THREE.Mesh>();
   const focusedBounds = new Map<string, THREE.Box3>();
   let currentType = "",
@@ -147,6 +149,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       }
     });
     human.draw(frame, input.anatomy);
+    pectorals.draw(frame, input.anatomy, !!input.returning, input.progress);
     const flowMuscle = selected ?? muscleSpec(frame.type).focus;
     if (input.anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(frame.type)) {
       frame.body.legs.forEach((leg, i) => {
@@ -189,7 +192,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
     group.updateMatrixWorld(true);
     const bounds = new THREE.Box3();
     if (input.focus === "whole") group.children.forEach(n => {
-      if (n.visible) bounds.expandByObject(n);
+      if (n.visible && n !== pectorals.group) bounds.expandByObject(n);
     });else {
       const muscle = selected ?? muscleSpec(frame.type).focus;
       const lower = ["quads", "hamstrings", "glutes", "hipAbductors", "adductors", "soleus"].includes(muscle);
@@ -199,11 +202,15 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
         const points: THREE.Vector3[] = [];
         for (let step = 0; step <= 20; step++) {
           const body = trainingFrame3d(frame.type, step / 20, input.variant).body;
-          const musclePoints = lower ? body.legs.flat() : arm ? body.arms.flat() : [body.hip, body.shoulder, body.head, ...body.arms.map(a => a[0])];
+          const chest = ["chest", "upperChest"].includes(muscle);
+          const up = unit3(sub3(body.shoulder, body.hip));
+          const chestPoints = [-1, 1].flatMap(side => [-9, 2].flatMap(height => [-1, 10].map(depth =>
+            add3(add3(add3(body.shoulder, mul3(body.right, side * 12)), mul3(up, height)), mul3(body.forward, depth)))));
+          const musclePoints = lower ? body.legs.flat() : arm ? body.arms.flat() : chest ? chestPoints : [body.hip, body.shoulder, body.head, ...body.arms.map(a => a[0])];
           const posePoints = input.focus === "hands" ? body.arms.flat() : input.focus === "feet" ? body.legs.flat() : musclePoints;
           points.push(...posePoints.map(v));
         }
-        focusedBounds.set(cacheKey, new THREE.Box3().setFromPoints(points).expandByScalar(8));
+        focusedBounds.set(cacheKey, new THREE.Box3().setFromPoints(points).expandByScalar(input.focus === "muscles" && ["chest", "upperChest"].includes(muscle) ? 1.5 : 8));
       }
       // A fixed inspection window lets the viewer compare muscle changes without
       // zooming in and out as the joint bends.
@@ -238,6 +245,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       if (disposed) return;
       disposed = true;
       reset();
+      pectorals.dispose();
       human.dispose();
       Object.values(geometries).forEach(g => g.dispose());
       Object.values(materials).forEach(m => m.dispose());

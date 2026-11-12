@@ -51,6 +51,7 @@ weights = json.loads(read('rigs/default_weights.mhw'))
 assert skel['license'] == 'CC0' and weights['license'] == 'CC0'
 def joint(bone, end):
     return np.mean(verts[skel['joints'][skel['bones'][bone][end]]], axis=0)
+# Muscular teaching silhouette: add volume to bellies, taper to zero at joints.
 # Bounded muscle-belly refinement on the authored surface. Keep skeletal helpers,
 # hands, feet and joint ends fixed; skin and its clothing shell share the sculpt.
 sculptable=np.zeros(len(verts),dtype=bool)
@@ -58,9 +59,9 @@ for group,poly in faces:
     if group in ['body','helper-tights']: sculptable[poly]=True
 for side in ['L','R']:
     for prefix,start_bone,end_bone,amount in [
-        ('upperarm','upperarm01','lowerarm01',.08),
-        ('upperleg','upperleg01','lowerleg01',.10),
-        ('lowerleg','lowerleg01','foot',.06),
+        ('upperarm','upperarm01','lowerarm01',.38),
+        ('upperleg','upperleg01','lowerleg01',.28),
+        ('lowerleg','lowerleg01','foot',.20),
     ]:
         h=joint(start_bone+'.'+side,'head'); tail=joint(end_bone+'.'+side,'head')
         axis=tail-h; length=np.linalg.norm(axis); axis/=length
@@ -82,7 +83,7 @@ x=np.abs(verts[:,0]); y=verts[:,1]; z=verts[:,2]
 clavicle=joint('clavicle.L','head')[1]
 front=np.clip((z-.4)/.5,0,1)*skin
 gauss=lambda cx,cy,sx,sy: np.exp(-((x-cx)/sx)**2-((y-cy)/sy)**2)
-relief=-.25*gauss(.78,clavicle-1.48,.62,.42)+.20*gauss(.85,clavicle-.72,.7,.5)
+relief=-.25*gauss(.78,clavicle-1.48,.62,.42)+.36*gauss(.85,clavicle-.72,.7,.5)
 for level in [3.85,3.05,2.3]: relief+=.12*gauss(.38,level,.28,.32)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
 relief-=.028*np.exp(-(x/.085)**2)*ab_window
@@ -296,7 +297,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'natural-athletic-adult-v3','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'muscular-teaching-adult-v4','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 output=a.output
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')
 print(json.dumps({'output':str(output),'vertices':n,'triangles':len(indices)//3,'bones':len(bones),'muscles':{k:int(np.sum(v>0)) for k,v in masks.items()},'bytes':output.stat().st_size},indent=2))

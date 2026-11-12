@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render } from "@testing-library/react-native";
 import * as THREE from "three";
 import { MOTION_TYPES } from "../src/domain/exerciseMotion";
-import { trainingFrame3d, body3d, length3, sub3, dot3, average3, camera3d, HUMAN_SEGMENTS, SMITH_PRESS } from "../src/domain/training3d";
+import { trainingFrame3d, body3d, length3, sub3, dot3, average3, camera3d, benchViews, HUMAN_SEGMENTS, SMITH_PRESS } from "../src/domain/training3d";
 import { createTrainingScene } from "../src/three/trainingScene";
 import { ExerciseDiagram } from "../src/components/ExerciseDiagram";
 import { LocaleProvider, translate } from "../src/i18n";
@@ -40,7 +40,7 @@ test.each(MOTION_TYPES)("%s: spatial body, equipment and contact points are fini
       expect(Math.abs(dot3(p.axes[0], p.axes[1]))).toBeLessThan(1e-6);
       expect(length3(p.axes[2])).toBeCloseTo(1);
     }
-    for (const view of ["front", "side", "back"] as const) expect(camera3d(frame, view, "whole").position.every(Number.isFinite)).toBe(true);
+    for (const view of benchViews(type)) expect(camera3d(frame, view, "whole").position.every(Number.isFinite)).toBe(true);
     expect(JSON.stringify(frame)).toBe(snapshot);
   }
 });
@@ -77,7 +77,7 @@ test("seats meet the pelvis, platforms meet the soles, and assistance pads meet 
 test("renderer reuses meshes, fits all views, keeps the human solid and disposes once", () => {
   const fake = fakeRenderer(),
     handle = createTrainingScene(fake.renderer, 320, 350);
-  for (const type of MOTION_TYPES) for (const view of ["front", "side", "back"] as const) {
+  for (const type of MOTION_TYPES) for (const view of benchViews(type)) {
     handle.draw({
       type,
       progress: 0.5,

@@ -2,6 +2,7 @@ import { GuideCameraControls } from "./GuideCameraControls";
 import { OrbitGesture } from "./OrbitGesture";
 import { Orbit, DEFAULT_GUIDE_ZOOM, orbitForView } from "../domain/guideCamera";
 import { ChestLiveLesson } from "./ChestLiveLesson";
+import { ProTrainingCoach } from "./ProTrainingCoach";
 import { chestCyclePose, chestCyclePosition } from "../domain/chestMotion";
 import { chestLesson } from "../domain/chestLessons";
 import { guidePose } from "../domain/photoChestProjection";
@@ -334,6 +335,9 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </>}
       </View>}
       {beginner && <Button title={t(advanced ? "learn.simple" : "learn.advanced")} variant="quiet" onPress={() => { if (advanced) chooseLearningStep(learningStep); setAdvanced(!advanced); }} />}
+      {controlsVisible && <ProTrainingCoach key={type} type={type} phase={motion.phase} canPlay={motion.canPlay} running={motion.running}
+        onInspect={direction => { setAnatomy(true); selectMuscle(muscleSpec(type).focus); setLessonDirection(direction); motion.playSegment(direction); }}
+        onPause={motion.toggle} />}
       {anatomy && controlsVisible && (
         <MuscleLengthCoach
           type={type}

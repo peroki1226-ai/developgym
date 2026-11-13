@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">42</span> / <span id="stat-total" class="text-neutral-500">45</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">43</span> / <span id="stat-total" class="text-neutral-500">46</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">43 / 45 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">43 / 46 TASKS COMPLETED (93%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93%"></div>
@@ -161,6 +161,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-045：ベンチの下端を実際の胸下部の位置へ。<a class="underline" href="docs/BENCH_LOWER_CHEST.md">修正内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
+
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- Column 1: DONE -->
@@ -170,7 +172,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
             <h2 class="font-bold text-sm tracking-wider uppercase text-white">実行済みタスク（DONE）</h2>
           </div>
-          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">42</span>
+          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">43</span>
         </div>
         <div id="col-done" class="space-y-3">
           <!-- Rendered via JS -->
@@ -686,9 +688,16 @@
 
       ,{
         id: "TASK-045", title: "ユーザー指定：ベンチ下端を胸下部へ",
-        category: "Lower Chest Bar Stop", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        category: "Lower Chest Bar Stop", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "実際の人体の胸下部にバーの停止点を合わせ、そこへ戻る軌道と日英の説明を同期。握り幅と高さ、水平台と支持は維持。",
         review: "【LGTM / DONE 受入完了】全50スイート/632テスト・型検査・リリース監査全合格。胸骨下部スキン整合停止点Z-17.7・前腕垂直・肩側戻り軌道・日英説明同期実動検証完了。43/45完了（95%）。"
+      }
+
+      ,{
+        id: "TASK-046", title: "ユーザー指定：本格モードの効かせ方・追い込み方",
+        category: "Advanced Training", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "全28種目に狙い/戻し/代償動作、余力に応じた案内と器具別の仕上げ法。既存模型の低速確認へ連携し、初心者の通常表示は維持。",
+        review: "51 suites/668 tests・型/言語/設定監査・両OSバンドル成功。日英全28種目のフォーム/余力/方法、模型実動と停止、モード往復の入力保持・保存/再読込みを確認。受入待ち。署名ビルド/配布保留。"
       }
 
     ];

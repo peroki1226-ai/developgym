@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import { trainingFrame3d, sub3, length3, dot3, HUMAN_SEGMENTS } from "../src/domain/training3d";
 import { chestMotionPaths } from "../src/domain/chestMotion";
 import { createRealisticHuman } from "../src/three/realisticHuman";
+import { createPectoralFibres } from "../src/three/pectoralFibres";
 import { guidePose, projectPhotoChest } from "../src/domain/photoChestProjection";
 import { ExerciseDiagram } from "../src/components/ExerciseDiagram";
 import { EQUIPMENTS } from "../src/data/equipment";
@@ -16,7 +17,8 @@ jest.mock("../src/components/Motion3DView", () => ({ Motion3DView: (props: any) 
 test("bottom forearms stack in front and side views with moderate elbow flare and a bar stop over the chest", () => {
   const f = trainingFrame3d("barbell-bench-press", 0);
   f.body.arms.forEach(([shoulder, elbow, hand]) => {
-    expect(hand[0]).toBeCloseTo(elbow[0], 7); expect(hand[2]).toBeCloseTo(elbow[2], 7);
+    const forearm = sub3(hand, elbow);
+    expect(forearm[1] / length3(forearm)).toBeGreaterThan(Math.cos(5 * Math.PI / 180));
     expect(hand[1]).toBeGreaterThan(elbow[1]);
     const upper = sub3(elbow, shoulder), flare = Math.atan2(Math.abs(upper[0]), upper[2]) * 180 / Math.PI;
     expect(flare).toBeGreaterThan(45); expect(flare).toBeLessThan(70);
@@ -24,6 +26,20 @@ test("bottom forearms stack in front and side views with moderate elbow flare an
     expect(hand[2]).toBeLessThan(-14); expect(hand[2]).toBeGreaterThan(-20);
     expect(Math.asin(Math.abs(upper[1]) / length3(upper)) * 180 / Math.PI).toBeLessThan(35);
   });
+});
+
+test("the bottom bar aligns with the actual skinned lower sternum, not the abdomen", () => {
+  const parent = new THREE.Group(), human = createRealisticHuman(parent), guide = createPectoralFibres(parent, human.mesh.geometry);
+  try {
+    const f = trainingFrame3d("barbell-bench-press", 0);
+    human.draw(f, true); guide.draw(f, true, false, 0);
+    const paths = guide.group.userData.paths as THREE.Vector3[][];
+    const lowerSternum = paths[8][0].clone().add(paths[17][0]).multiplyScalar(.5);
+    const bar = f.equipment.find(e => e.id === "free-barbell")!;
+    expect(Math.abs(bar.a[2] - lowerSternum.z)).toBeLessThan(.5);
+    expect(bar.a[1]).toBeGreaterThan(lowerSternum.y);
+    expect(bar.a[1] - lowerSternum.y).toBeLessThan(3.5);
+  } finally { guide.dispose(); human.dispose(); }
 });
 
 test("the free bar moves up and slightly back, finishes above the shoulder joints and returns on the same indicated path", () => {

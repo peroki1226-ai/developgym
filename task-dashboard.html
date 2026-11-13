@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">41</span> / <span id="stat-total" class="text-neutral-500">44</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">42</span> / <span id="stat-total" class="text-neutral-500">45</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">42 / 44 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">42 / 45 TASKS COMPLETED (93%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93%"></div>
@@ -159,6 +159,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-044：ベンチプレスのバー軌道・手首と肘・支持を見直し、動く模型と日英教材を整合。<a class="underline" href="docs/BENCH_FORM_REVIEW.md">変更点と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-045：ベンチの下端を実際の胸下部の位置へ。<a class="underline" href="docs/BENCH_LOWER_CHEST.md">修正内容と確認手順</a></p>
+
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- Column 1: DONE -->
@@ -168,7 +170,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
             <h2 class="font-bold text-sm tracking-wider uppercase text-white">実行済みタスク（DONE）</h2>
           </div>
-          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">41</span>
+          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">42</span>
         </div>
         <div id="col-done" class="space-y-3">
           <!-- Rendered via JS -->
@@ -677,9 +679,16 @@
 
       ,{
         id: "TASK-044", title: "ユーザー指定：ベンチプレスのフォーム再点検",
-        category: "Bench Form Review", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        category: "Bench Form Review", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "胸側のバー停止位置、下端の前腕垂直・肘の開き、肩側へ戻る浅い押し軌道。水平台と５点の支持を保ち、日英の確認ポイントを実動へ同期。",
         review: "【LGTM / DONE 受入完了】全50スイート/631テスト・型検査・リリース監査全合格。胸側停止位置・前腕垂直・肘57度・肩側戻る曲線軌道・5点支持・日英フォーム解説実動検証完了。42/44完了（95%）。"
+      }
+
+      ,{
+        id: "TASK-045", title: "ユーザー指定：ベンチ下端を胸下部へ",
+        category: "Lower Chest Bar Stop", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "実際の人体の胸下部にバーの停止点を合わせ、そこへ戻る軌道と日英の説明を同期。握り幅と高さ、水平台と支持は維持。",
+        review: "50 suites/632 tests・型/言語/設定監査・両OSバンドル成功。実スキンの胸下部とバー位置の回帰検査、日英12描画状態・半速１往復成功。受入待ち。署名ビルド/配布保留。"
       }
 
     ];

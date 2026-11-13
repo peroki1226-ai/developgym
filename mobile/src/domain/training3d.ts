@@ -202,8 +202,8 @@ export const FLAT_BENCH = Object.freeze({
   foot: Object.freeze([0, 16.8, 8] as const), head: Object.freeze([0, 16.8, -35.4] as const),
   frameY: 13.5,
 });
-/** Moderate teaching grip; forearms stack below the bar at the lower-chest stop. */
-export const BENCH_PRESS = Object.freeze({ gripHalfWidth: 18, bottomY: 34.8, topY: 52.8 });
+/** Lower sternum of the posed chest mesh; keep forearms nearly upright here. */
+export const BENCH_PRESS = Object.freeze({ gripHalfWidth: 18, bottomY: 34.8, topY: 52.8, lowerChestZ: -17.7 });
 /** A free bar follows a shallow arc over the chest, with no Smith rails. */
 export function freeBenchGrip(type: string, side: number, value: number): V3 {
   const p=clampProgress(value),incline=type==="incline-bench-press",angle=(incline?30:0)*Math.PI/180;
@@ -211,9 +211,7 @@ export function freeBenchGrip(type: string, side: number, value: number): V3 {
   const shoulder=add3([0,24,0],mul3(up,26));
   const root=add3(shoulder,add3(mul3(up,-4.8),mul3(forward,.4)));
   if (type === "barbell-bench-press") {
-    const lateral = BENCH_PRESS.gripHalfWidth - 9;
-    const elbowDrop = BENCH_PRESS.bottomY - HUMAN_SEGMENTS.forearmGrip - root[1];
-    const touchZ = root[2] + Math.sqrt(HUMAN_SEGMENTS.upperArm ** 2 - lateral ** 2 - elbowDrop ** 2);
+    const touchZ = BENCH_PRESS.lowerChestZ;
     // Move slightly back toward the shoulder early, then finish almost vertically.
     // The return retraces this same path rather than drifting toward the neck.
     const back = p * (2 - p);

@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">93%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">43</span> / <span id="stat-total" class="text-neutral-500">46</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">44</span> / <span id="stat-total" class="text-neutral-500">47</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">44 / 46 TASKS COMPLETED (93%)</span>
+        <span class="font-num text-white">44 / 47 TASKS COMPLETED (94%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 93%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
       </div>
     </div>
 
@@ -163,6 +163,8 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-047：人体の質感と器具を握る手の密着を修正。<a class="underline" href="docs/HUMAN_GRIP_REFINEMENT.md">変更内容と確認手順</a></p>
+
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- Column 1: DONE -->
@@ -172,7 +174,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
             <h2 class="font-bold text-sm tracking-wider uppercase text-white">実行済みタスク（DONE）</h2>
           </div>
-          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">43</span>
+          <span class="text-xs font-num bg-white/15 text-white px-2 py-0.5 rounded-full border border-white/20">44</span>
         </div>
         <div id="col-done" class="space-y-3">
           <!-- Rendered via JS -->
@@ -695,9 +697,16 @@
 
       ,{
         id: "TASK-046", title: "ユーザー指定：本格モードの効かせ方・追い込み方",
-        category: "Advanced Training", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        category: "Advanced Training", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "全28種目に狙い/戻し/代償動作、余力に応じた案内と器具別の仕上げ法。既存模型の低速確認へ連携し、初心者の通常表示は維持。",
         review: "【LGTM / DONE 受入完了】全51スイート/668テスト・型検査・リリース監査全合格。全28種目効かせ方/戻し方/代償動作、余力別案内、器具別仕上げ法、四分の一速低速模型確認の実動検証完了。44/46完了（95%）。"
+      }
+
+      ,{
+        id: "TASK-047", title: "ユーザー指定：人体のリアルさ・器具を握る手",
+        category: "Human and Grip Surface", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "実グリップの太さへ指・手のひらを補正し、手首を維持。手の目印球を除去し、肌/目/ウェアと動作中の衣服追従を改善。",
+        review: "52 suites/700 tests・型/言語/設定監査・胸マスクcheck・両OSバンドル成功。672描画状態、変更前後56画面、握り３種の実動・停止を確認。受入待ち。署名ビルド/配布保留。"
       }
 
     ];

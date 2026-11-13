@@ -121,3 +121,25 @@ colour intensity or illustrated distance is claimed as measured activation/force
 Guides hide with anatomy off and for other target muscles. There are no network
 assets or additional animation clocks. Bench exercises also have an oblique
 overhead camera and a fixed chest inspection window.
+
+## Grip surface and tailored garment revision (TASK-047)
+
+The accepted v4 body, bone landmarks, source hand pose, original CC0 inputs and
+non-garment skin weights remain unchanged. `garmentRevision: level-hems-v1`
+levels the existing waist/leg boundary rings without adding polygons. Offline
+`garmentBindings` retain three nearby body vertices and normalized weights;
+after skinning, the garment is kept outside its actual posed body support. This
+prevents waist/leg edges from disappearing into the body while hips bend.
+
+The runtime adapts the curved finger and palm surface to each explicit handle
+radius. A smooth cylindrical fit preserves finger spacing along the grip, fades
+to zero before the wrist and transforms surface normals. The handle radius now
+includes its outer rib envelope. Surface-contact diagnostics check actual skin
+clearance and contact vertices, rather than only the nominal hand centre. Opaque
+contact markers are omitted in hands focus so they cannot hide the fingers.
+
+Subtle rest-space skin variation, brow/lip tones, a smaller iris/pupil transition
+and separate skin/eye/fabric roughness improve the neutral appearance. Target
+colour and the existing fibre guide are independent. There are no new textures,
+downloads, meshes, dependencies or animation clocks. This is an improved teaching
+model, not a photoreal scan or a force/contact-pressure simulation.

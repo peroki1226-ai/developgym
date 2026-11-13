@@ -218,6 +218,13 @@ for poly, mat in selected:
     for v in poly: materials[remap[v]]=mat
     for i in range(1,len(poly)-1): indices.extend([remap[poly[0]],remap[poly[i]],remap[poly[i+1]]])
 indices=np.array(indices,dtype='<u2'); normal=np.zeros_like(positions)
+# Level the three open garment rings (waist and two leg hems). Selecting faces
+# by centroid left a saw-tooth edge; preserve topology and all body vertices.
+cloth_triangles=indices.reshape(-1,3)[np.all(materials[indices.reshape(-1,3)]==1,axis=1)]
+cloth_edges=np.concatenate([cloth_triangles[:,[0,1]],cloth_triangles[:,[1,2]],cloth_triangles[:,[2,0]]])
+cloth_edges,edge_count=np.unique(np.sort(cloth_edges,axis=1),axis=0,return_counts=True)
+hem_vertices=np.unique(cloth_edges[edge_count==1])
+positions[hem_vertices,1]=np.where(positions[hem_vertices,1]>0,1.5,-1.5)
 tri=positions[indices.reshape(-1,3)]; fn=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])
 for k in range(3): np.add.at(normal,indices.reshape(-1,3)[:,k],fn)
 normal/=np.maximum(np.linalg.norm(normal,axis=1)[:,None],1e-9)
@@ -226,11 +233,13 @@ normal/=np.maximum(np.linalg.norm(normal,axis=1)[:,None],1e-9)
 # this prevents holes when the muscular hips/thighs bend against the fabric.
 ww=w[ids].copy()
 body_ids=np.flatnonzero(materials==0)
+garment_bindings=[]
 for i in np.flatnonzero(materials==1):
     distance=np.sum((positions[body_ids]-positions[i])**2,axis=1)
     nearest=body_ids[np.argpartition(distance,3)[:3]]
     blend=1/np.maximum(np.sum((positions[nearest]-positions[i])**2,axis=1),1e-8)
     blend/=blend.sum()
+    garment_bindings.append({'vertex':int(i),'body':nearest.tolist(),'weights':blend.tolist()})
     ww[i]=np.sum(ww[nearest]*blend[:,None],axis=0)
     outside=np.sum(normal[nearest]*blend[:,None],axis=0); outside/=max(np.linalg.norm(outside),1e-8)
     support=np.sum(positions[nearest]*blend[:,None],axis=0)
@@ -298,6 +307,8 @@ for side in ['R','L']:
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
 out={'version':1,'profile':'muscular-teaching-adult-v4','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out['garmentRevision']='level-hems-v1'
+out['garmentBindings']=garment_bindings
 output=a.output
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')
 print(json.dumps({'output':str(output),'vertices':n,'triangles':len(indices)//3,'bones':len(bones),'muscles':{k:int(np.sum(v>0)) for k,v in masks.items()},'bytes':output.stat().st_size},indent=2))

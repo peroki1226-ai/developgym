@@ -546,7 +546,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
   };
   const cable = (id: string, a: V3, b: V3) => beam(id, a, b, 0.18, "rubber");
   const handle = (id: string, hand: V3, axis: V3 = right) => {
-    grips.push({ centre: hand, axis: unit3(axis), radius: 1.05 });
+    grips.push({ centre: hand, axis: unit3(axis), radius: 1.09 }); // Outer knurl/rib envelope.
     const a = add3(hand, mul3(axis, -3)),
       b = add3(hand, mul3(axis, 3));
     beam(id, a, b, 1.05, "rubber");

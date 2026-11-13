@@ -1,6 +1,7 @@
 import { chestContractionEmphasis } from "../domain/chestLessons";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
+import { HandGripSurface } from "./handGrip";
 import * as THREE from "three";
 import asset from "../data/human/makehuman.json";
 import { Muscle } from "../domain/muscleMotion";
@@ -35,6 +36,18 @@ const clothes = decode(asset.materials);
 const surfaceOcclusion = decode(asset.surfaceOcclusion);
 const masks = Object.fromEntries(muscleNames.map(name => [name, decode((asset.muscleMasks as Record<string, string>)[name])])) as Record<Muscle, Uint8Array>;
 const as3 = (p: readonly number[]) => p as V3;
+const gripSurfaces = [new HandGripSurface(asset.grips.R), new HandGripSurface(asset.grips.L)];
+const handSide = new Int8Array(asset.vertexCount).fill(-1);
+const contactSkin = new Uint8Array(asset.vertexCount);
+for (let i = 0; i < asset.vertexCount; i++) for (const [side, name] of ["hand.R", "hand.L"].entries()) {
+  let influence = 0;
+  for (let j = 0; j < 4; j++) if (asset.bones[boneIds[i * 4 + j]] === name) influence += weights[i * 4 + j];
+  if (influence > .95) {
+    handSide[i] = side;
+    const point = new THREE.Vector3().fromArray(base, i * 3);
+    contactSkin[i] = influence > .9999 && gripSurfaces[side].blend(point) > .9999 ? 1 : 0;
+  }
+}
 
 /** Stable anatomical frame: X is the bend-plane normal, Y follows the bone. */
 function basis(start: V3, end: V3, side: V3) {
@@ -309,18 +322,20 @@ export function createRealisticHuman(parent: THREE.Group) {
   const fibres = new Float32Array(asset.vertexCount * 2),
     tint = new Float32Array(asset.vertexCount);
   for (const [name, data, size] of [["position", positions, 3], ["normal", posedNormals, 3], ["color", colours, 3], ["muscleCoord", fibres, 2], ["muscleTint", tint, 1]] as const) geometry.setAttribute(name, new THREE.BufferAttribute(data, size).setUsage(THREE.DynamicDrawUsage));
+  geometry.setAttribute("surfaceKind", new THREE.BufferAttribute(Float32Array.from(clothes), 1));
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
     roughness: HUMAN_SURFACE.roughness,
     metalness: 0
   });
   material.onBeforeCompile = shader => {
-    shader.vertexShader = "attribute vec2 muscleCoord; attribute float muscleTint; varying vec2 vFibre; varying float vTint;\n" + shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvFibre = muscleCoord; vTint = muscleTint;");
-    shader.fragmentShader = "varying vec2 vFibre; varying float vTint;\n" + shader.fragmentShader;
+    shader.vertexShader = "attribute vec2 muscleCoord; attribute float muscleTint; attribute float surfaceKind; varying vec2 vFibre; varying float vTint; varying float vSurfaceKind;\n" + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvFibre = muscleCoord; vTint = muscleTint; vSurfaceKind = surfaceKind;");
+    shader.fragmentShader = "varying vec2 vFibre; varying float vTint; varying float vSurfaceKind;\n" + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 50.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.10;");
+    shader.fragmentShader = shader.fragmentShader.replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = vSurfaceKind > 1.5 ? 0.28 : vSurfaceKind > 0.5 ? 0.95 : roughnessFactor;");
   };
-  material.customProgramCacheKey = () => "makehuman-muscle-fibre-v2";
+  material.customProgramCacheKey = () => "makehuman-muscle-skin-eye-v3";
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "human-surface";
   mesh.castShadow = mesh.receiveShadow = true;
@@ -385,6 +400,11 @@ export function createRealisticHuman(parent: THREE.Group) {
       if (activeKey !== key) { bindActiveMuscles(frame.muscles); activeKey = key; (geometry.attributes.muscleCoord as THREE.BufferAttribute).needsUpdate = true; }
       const transforms = targets(frame),
         ref = reference(frame.type, frame.variant);
+      const handGrips = ["R", "L"].map(side => {
+        const i = sideIndex(frame, side);
+        return frame.grips.find(g => length3(sub3(g.centre, frame.body.arms[i][2])) < .01);
+      });
+      const gripStats = handGrips.map(g => ({ minimumClearance: Infinity, contactVertices: 0, radius: g?.radius ?? 0 }));
       mesh.userData.handContacts = (["R", "L"] as const).flatMap(side => {
         const i = sideIndex(frame, side), grip = frame.grips.find(g => length3(sub3(g.centre, frame.body.arms[i][2])) < .01);
         if (!grip) return [];
@@ -420,7 +440,16 @@ export function createRealisticHuman(parent: THREE.Group) {
         const axial = (0.5 - sourceT[i]) * amount * .35 * (pectoral ? chestContractionEmphasis(frame.type) : 1) * strength[i] * window;
         sourcePoint.set(base[k] + normals[k] * bulge + axes[k] * axial, base[k + 1] + normals[k + 1] * bulge + axes[k + 1] * axial, base[k + 2] + normals[k + 2] * bulge + axes[k + 2] * axial);
         sourceNormal.set(normals[k], normals[k + 1], normals[k + 2]);
+        const side = handSide[i], grip = side < 0 ? undefined : handGrips[side];
+        if (grip) gripSurfaces[side].fit(sourcePoint, sourceNormal, (grip.radius + .025) / SCALE);
         skinner.apply(sourcePoint,sourceNormal,boneIds,weights,i*4,point,n);
+        if (grip && contactSkin[i]) {
+          const dx = point.x - grip.centre[0], dy = point.y - grip.centre[1], dz = point.z - grip.centre[2];
+          const axial = dx * grip.axis[0] + dy * grip.axis[1] + dz * grip.axis[2];
+          const clearance = Math.sqrt(Math.max(0, dx * dx + dy * dy + dz * dz - axial * axial)) - grip.radius;
+          gripStats[side].minimumClearance = Math.min(gripStats[side].minimumClearance, clearance);
+          if (clearance < .2) gripStats[side].contactVertices++;
+        }
         positions[k] = point.x; positions[k + 1] = point.y; positions[k + 2] = point.z;
         posedNormals[k] = n.x; posedNormals[k + 1] = n.y; posedNormals[k + 2] = n.z;
         let mask = 0;
@@ -437,10 +466,25 @@ export function createRealisticHuman(parent: THREE.Group) {
         colours[k + 1] = colour.g;
         colours[k + 2] = colour.b;
       }
+      // Correct against the actual posed skin, not just approximate bone weights.
+      // This keeps waist/leg hems outside the body when hips and knees flex.
+      for (const binding of asset.garmentBindings) {
+        point.set(0,0,0); n.set(0,0,0);
+        binding.body.forEach((vertex, j) => {
+          sourcePoint.fromArray(positions,vertex*3); sourceNormal.fromArray(posedNormals,vertex*3);
+          point.addScaledVector(sourcePoint,binding.weights[j]); n.addScaledVector(sourceNormal,binding.weights[j]);
+        });
+        n.normalize(); const k=binding.vertex*3;
+        sourcePoint.fromArray(positions,k);
+        const clearance=sourceNormal.copy(sourcePoint).sub(point).dot(n);
+        if(clearance<.45) sourcePoint.addScaledVector(n,.45-clearance);
+        sourcePoint.toArray(positions,k); n.toArray(posedNormals,k);
+      }
       for (const name of ["position", "normal", "color", "muscleTint"]) (geometry.attributes[name] as THREE.BufferAttribute).needsUpdate = true;
       geometry.computeBoundingBox();
       geometry.computeBoundingSphere();
       lastStates = states;
+      mesh.userData.gripSurfaces = gripStats.filter(s => s.radius > 0);
       mesh.userData.muscles = states;
       mesh.userData.source = asset.source;
     },

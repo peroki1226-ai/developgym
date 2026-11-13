@@ -195,7 +195,8 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       tip.position.copy(v(path.tip));tip.quaternion.setFromUnitVectors(yAxis,v(path.direction));tip.scale.set(.9,1.8,.9);tip.renderOrder=16;
     });
     const contact = input.focus === "hands" ? frame.contacts[1] : input.focus === "feet" ? frame.contacts[2] : null;
-    contact?.points.forEach((p, i) => sphere("contact" + i, p, [1.6, 1.6, 1.6], materials.pin));
+    // A solid marker inside the palm used to hide the real fingers on the bar.
+    if (input.focus === "feet") contact?.points.forEach((p, i) => sphere("contact" + i, p, [1.6, 1.6, 1.6], materials.pin));
     group.updateMatrixWorld(true);
     const bounds = new THREE.Box3();
     if (input.focus === "whole") group.children.forEach(n => {

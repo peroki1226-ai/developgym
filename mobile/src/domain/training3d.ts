@@ -202,12 +202,23 @@ export const FLAT_BENCH = Object.freeze({
   foot: Object.freeze([0, 16.8, 8] as const), head: Object.freeze([0, 16.8, -35.4] as const),
   frameY: 13.5,
 });
+/** Moderate teaching grip; forearms stack below the bar at the lower-chest stop. */
+export const BENCH_PRESS = Object.freeze({ gripHalfWidth: 18, bottomY: 34.8, topY: 52.8 });
 /** A free bar follows a shallow arc over the chest, with no Smith rails. */
 export function freeBenchGrip(type: string, side: number, value: number): V3 {
   const p=clampProgress(value),incline=type==="incline-bench-press",angle=(incline?30:0)*Math.PI/180;
   const up:V3=[0,Math.sin(angle),-Math.cos(angle)],forward=unit3(cross3([1,0,0],up));
   const shoulder=add3([0,24,0],mul3(up,26));
   const root=add3(shoulder,add3(mul3(up,-4.8),mul3(forward,.4)));
+  if (type === "barbell-bench-press") {
+    const lateral = BENCH_PRESS.gripHalfWidth - 9;
+    const elbowDrop = BENCH_PRESS.bottomY - HUMAN_SEGMENTS.forearmGrip - root[1];
+    const touchZ = root[2] + Math.sqrt(HUMAN_SEGMENTS.upperArm ** 2 - lateral ** 2 - elbowDrop ** 2);
+    // Move slightly back toward the shoulder early, then finish almost vertically.
+    // The return retraces this same path rather than drifting toward the neck.
+    const back = p * (2 - p);
+    return [side * BENCH_PRESS.gripHalfWidth, BENCH_PRESS.bottomY + (BENCH_PRESS.topY - BENCH_PRESS.bottomY) * p, touchZ + (root[2] - touchZ) * back];
+  }
   return [side*20,root[1]+12+15.6*p,root[2]+9*(1-p)];
 }
 function addedChestBody(base: Body3,type: string,p: number): Body3 {
@@ -218,7 +229,7 @@ function addedChestBody(base: Body3,type: string,p: number): Body3 {
   const shoulder=add3(hip,mul3(up,26)),forward=unit3(cross3([1,0,0],up));
   const arms=[-1,1].map(side=>{
     const root=add3(add3(shoulder,[side*9,0,0]),add3(mul3(up,-4.8),mul3(forward,.4)));
-    if(bar)return solveBone3(root,type === "incline-bench-press" ? smithInclineGrip(side,p) : freeBenchGrip(type,side,p),HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,[side*.5,-1,.4]);
+    if(bar)return solveBone3(root,type === "incline-bench-press" ? smithInclineGrip(side,p) : freeBenchGrip(type,side,p),HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,type === "barbell-bench-press" ? [0,-1,0] : [side*.5,-1,.4]);
     const a=(65-61.5*p)*Math.PI/180,b=a-25*Math.PI/180;
     const direction=(angle:number):V3=>add3([side*Math.sin(angle),0,0],mul3(forward,Math.cos(angle)));
     const elbow=add3(root,mul3(direction(a),HUMAN_SEGMENTS.upperArm));

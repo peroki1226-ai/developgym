@@ -56,6 +56,11 @@ export function ChestLiveLesson(p:Props) {
         })}
       </Svg>
       <Text testID="chest-live-cue" style={styles.text}>{t(`${p.lesson.prefix}.${returning?"returnCue":"moveCue"}`)}</Text>
+      {p.lesson.id === "barbell-bench-press" && <View testID="bench-form-coaching" style={styles.dipCue}>
+        <Text testID="bench-form-phase" style={styles.muscleTitle}>{t(returning ? "bench.form.lower" : progress < .08 ? "bench.form.bottom" : progress > .92 ? "bench.form.top" : "bench.form.press")}</Text>
+        <Text style={styles.text}>{t("bench.form.support")}</Text>
+        <Text style={styles.note}>{t("bench.form.view")}</Text>
+      </View>}
       {p.lesson.id === "chest-dip" && <View testID="dip-finish-coaching" style={styles.dipCue}>
         <Text style={styles.muscleTitle}>{t(returning?"dip.finish.release":dipFinishAmount(progress)>.05?"dip.finish.active":"dip.finish.path")}</Text>
         <Text style={styles.text}>{t("dip.finish.image")}</Text>

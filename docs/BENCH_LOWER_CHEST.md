@@ -19,3 +19,5 @@ npm run preview:app -- --port 3000
 画像・動画・検証ログは `/workspace/attachments/gymfinder-bench-lower-chest/`。実iPhoneでの見た目の受入は別途です。新規EAS・署名ビルド・TestFlight提出・外部配布は実行していません。
 
 検証：50スイート/632テスト、型検査、日英・リリース監査、両OSローカルHermesバンドル成功。実Expo Webで日英12描画状態、胸の拡大２画面、半速１往復を確認し、捕捉エラー０件です。
+
+追記：TASK-047の体型/胸郭の修正に合わせ、下端高は34.8→33.3へ調整しました。胸下部の前後位置−17.7、握り幅と上端は維持。最新の人体は [人体バランスの再点検](BODY_BALANCE_REVIEW.md) を参照してください。

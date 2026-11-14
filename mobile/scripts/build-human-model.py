@@ -59,9 +59,9 @@ for group,poly in faces:
     if group in ['body','helper-tights']: sculptable[poly]=True
 for side in ['L','R']:
     for prefix,start_bone,end_bone,amount in [
-        ('upperarm','upperarm01','lowerarm01',.38),
-        ('upperleg','upperleg01','lowerleg01',.28),
-        ('lowerleg','lowerleg01','foot',.20),
+        ('upperarm','upperarm01','lowerarm01',.20),
+        ('upperleg','upperleg01','lowerleg01',.14),
+        ('lowerleg','lowerleg01','foot',.11),
     ]:
         h=joint(start_bone+'.'+side,'head'); tail=joint(end_bone+'.'+side,'head')
         axis=tail-h; length=np.linalg.norm(axis); axis/=length
@@ -83,12 +83,17 @@ x=np.abs(verts[:,0]); y=verts[:,1]; z=verts[:,2]
 clavicle=joint('clavicle.L','head')[1]
 front=np.clip((z-.4)/.5,0,1)*skin
 gauss=lambda cx,cy,sx,sy: np.exp(-((x-cx)/sx)**2-((y-cy)/sy)**2)
-relief=-.25*gauss(.78,clavicle-1.48,.62,.42)+.36*gauss(.85,clavicle-.72,.7,.5)
-for level in [3.85,3.05,2.3]: relief+=.12*gauss(.38,level,.28,.32)
+relief=-.18*gauss(.78,clavicle-1.48,.62,.42)+.22*gauss(.85,clavicle-.72,.7,.5)
+for level in [3.85,3.05,2.3]: relief+=.08*gauss(.38,level,.28,.32)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
 relief-=.028*np.exp(-(x/.085)**2)*ab_window
 for level in [3.45,2.67]: relief-=.018*gauss(.35,level,.7,.08)
 verts[:,2]+=relief*front
+# Retain a modest lumbar curve instead of the highly cinched teaching silhouette.
+# Only the body surface changes; source joints, hands and feet remain authored.
+lumbar=np.exp(-((y-2.7)/.85)**2)*np.exp(-(x/1.2)**4)*skin
+verts[:,2]-=.18*lumbar*np.clip((-z-.1)/.45,0,1)
+verts[:,0]*=1+.045*np.exp(-((y-2.7)/.9)**2)*np.exp(-(x/1.8)**8)*skin
 # Pose the authored finger chains into a relaxed cylindrical grip before collapsing
 # facial/twist controls. Keep the real hand topology and original weighted skinning.
 bind_verts = verts.copy()
@@ -306,7 +311,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'muscular-teaching-adult-v4','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'balanced-athletic-adult-v5','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 out['garmentRevision']='level-hems-v1'
 out['garmentBindings']=garment_bindings
 output=a.output

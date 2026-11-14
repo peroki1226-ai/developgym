@@ -143,3 +143,25 @@ and separate skin/eye/fabric roughness improve the neutral appearance. Target
 colour and the existing fibre guide are independent. There are no new textures,
 downloads, meshes, dependencies or animation clocks. This is an improved teaching
 model, not a photoreal scan or a force/contact-pressure simulation.
+
+## Balanced athletic profile (v5; TASK-047 follow-up)
+
+User feedback identified excessive arching and an unbalanced silhouette in views
+around the body. `balanced-athletic-adult-v5` supersedes the v4 shape: bounded
+belly sculpt coefficients are reduced on upper arms, thighs and calves; upper
+pectoral/abdominal relief is moderated; posterior lumbar hollowing is softened
+and the waist is slightly less cinched. Skeletal helpers, hand reference geometry,
+grip anchors, topology and the same 23 pinned CC0 source files are retained.
+Normals, masks, garment weights/bindings and cavity shading are regenerated from
+this actual surface together. The profile remains a muscular teaching adult,
+not a universal set of body measurements or a clinical posture model.
+
+`torsoRetarget` uses one continuous source reference from pelvis to upper spine.
+Previously each vertebra removed its own curved source depth independently,
+which pushed the ribcage forward relative to pelvis and shoulder attachments.
+Neutral sections now share one affine reference; intentional exercise flexion
+is retained. Generic 2D head offsets no longer become backward 3D neck tilt:
+the head follows the upper-spine direction. The hand-surface fit, garment support
+correction and skin/eye/fabric materials from the grip revision remain active.
+The flat bench stays level; its lower bar height is adjusted to the revised chest
+surface while its lower-chest alignment and upper endpoint stay fixed.

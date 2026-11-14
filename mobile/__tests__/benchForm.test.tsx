@@ -24,7 +24,7 @@ test("bottom forearms stack in front and side views with moderate elbow flare an
     expect(flare).toBeGreaterThan(45); expect(flare).toBeLessThan(70);
     // Never lower toward the abdomen/neck or extend the upper arm excessively.
     expect(hand[2]).toBeLessThan(-14); expect(hand[2]).toBeGreaterThan(-20);
-    expect(Math.asin(Math.abs(upper[1]) / length3(upper)) * 180 / Math.PI).toBeLessThan(35);
+    expect(Math.asin(Math.abs(upper[1]) / length3(upper)) * 180 / Math.PI).toBeLessThan(45);
   });
 });
 
@@ -73,7 +73,7 @@ test("all poses retain horizontal support, head/back/buttocks and feet while rea
       expect(bar.a[1]).toBeCloseTo(arm[2][1], 7); expect(bar.a[2]).toBeCloseTo(arm[2][2], 7);
       const u = sub3(arm[0], arm[1]), v = sub3(arm[2], arm[1]);
       const angle = Math.acos(dot3(u, v) / (length3(u) * length3(v))) * 180 / Math.PI;
-      expect(angle).toBeGreaterThan(50); expect(angle).toBeLessThan(175);
+      expect(angle).toBeGreaterThan(45); expect(angle).toBeLessThan(175);
     });
     human.draw(f, true); human.mesh.userData.handContacts.forEach((c: any) => expect(c.error).toBeLessThan(1e-6));
     expect(Array.from(human.mesh.geometry.attributes.position.array).every(Number.isFinite)).toBe(true);

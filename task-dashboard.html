@@ -163,7 +163,7 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
-    <p class="text-xs text-neutral-400 px-1">TASK-047：人体の質感と器具を握る手の密着を修正。<a class="underline" href="docs/HUMAN_GRIP_REFINEMENT.md">変更内容と確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-047：人体の質感と器具を握る手の密着を修正。<a class="underline" href="docs/BODY_BALANCE_REVIEW.md">全方向の体型再修正・確認手順</a></p>
 
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -703,10 +703,10 @@
       }
 
       ,{
-        id: "TASK-047", title: "ユーザー指定：人体のリアルさ・器具を握る手",
+        id: "TASK-047", title: "ユーザー指定：全方向の人体バランス・握り",
         category: "Human and Grip Surface", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
-        desc: "実グリップの太さへ指・手のひらを補正し、手首を維持。手の目印球を除去し、肌/目/ウェアと動作中の衣服追従を改善。",
-        review: "52 suites/700 tests・型/言語/設定監査・胸マスクcheck・両OSバンドル成功。672描画状態、変更前後56画面、握り３種の実動・停止を確認。受入待ち。署名ビルド/配布保留。"
+        desc: "ユーザー指摘で同じタスクを再修正。骨格の連続基準・首の後傾・腰のくぼみ・筋腹の膨らみを見直し、握りを保つ。",
+        review: "ユーザー指摘で再修正：v5体型・共通の骨格基準・首/腰の整合。53 suites/708 tests・型/監査・両OS成功。672描画状態、前後120画面、360度/上下回転と実動確認。再レビュー待ち。署名ビルド/配布保留。"
       }
 
     ];

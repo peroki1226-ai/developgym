@@ -141,8 +141,9 @@ function proportionedBody(raw: Body3, type: string, p: number): Body3 {
     hip = add3(hip, [0, requiredY - armStart[1], 0]);
   }
   const shoulder = add3(hip, shoulderOffset);
-  const head = add3(shoulder, mul3(unit3(sub3(raw.head, raw.shoulder)), HUMAN_SEGMENTS.headOffset));
   const spine = raw.spine.map(point => add3(hip, mul3(sub3(point, raw.hip), scale)));
+  // A 2D head offset must not become a permanent backward neck tilt in 3D.
+  const head = add3(shoulder, mul3(unit3(sub3(spine[spine.length-1],spine[spine.length-2])), HUMAN_SEGMENTS.headOffset));
   const legs = offsets.map(leg => leg.map(point => add3(hip, point)) as unknown as Bone3);
   const arms = raw.arms.map((old, i) => {
     const sign = i === 0 ? -1 : 1;
@@ -203,7 +204,7 @@ export const FLAT_BENCH = Object.freeze({
   frameY: 13.5,
 });
 /** Lower sternum of the posed chest mesh; keep forearms nearly upright here. */
-export const BENCH_PRESS = Object.freeze({ gripHalfWidth: 18, bottomY: 34.8, topY: 52.8, lowerChestZ: -17.7 });
+export const BENCH_PRESS = Object.freeze({ gripHalfWidth: 18, bottomY: 33.3, topY: 52.8, lowerChestZ: -17.7 });
 /** A free bar follows a shallow arc over the chest, with no Smith rails. */
 export function freeBenchGrip(type: string, side: number, value: number): V3 {
   const p=clampProgress(value),incline=type==="incline-bench-press",angle=(incline?30:0)*Math.PI/180;

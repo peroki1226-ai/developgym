@@ -9,13 +9,13 @@ import { trainingFrame3d } from "../src/domain/training3d";
 const bytes=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const base=new Float32Array(bytes(asset.positions).buffer),m=bytes(asset.materials);
 
-test("the accepted body and hand reference geometry, normals and weights remain unchanged; garment rings have level edges",()=>{
+test("the balanced body profile is reproducible and garment rings keep level edges",()=>{
  const h=createHash("sha256");
  for(const [key,size] of [["positions",3],["normals",3],["skinIndices",4],["skinWeights",4]] as const){
   const b=bytes(asset[key]),n=key==="skinIndices"?1:4;
   for(let i=0;i<m.length;i++)if(m[i]!==1)h.update(b.slice(i*size*n,(i+1)*size*n));
  }
- expect(h.digest("hex")).toBe("7eb21e4bac0ac6287513ae8964b3aec7c8c654fa98836e511d724f969f21d4c6");
+ expect(h.digest("hex")).toBe("8223831ae13ac6bb17f8b4c0d2d46a671b85ffd247f41d855e187b49fe7a50f3");
  expect(asset.garmentRevision).toBe("level-hems-v1");
  const edges=new Map<string,number>(),indices=new Uint16Array(bytes(asset.indices).buffer);
  for(let i=0;i<indices.length;i+=3){const tri=Array.from(indices.slice(i,i+3));if(!tri.every(i=>m[i]===1))continue;for(let j=0;j<3;j++){const key=[tri[j],tri[(j+1)%3]].sort((a,b)=>a-b).join("/");edges.set(key,(edges.get(key)??0)+1);}}

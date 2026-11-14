@@ -2,6 +2,7 @@ import { chestContractionEmphasis } from "../domain/chestLessons";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
 import { HandGripSurface } from "./handGrip";
+import { torsoRetarget } from "./torsoRetarget";
 import * as THREE from "three";
 import asset from "../data/human/makehuman.json";
 import { Muscle } from "../domain/muscleMotion";
@@ -107,12 +108,8 @@ function targets(frame: TrainingFrame3) {
       body
     } = frame,
     up = unit3(sub3(body.shoulder, body.hip));
-  const curve = new THREE.CatmullRomCurve3(body.spine.map(p => vec(p)), false, "centripetal");
-  // CatmullRomCurve3's two-point endpoint extrapolation shares a temporary
-  // vector and is not linear. A straight spine must retain anatomical height.
-  const point = (position: number): V3 => body.spine.length === 2
-    ? mix3(body.spine[0], body.spine[1], clamp(position))
-    : as3(curve.getPoint(clamp(position)).toArray());
+  const torso = torsoRetarget(body, rootRest, neckRest, SCALE), point = torso.point;
+  const neckUp = unit3(sub3(body.head, body.shoulder));
   const span = neckRest[1] - rootRest[1];
   const rootRotation = basis([0, 0, 0], up, body.right);
   const handMatrices = new Map<number, THREE.Matrix4>();
@@ -153,26 +150,15 @@ function targets(frame: TrainingFrame3) {
     if (name.startsWith("foot")) return footTransform(frame, index, ankles[sideIndex(frame, name.at(-1)!)]);
     const source = rest[name];
     if (name === "hip" || name.startsWith("spine")) {
-      // Retarget torso cross-sections coherently. Aligning each authored curved
-      // spine bone independently used to tilt anterior chest vertices down and
-      // produce a hanging chest even when the reference mesh was muscular.
-      const start = point((source.head[1] - rootRest[1]) / span);
-      const end = point((source.tail[1] - rootRest[1]) / span);
-      const vertical = sub3(end, start);
-      const forward = unit3(cross3(body.right, unit3(vertical)));
-      return new THREE.Matrix4().makeBasis(
-        vec(mul3(body.right, SCALE)),
-        vec(mul3(vertical, 1 / (source.tail[1] - source.head[1]))),
-        vec(mul3(forward, SCALE)),
-      ).setPosition(...start).multiply(new THREE.Matrix4().makeTranslation(-source.head[0], -source.head[1], -source.head[2]));
+      return torso.transform(source);
     }
     let start: V3, end: V3;
     if (name === "neck") {
       start = body.shoulder;
-      end = add3(body.head, mul3(up, -3.7));
+      end = add3(body.head, mul3(neckUp, -3.7));
     } else if (name === "head") {
-      start = add3(body.head, mul3(up, -3.74));
-      end = add3(body.head, mul3(up, 3.74));
+      start = add3(body.head, mul3(neckUp, -3.74));
+      end = add3(body.head, mul3(neckUp, 3.74));
     } else {
       const i = sideIndex(frame, name.at(-1)!),
         arm = body.arms[i],
@@ -183,7 +169,7 @@ function targets(frame: TrainingFrame3) {
       if (name.startsWith("clavicle")) {
         const height = (source.head[1] - rootRest[1]) / span;
         const sourceZ = rootRest[2] + (neckRest[2] - rootRest[2]) * height;
-        start = add3(add3(point(height), mul3(body.right, source.head[0] * SCALE)), mul3(body.forward, (source.head[2] - sourceZ) * SCALE));
+        start = add3(add3(point(height), mul3(body.right, source.head[0] * SCALE)), mul3(torso.forwardAt(height), (source.head[2] - sourceZ) * SCALE));
         end = arm[0];
       } else if (name.startsWith("upperarm")) {
         [start, end] = arm;

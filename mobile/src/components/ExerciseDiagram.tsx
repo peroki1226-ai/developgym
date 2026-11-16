@@ -2,7 +2,7 @@ import { GuideCameraControls } from "./GuideCameraControls";
 import { OrbitGesture } from "./OrbitGesture";
 import { Orbit, DEFAULT_GUIDE_ZOOM, orbitForView } from "../domain/guideCamera";
 import { ChestLiveLesson } from "./ChestLiveLesson";
-import { ChestPressSeatGuide } from "./ChestPressSeatGuide";
+import { ChestSetupGuide } from "./ChestSetupGuide";
 import { ProTrainingCoach } from "./ProTrainingCoach";
 import { chestCyclePose, chestCyclePosition } from "../domain/chestMotion";
 import { chestLesson } from "../domain/chestLessons";
@@ -316,7 +316,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
-      {type === "chest-press" && <ChestPressSeatGuide/>}
+      <ChestSetupGuide type={type}/>
       {guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}

@@ -34,12 +34,13 @@ test.each(['ja','en'] as const)('%s: all 28 exercises omit theory in the actual 
     await fireEvent.press(screen.getByRole('button',{name:t(equipment.name)}));
     absentTheory(language);
     expect(screen.getByTestId('pro-training-coach')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button',{name:t('advanced.model.open')}));
     expect(screen.getByRole('button',{name:t('motion.play')})).toBeTruthy();
     expect(screen.getByRole('radio',{name:t('motion.extraSlow')})).toBeTruthy();
     await fireEvent.press(screen.getByRole('button',{name:t('muscle.toggle')}));
     await fireEvent.press(screen.getByRole('button',{name:t('muscle.toggle')}));
     absentTheory(language);
-    expect(screen.getByRole('button',{name:t('ジムトレーニングを記録')})).toBeTruthy();
+    expect(screen.getByRole('button',{name:t('advanced.record.save')})).toBeTruthy();
   }
 });
 test.each(['ja','en'] as const)('%s: switching modes preserves beginner explanations, practical advice and workout inputs',async language=>{
@@ -53,6 +54,7 @@ test.each(['ja','en'] as const)('%s: switching modes preserves beginner explanat
   expect(screen.getByTestId('muscle-contraction-panel')).toBeTruthy();
   await fireEvent.press(screen.getByRole('button',{name:t('⚡ 本格モード（生体力学）')}));
   absentTheory(language);
+  await fireEvent.press(screen.getByRole('button',{name:t('advanced.model.open')}));
   await fireEvent.press(screen.getByRole('button',{name:t('motion.endPose')}));
   expect(screen.getByRole('adjustable').props.accessibilityValue.now).toBe(100);
   await fireEvent.press(screen.getByRole('button',{name:t('press.seat.title')}));
@@ -66,6 +68,6 @@ test.each(['ja','en'] as const)('%s: switching modes preserves beginner explanat
   expect(screen.getByTestId('muscle-live-caption')).toBeTruthy();
   expect(screen.getByLabelText(t('重量kg')).props.value).toBe('45');
   await fireEvent.press(screen.getByRole('button',{name:t('⚡ 本格モード（生体力学）')}));
-  await fireEvent.press(screen.getByRole('button',{name:t('ジムトレーニングを記録')}));
+  await fireEvent.press(screen.getByRole('button',{name:t('advanced.record.save')}));
   await waitFor(async()=>expect(JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!).logs[0]).toMatchObject({weight:45,reps:10,sets:3,location:'gym'}));
 });

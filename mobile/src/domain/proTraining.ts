@@ -2,9 +2,10 @@ import { MotionType } from "./exerciseMotion";
 
 export type FinishMethod = "drop" | "backoff" | "assist";
 export type Reserve = 0 | 1 | 2 | 3;
-export type ProTraining = { work: string; return: string; avoid: string; method: FinishMethod; compound: boolean; guard: string };
+export type ProTraining = { work: string; return: string; avoid: string; position: string; intensify: string; method: FinishMethod; compound: boolean; guard: string };
 const guide = (type: MotionType, method: FinishMethod, compound = false, guard = "pro.guard.machine"): ProTraining => ({
   work: `pro.form.${type}.work`, return: `pro.form.${type}.return`, avoid: `pro.form.${type}.avoid`, method, compound, guard,
+  position: `advanced.form.${type}.position`, intensify: `advanced.form.${type}.intensify`,
 });
 /** Methods suit the equipment and stable posture; failure does not unlock extra reps. */
 export const PRO_TRAINING = {

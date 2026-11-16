@@ -95,6 +95,8 @@ test("all catalogue diagrams and beginner/advanced guides are separated in both 
     if (!chooser.props.accessibilityState.expanded)
       await fireEvent.press(chooser);
     for (const equipment of EQUIPMENTS) {
+      const selector = screen.getByRole("button", { name: translate(language, "guide.changeMachine") });
+      if (!selector.props.accessibilityState.expanded) await fireEvent.press(selector);
       await press(equipment.name, language);
       await press("🔰 初心者モード", language);
       audit(app, language);

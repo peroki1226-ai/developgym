@@ -2,6 +2,7 @@ import { Language, isLanguage } from "../i18n";
 import { CommunityData, initialCommunity, isCommunityData } from "./community";
 import { DietData, initialDiet, isDietData } from "./nutrition";
 import { defaultHomeProfile, homeGear, HomeProfile } from "./homeTraining";
+import { AdvancedWorkout, advancedLoadType, isAdvancedWorkout } from "./advancedWorkout";
 export type Workout = {
   id: string;
   name: string;
@@ -11,6 +12,7 @@ export type Workout = {
   date: string;
   location: "home" | "gym";
   loadType: "bodyweight" | "dumbbell" | "band" | "weight";
+  advanced?: AdvancedWorkout;
 };
 export type FitnessData = {
   version: 4;
@@ -60,7 +62,10 @@ export function decodeFitnessData(raw: string | null): FitnessData {
         ["home", "gym"].includes(String(l.location)) &&
         ["bodyweight", "dumbbell", "band", "weight"].includes(
           String(l.loadType),
-        ),
+        ) && (l.advanced === undefined || isAdvancedWorkout(l.advanced)
+          && l.location === "gym" && l.weight === l.advanced.main[0].weight
+          && l.reps === l.advanced.main[0].reps && l.sets === l.advanced.main.length
+          && l.loadType === advancedLoadType(l.advanced.exerciseId,l.weight as number)),
     ) ||
     !Array.isArray(d.favorites) ||
     !d.favorites.every((f) => typeof f === "string") ||

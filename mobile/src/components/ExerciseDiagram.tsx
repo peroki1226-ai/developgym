@@ -49,6 +49,7 @@ type Props = {
   beginnerGuide?: BeginnerGuideData;
   /** Hide theory in the global pro mode while keeping model/colour controls. */
   showMuscleExplanations?: boolean;
+  showProCoach?: boolean;
 };
 export function ExerciseDiagram(props: Props) {
   if (props.compact)
@@ -64,7 +65,7 @@ export function ExerciseDiagram(props: Props) {
     );
   return <MotionDiagram {...props} />;
 }
-function MotionDiagram({ type, muscleTag, label, active = true, beginner = false, beginnerGuide, showMuscleExplanations = true }: Props) {
+function MotionDiagram({ type, muscleTag, label, active = true, beginner = false, beginnerGuide, showMuscleExplanations = true, showProCoach = true }: Props) {
   const { t, language } = useI18n();
   const { width, fontScale } = useWindowDimensions();
   const motion = useExerciseMotion(active, type, false);
@@ -339,7 +340,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </>}
       </View>}
       {beginner && <Button title={t(advanced ? "learn.simple" : "learn.advanced")} variant="quiet" onPress={() => { if (advanced) chooseLearningStep(learningStep); setAdvanced(!advanced); }} />}
-      {controlsVisible && <ProTrainingCoach key={type} type={type} phase={motion.phase} canPlay={motion.canPlay} running={motion.running}
+      {showProCoach && controlsVisible && <ProTrainingCoach key={type} type={type} phase={motion.phase} canPlay={motion.canPlay} running={motion.running}
         onInspect={direction => { setAnatomy(true); selectMuscle(muscleSpec(type).focus); setLessonDirection(direction); motion.playSegment(direction); }}
         onPause={motion.toggle} />}
       {showMuscleExplanations && anatomy && controlsVisible && (

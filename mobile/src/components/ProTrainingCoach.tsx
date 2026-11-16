@@ -6,8 +6,8 @@ import { effortAdvice, proTraining, Reserve } from "../domain/proTraining";
 import { useI18n } from "../i18n";
 import { Button, colors } from "./ui";
 
-type Props = { type: string; phase: MotionPhase; canPlay: boolean; running: boolean; onInspect: (direction: "work" | "return") => void; onPause: () => void };
-export function ProTrainingCoach({ type, phase, canPlay, running, onInspect, onPause }: Props) {
+type Props = { type: string; phase: MotionPhase; canPlay: boolean; running: boolean; onInspect?: (direction: "work" | "return") => void; onPause?: () => void; advancedOnly?: boolean };
+export function ProTrainingCoach({ type, phase, canPlay, running, onInspect, onPause, advancedOnly=false }: Props) {
   const { t } = useI18n(), profile = proTraining(type);
   const [tab, setTab] = useState<"form" | "finish">("form"), [reserve, setReserve] = useState<Reserve>(2);
   if (!profile) return null;
@@ -18,23 +18,23 @@ export function ProTrainingCoach({ type, phase, canPlay, running, onInspect, onP
       {(["form", "finish"] as const).map(value => <Pressable key={value} accessibilityRole="tab" accessibilityLabel={t(`pro.tab.${value}`)} accessibilityState={{ selected: tab === value }} aria-selected={tab === value} onPress={() => setTab(value)} style={[styles.tab, tab === value && styles.selected]}><Text style={styles.text}>{t(`pro.tab.${value}`)}</Text></Pressable>)}
     </View>
     {tab === "form" ? <View style={styles.content}>
-      <View style={styles.live}>
+      {!advancedOnly&&<View style={styles.live}>
         <Text style={styles.label}>{t(`pro.phase.${phase}`)}</Text>
         <Text testID="pro-live-cue" style={styles.text}>{t(phase === "return" ? profile.return : phase === "start" ? profile.avoid : profile.work)}</Text>
-      </View>
-      {([["pro.work", profile.work], ["pro.return", profile.return], ["pro.avoid", profile.avoid]] as const).map(([label, message]) => <View key={label} style={styles.item}><Text style={styles.label}>{t(label)}</Text><Text style={styles.text}>{t(message)}</Text></View>)}
-      <View style={styles.row}>
+      </View>}
+      {(advancedOnly?[["advanced.position",profile.position],["advanced.intensify",profile.intensify],["pro.avoid",profile.avoid]]:[["pro.work", profile.work], ["pro.return", profile.return], ["pro.avoid", profile.avoid]]).map(([label, message]) => <View key={label} style={styles.item}><Text style={styles.label}>{t(label)}</Text><Text style={styles.text}>{t(message)}</Text></View>)}
+      {onInspect&&<View style={styles.row}>
         <Button title={t("pro.model.work")} variant="quiet" disabled={!canPlay} onPress={() => onInspect("work")} />
         <Button title={t("pro.model.return")} variant="quiet" disabled={!canPlay} onPress={() => onInspect("return")} />
-      </View>
-      {running && <Button title={t("pro.model.pause")} variant="quiet" onPress={onPause} />}
-      <Text style={styles.note}>{t("pro.model.hint")}</Text>
+      </View>}
+      {running && onPause && <Button title={t("pro.model.pause")} variant="quiet" onPress={onPause} />}
+      {onInspect&&<Text style={styles.note}>{t("pro.model.hint")}</Text>}
     </View> : <View style={styles.content}>
-      <View style={styles.metrics}>
+      {!advancedOnly&&<View style={styles.metrics}>
         <View style={styles.metric}><Text style={styles.label}>{t("pro.reps")}</Text><Text style={styles.text}>{t(profile.compound ? "pro.reps.compound" : "pro.reps.isolation")}</Text></View>
         <View style={styles.metric}><Text style={styles.label}>{t("pro.rest")}</Text><Text style={styles.text}>{t(profile.compound ? "pro.rest.compound" : "pro.rest.isolation")}</Text></View>
         <View style={styles.metric}><Text style={styles.label}>{t("pro.tempo")}</Text><Text style={styles.text}>{t("pro.tempo.value")}</Text></View>
-      </View>
+      </View>}
       <Text style={styles.label}>{t("pro.reserve.title")}</Text><Text style={styles.note}>{t("pro.reserve.hint")}</Text>
       <View style={styles.row} accessibilityRole="radiogroup" accessibilityLabel={t("pro.reserve.title")}>
         {([3, 2, 1, 0] as const).map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={t(`pro.reserve.${value}`)} accessibilityState={{ checked: reserve === value }} aria-checked={reserve === value} onPress={() => setReserve(value)} style={[styles.reserve, reserve === value && styles.selected]}><Text style={styles.text}>{t(`pro.reserve.${value}`)}</Text></Pressable>)}

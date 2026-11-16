@@ -34,12 +34,17 @@ export function Page({
   hero,
   tools = true,
   scrollKey,
+  contentKey,
+  keyboardDismissMode = "on-drag",
 }: PropsWithChildren<{
   title: string;
   subtitle: string;
   hero?: React.ReactNode;
   tools?: boolean;
   scrollKey?: string;
+  /** Keep form drafts mounted when only this page's displayed title changes. */
+  contentKey?: string;
+  keyboardDismissMode?: "none" | "on-drag" | "interactive";
 }>) {
   const { t, language } = useI18n();
   const scroll = useRef<React.ComponentRef<typeof ScrollView>>(null);
@@ -50,11 +55,11 @@ export function Page({
     <ScrollView
       ref={scroll}
       accessibilityLanguage={language === "en" ? "en-US" : "ja-JP"}
-      key={title}
+      key={contentKey ?? title}
       style={s.page}
       contentContainerStyle={s.content}
       keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
+      keyboardDismissMode={keyboardDismissMode}
     >
       <View style={[s.row, { justifyContent: "space-between" }]}>
         <View

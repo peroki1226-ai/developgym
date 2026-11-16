@@ -60,7 +60,9 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     await fireEvent.press(screen.getByText("⚡ 本格モード"));
     expect(screen.queryByText("生体力学")).toBeNull();
     expect(screen.queryByTestId("muscle-live-caption")).toBeNull();
-    expect(screen.getByText("ビルダーの極意")).toBeTruthy();
+    expect(screen.queryByText("ビルダーの極意")).toBeNull();
+    expect(screen.getByText("負荷が逃げにくい位置")).toBeTruthy();
+    await fireEvent.press(screen.getByRole("button", { name: "別のマシン・種目を選ぶ" }));
 
     // Filter by Back
     await fireEvent.press(screen.getByText("背中"));

@@ -1,8 +1,10 @@
+import { AdvancedWorkoutLogger } from "../components/AdvancedWorkoutLogger";
+import { ProTrainingCoach } from "../components/ProTrainingCoach";
 import { ChestCoursePicker, ChestCoachingPanel } from "../components/ChestCoaching";
 import { chestLesson } from "../domain/chestLessons";
 import { useI18n } from "../i18n";
 import React, { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { ExerciseDiagram } from "../components/ExerciseDiagram";
 import {
   Body,
@@ -23,6 +25,7 @@ export function TrainingScreen({
 }: { initialEquipmentId?: string; onBack?: () => void; active?: boolean } = {}) {
   const { t } = useI18n();
   const [pro, setPro] = useState(false);
+  const [proModelOpen, setProModelOpen] = useState(false);
   const [selectedPart, setSelectedPart] = useState<string>("all");
   const [selected, setSelected] = useState<EquipmentItem>(
     () => EQUIPMENTS.find((e) => e.id === initialEquipmentId) ?? EQUIPMENTS[0],
@@ -34,7 +37,7 @@ export function TrainingScreen({
   const lesson = chestLesson(selected.id);
   function selectEquipment(id: string) {
     const next = EQUIPMENTS.find(e => e.id === id);
-    if (next && next.id !== selected.id) { setSelected(next); setWeight(id === "chest-dip" ? "0" : ""); }
+    if (next && next.id !== selected.id) { setSelected(next); setWeight(id === "chest-dip" ? "0" : ""); setProModelOpen(false); }
   }
   const filteredEquipments = EQUIPMENTS.filter(
     (e) => selectedPart === "all" || e.bodyPart === selectedPart,
@@ -74,109 +77,7 @@ export function TrainingScreen({
       t("My Pageの「ジム」統合履歴に追加しました。端末に自動保存されます。"),
     );
   }
-  return (
-    <View testID="training-screen" style={{ flex: 1 }}>
-      {onBack && (
-        <View style={{ paddingHorizontal: 22 }}>
-          <Button title={t("guide.back")} variant="quiet" onPress={onBack} />
-        </View>
-      )}
-      <Page
-        title={onBack ? "guide.title" : "Move with intent."}
-        subtitle={t(
-          onBack
-            ? "guide.entryHint"
-            : "正しい軌道とフォームで、怪我を防ぎ最大の筋肥大を引き出す。",
-        )}
-        tools={!onBack}
-        scrollKey={selected.id}
-      >
-        {/* Mode Switcher */}
-        <View style={s.row}>
-          <Button
-            title={t("🔰 初心者モード")}
-            selected={!pro}
-            onPress={() => setPro(false)}
-          />
-          <Button
-            title={t("⚡ 本格モード（生体力学）")}
-            selected={pro}
-            onPress={() => setPro(true)}
-          />
-        </View>
-
-        {!pro && <ChestCoursePicker selected={selected.id} onSelect={selectEquipment} />}
-        {/* SVG Form & Trajectory Diagram */}
-        <Heading>{t(selected.name)}</Heading>
-        <ExerciseDiagram
-          type={selected.svgType}
-          muscleTag={selected.muscleTag}
-          label={selected.name}
-          active={active}
-          beginner={!pro}
-          beginnerGuide={selected}
-          showMuscleExplanations={!pro}
-        />
-
-        {!pro && lesson && <ChestCoachingPanel key={lesson.id} lesson={lesson} onAssisted={() => selectEquipment("assisted-dip")} />}
-        {/* Detailed Guide Card */}
-        <Card>
-          <View style={styles.titleRow}>
-            <View
-              style={{
-                flex: 1,
-              }}
-            >
-              <Heading>{t(selected.name)}</Heading>
-            </View>
-            {!pro && <View style={styles.pofBadge}>
-              <Text style={styles.pofText}>{t(selected.pof)}</Text>
-            </View>}
-          </View>
-
-          <Body>{t(selected.bodyPartLabel)}</Body>
-          <Body>{t(selected.summary)}</Body>
-
-          <View style={styles.divider} />
-
-          {pro /* Pro Mode: Practical Variations & Form Tips */ ? (
-            <>
-              <Heading>{t("バリエーション & 刺激変化")}</Heading>
-              {selected.proVariations.map((v) => (
-                <Body key={v}>• {t(v)}</Body>
-              ))}
-
-              <Heading>{t("ビルダーの極意（Builder Tip）")}</Heading>
-              <View style={styles.tipBox}>
-                <Text style={styles.tipText}>💡 {t(selected.builderTip)}</Text>
-              </View>
-            </> /* Beginner Mode: Seat Setup, Steps, NG Points */
-          ) : (
-            <>
-              <Heading>{t("シート・器具のセッティング")}</Heading>
-              <Body>{t(selected.seatSetup)}</Body>
-
-              <Heading>{t("正しい動作手順")}</Heading>
-              {selected.beginnerSteps.map((step, i) => (
-                <Body key={step}>
-                  {i + 1}. {t(step)}
-                </Body>
-              ))}
-
-              <Heading>{t("推奨スタート重量の目安")}</Heading>
-              <Body>{selected.startWeightMale === selected.startWeightFemale ? t(selected.startWeightMale) : <>
-                {t("男性: ")}{t(selected.startWeightMale)}{t(" / 女性:")} {t(selected.startWeightFemale)}
-              </>}</Body>
-
-              <Heading>{t("フォームの注意点（NG）")}</Heading>
-              {selected.ngPoints.map((point) => (
-                <Body key={point}>⚠️ {t(point)}</Body>
-              ))}
-            </>
-          )}
-        </Card>
-
-        {lesson && <Body>{t(`${lesson.prefix}.record`)}</Body>}
+  const equipmentSelector = (
         <Disclosure title={t("guide.changeMachine")}>
           {/* Body Part Filter */}
           <Heading>{t("部位で絞り込む")}</Heading>
@@ -243,9 +144,102 @@ export function TrainingScreen({
             ))}
           </View>
         </Disclosure>
+  );
+  return (
+    <View testID="training-screen" style={{ flex: 1 }}>
+      {onBack && (
+        <View style={{ paddingHorizontal: 22 }}>
+          <Button title={t("guide.back")} variant="quiet" onPress={onBack} />
+        </View>
+      )}
+      <Page
+        title={pro ? "advanced.screen.title" : onBack ? "guide.title" : "Move with intent."}
+        subtitle={t(
+          pro ? "advanced.screen.hint" : onBack
+            ? "guide.entryHint"
+            : "正しい軌道とフォームで、怪我を防ぎ最大の筋肥大を引き出す。",
+        )}
+        tools={!onBack}
+        scrollKey={selected.id}
+        contentKey="training-form"
+        keyboardDismissMode="none"
+      >
+        {/* Mode Switcher */}
+        <View style={s.row}>
+          <Button
+            title={t("🔰 初心者モード")}
+            selected={!pro}
+            onPress={() => setPro(false)}
+          />
+          <Button
+            title={t("⚡ 本格モード（生体力学）")}
+            selected={pro}
+            onPress={() => { if(!pro)setProModelOpen(false);setPro(true); }}
+          />
+        </View>
 
-        {/* Quick Workout Logger */}
-        <Card>
+        {!pro && <ChestCoursePicker selected={selected.id} onSelect={selectEquipment} />}
+        {pro && equipmentSelector}
+        <Heading>{t(selected.name)}</Heading>
+        {pro && <ProTrainingCoach key={`coach:${selected.id}`} type={selected.svgType} phase="start" canPlay={false} running={false} advancedOnly/>}
+        {!pro && <ExerciseDiagram
+          type={selected.svgType}
+          muscleTag={selected.muscleTag}
+          label={selected.name}
+          active={active}
+          beginner={!pro}
+          beginnerGuide={selected}
+          showMuscleExplanations={!pro}
+          showProCoach={false}
+        />}
+
+        {!pro && lesson && <ChestCoachingPanel key={lesson.id} lesson={lesson} onAssisted={() => selectEquipment("assisted-dip")} />}
+        {/* Beginner setup and ordinary instructions */}
+        {!pro && <Card>
+          <View style={styles.titleRow}>
+            <View
+              style={{
+                flex: 1,
+              }}
+            >
+              <Heading>{t(selected.name)}</Heading>
+            </View>
+            <View style={styles.pofBadge}>
+              <Text style={styles.pofText}>{t(selected.pof)}</Text>
+            </View>
+          </View>
+
+          <Body>{t(selected.bodyPartLabel)}</Body>
+          <Body>{t(selected.summary)}</Body>
+
+          <View style={styles.divider} />
+
+          <Heading>{t("シート・器具のセッティング")}</Heading>
+          <Body>{t(selected.seatSetup)}</Body>
+
+          <Heading>{t("正しい動作手順")}</Heading>
+          {selected.beginnerSteps.map((step, i) => (
+            <Body key={step}>
+              {i + 1}. {t(step)}
+            </Body>
+          ))}
+
+          <Heading>{t("推奨スタート重量の目安")}</Heading>
+          <Body>{selected.startWeightMale === selected.startWeightFemale ? t(selected.startWeightMale) : <>
+            {t("男性: ")}{t(selected.startWeightMale)}{t(" / 女性:")} {t(selected.startWeightFemale)}
+          </>}</Body>
+
+          <Heading>{t("フォームの注意点（NG）")}</Heading>
+          {selected.ngPoints.map((point) => (
+            <Body key={point}>⚠️ {t(point)}</Body>
+          ))}
+        </Card>}
+
+        {!pro && lesson && <Body>{t(`${lesson.prefix}.record`)}</Body>}
+        {!pro && equipmentSelector}
+
+        {/* Beginner logger stays independent of advanced entries. */}
+        {!pro && <Card>
           <Heading>{t("セットを記録（{0}）", { 0: t(selected.name) })}</Heading>
           <Body>{t("重量（kg） / 自重の場合は0")}</Body>
           <Field
@@ -269,12 +263,29 @@ export function TrainingScreen({
             onChangeText={setSets}
           />
           <Button title={t("ジムトレーニングを記録")} selected onPress={save} />
-        </Card>
+        </Card>}
+        <AdvancedWorkoutLogger key={`logger:${selected.id}`} active={pro} exerciseId={selected.svgType} name={selected.name} initialWeight={weight} initialReps={reps} initialSets={sets}/>
+        {pro && <View>
+          <Pressable accessibilityRole="button" accessibilityLabel={t("advanced.model.open")} accessibilityState={{expanded:proModelOpen}} aria-expanded={proModelOpen}
+            onPress={()=>setProModelOpen(value=>!value)} style={styles.modelToggle}><Text style={styles.modelLabel}>{t("advanced.model.open")}</Text><Text>{proModelOpen?'−':'+'}</Text></Pressable>
+          {proModelOpen&&<ExerciseDiagram
+          type={selected.svgType}
+          muscleTag={selected.muscleTag}
+          label={selected.name}
+          active={active}
+          beginner={!pro}
+          beginnerGuide={selected}
+          showMuscleExplanations={!pro}
+          showProCoach={false}
+        />}
+        </View>}
       </Page>
     </View>
   );
 }
 const styles = StyleSheet.create({
+  modelToggle: {minHeight:48,padding:12,borderWidth:1,borderColor:'#dce8f8',borderRadius:10,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:8},
+  modelLabel: {fontSize:14,lineHeight:22,color:'#254f70',flexShrink:1},
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",

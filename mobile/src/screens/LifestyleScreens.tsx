@@ -11,6 +11,7 @@ import { Body, Button, Card, Heading, Page, s } from "../components/ui";
 import { useFitness } from "../state";
 import { GymContributionForm, GymPosts } from "../components/GymCommunity";
 import { LanguageSettings } from "../components/LanguageSettings";
+import { AdvancedWorkoutSummary } from "../components/AdvancedWorkoutSummary";
 const systemExerciseNames = new Set(
   [...EQUIPMENTS, ...homeExercises].map((item) => item.name),
 );
@@ -67,7 +68,7 @@ export function MyPageScreen() {
               fontSize: 16,
             }}
           >
-            {t("sets")}
+            {t(logs.some(log=>log.advanced) ? "advanced.history.mainSets" : "sets")}
           </Text>
         </Text>
         <Body>
@@ -86,7 +87,7 @@ export function MyPageScreen() {
                 {formatDate(log.date)} /{" "}
                 {systemExerciseNames.has(log.name) ? t(log.name) : log.name}
               </Body>
-              <Body>
+              {log.advanced ? <AdvancedWorkoutSummary workout={log.advanced} showSets/> : <Body>
                 {log.loadType === "bodyweight"
                   ? t("自重")
                   : log.loadType === "band"
@@ -96,7 +97,7 @@ export function MyPageScreen() {
                 {t("回 × ")}
                 {log.sets}
                 {t("セット")}
-              </Body>
+              </Body>}
             </View>
           ))
         ) : (

@@ -1,0 +1,68 @@
+import React from "react";
+import { Alert } from "react-native";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TrainingScreen } from "../src/screens/TrainingScreen";
+import { MyPageScreen } from "../src/screens/LifestyleScreens";
+import { FitnessProvider } from "../src/state";
+import { Language, LocaleProvider, translate } from "../src/i18n";
+import { decodeFitnessData, FITNESS_STORAGE_KEY } from "../src/domain/fitnessStorage";
+jest.mock("react-native-safe-area-context", () => require("react-native-safe-area-context/jest/mock").default);
+jest.mock("../src/components/Motion3DView",()=>({Motion3DView:(props:any)=>{
+  require('react').useEffect(()=>props.onReady(),[props.onReady]);return require('react').createElement(require('react-native').View,{testID:'model-mounted'});
+}}));
+const view=(language:Language,child:React.ReactNode=<TrainingScreen/>)=><FitnessProvider><LocaleProvider language={language} setLanguage={()=>{}}>{child}</LocaleProvider></FitnessProvider>;
+const helpers=(language:Language)=>{
+  const t=(key:string,values={})=>translate(language,key,values);
+  const press=(key:string,values={})=>fireEvent.press(screen.getByRole('button',{name:t(key,values)}));
+  const field=(kind:'weight'|'reps',label:string,value:string)=>fireEvent.changeText(screen.getByLabelText(t(`advanced.${kind}.label`,{0:label})),value);
+  return {t,press,field};
+};
+test.each(['ja','en'] as const)('%s: advanced inputs and coaching stay out of beginner mode; per-set drafts survive toggles and reload into history',async language=>{
+  jest.spyOn(Alert,'alert').mockImplementation(()=>{});
+  const {t,press,field}=helpers(language),ui=await render(view(language));await screen.findByText(t('Move with intent.'));
+  expect(screen.queryByTestId('advanced-workout-logger')).toBeNull();
+  await press('learn.advanced');expect(screen.queryByTestId('pro-training-coach')).toBeNull();
+  await fireEvent.changeText(screen.getByLabelText(t('重量kg')),'45');
+  await fireEvent.changeText(screen.getByLabelText(t('セット数')),'2');
+  await press('⚡ 本格モード（生体力学）');
+  expect(screen.queryByText(t('シート・器具のセッティング'))).toBeNull();
+  expect(screen.queryByTestId('model-mounted')).toBeNull();
+  expect(screen.queryByLabelText(t('重量kg'))).toBeNull();
+  expect(screen.getByText(t('advanced.form.chest-press.position'))).toBeTruthy();
+  const second=t('advanced.main.number',{0:2});await field('weight',second,'40');await field('reps',second,'8');
+  await fireEvent.press(screen.getByRole('radio',{name:t('advanced.rir.choiceLabel',{0:second,1:1})}));
+  await press('advanced.drop.add');const drop=t('advanced.drop.stage',{0:1});await field('weight',drop,'25');await field('reps',drop,'6');
+  expect(screen.getByTestId('advanced-total-volume').props.children.join('')).toContain('920');
+  await press('🔰 初心者モード');expect(screen.queryByTestId('advanced-workout-logger')).toBeNull();
+  expect(screen.getByLabelText(t('重量kg')).props.value).toBe('45');
+  await press('⚡ 本格モード（生体力学）');expect(screen.getByLabelText(t('advanced.weight.label',{0:second})).props.value).toBe('40');
+  await press('advanced.record.save');
+  await waitFor(async()=>expect(decodeFitnessData(await AsyncStorage.getItem(FITNESS_STORAGE_KEY)).logs[0]?.advanced?.drops).toEqual([{afterSet:1,weight:25,reps:6,rir:null}]));
+  const saved=decodeFitnessData(await AsyncStorage.getItem(FITNESS_STORAGE_KEY)).logs[0];expect(saved).toMatchObject({weight:45,reps:10,sets:2,location:'gym',advanced:{main:[{weight:45,reps:10,rir:null},{weight:40,reps:8,rir:1}]}});
+  await ui.unmount();await render(view(language,<MyPageScreen/>));await screen.findByTestId('advanced-workout-summary');
+  expect(screen.getByTestId('advanced-total-volume').props.children.join('')).toContain('920');
+  expect(screen.getByText(t('advanced.drop.number',{0:2,1:1})+' · '+t('advanced.set.external',{0:25,1:6}))).toBeTruthy();
+});
+test('invalid drop or count changes cannot discard a parent set or save incorrect volume',async()=>{
+  const {t,press,field}=helpers('ja');await render(view('ja'));await screen.findByText(t('Move with intent.'));await press('⚡ 本格モード（生体力学）');
+  await fireEvent.changeText(screen.getByLabelText(t('advanced.main.count')),'1');
+  await field('weight',t('advanced.main.number',{0:1}),'50');
+  await press('advanced.drop.add');await field('weight',t('advanced.drop.stage',{0:1}),'60');await field('reps',t('advanced.drop.stage',{0:1}),'8');
+  await press('advanced.record.save');expect(screen.getByRole('alert').props.children).toBe(t('advanced.error.input'));
+  expect(decodeFitnessData(await AsyncStorage.getItem(FITNESS_STORAGE_KEY)).logs).toEqual([]);
+  await field('weight',t('advanced.drop.stage',{0:1}),'30');
+  await fireEvent.changeText(screen.getByLabelText(t('advanced.main.count')),'2');
+  await fireEvent.press(screen.getByRole('radio',{name:t('advanced.drop.attach',{0:1,1:2})}));
+  await fireEvent.changeText(screen.getByLabelText(t('advanced.main.count')),'1');
+  expect(screen.getByRole('alert').props.children).toBe(t('advanced.error.orphan'));expect(screen.getByLabelText(t('advanced.main.count')).props.value).toBe('2');
+  expect(screen.getByLabelText(t('advanced.weight.label',{0:t('advanced.main.number',{0:2})}))).toBeTruthy();
+});
+test('assisted stages store increasing assistance without reporting it as lifted volume',async()=>{
+  jest.spyOn(Alert,'alert').mockImplementation(()=>{});const {t,press,field}=helpers('en');
+  await render(view('en',<TrainingScreen initialEquipmentId="assisted-pull-up"/>));await screen.findByText(t('Move with intent.'));await press('⚡ 本格モード（生体力学）');
+  await fireEvent.changeText(screen.getByLabelText(t('advanced.main.count')),'1');await field('weight',t('advanced.main.number',{0:1}),'30');
+  await press('advanced.drop.add');await field('weight',t('advanced.drop.stage',{0:1}),'40');await field('reps',t('advanced.drop.stage',{0:1}),'6');
+  expect(screen.getByTestId('advanced-total-volume').props.children.join('')).toContain(t('advanced.volume.unavailable'));
+  await press('advanced.record.save');await waitFor(async()=>expect(decodeFitnessData(await AsyncStorage.getItem(FITNESS_STORAGE_KEY)).logs[0]?.advanced?.drops[0].weight).toBe(40));
+});

@@ -81,7 +81,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">45</span> / <span id="stat-total" class="text-neutral-500">48</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">46</span> / <span id="stat-total" class="text-neutral-500">49</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">46 / 48 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">46 / 49 TASKS COMPLETED (94%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
@@ -163,6 +163,7 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-049：チェストプレスの座面高と胸の狙い。<a class="underline" href="docs/CHEST_PRESS_SEAT_GUIDE.md">比較図・説明と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-048：胸上部・腕・背中・広背筋の輪郭と厚み。<a class="underline" href="docs/MUSCLE_DEFINITION_REVIEW.md">変更点と実表示の比較</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-047：人体の質感と器具を握る手の密着を修正。<a class="underline" href="docs/BODY_BALANCE_REVIEW.md">全方向の体型再修正・確認手順</a></p>
 
@@ -712,9 +713,16 @@
 
       ,{
         id: "TASK-048", title: "ユーザー指定：胸上部・腕・背中・広背筋の輪郭と厚み",
-        category: "Muscle Definition", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        category: "Muscle Definition", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "自然なv5骨格と握りを保持。胸上部・上腕の筋腹、背中/広背筋の厚みと陰影を局所的に強調。",
         review: "【LGTM / DONE 受入完了】全54スイート/715テスト・型検査・リリース監査全合格。v6人体モデル、上胸部・上腕・背中・広背筋の筋腹厚みと立体陰影、v5自然姿勢・手3,094頂点位置の完全保持実動検証完了。46/48完了（96%）。"
+      }
+
+      ,{
+        id: "TASK-049", title: "ユーザー指定：チェストプレスの座面高と胸の狙い",
+        category: "Chest Press Seat Guidance", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "座面を下げる/上げると胸に対するグリップ位置が変わることを3段階の日英比較図で説明。初心者の基本位置と肩/足/背中の注意点を記載。",
+        review: "55 suites/719 tests・型/言語/設定・両OSローカルバンドル合格。日英×2幅×初心者/本格×3高さの24状態を実描画確認。3D模型は基本高さを維持。内容/見た目の受入・実機は未確認。配布保留。"
       }
 
     ];

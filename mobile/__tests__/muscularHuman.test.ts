@@ -14,7 +14,7 @@ const influence = (vertex: number, bone: number) => {
 // P90 radial distances measured on the previous natural athletic adult v3 reference, in authored
 // mesh units. Keep this visual-change baseline explicit, not a human body claim.
 test.each([
-  ['upperarm.L', 0.6948824408808659, 1.04],
+  ['upperarm.L', 0.6948824408808659, 1.10],
   ['thigh.L', 1.22512621851725, 1.015],
   ['shin.L', 0.8540106768065523, 1.03],
 ] as const)("%s: muscle bellies retain bounded athletic volume while joint ends stay tapered", (name, previous, increase) => {
@@ -33,10 +33,10 @@ test.each([
   const index = .9*(distances.length-1), low = Math.floor(index);
   const current = distances[low]+(distances[Math.ceil(index)]-distances[low])*(index-low);
   expect(current).toBeGreaterThan(previous*increase);
-  expect(current).toBeLessThan(previous*1.12); // Muscle bellies, not swollen joints.
+  expect(current).toBeLessThan(previous*(name.startsWith('upperarm') ? 1.23 : 1.12)); // Muscle bellies, not swollen joints.
 });
 test("the muscular profile retains pinned CC0 source data including its new regional morphs", () => {
-  expect(asset.profile).toBe('balanced-athletic-adult-v5');
+  expect(asset.profile).toBe('defined-athletic-adult-v6');
   const files=asset.source.files.map(f=>f.file);
   expect(files).toEqual(expect.arrayContaining([
     'targets/armslegs/l-upperarm-shoulder-muscle-incr.target',

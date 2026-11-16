@@ -165,3 +165,20 @@ the head follows the upper-spine direction. The hand-surface fit, garment suppor
 correction and skin/eye/fabric materials from the grip revision remain active.
 The flat bench stays level; its lower bar height is adjusted to the revised chest
 surface while its lower-chest alignment and upper endpoint stay fixed.
+
+## Regional definition (v6; TASK-048)
+
+`defined-athletic-adult-v6` retains the v5 continuous torso reference and neutral
+posture. Only the requested visible anatomy is resculpted: the clavicular chest
+has a separate upper belly and a shallow sternal/oblique division; upper-arm
+belly refinement increases from .20 to .30 with the same zero-at-joint window;
+paired abdominal relief increases from .08 to .10. Broad lateral posterior lats
+and scapular bellies add depth and a shallow boundary, with an explicit exclusion
+of the central lumbar strip. These are authored sculpt coefficients, not measured
+percentages of muscle size. Thigh/calf coefficients and all joint helpers stay fixed.
+
+The same 23 pinned CC0 inputs, topology, rest skeleton, grip references and 3,094
+rigid hand vertices are preserved. Normals, the 17 masks, garment support bindings
+and cavity shading are rebuilt from the surface; clothing weights may refresh
+through their support bindings. Existing target tint/fibre animation remains an
+educational illustration, not a simulation of forces or measured activation.

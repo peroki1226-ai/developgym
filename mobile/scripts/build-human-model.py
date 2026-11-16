@@ -59,7 +59,7 @@ for group,poly in faces:
     if group in ['body','helper-tights']: sculptable[poly]=True
 for side in ['L','R']:
     for prefix,start_bone,end_bone,amount in [
-        ('upperarm','upperarm01','lowerarm01',.20),
+        ('upperarm','upperarm01','lowerarm01',.30),
         ('upperleg','upperleg01','lowerleg01',.14),
         ('lowerleg','lowerleg01','foot',.11),
     ]:
@@ -83,12 +83,26 @@ x=np.abs(verts[:,0]); y=verts[:,1]; z=verts[:,2]
 clavicle=joint('clavicle.L','head')[1]
 front=np.clip((z-.4)/.5,0,1)*skin
 gauss=lambda cx,cy,sx,sy: np.exp(-((x-cx)/sx)**2-((y-cy)/sy)**2)
-relief=-.18*gauss(.78,clavicle-1.48,.62,.42)+.22*gauss(.85,clavicle-.72,.7,.5)
-for level in [3.85,3.05,2.3]: relief+=.08*gauss(.38,level,.28,.32)
+# Clavicular belly above a shallow oblique pectoral division; stay below the
+# collarbone and taper at sternum/axilla instead of inflating the whole ribcage.
+relief=-.21*gauss(.78,clavicle-1.48,.62,.42)+.32*gauss(.85,clavicle-.72,.7,.43)
+relief+=.20*gauss(.80,clavicle-.37,.65,.25)
+relief-=.035*gauss(.10,clavicle-.90,.065,.65)
+for level in [3.85,3.05,2.3]: relief+=.10*gauss(.38,level,.28,.32)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
 relief-=.028*np.exp(-(x/.085)**2)*ab_window
 for level in [3.45,2.67]: relief-=.018*gauss(.35,level,.7,.08)
 verts[:,2]+=relief*front
+# Distinct posterior muscle bellies. Keep all additions lateral to the neutral
+# lumbar strip and below the neck, so extra back thickness never changes posture.
+posterior=np.clip((-z-.25)/.55,0,1)*skin
+lateral=np.clip((x-.40)/.35,0,1)
+back_relief=.30*gauss(1.30,3.9,.70,1.10) # broad latissimus belly
+back_relief+=.20*gauss(.75,5.35,.50,.60) # scapular / mid-back mass
+back_relief-=.045*gauss(1.00,4.65,.52,.12) # shallow scapular/lat boundary
+verts[:,2]-=back_relief*posterior*lateral
+# Lat width tapers into the waist and armpit; never touches resting hands.
+verts[:,0]+=np.sign(verts[:,0])*.13*gauss(1.65,3.9,.55,.95)*posterior*lateral
 # Retain a modest lumbar curve instead of the highly cinched teaching silhouette.
 # Only the body surface changes; source joints, hands and feet remain authored.
 lumbar=np.exp(-((y-2.7)/.85)**2)*np.exp(-(x/1.2)**4)*skin
@@ -311,7 +325,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'balanced-athletic-adult-v5','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'defined-athletic-adult-v6','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 out['garmentRevision']='level-hems-v1'
 out['garmentBindings']=garment_bindings
 output=a.output

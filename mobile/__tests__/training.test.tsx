@@ -57,8 +57,9 @@ describe("TrainingScreen & Exercise Equipment Catalog", () => {
     expect(screen.getByText("シート・器具のセッティング")).toBeTruthy();
 
     // Toggle to Pro Mode
-    await fireEvent.press(screen.getByText("⚡ 本格モード（生体力学）"));
-    expect(screen.getByText("生体力学")).toBeTruthy();
+    await fireEvent.press(screen.getByText("⚡ 本格モード"));
+    expect(screen.queryByText("生体力学")).toBeNull();
+    expect(screen.queryByTestId("muscle-live-caption")).toBeNull();
     expect(screen.getByText("ビルダーの極意")).toBeTruthy();
 
     // Filter by Back

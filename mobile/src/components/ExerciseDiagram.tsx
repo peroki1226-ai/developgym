@@ -47,6 +47,8 @@ type Props = {
   active?: boolean;
   beginner?: boolean;
   beginnerGuide?: BeginnerGuideData;
+  /** Hide theory in the global pro mode while keeping model/colour controls. */
+  showMuscleExplanations?: boolean;
 };
 export function ExerciseDiagram(props: Props) {
   if (props.compact)
@@ -62,7 +64,7 @@ export function ExerciseDiagram(props: Props) {
     );
   return <MotionDiagram {...props} />;
 }
-function MotionDiagram({ type, muscleTag, label, active = true, beginner = false, beginnerGuide }: Props) {
+function MotionDiagram({ type, muscleTag, label, active = true, beginner = false, beginnerGuide, showMuscleExplanations = true }: Props) {
   const { t, language } = useI18n();
   const { width, fontScale } = useWindowDimensions();
   const motion = useExerciseMotion(active, type, false);
@@ -305,19 +307,19 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
             />
           </Svg>
         )}
-        {guidedChest && lesson && anatomy && <View testID="chest-anatomy-overlay" pointerEvents="none" style={anatomyStyles.overlay}>
+        {showMuscleExplanations && guidedChest && lesson && anatomy && <View testID="chest-anatomy-overlay" pointerEvents="none" style={anatomyStyles.overlay}>
           <Text style={anatomyStyles.target}>{t("anatomy.target",{0:t(`${lesson.prefix}.target`)})}</Text>
           <Text testID="chest-anatomy-state" style={anatomyStyles.state}>{t(motion.progress < .03 ? "anatomy.long" : motion.progress > .97 ? "anatomy.short" : motion.phase === "return" ? "anatomy.lengthening" : "anatomy.shortening")}</Text>
           {type === "chest-dip" && dipFinishAmount(motion.progress)>.05 && motion.phase !== "return" && <Text testID="dip-attention-caption" style={styles.note}>{t("dip.finish.marker")}</Text>}
         </View>}
-        {anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
+        {showMuscleExplanations && anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
         {beginner && !advanced && learningStep === "move" && <View pointerEvents="none" testID="beginner-phase-overlay" style={styles.phaseOverlay}>
           <Text style={styles.detailTitle}>{t(`learn.phase.${motion.phase}`)}</Text>
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
       <ChestSetupGuide type={type}/>
-      {guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
+      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
         onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}
@@ -340,7 +342,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
       {controlsVisible && <ProTrainingCoach key={type} type={type} phase={motion.phase} canPlay={motion.canPlay} running={motion.running}
         onInspect={direction => { setAnatomy(true); selectMuscle(muscleSpec(type).focus); setLessonDirection(direction); motion.playSegment(direction); }}
         onPause={motion.toggle} />}
-      {anatomy && controlsVisible && (
+      {showMuscleExplanations && anatomy && controlsVisible && (
         <MuscleLengthCoach
           type={type}
           progress={motion.progress}
@@ -560,7 +562,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           )}
         </Text>
       </View>
-      {anatomy && (
+      {showMuscleExplanations && anatomy && (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t("coach.details")}
@@ -575,7 +577,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           </Text>
         </Pressable>
       )}
-      {anatomy && mechanismOpen && (
+      {showMuscleExplanations && anatomy && mechanismOpen && (
         <MuscleContractionPanel
           key={type}
           type={type}
@@ -667,7 +669,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
       )}
       {details && <Text style={styles.note}>{t("teaching.legend")}</Text>}
       <Text style={styles.note}>
-        {t(mode === "spatial" ? "scene.legend" : "motion.legend")}
+        {t(showMuscleExplanations ? mode === "spatial" ? "scene.legend" : "motion.legend" : "pro.model.legend")}
       </Text>
       <Text style={styles.note}>{t("motion.hint")}</Text>
       </>}

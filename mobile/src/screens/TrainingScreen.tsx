@@ -75,7 +75,7 @@ export function TrainingScreen({
     );
   }
   return (
-    <View style={{ flex: 1 }}>
+    <View testID="training-screen" style={{ flex: 1 }}>
       {onBack && (
         <View style={{ paddingHorizontal: 22 }}>
           <Button title={t("guide.back")} variant="quiet" onPress={onBack} />
@@ -115,6 +115,7 @@ export function TrainingScreen({
           active={active}
           beginner={!pro}
           beginnerGuide={selected}
+          showMuscleExplanations={!pro}
         />
 
         {!pro && lesson && <ChestCoachingPanel key={lesson.id} lesson={lesson} onAssisted={() => selectEquipment("assisted-dip")} />}
@@ -128,9 +129,9 @@ export function TrainingScreen({
             >
               <Heading>{t(selected.name)}</Heading>
             </View>
-            <View style={styles.pofBadge}>
+            {!pro && <View style={styles.pofBadge}>
               <Text style={styles.pofText}>{t(selected.pof)}</Text>
-            </View>
+            </View>}
           </View>
 
           <Body>{t(selected.bodyPartLabel)}</Body>
@@ -138,14 +139,8 @@ export function TrainingScreen({
 
           <View style={styles.divider} />
 
-          {pro /* Pro Mode: Biomechanics & Variations */ ? (
+          {pro /* Pro Mode: Practical Variations & Form Tips */ ? (
             <>
-              <Heading>{t("解剖学的ターゲット")}</Heading>
-              <Body>{t(selected.proAnatomy)}</Body>
-
-              <Heading>{t("生体力学（Biomechanics）")}</Heading>
-              <Body>{t(selected.proBiomechanics)}</Body>
-
               <Heading>{t("バリエーション & 刺激変化")}</Heading>
               {selected.proVariations.map((v) => (
                 <Body key={v}>• {t(v)}</Body>

@@ -114,7 +114,7 @@
   "My Pageの「ジム」統合履歴に追加しました。端末に自動保存されます。": "Added to the gym history in My Page. Saved automatically on this device.",
   "正しい軌道とフォームで、怪我を防ぎ最大の筋肥大を引き出す。": "Follow controlled movements and proper form for your training.",
   "🔰 初心者モード": "🔰 Beginner mode",
-  "⚡ 本格モード（生体力学）": "⚡ Advanced mode (biomechanics)",
+  "⚡ 本格モード（生体力学）": "⚡ Advanced mode",
   "部位で絞り込む": "Filter by body area",
   "全12種目": "All 12 exercises",
   "胸": "Chest",
@@ -1912,5 +1912,6 @@
   "chest.dip.settings.summary": "This dip uses no seat. Bar and step height are chosen for safe mounting and foot clearance, rather than a seat-height adjustment to select a chest region.",
   "chest.dip.settings.fit": "Choose supports you can mount safely from a step, with foot clearance through the movement. Use an assisted machine if you cannot control bodyweight.",
   "chest.dip.settings.emphasis": "Torso lean and elbow movement also affect chest and triceps contribution. A slight forward lean can cue the mid-to-lower chest, but do not descend into a painful shoulder position.",
-  "chest.dip.settings.check": "This is not a seat-height method for changing chest emphasis. Prioritise shoulder position and a controlled range. Follow the instructions for the knee pad on an assisted machine."
+  "chest.dip.settings.check": "This is not a seat-height method for changing chest emphasis. Prioritise shoulder position and a controlled range. Follow the instructions for the knee pad on an assisted machine.",
+  "pro.model.legend": "Rust: target area / Gray: body and equipment"
 }

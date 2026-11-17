@@ -1,3 +1,4 @@
+import { CHEST_REGION_COLOURS } from "../domain/muscleRegionColours";
 import { GuideCameraControls } from "./GuideCameraControls";
 import { OrbitGesture } from "./OrbitGesture";
 import { Orbit, DEFAULT_GUIDE_ZOOM, orbitForView } from "../domain/guideCamera";
@@ -319,6 +320,17 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
+        {mode === "spatial" && anatomy && !!lesson && <View testID="chest-region-legend" style={{ gap: 4, paddingHorizontal: 8 }}>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
+          {([['upperChest', 'regions.chestUpper', CHEST_REGION_COLOURS.upper], ['chest', 'regions.chestLower', CHEST_REGION_COLOURS.sternocostal]] as const).map(([region, key, colour]) => <Pressable key={region} accessibilityRole="button" accessibilityLabel={t(key)} aria-pressed={focus === "muscles" && selectedMuscle === region} accessibilityState={{ selected: focus === "muscles" && selectedMuscle === region }} onPress={() => {
+            selectMuscle(region); setOrbit(undefined);
+            setView(["barbell-bench-press", "incline-bench-press", "dumbbell-heavy", "incline-smith"].includes(type) ? "above" : "front");
+          }} style={{ minHeight: 48, justifyContent: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: colour, borderRadius: 10 }}>
+            <Text style={styles.note}><Text style={{ color: colour }}>● </Text>{t(key)}</Text>
+          </Pressable>)}
+        </View>
+        <Text style={styles.note}>{t("regions.identification")}</Text>
+      </View>}
       <ChestSetupGuide type={type}/>
       {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
@@ -328,7 +340,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         onFocus={focusChest}/>}
       {beginner && !advanced && learningStep === "posture" && beginnerGuide && <BeginnerSetupNotes guide={beginnerGuide} />}
       {beginner && !advanced && <View style={{ gap: 8 }}>
-        {guidedChest && learningStep === "move" && <Text style={styles.note}>{t("chest.live.phases")}</Text>}
+
+      {guidedChest && learningStep === "move" && <Text style={styles.note}>{t("chest.live.phases")}</Text>}
         {learningStep !== "move" ? <Button title={t("learn.next", { 0: t(`learn.${LEARNING_STEPS[LEARNING_STEPS.indexOf(learningStep) + 1]}`) })} onPress={() => chooseLearningStep(LEARNING_STEPS[LEARNING_STEPS.indexOf(learningStep) + 1])} /> : <>
           <Button title={t(motion.running ? "learn.pause" : "learn.playWork")} disabled={!motion.canPlay} onPress={() => motion.running ? motion.toggle() : motion.playSegment("work")} />
           <Button title={t("learn.playReturn")} disabled={!motion.canPlay || motion.running} variant="quiet" onPress={() => motion.playSegment("return")} />

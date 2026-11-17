@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">47</span> / <span id="stat-total" class="text-neutral-500">52</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">50</span> / <span id="stat-total" class="text-neutral-500">53</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">50 / 52 TASKS COMPLETED (96%)</span>
+        <span class="font-num text-white">50 / 53 TASKS COMPLETED (94%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 96%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
       </div>
     </div>
 
@@ -164,6 +164,7 @@
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-052：大会級の筋量と自然な部位の分離が見える人体模型。<a class="underline" href="docs/BODYBUILDER_ANATOMY.md">造形・保持項目と確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-053：胸上部/中下部の境界・識別色・タップ拡大。<a class="underline" href="docs/MUSCLE_REGION_DEFINITION.md">変更と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-051：本格専用の負荷位置・追い込み支援とメイン/ドロップ記録。<a class="underline" href="docs/ADVANCED_WORKOUT.md">記録・指標と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-050：本格モードの筋収縮・伸長解説を非表示。<a class="underline" href="docs/PRO_MODE_SIMPLIFICATION.md">表示変更と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-049：胸8種目の座面高とインクライン角度による狙い。<a class="underline" href="docs/CHEST_PRESS_SEAT_GUIDE.md">比較図・説明と確認手順</a></p>
@@ -747,6 +748,13 @@
         category: "Bodybuilder Anatomy", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "胸/肩/腕/背中/腹/脚を部位別に造形し、着色OFFでも立体的な分離が見えるv7人体へ。ショーツを短くして四頭筋を露出。自然な骨格・手の握りを保持。",
         review: "【LGTM / DONE 受入完了】全60スイート/760テスト・型検査・リリース監査全合格。写真参考v7人体モデル・大会級筋量/筋腹境界造形・手3,094頂点握り/骨格/全28種目完全維持の実動検証完了。50/52完了（96%）。"
+      }
+
+      ,{
+        id: "TASK-053", title: "ユーザー指定：胸上部/中下部と筋肉境界の明瞭化",
+        category: "Muscle Region Definition", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "胸の浅い斜め境界、全身の部位境界陰影、上部/中下部の識別色とタップ拡大。動作と記録を維持。",
+        review: "62 suites/768 tests・型/監査・両OSバンドル・再生成一致。最終形状672表示と日英の部位拡大/選択/着色/図解を実確認、エラー0。見た目/実機の受入は未確認。識別色は実測負荷率ではない。配布保留。"
       }
 
     ];

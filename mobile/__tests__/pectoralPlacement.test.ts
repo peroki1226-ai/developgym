@@ -41,10 +41,10 @@ test("the clavicular portion is above the whole-muscle centroid and stays inside
 test("the mask-refresh baseline pins the intentionally resculpted muscular teaching adult surface and other regions", () => {
   const digest = createHash('sha256');
   for (const field of ['positions', 'normals', 'indices', 'skinIndices', 'skinWeights', 'materials'] as const) digest.update(asset[field]);
-  expect(digest.digest('hex')).toBe('6a2ee4db009e340e55581b8a26e0c44f11c65153c13d3b2bb5d532f63fe7557b');
+  expect(digest.digest('hex')).toBe('8fccd8db217ced7e17d059e50c2621ca53a22129ebcbf5f2f3f8129af2ef44c2');
   const otherMasks = createHash('sha256');
   for (const key of Object.keys(asset.muscleMasks).filter(k => !['chest','upperChest'].includes(k)).sort()) otherMasks.update(key).update(asset.muscleMasks[key as keyof typeof asset.muscleMasks]);
-  expect(otherMasks.digest('hex')).toBe('706da4e56ffccfa66a418df5968945ce1a950da8bdbce8b1cdf410ee35fe0e42');
+  expect(otherMasks.digest('hex')).toBe('b9eafa3f3d38cd9ecbf2884bfcdef4ccfa55f68be5f7e53c9b76da0c0d43d666');
 });
 test.each(['chest-press','pec-fly','incline-smith','dumbbell-heavy','cable-machine','assisted-dip'])("%s: chest colour follows the upper ribcage throughout the movement without changing grips", type => {
   const human = createRealisticHuman(new THREE.Group());

@@ -1,4 +1,5 @@
 import { chestContractionEmphasis } from "../domain/chestLessons";
+import { humanDefinition, CHEST_REGION_COLOURS, DEFINITION_FRAGMENT } from "./humanDefinition";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
 import { HandGripSurface } from "./handGrip";
@@ -36,6 +37,7 @@ const weights = new Float32Array(decode(asset.skinWeights).buffer);
 const clothes = decode(asset.materials);
 const surfaceOcclusion = decode(asset.surfaceOcclusion);
 const masks = Object.fromEntries(muscleNames.map(name => [name, decode((asset.muscleMasks as Record<string, string>)[name])])) as Record<Muscle, Uint8Array>;
+const definition = humanDefinition(base, clothes, masks);
 const as3 = (p: readonly number[]) => p as V3;
 const gripSurfaces = [new HandGripSurface(asset.grips.R), new HandGripSurface(asset.grips.L)];
 const handSide = new Int8Array(asset.vertexCount).fill(-1);
@@ -308,6 +310,7 @@ export function createRealisticHuman(parent: THREE.Group) {
   const fibres = new Float32Array(asset.vertexCount * 2),
     tint = new Float32Array(asset.vertexCount);
   for (const [name, data, size] of [["position", positions, 3], ["normal", posedNormals, 3], ["color", colours, 3], ["muscleCoord", fibres, 2], ["muscleTint", tint, 1]] as const) geometry.setAttribute(name, new THREE.BufferAttribute(data, size).setUsage(THREE.DynamicDrawUsage));
+  geometry.setAttribute("anatomyDefinition", new THREE.BufferAttribute(definition, 3));
   geometry.setAttribute("surfaceKind", new THREE.BufferAttribute(Float32Array.from(clothes), 1));
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
@@ -315,13 +318,13 @@ export function createRealisticHuman(parent: THREE.Group) {
     metalness: 0
   });
   material.onBeforeCompile = shader => {
-    shader.vertexShader = "attribute vec2 muscleCoord; attribute float muscleTint; attribute float surfaceKind; varying vec2 vFibre; varying float vTint; varying float vSurfaceKind;\n" + shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvFibre = muscleCoord; vTint = muscleTint; vSurfaceKind = surfaceKind;");
-    shader.fragmentShader = "varying vec2 vFibre; varying float vTint; varying float vSurfaceKind;\n" + shader.fragmentShader;
-    shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 50.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.10;");
+    shader.vertexShader = "attribute vec3 anatomyDefinition; varying vec3 vDefinition; attribute vec2 muscleCoord; attribute float muscleTint; attribute float surfaceKind; varying vec2 vFibre; varying float vTint; varying float vSurfaceKind;\n" + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvDefinition = anatomyDefinition; vFibre = muscleCoord; vTint = muscleTint; vSurfaceKind = surfaceKind;");
+    shader.fragmentShader = "varying vec3 vDefinition; varying vec2 vFibre; varying float vTint; varying float vSurfaceKind;\n" + shader.fragmentShader;
+    shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 50.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.10;" + DEFINITION_FRAGMENT);
     shader.fragmentShader = shader.fragmentShader.replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = vSurfaceKind > 1.5 ? 0.28 : vSurfaceKind > 0.5 ? 0.95 : roughnessFactor;");
   };
-  material.customProgramCacheKey = () => "makehuman-muscle-skin-eye-v3";
+  material.customProgramCacheKey = () => "makehuman-muscle-region-definition-v4";
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "human-surface";
   mesh.castShadow = mesh.receiveShadow = true;
@@ -332,7 +335,7 @@ export function createRealisticHuman(parent: THREE.Group) {
     axes = new Float32Array(base.length);
   const skinner = new VolumeSkinner(asset.bones.length, SCALE);
   const neutralColours = humanSurfaceColours(base,clothes);
-  const red = new THREE.Color("#b94b3e");
+  const red = new THREE.Color("#b94b3e"), upperChestColour = new THREE.Color(CHEST_REGION_COLOURS.upper), lowerChestColour = new THREE.Color(CHEST_REGION_COLOURS.sternocostal), chestColour = new THREE.Color();
   function bindActiveMuscles(active: readonly Muscle[]) {
     dominant.fill(255);
     for (let i = 0; i < asset.vertexCount; i++) {
@@ -384,6 +387,7 @@ export function createRealisticHuman(parent: THREE.Group) {
       if (disposed) return;
       const key = frame.muscles.join("/");
       if (activeKey !== key) { bindActiveMuscles(frame.muscles); activeKey = key; (geometry.attributes.muscleCoord as THREE.BufferAttribute).needsUpdate = true; }
+      const chestContext = anatomy && frame.muscles.some(m => m === "chest" || m === "upperChest");
       const transforms = targets(frame),
         ref = reference(frame.type, frame.variant);
       const handGrips = ["R", "L"].map(side => {
@@ -447,6 +451,13 @@ export function createRealisticHuman(parent: THREE.Group) {
         tint[i] = clamp(mask * 1.6);
         colour.fromArray(neutralColours,k);
         if (clothes[i] !== 2) colour.lerp(red, tint[i]);
+        if (chestContext && definition[k + 1] > 0) {
+          const upper = THREE.MathUtils.smoothstep(definition[k], -.07, .07);
+          chestColour.copy(lowerChestColour).lerp(upperChestColour, upper);
+          // Both anatomical parts are identifiable; active masks alone still
+          // control shortening/tint attributes. The context is not workload.
+          colour.fromArray(neutralColours,k).lerp(chestColour, Math.max(tint[i], definition[k + 1] * .70));
+        }
         colour.multiplyScalar(surfaceOcclusion[i] / 255);
         colours[k] = colour.r;
         colours[k + 1] = colour.g;

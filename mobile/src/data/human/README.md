@@ -207,3 +207,19 @@ The same pinned CC0 inputs reproduce positions, normals, masks, clothing support
 and shading together. Shape coefficients are authoring controls rather than real
 muscle-volume measurements. Target tint indicates the intended exercise region;
 it does not measure force or activation. Pro mode still hides contraction theory.
+
+## Regional definition (v8; TASK-053)
+
+`regional-definition-v8` retains v7's skeleton, mass, hands and topology. A shallow
+clavicular/sternocostal groove follows the same clavicle/axilla landmarks as the
+chest masks. Geometry-derived cavity shading is refreshed. The renderer adds a
+rest-surface definition field: the chest division and other mask boundaries retain
+soft contrast as the body moves, including when target colouring is disabled.
+In chest exercises, amber identifies the clavicular region and coral the
+sternocostal region; both remain identifiable when only upper chest is targeted.
+Active masks still exclusively drive the existing deformation/tint attributes.
+These are educational regional colours, not measured activation or force. The
+legend lets each region be inspected close up, uses the selected language, stays
+outside the canvas, and is hidden with
+colouring off or the SVG view. There is no new mesh, texture, animation clock,
+record schema or runtime dependency.

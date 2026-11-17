@@ -7,9 +7,10 @@ const materials = bytes(asset.materials), ids = bytes(asset.skinIndices);
 const weights = new Float32Array(bytes(asset.skinWeights).buffer);
 const point = (i: number): [number, number, number] => [positions[i*3],positions[i*3+1],positions[i*3+2]];
 const skinPoints = Array.from({length: asset.vertexCount}, (_,i) => i).filter(i => materials[i] === 0);
+// The shallow v8 chest division may reduce the v7 upper-chest mean slightly.
 // Explicit v6 comparison landmarks, in authored units; not population anatomy measurements.
 test.each([
-  ["clavicular chest", .3, 1.2, 5.45, 5.75, 1, 1.2200708389, .10, .24],
+  ["clavicular chest", .3, 1.2, 5.45, 5.75, 1, 1.2200708389, .08, .24],
   ["latissimus thickness", .8, 1.8, 3.2, 4.5, -1, .7806485891, .07, .25],
   ["mid-back thickness", .45, 1.2, 4.8, 5.8, -1, 1.0136190653, .09, .25],
 ] as const)("%s: extra depth is visible but bounded in its anatomical region", (_,x0,x1,y0,y1,side,previous,min,max) => {

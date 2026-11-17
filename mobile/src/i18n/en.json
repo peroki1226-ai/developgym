@@ -2027,5 +2027,8 @@
   "advanced.set.perHand": "{0} kg per hand × {1} reps",
   "advanced.set.assistance": "{0} kg assistance × {1} reps",
   "advanced.set.added": "{0} kg added × {1} reps",
-  "advanced.history.mainSets": "main sets"
+  "advanced.history.mainSets": "main sets",
+  "regions.chestUpper": "Upper chest (clavicular)",
+  "regions.chestLower": "Mid/lower chest (sternocostal)",
+  "regions.identification": "Tap a region to zoom in. Colours identify regions, not load or activation levels."
 }

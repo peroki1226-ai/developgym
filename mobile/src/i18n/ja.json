@@ -2027,5 +2027,8 @@
   "advanced.set.perHand": "片手{0}キログラム × {1}回",
   "advanced.set.assistance": "補助{0}キログラム × {1}回",
   "advanced.set.added": "加重{0}キログラム × {1}回",
-  "advanced.history.mainSets": "メインセット"
+  "advanced.history.mainSets": "メインセット",
+  "regions.chestUpper": "胸の上部（鎖骨部）",
+  "regions.chestLower": "胸の中・下部（胸肋部）",
+  "regions.identification": "部位名を押すと拡大します。色は部位の区別で、負荷の強さではありません。"
 }

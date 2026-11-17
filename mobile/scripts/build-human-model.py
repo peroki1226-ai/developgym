@@ -118,7 +118,10 @@ verts[:,2]+=(plate-z)*chest_blend
 # Flattened, rounded-rectangular abdominal bellies follow the ribcage to pelvis,
 # rather than a row of spherical beads. The underlying authored surface remains.
 relief=-.04*gauss(.78,clavicle-1.48,.62,.42)
-relief-=.025*gauss(.85,clavicle-.64+.08*x,.70,.085)
+# Clavicular/sternocostal division follows the same clavicle/axilla landmark
+# as the learning masks; a shallow groove, not two detached muscle objects.
+division=clavicle-(joint('neck01','head')[1]-joint('spine05','head')[1])*(.115-.025*np.clip(x/shoulder,0,1))
+relief-=.055*np.exp(-((y-division)/.17)**2)*np.clip((x-.10)/.20,0,1)*np.clip((shoulder*.94-x)/.35,0,1)
 for level in [4.0,3.2,2.4]: relief+=.11*np.exp(-((x-.38)/.32)**4-((y-level)/.28)**4)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
 relief-=.025*np.exp(-(x/.085)**2)*ab_window
@@ -320,7 +323,7 @@ neighbours/=counts[:,None]
 edge_lengths=np.linalg.norm(positions[edges[:,0]]-positions[edges[:,1]],axis=1)
 local_size=np.maximum(np.bincount(edges[:,0],weights=edge_lengths,minlength=len(positions))/counts,1e-6)
 cavity=np.maximum(0,np.sum((neighbours-positions)*normal,axis=1)/local_size)
-occlusion=np.round((1-.28*np.clip(cavity*4.2,0,1)) * 255).astype(np.uint8)
+occlusion=np.round((1-.28*np.clip(cavity*4.8,0,1)) * 255).astype(np.uint8)
 occlusion[materials!=0]=255
 order=np.argsort(ww,axis=1)[:,-4:]; small=np.take_along_axis(ww,order,axis=1)
 small/=np.maximum(small.sum(axis=1)[:,None],1e-9)
@@ -365,7 +368,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'bodybuilder-anatomy-v7','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'regional-definition-v8','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 out['garmentRevision']='short-training-hems-v2'
 out['garmentBindings']=garment_bindings
 output=a.output

@@ -1,0 +1,195 @@
+"""Offline, continuous anatomical surface refinement. No runtime geometry layers.
+
+Preserve the authored grip/face/foot vertices and skeletal helper references.
+New edge samples inherit skin weights; all incident triangles share the sample.
+"""
+import numpy as np
+
+
+def normals(positions, triangles):
+    p = positions[triangles]
+    faces = np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0])
+    result = np.zeros_like(positions)
+    for k in range(3):
+        np.add.at(result, triangles[:, k], faces)
+    return result / np.maximum(np.linalg.norm(result, axis=1)[:, None], 1e-9)
+
+
+def limb_coordinates(positions, rest, name):
+    head, tail = np.array(rest[name]['head']), np.array(rest[name]['tail'])
+    axis = tail - head
+    length = np.linalg.norm(axis)
+    axis /= length
+    t = (positions - head) @ axis / length
+    radial = positions - head - t[:, None] * length * axis
+    radius = np.maximum(np.linalg.norm(radial, axis=1), 1e-8)
+    return t, radial, radius
+
+
+def refine_surface(positions, triangles, materials, weights, bones, rest):
+    original_count = len(positions)
+    for iteration in range(4):
+        allowed = np.zeros(len(positions), dtype=bool)
+        # Refine torso and muscle bellies, never the head, fingers or joint ends.
+        spine = weights[:, [i for i, name in enumerate(bones) if name.startswith('spine')]].sum(axis=1)
+        allowed |= (spine > .25) & (positions[:, 1] > 1.3) & (positions[:, 1] < 6.25)
+        limb_allowed = np.zeros(len(positions), dtype=bool)
+        for side in ['R', 'L']:
+            for kind in ['upperarm', 'forearm', 'thigh', 'shin']:
+                t, _, _ = limb_coordinates(positions, rest, kind+'.'+side)
+                region=(weights[:, bones.index(kind+'.'+side)] > .35) & (t > .06) & (t < .88)
+                allowed |= region; limb_allowed |= region
+        excluded = weights[:, [i for i, n in enumerate(bones) if n.startswith(('hand', 'foot', 'head', 'neck'))]].sum(axis=1)
+        allowed &= (materials == 0) & (excluded < .04)
+        if iteration == 2:
+            allowed &= (spine > .5) & (positions[:,1] > 1.5) & (positions[:,1] < 6.2)
+        if iteration == 3:
+            allowed &= limb_allowed
+        edges = np.concatenate([triangles[:, [0, 1]], triangles[:, [1, 2]], triangles[:, [2, 0]]])
+        edges = np.unique(np.sort(edges, axis=1), axis=0)
+        length = np.linalg.norm(positions[edges[:, 1]] - positions[edges[:, 0]], axis=1)
+        candidates = np.flatnonzero(allowed[edges].all(axis=1) & (length > (.14 if iteration >= 2 else .24)))
+        budget = 24000 - len(positions)
+        if budget <= 0 or not len(candidates):
+            break
+        candidates = candidates[np.argsort(-length[candidates], kind='stable')[:budget]]
+        selected = edges[candidates]
+        normal = normals(positions, triangles)
+        a, b = positions[selected[:, 0]], positions[selected[:, 1]]
+        na, nb = normal[selected[:, 0]], normal[selected[:, 1]]
+        chord = b - a
+        # Cubic point-normal edge: smooth curved skin instead of flat midpoints.
+        c1 = (2*a+b-(chord*na).sum(axis=1)[:, None]*na)/3
+        c2 = (2*b+a+(chord*nb).sum(axis=1)[:, None]*nb)/3
+        offset = (a+b+3*(c1+c2))/8 - (a+b)/2
+        size = np.linalg.norm(offset, axis=1)
+        offset *= np.minimum(1, .07/np.maximum(size, 1e-9))[:, None]
+        midpoints = (a+b)/2 + offset
+        lookup = {tuple(edge): len(positions)+i for i, edge in enumerate(selected)}
+        refined = []
+        for tri in triangles:
+            v = list(map(int, tri))
+            mids = [lookup.get(tuple(sorted((v[i], v[(i+1)%3])))) for i in range(3)]
+            count = sum(x is not None for x in mids)
+            if not count:
+                refined.append(v)
+            elif count == 3:
+                a0,b0,c0=v; ab,bc,ca=mids
+                refined.extend([[a0,ab,ca],[ab,b0,bc],[ca,bc,c0],[ab,bc,ca]])
+            else:
+                turn = next(i for i, m in enumerate(mids) if m is not None) if count == 1 else (next(i for i,m in enumerate(mids) if m is None)+1)%3
+                a0,b0,c0=[v[(i+turn)%3] for i in range(3)]
+                ab,bc,ca=[mids[(i+turn)%3] for i in range(3)]
+                if count == 1:
+                    refined.extend([[a0,ab,c0],[ab,b0,c0]])
+                else:
+                    refined.extend([[b0,bc,ab],[a0,ab,c0],[ab,bc,c0]])
+        positions = np.concatenate([positions, midpoints])
+        weights = np.concatenate([weights, (weights[selected[:, 0]]+weights[selected[:, 1]])/2])
+        materials = np.concatenate([materials, np.zeros(len(selected), dtype=materials.dtype)])
+        triangles = np.asarray(refined, dtype=np.uint16)
+    return positions, triangles, materials, weights, original_count
+
+
+def sculpt_anatomy(positions, materials, weights, bones, rest):
+    """Belly contours and intermuscular valleys; no uniform volume multiplier."""
+    p = positions.copy()
+    x, y, z = np.abs(p[:, 0]), p[:, 1], p[:, 2]
+    skin = (materials == 0).astype(float)
+    smooth = lambda v: np.clip(v, 0, 1)**2*(3-2*np.clip(v, 0, 1))
+    band = lambda v, a, b, f: smooth((v-a)/f)*smooth((b-v)/f)
+    g = lambda v, c, width: np.exp(-((v-c)/width)**2)
+    front = smooth((z-.35)/.6)*skin
+    back = smooth((-z-.25)/.6)*skin
+    collar = rest['clavicle.L']['head'][1]
+    # Clavicular fan, sternocostal belly and the fold into the humeral insertion.
+    lateral = np.clip(x/1.85, 0, 1)
+    lower_edge = collar-1.30+.67*lateral**1.6
+    division = collar-.63+.13*lateral
+    chest_window = band(x,.08,1.87,.24)*band(y,lower_edge-.06,collar-.05,.18)
+    relief = (.13*g(y,division+.24,.25)+.10*g(y,(division+lower_edge)/2,.30)) * chest_window
+    relief -= .035*g(x,0,.09)*band(y,4.55,5.85,.16)
+    # Flat rectus bellies, tendinous intersections, oblique/serratus transitions.
+    abdomen = band(x,.05,.98,.14)*band(y,1.85,4.45,.22)
+    for level in [4.03,3.25,2.47]:
+        relief += .075*np.exp(-((x-.40)/.30)**4-((y-level)/.27)**4)*abdomen
+    relief -= .055*g(x,0,.13)*band(y,1.9,4.45,.25)
+    for level in [3.64,2.86]:
+        relief -= .055*g(y,level-.045*x*x,.12)*band(x,.08,.93,.14)
+    oblique = .86+.14*(y-2.3)
+    relief += .055*g(x,oblique+.16,.19)*band(y,2.0,4.15,.35)
+    relief -= .035*g(x,oblique-.06,.09)*band(y,2.15,4.0,.25)
+    for level in [3.85,4.18,4.51]:
+        relief += .020*g(y,level+.42*(x-1.15),.14)*band(x,1.02,1.78,.22)
+    positions[:, 2] += relief*front
+    # Trapezius diamond, scapular contours, sweeping lats and paired erectors.
+    upper_back = band(y,4.1,6.25,.25)*band(x,.15,1.8,.2)
+    back_relief = .085*g(x,.47+.55*(6.0-y),.42)*upper_back
+    back_relief -= .055*g(y,5.50-.60*x,.10)*band(x,.35,1.8,.2)*band(y,4.1,5.7,.2)
+    back_relief -= .055*g(y,4.45-.25*x,.12)*band(x,.55,1.9,.25)
+    lat_axis = .74+.36*(y-2.25)
+    back_relief += .070*g(x,lat_axis,.42)*band(y,2.2,4.95,.45)
+    back_relief -= .045*g(x,lat_axis-.48,.12)*band(y,2.5,4.55,.30)
+    back_relief += .045*g(x,.32,.17)*band(y,1.8,4.6,.3)
+    back_relief -= .025*g(x,0,.10)*band(y,2.0,5.5,.3)
+    positions[:, 2] -= back_relief*back
+    # Limb compartments follow authored bone axes and taper to zero at joints.
+    for side in ['R','L']:
+        sign = -1 if side == 'R' else 1
+        for kind in ['upperarm','forearm','thigh','shin']:
+            name = kind+'.'+side
+            t, radial, radius = limb_coordinates(p, rest, name)
+            facing = radial[:, 2]/radius
+            outer = sign*radial[:, 0]/radius
+            window = np.sin(np.pi*np.clip((t-.10)/.78,0,1))**2
+            coverage = np.clip(weights[:, bones.index(name)],0,1)*skin*window
+            anterior, posterior = smooth((facing+.05)/.65), smooth((-facing+.05)/.65)
+            value = np.zeros(len(p))
+            if kind == 'upperarm':
+                # The deltoid has a V-shaped distal insertion, not a round ball.
+                border = .27+.13*np.clip(outer,0,1)
+                value += .10*g(t,.19,.13)*smooth((outer+.2)/.8)
+                value -= .13*g(t,border,.075)*smooth((outer+.15)/.55)
+                biceps = band(t,.32,.88,.10)*anterior
+                value += (.10*g(outer,.20,.44)-.035*g(outer,-.23,.18))*biceps
+                value -= .11*g(outer,.76,.20)*band(t,.36,.86,.12)
+                value += (.085*g(outer,.25,.38)+.055*g(outer,-.38,.30)-.045*g(outer,-.08,.18))*posterior*band(t,.30,.88,.12)
+            elif kind == 'forearm':
+                value += .045*(g(outer,.40,.25)+g(outer,-.35,.3))*anterior
+                value -= .030*g(outer,.08+.20*t,.22)*anterior
+            elif kind == 'thigh':
+                # Rectus femoris and vasti, including the medial knee teardrop.
+                value += (.09*g(outer,0,.28)+.085*g(outer,.65,.24))*anterior
+                value += .10*g(t,.73,.14)*g(outer,-.55,.24)*anterior
+                value -= .13*(g(outer,.32+.08*t,.15)+g(outer,-.31-.08*t,.15))*anterior*band(t,.20,.84,.12)
+                value += .065*(g(outer,-.35,.27)+g(outer,.35,.27))*posterior
+                value -= .055*g(outer,0,.13)*posterior*band(t,.25,.84,.10)
+            else:
+                value += .085*(g(outer,-.34,.29)+g(outer,.34,.29))*posterior*band(t,.15,.72,.13)
+                value -= .080*g(outer,0,.17)*posterior*band(t,.18,.68,.12)
+            positions += radial/radius[:, None]*(value*coverage)[:, None]
+    return positions
+
+
+def fair_surface(positions, triangles, materials, weights, bones, rest):
+    """Six low-pass/nonshrinking pairs remove facets between relief samples."""
+    allowed = np.zeros(len(positions), dtype=bool)
+    spine = weights[:, [i for i,n in enumerate(bones) if n.startswith('spine')]].sum(axis=1)
+    allowed |= (spine > .25) & (positions[:,1] > 1.3) & (positions[:,1] < 6.25)
+    for side in ['R','L']:
+        for kind in ['upperarm','forearm','thigh','shin']:
+            t,_,_=limb_coordinates(positions,rest,kind+'.'+side)
+            allowed |= (weights[:,bones.index(kind+'.'+side)]>.35) & (t>.10) & (t<.88)
+    excluded=weights[:,[i for i,n in enumerate(bones) if n.startswith(('hand','foot','head','neck'))]].sum(axis=1)
+    allowed &= (materials==0) & (excluded<.04)
+    edges=np.concatenate([triangles[:,[0,1]],triangles[:,[1,2]],triangles[:,[2,0]]])
+    edges=np.unique(np.sort(edges,axis=1),axis=0)
+    edges=np.concatenate([edges,edges[:,::-1]])
+    count=np.maximum(np.bincount(edges[:,0],minlength=len(positions)),1)
+    for _ in range(6):
+        for amount in [.40,-.41]:
+            neighbour=np.zeros_like(positions)
+            np.add.at(neighbour,edges[:,0],positions[edges[:,1]])
+            neighbour/=count[:,None]
+            positions[allowed]+=(neighbour[allowed]-positions[allowed])*amount
+    return positions

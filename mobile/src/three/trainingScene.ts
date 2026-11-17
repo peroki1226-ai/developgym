@@ -44,10 +44,13 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
   key.shadow.camera.bottom = -70;
   key.shadow.camera.far = 350;
   key.shadow.bias = -0.001;
+  key.shadow.normalBias = .18; // Avoid triangle-scale self-shadow acne on the refined skin.
   scene.add(key);
   const fill = new THREE.DirectionalLight(0xffffff, .55);
   fill.position.set(-70, 70, -40);
   scene.add(fill);
+  const bounce=new THREE.DirectionalLight(0xffead8,.60);
+  bounce.position.set(0,20,100);scene.add(bounce);
   const groundMat = material("#eeeeee"),
     groundGeo = new THREE.PlaneGeometry(360, 360),
     ground = new THREE.Mesh(groundGeo, groundMat);
@@ -134,7 +137,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
     for (const mat of [materials.metal, materials.satin, materials.pad, materials.rubber, materials.chrome]) {
       if (mat.transparent !== input.transparent) mat.needsUpdate = true;
       mat.transparent = input.transparent;
-      mat.opacity = input.transparent ? 0.26 : 1;
+      mat.opacity = input.transparent ? (input.focus === "muscles" ? .12 : .26) : 1;
       mat.depthWrite = !input.transparent;
     }
     frame.equipment.forEach(item => {

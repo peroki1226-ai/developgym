@@ -17,7 +17,7 @@ test.each([
   const head=rest.head as [number,number,number],tail=rest.tail as [number,number,number],axis=unit3(sub3(tail,head)),span=length3(sub3(tail,head));
   const percentile=(lo:number,hi:number)=>{
     const values:number[]=[];
-    for(let i=0;i<asset.vertexCount;i++){
+    for(let i=0;i<asset.surfaceRefinement.baseVertexCount;i++){
       if(materials[i]!==0)continue;let influence=0;
       for(let j=0;j<4;j++)if(ids[i*4+j]===bone)influence+=w[i*4+j];
       if(influence<=.55)continue;
@@ -31,16 +31,17 @@ test.each([
   expect(percentile(.25,.7)).toBeLessThan(previous*max);
   expect(percentile(.94,1.03)).toBeCloseTo(joint,6);
 });
-test('the accepted bone, grip, surface topology and material contract is unchanged by the sculpt',()=>{
+test('the accepted bone/grip and original material classification survive the refined surface',()=>{
   const h=createHash('sha256');
   for(const key of ['bones','rest','grips'] as const)h.update(JSON.stringify(asset[key]));
-  for(const key of ['indices','materials'] as const)h.update(asset[key]);
-  expect(h.digest('hex')).toBe('72c22065482bcdda3ea8cc0100021618636e9cf4183c6fcb30d434cbd9a3409f');
+  h.update(materials.slice(0,asset.surfaceRefinement.baseVertexCount));
+  expect(h.digest('hex')).toBe('9160c5696463377000b3eb006c7344269977514f9916e8dfe3f7ac8274b2fdbe');
 });
-test('natural cavity shading defines more skin folds than v6 without darkening the whole body or painting garments',()=>{
+test('anatomical relief retains subtle cavity shading without darkening the body or painting garments',()=>{
   const shade=bytes(asset.surfaceOcclusion);let skin=0,defined=0;
   for(let i=0;i<asset.vertexCount;i++)if(materials[i]===0){skin++;if(shade[i]<230)defined++;}else expect(shade[i]).toBe(255);
-  expect(defined).toBeGreaterThan(1041*1.2);
+  expect(defined).toBeGreaterThan(0);
+  expect([...shade].filter((_,i)=>materials[i]===0).reduce((a,b)=>a+b,0)/skin).toBeGreaterThan(245);
   expect(defined/skin).toBeLessThan(.30);
-  expect(Math.min(...shade)).toBeGreaterThanOrEqual(183);
+  expect(Math.min(...shade)).toBeGreaterThanOrEqual(214);
 });

@@ -62,7 +62,10 @@ export const PECTORAL_FIBRES: readonly Fibre[] = [-1, 1].flatMap(side =>
 export function contractileSegment(path: readonly THREE.Vector3[], progress: number, emphasis = 1) {
   const distance = [0];
   path.slice(1).forEach((p, i) => distance.push(distance[i] + p.distanceTo(path[i])));
-  const length = distance.at(-1)!, inset = .08 + .18 * Math.min(1.35, Math.max(1, emphasis)) * Math.max(0, Math.min(1, progress));
+  // Preserve the normal cue; the stronger teaching cue needs a little more
+  // inset on a rounded pectoral surface, whose skin arc grows as it bulges.
+  const boost = Math.min(1.35, Math.max(1, emphasis)) - 1;
+  const length = distance.at(-1)!, inset = .08 + (.18 + .20 * boost) * Math.max(0, Math.min(1, progress));
   const at = (value: number) => {
     let i = 1;
     while (i < distance.length - 1 && distance[i] < value) i++;

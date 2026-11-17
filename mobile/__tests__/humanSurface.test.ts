@@ -10,7 +10,7 @@ test("the human has a muted skin tone, separate eye whites/irises/pupils and a s
  expect(eyes.some(c=>Math.max(...c)<.04)).toBe(true);
  expect(eyes.some(c=>Math.min(...c)>.6)).toBe(true);
  expect(eyes.some(c=>c[0]>.08&&c[0]<.3)).toBe(true);
- expect(c.every(Number.isFinite)).toBe(true);expect(HUMAN_SURFACE.roughness).toBeGreaterThan(.6);expect(HUMAN_SURFACE.roughness).toBeLessThan(.8);
+ expect(c.every(Number.isFinite)).toBe(true);expect(HUMAN_SURFACE.roughness).toBeGreaterThan(.45);expect(HUMAN_SURFACE.roughness).toBeLessThan(.65);
  const skin=new THREE.Color(HUMAN_SURFACE.skin);expect(skin.r).toBeGreaterThan(skin.g);expect(skin.g).toBeGreaterThan(skin.b);
 });
 test("surface appearance does not mutate the authored mesh, eye positions or materials",()=>{

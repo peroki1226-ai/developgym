@@ -4,7 +4,7 @@ import * as THREE from "three";
 // skin and eye colour; no photograph, skin texture or identity is synthesized.
 export const HUMAN_SURFACE = {
   skin: "#c4a080", clothing: "#2c3035", sclera: "#e3dfd5",
-  iris: "#64584d", pupil: "#1d2022", roughness: .64,
+  iris: "#64584d", pupil: "#1d2022", roughness: .54,
 };
 export function humanSurfaceColours(positions: Float32Array, materials: Uint8Array) {
   const centres = [-1,1].map(side=>{

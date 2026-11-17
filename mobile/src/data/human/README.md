@@ -223,3 +223,23 @@ legend lets each region be inspected close up, uses the selected language, stays
 outside the canvas, and is hidden with
 colouring off or the SVG view. There is no new mesh, texture, animation clock,
 record schema or runtime dependency.
+
+## Anatomical surface rework (v9; user correction to TASK-053)
+
+`anatomical-surface-v9` refines only torso and limb skin with conforming curved
+edge samples. Face, hands, feet, joint ends and clothing topology remain authored;
+new skin vertices interpolate the original weights. The surface now has 24,000
+vertices / 47,910 triangles, capped at 24,000 vertices, in the same single mesh.
+`human_anatomy_surface.py` sculpts distinct pectoral fans, deltoid insertions,
+biceps/triceps compartments, rectus/obliques/serratus, scapular/trapezius/lat
+contours, quadriceps/hamstrings and paired posterior calves. It uses actual
+surface relief with bounded valleys and tendon taper, not a global size increase
+or additional muscle objects. Normals, AO, masks and cloth bindings are regenerated.
+The previous broad mask-boundary shading is reduced so real surface contours
+carry the neutral, uncoloured view. References are the supplied front/posing/back
+physique photographs; user acceptance is based on the actual uncoloured model,
+not on automated tests or identification colours alone.
+
+The refined neutral view uses softer cavity shading, a low frontal bounce light
+and a skin roughness of 0.54. Inspection mode fades equipment further so pads
+do not obscure muscle contours. The existing dual-quaternion skinning and its animation clock are retained.

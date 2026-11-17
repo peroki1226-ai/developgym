@@ -22,7 +22,7 @@ test.each([
   const axis = unit3(sub3(rest.tail as [number,number,number],rest.head as [number,number,number]));
   const span = length3(sub3(rest.tail as [number,number,number],rest.head as [number,number,number]));
   const distances: number[] = [];
-  for (let i = 0; i < asset.vertexCount; i++) {
+  for (let i = 0; i < asset.surfaceRefinement.baseVertexCount; i++) {
     if (influence(i,bone) <= .55) continue;
     const offset = sub3([positions[i*3],positions[i*3+1],positions[i*3+2]],rest.head as [number,number,number]);
     const along = dot3(offset,axis), t = along/span;
@@ -36,7 +36,7 @@ test.each([
   expect(current).toBeLessThan(previous*maximum); // Muscle bellies, not swollen joints.
 });
 test("the muscular profile retains pinned CC0 source data including its new regional morphs", () => {
-  expect(asset.profile).toBe('regional-definition-v8');
+  expect(asset.profile).toBe('anatomical-surface-v9');
   const files=asset.source.files.map(f=>f.file);
   expect(files).toEqual(expect.arrayContaining([
     'targets/armslegs/l-upperarm-shoulder-muscle-incr.target',
@@ -45,7 +45,8 @@ test("the muscular profile retains pinned CC0 source data including its new regi
     'targets/torso/torso-muscle-dorsi-incr.target',
   ]));
   expect(asset.source.license).toBe('CC0-1.0');
-  expect(asset.vertexCount).toBe(13905);
+  expect(asset.surfaceRefinement.baseVertexCount).toBe(13905);
+  expect(asset.vertexCount).toBeGreaterThan(20000);expect(asset.vertexCount).toBeLessThanOrEqual(24000);
 });
 test("cavity shading is bounded and neutral, while clothing and eyes retain their material", () => {
   const shade=bytes(asset.surfaceOcclusion);

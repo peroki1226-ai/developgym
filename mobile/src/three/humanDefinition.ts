@@ -32,6 +32,6 @@ export function humanDefinition(positions: Float32Array, materials: Uint8Array, 
 // A broad, shallow division remains visible with target colouring switched off.
 export const DEFINITION_FRAGMENT = `
 float chestDivision = (1.0 - smoothstep(0.025, 0.13, abs(vDefinition.x))) * vDefinition.y;
-float regionalCavity = max(chestDivision * 0.22, vDefinition.z * 0.14);
+float regionalCavity = max(chestDivision * 0.04, vDefinition.z * 0.02);
 diffuseColor.rgb *= 1.0 - regionalCavity;
 `;

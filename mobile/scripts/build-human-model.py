@@ -5,6 +5,7 @@ import argparse, base64, hashlib, json, subprocess
 from pathlib import Path
 import numpy as np
 from human_pectoral_masks import pectoral_masks
+from human_anatomy_surface import refine_surface, sculpt_anatomy, fair_surface
 
 PIN = 'a8bc2d54ff0ac92e78ff71431b1023eda42bf482'
 p = argparse.ArgumentParser()
@@ -117,12 +118,12 @@ plate-=.08*np.exp(-(x/.14)**2)
 verts[:,2]+=(plate-z)*chest_blend
 # Flattened, rounded-rectangular abdominal bellies follow the ribcage to pelvis,
 # rather than a row of spherical beads. The underlying authored surface remains.
-relief=-.04*gauss(.78,clavicle-1.48,.62,.42)
+relief=np.zeros(len(verts))
 # Clavicular/sternocostal division follows the same clavicle/axilla landmark
 # as the learning masks; a shallow groove, not two detached muscle objects.
 division=clavicle-(joint('neck01','head')[1]-joint('spine05','head')[1])*(.115-.025*np.clip(x/shoulder,0,1))
-relief-=.055*np.exp(-((y-division)/.17)**2)*np.clip((x-.10)/.20,0,1)*np.clip((shoulder*.94-x)/.35,0,1)
-for level in [4.0,3.2,2.4]: relief+=.11*np.exp(-((x-.38)/.32)**4-((y-level)/.28)**4)
+relief-=.015*np.exp(-((y-division)/.17)**2)*np.clip((x-.10)/.20,0,1)*np.clip((shoulder*.94-x)/.35,0,1)
+for level in [4.0,3.2,2.4]: relief+=.04*np.exp(-((x-.38)/.32)**4-((y-level)/.28)**4)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
 relief-=.025*np.exp(-(x/.085)**2)*ab_window
 for level in [3.6,2.8]: relief-=.020*gauss(.35,level,.7,.08)
@@ -276,7 +277,13 @@ positions = verts[ids].copy(); indices=[]; materials=np.zeros(len(ids),dtype=np.
 for poly, mat in selected:
     for v in poly: materials[remap[v]]=mat
     for i in range(1,len(poly)-1): indices.extend([remap[poly[0]],remap[poly[i]],remap[poly[i+1]]])
-indices=np.array(indices,dtype='<u2'); normal=np.zeros_like(positions)
+indices=np.array(indices,dtype='<u2')
+ww=w[ids].copy()
+positions, refined, materials, ww, base_vertex_count = refine_surface(positions, indices.reshape(-1,3), materials, ww, bones, rest)
+indices=refined.reshape(-1)
+positions=sculpt_anatomy(positions, materials, ww, bones, rest)
+positions=fair_surface(positions, refined, materials, ww, bones, rest)
+normal=np.zeros_like(positions)
 # Level the three open garment rings (waist and two leg hems). Selecting faces
 # by centroid left a saw-tooth edge; preserve topology and all body vertices.
 cloth_triangles=indices.reshape(-1,3)[np.all(materials[indices.reshape(-1,3)]==1,axis=1)]
@@ -293,7 +300,6 @@ normal/=np.maximum(np.linalg.norm(normal,axis=1)[:,None],1e-9)
 # The source helper garment has no authored skin weights in some regions.
 # Transfer nearby body influences instead of fixing the shorts to the pelvis;
 # this prevents holes when the muscular hips/thighs bend against the fabric.
-ww=w[ids].copy()
 body_ids=np.flatnonzero(materials==0)
 garment_bindings=[]
 for i in np.flatnonzero(materials==1):
@@ -306,7 +312,14 @@ for i in np.flatnonzero(materials==1):
     outside=np.sum(normal[nearest]*blend[:,None],axis=0); outside/=max(np.linalg.norm(outside),1e-8)
     support=np.sum(positions[nearest]*blend[:,None],axis=0)
     clearance=(positions[i]-support)@outside
-    if clearance<.065: positions[i]+=outside*(.065-clearance)
+    if clearance<.065:
+        if i in hem_vertices:
+            # Keep the open rings level while clearing the refined skin.
+            direction=outside.copy(); direction[1]=0
+            denominator=float(direction@outside)
+            if denominator>1e-8: positions[i]+=direction*(.065-clearance)/denominator
+            else: positions[i]+=outside*(.065-clearance)
+        else: positions[i]+=outside*(.065-clearance)
 tri=positions[indices.reshape(-1,3)]; fn=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])
 normal=np.zeros_like(positions)
 for k in range(3): np.add.at(normal,indices.reshape(-1,3)[:,k],fn)
@@ -323,14 +336,14 @@ neighbours/=counts[:,None]
 edge_lengths=np.linalg.norm(positions[edges[:,0]]-positions[edges[:,1]],axis=1)
 local_size=np.maximum(np.bincount(edges[:,0],weights=edge_lengths,minlength=len(positions))/counts,1e-6)
 cavity=np.maximum(0,np.sum((neighbours-positions)*normal,axis=1)/local_size)
-occlusion=np.round((1-.28*np.clip(cavity*4.8,0,1)) * 255).astype(np.uint8)
+occlusion=np.round((1-.16*np.clip(cavity*3.0,0,1)) * 255).astype(np.uint8)
 occlusion[materials!=0]=255
 order=np.argsort(ww,axis=1)[:,-4:]; small=np.take_along_axis(ww,order,axis=1)
 small/=np.maximum(small.sum(axis=1)[:,None],1e-9)
 missing=small.sum(axis=1)<.1; order[missing]=bones.index('hip'); small[missing]=[1,0,0,0]
 # Muscle maps live on this continuous mesh. No separate leaf/striped sticker geometry.
 # Region boundaries are learning masks, not an anatomical scan or measured activation.
-n=len(ids); masks={}; coords={}
+n=len(positions); masks={}; coords={}
 def soft(x,edge=.15): return np.clip(x/edge,0,1)
 def band(x,a,b,fade=.2): return np.minimum(soft(x-a,fade),soft(b-x,fade))
 y=positions[:,1]; x=np.abs(positions[:,0]); z=positions[:,2]; nz=normal[:,2]
@@ -368,7 +381,8 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'regional-definition-v8','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'anatomical-surface-v9','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out['surfaceRefinement']={'baseVertexCount':base_vertex_count,'addedVertices':n-base_vertex_count,'method':'conforming-point-normal-edges','maxVertexCount':24000}
 out['garmentRevision']='short-training-hems-v2'
 out['garmentBindings']=garment_bindings
 output=a.output

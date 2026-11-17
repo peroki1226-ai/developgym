@@ -1,3 +1,4 @@
+import { surfaceAreas } from "../test-utils/surfaceAreas";
 import asset from "../src/data/human/makehuman.json";
 import { sub3, unit3, dot3, length3 } from "../src/domain/training3d";
 const { createHash } = require("node:crypto");
@@ -5,8 +6,9 @@ const bytes = (s: string) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const positions = new Float32Array(bytes(asset.positions).buffer);
 const materials = bytes(asset.materials), ids = bytes(asset.skinIndices);
 const weights = new Float32Array(bytes(asset.skinWeights).buffer);
+const areas=surfaceAreas(positions,new Uint16Array(bytes(asset.indices).buffer));
 const point = (i: number): [number, number, number] => [positions[i*3],positions[i*3+1],positions[i*3+2]];
-const skinPoints = Array.from({length: asset.vertexCount}, (_,i) => i).filter(i => materials[i] === 0);
+const skinPoints = Array.from({length: asset.surfaceRefinement.baseVertexCount}, (_,i) => i).filter(i => materials[i] === 0);
 // The shallow v8 chest division may reduce the v7 upper-chest mean slightly.
 // Explicit v6 comparison landmarks, in authored units; not population anatomy measurements.
 test.each([
@@ -51,8 +53,8 @@ test("muscle enlargement leaves the accepted real hand positions unchanged", () 
 test("regional surfaces and masks remain bilateral and keep chest above the abdomen", () => {
   for(const name of ['upperChest','biceps','triceps','lats','midBack'] as const){
     const mask=bytes(asset.muscleMasks[name]); let left=0,right=0;
-    mask.forEach((value,i)=>{if(positions[i*3]<0)left+=value;else right+=value;});
-    expect(left).toBeGreaterThan(1000); expect(Math.abs(left-right)/Math.max(left,right)).toBeLessThan(.01);
+    mask.forEach((value,i)=>{if(positions[i*3]<0)left+=value*areas[i];else right+=value*areas[i];});
+    expect(left).toBeGreaterThan(30); expect(Math.abs(left-right)/Math.max(left,right)).toBeLessThan(.03);
   }
   bytes(asset.muscleMasks.upperChest).forEach((value,i)=>{if(value>35){expect(positions[i*3+1]).toBeGreaterThan(5.1);expect(positions[i*3+1]).toBeLessThan(asset.rest['clavicle.L'].head[1]);}});
 });

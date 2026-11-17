@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { View3, benchViews } from "../domain/training3d";
-import { Orbit, clampZoom, normaliseOrbit, orbitForView } from "../domain/guideCamera";
+import { Orbit, clampZoom, normaliseOrbit, orbitForView, MIN_GUIDE_ZOOM, MAX_GUIDE_ZOOM } from "../domain/guideCamera";
 import { useI18n } from "../i18n";
 import { Button, colors } from "./ui";
 
@@ -14,9 +14,9 @@ export function GuideCameraControls(p:Props){
         accessibilityState={{checked:!p.orbit&&p.view===v}} aria-checked={!p.orbit&&p.view===v} onPress={()=>p.onView(v)} style={[styles.preset,!p.orbit&&p.view===v&&styles.selected]}><Text style={styles.text}>{t(`scene.${v}`)}</Text></Pressable>)}
     </View>
     <View style={styles.row}>
-      <Button title={t("camera.zoomOut")} variant="quiet" disabled={p.zoom<=1} onPress={()=>p.onZoom(clampZoom(p.zoom-.15))}/>
+      <Button title={t("camera.zoomOut")} variant="quiet" disabled={p.zoom<=MIN_GUIDE_ZOOM} onPress={()=>p.onZoom(clampZoom(p.zoom-.15))}/>
       <Text testID="guide-zoom-value" style={styles.text}>{t("camera.zoom",{0:Math.round(p.zoom*100)})}</Text>
-      <Button title={t("camera.zoomIn")} variant="quiet" disabled={p.zoom>=2.5} onPress={()=>p.onZoom(clampZoom(p.zoom+.15))}/>
+      <Button title={t("camera.zoomIn")} variant="quiet" disabled={p.zoom>=MAX_GUIDE_ZOOM} onPress={()=>p.onZoom(clampZoom(p.zoom+.15))}/>
     </View>
     <Button title={t(p.rotating?"camera.lock":"camera.unlock")} variant="quiet" onPress={p.onRotate}/>
     {p.rotating&&<>

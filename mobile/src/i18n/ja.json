@@ -1648,7 +1648,7 @@
   "scene.below": "下から",
   "camera.zoomOut": "縮小",
   "camera.zoomIn": "拡大",
-  "camera.zoom": "拡大：{0}％",
+  "camera.zoom": "表示倍率：{0}％",
   "camera.unlock": "指で自由に回す",
   "camera.lock": "回転を固定する",
   "camera.dragHint": "模型を一本指で回転、二本指で広げると拡大。矢印ボタンでも動かせます。",

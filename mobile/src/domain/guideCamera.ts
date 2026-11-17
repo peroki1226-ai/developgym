@@ -1,9 +1,11 @@
 import type { View3 } from "./training3d";
 
 export type Orbit = { yaw: number; pitch: number };
+export const MIN_GUIDE_ZOOM = .5;
+export const MAX_GUIDE_ZOOM = 2.5;
 export const DEFAULT_GUIDE_ZOOM = 1.15;
 export function clampZoom(value: number) {
-  return Number.isFinite(value) ? Math.max(1, Math.min(2.5, value)) : DEFAULT_GUIDE_ZOOM;
+  return Number.isFinite(value) ? Math.max(MIN_GUIDE_ZOOM, Math.min(MAX_GUIDE_ZOOM, value)) : DEFAULT_GUIDE_ZOOM;
 }
 export function normaliseOrbit(value: Orbit): Orbit {
   const yaw = Number.isFinite(value.yaw) ? value.yaw : -25;

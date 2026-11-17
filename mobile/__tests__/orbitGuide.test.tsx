@@ -18,7 +18,7 @@ test("continuous camera angles wrap without jumps at a full revolution, stay cle
  for(const yaw of [-1080,-180,-25,0,180,1080]){
   const a=normaliseOrbit({yaw,pitch:90}),b=normaliseOrbit({yaw:yaw+360,pitch:90});expect(a).toEqual(b);expect(Math.abs(a.pitch)).toBeLessThan(90);expect(a.yaw).toBeGreaterThanOrEqual(-180);expect(a.yaw).toBeLessThan(180);
  }
- expect(normaliseOrbit({yaw:NaN,pitch:-Infinity})).toEqual({yaw:-25,pitch:13.5});expect(clampZoom(NaN)).toBe(DEFAULT_GUIDE_ZOOM);expect(clampZoom(-1)).toBe(1);expect(clampZoom(10)).toBe(2.5);
+ expect(normaliseOrbit({yaw:NaN,pitch:-Infinity})).toEqual({yaw:-25,pitch:13.5});expect(clampZoom(NaN)).toBe(DEFAULT_GUIDE_ZOOM);expect(clampZoom(-1)).toBe(.5);expect(clampZoom(.75)).toBe(.75);expect(clampZoom(10)).toBe(2.5);
  for(const type of MOTION_TYPES){const f=trainingFrame3d(type,.5),before=JSON.stringify(f);expect(benchViews(type)).toHaveLength(6);
   for(const view of benchViews(type))for(const orbit of [undefined,{yaw:135,pitch:70},{yaw:-135,pitch:-70}])expect(camera3d(f,view,"whole",orbit).position.every(Number.isFinite)).toBe(true);
   expect(JSON.stringify(f)).toBe(before);
@@ -43,13 +43,15 @@ test("free orbit and zoom reuse the same scene; fit restores full equipment at d
  let scene:THREE.Scene,camera:THREE.Camera;
  const fake={setPixelRatio:jest.fn(),setSize:jest.fn(),shadowMap:{},render:(s:THREE.Scene,c:THREE.Camera)=>{scene=s;camera=c;},dispose:jest.fn()} as unknown as THREE.WebGLRenderer;
  const handle=createTrainingScene(fake,320,400);
- try{for(const type of ["chest-dip","pec-fly","barbell-bench-press"]){
+ try{for(const type of MOTION_TYPES){
   const input={type,progress:.5,view:"front" as const,focus:"whole" as const,anatomy:true,transparent:false};handle.draw(input);const nodes=handle.stats().nodes;
   const skin=(scene!.getObjectByName("human-surface") as THREE.Mesh).geometry.attributes.position as THREE.BufferAttribute,version=skin.version;
   for(const orbit of [{yaw:-135,pitch:70},{yaw:-45,pitch:-70},{yaw:45,pitch:30},{yaw:135,pitch:-30}]){
    handle.draw({...input,orbit,zoom:2});const near=camera!.position.clone();handle.draw({...input,orbit,zoom:1});expect(camera!.position.length()).not.toBe(near.length());expect(handle.stats().nodes).toBe(nodes);expect(skin.version).toBe(version);
    const box=new THREE.Box3(),group=scene!.children.find(n=>n instanceof THREE.Group)!;group.children.filter(n=>n.visible&&n.name!=="pectoral-fibre-guide").forEach(n=>box.expandByObject(n));
    for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){const p=new THREE.Vector3(x,y,z).project(camera!);expect(Math.abs(p.x)).toBeLessThan(1);expect(Math.abs(p.y)).toBeLessThan(1);}
+   handle.draw({...input,orbit,zoom:.5});expect(handle.stats().nodes).toBe(nodes);expect(skin.version).toBe(version);
+   for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){const p=new THREE.Vector3(x,y,z).project(camera!);expect(Math.abs(p.x)).toBeLessThan(.6);expect(Math.abs(p.y)).toBeLessThan(.6);expect(p.z).toBeGreaterThan(-1);expect(p.z).toBeLessThan(1);}
   }
  }}finally{handle.dispose();}
 });
@@ -63,6 +65,10 @@ test("rotation mode releases ordinary scrolling when locked and applies native o
   handlers.onPanResponderRelease({}, {dx:80,dy:40});expect(orbit).toHaveBeenLastCalledWith({yaw:-65,pitch:25.5});orbit.mockClear();
   handlers.onPanResponderGrant();handlers.onPanResponderMove({nativeEvent:{touches:[{pageX:0,pageY:0},{pageX:100,pageY:0}]}},{});handlers.onPanResponderMove({nativeEvent:{touches:[{pageX:0,pageY:0},{pageX:150,pageY:0}]}},{});
   expect(zoom).toHaveBeenLastCalledWith(1.725);handlers.onPanResponderRelease({},{});expect(orbit).not.toHaveBeenCalled();
+  handlers.onPanResponderGrant();
+  handlers.onPanResponderMove({nativeEvent:{touches:[{pageX:0,pageY:0},{pageX:100,pageY:0}]}},{});
+  handlers.onPanResponderMove({nativeEvent:{touches:[{pageX:0,pageY:0},{pageX:10,pageY:0}]}},{});
+  expect(zoom).toHaveBeenLastCalledWith(.5);handlers.onPanResponderRelease({},{});expect(orbit).not.toHaveBeenCalled();
   expect(create).toHaveBeenCalledTimes(1);
  }finally{create.mockRestore();}
 });
@@ -74,5 +80,15 @@ test.each(["ja","en"] as const)("%s: presets, free orbit, zoom and camera reset 
  for(const v of benchViews(e.id)){await fireEvent.press(screen.getByRole("radio",{name:t(`scene.${v}`)}));expect(model.view).toBe(v);expect(model.progress).toBe(1);}
  await fireEvent.press(screen.getByRole("radio",{name:t("scene.right")}));await press("camera.unlock");await press("camera.turn.left");expect(model.orbit.yaw).toBe(75);await press("camera.turn.up");expect(model.orbit.pitch).toBeCloseTo(23.496);
  await press("camera.fit");expect(model.zoom).toBe(1);expect(model.focus).toBe("whole");expect(model.progress).toBe(1);
+ for(let i=0;i<4;i++)await press("camera.zoomOut");
+ expect(model.zoom).toBe(.5);expect(screen.getByRole("button",{name:t("camera.zoomOut")}).props.accessibilityState.disabled).toBe(true);
+ expect(screen.getByTestId("guide-zoom-value").props.children).toBe(translate(language,"camera.zoom",{0:50}));expect(model.progress).toBe(1);
+ await press("camera.zoomIn");expect(model.zoom).toBeCloseTo(.65);
+ for(let i=0;i<15;i++)await press("camera.zoomIn");
+ expect(model.zoom).toBe(2.5);expect(screen.getByRole("button",{name:t("camera.zoomIn")}).props.accessibilityState.disabled).toBe(true);expect(model.progress).toBe(1);
  await press("camera.reset");expect(model.orbit).toBeUndefined();expect(model.zoom).toBe(1.15);expect(model.view).toBe("front");expect(model.progress).toBe(1);
+ await press("regions.chestUpper");
+ for(let i=0;i<5;i++)await press("camera.zoomOut");
+ expect(model.zoom).toBe(.5);expect(model.focus).toBe("muscles");expect(model.muscle).toBe("upperChest");expect(model.progress).toBe(1);
+ await press("camera.fit");expect(model.zoom).toBe(1);expect(model.focus).toBe("whole");
 });

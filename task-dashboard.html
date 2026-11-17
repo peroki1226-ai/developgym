@@ -76,12 +76,12 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">92%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">90%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">47</span> / <span id="stat-total" class="text-neutral-500">51</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">47</span> / <span id="stat-total" class="text-neutral-500">52</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">47 / 51 TASKS COMPLETED (92%)</span>
+        <span class="font-num text-white">47 / 52 TASKS COMPLETED (90%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 92%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 90%"></div>
       </div>
     </div>
 
@@ -163,6 +163,7 @@
 
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
+    <p class="text-xs text-neutral-400 px-1">TASK-052：大会級の筋量と自然な部位の分離が見える人体模型。<a class="underline" href="docs/BODYBUILDER_ANATOMY.md">造形・保持項目と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-051：本格専用の負荷位置・追い込み支援とメイン/ドロップ記録。<a class="underline" href="docs/ADVANCED_WORKOUT.md">記録・指標と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-050：本格モードの筋収縮・伸長解説を非表示。<a class="underline" href="docs/PRO_MODE_SIMPLIFICATION.md">表示変更と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-049：胸8種目の座面高とインクライン角度による狙い。<a class="underline" href="docs/CHEST_PRESS_SEAT_GUIDE.md">比較図・説明と確認手順</a></p>
@@ -739,6 +740,13 @@
         category: "Advanced Workout Logging", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
         desc: "本格だけに28種目の負荷位置/方法、メイン/ドロップ/余力記録、挙上量と履歴を追加。基本説明/模型は初期表示せず、初心者入力は維持。",
         review: "59 suites/752 tests・型/言語/設定・両OSバンドル成功。112本格状態と4保存復元構成で初心者分離/入力/計算/履歴を確認。指標は挙上量と主観的余力で、実測筋力ではない。実機/見た目受入は未確認、配布保留。"
+      }
+
+      ,{
+        id: "TASK-052", title: "ユーザー指定：写真参考の筋量と自然な筋肉境界が見える人体模型",
+        category: "Bodybuilder Anatomy", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "胸/肩/腕/背中/腹/脚を部位別に造形し、着色OFFでも立体的な分離が見えるv7人体へ。ショーツを短くして四頭筋を露出。自然な骨格・手の握りを保持。",
+        review: "60 suites/760 tests・型/言語/設定・両OSバンドル・再生成一致を確認。28種目672表示と360度/上下/再生停止の実表示エラー0。写真参考の胸/肩腕/背中/腹/脚と比較画像をレビュー依頼。実機/見た目の受入は未確認、配布保留。"
       }
 
     ];

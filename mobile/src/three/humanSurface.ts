@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
-// A muted, matte illustrative skin palette. Muscle colouring is independent of
+// A warm, softly reflective skin palette. Muscle colouring is independent of
 // skin and eye colour; no photograph, skin texture or identity is synthesized.
 export const HUMAN_SURFACE = {
-  skin: "#c1a58d", clothing: "#2c3035", sclera: "#e3dfd5",
-  iris: "#64584d", pupil: "#1d2022", roughness: .78,
+  skin: "#c4a080", clothing: "#2c3035", sclera: "#e3dfd5",
+  iris: "#64584d", pupil: "#1d2022", roughness: .64,
 };
 export function humanSurfaceColours(positions: Float32Array, materials: Uint8Array) {
   const centres = [-1,1].map(side=>{

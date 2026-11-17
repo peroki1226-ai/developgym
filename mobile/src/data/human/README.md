@@ -182,3 +182,28 @@ rigid hand vertices are preserved. Normals, the 17 masks, garment support bindin
 and cavity shading are rebuilt from the surface; clothing weights may refresh
 through their support bindings. Existing target tint/fibre animation remains an
 educational illustration, not a simulation of forces or measured activation.
+
+## Bodybuilder anatomy (v7; TASK-052)
+
+`bodybuilder-anatomy-v7` uses a contest-bodybuilding physique as a visual reference
+for muscle mass and separation. It is an original CC0-based teaching model, not
+a scan or replica of a named competitor. Compared with v6, upper-arm bellies,
+outer deltoid caps, forearms, quadriceps/hamstrings and posterior calves are fuller.
+Upper pectoral, abdominal/oblique, scapular, trapezius and latissimus volumes have
+shallow geometric boundaries. Geometry-derived cavity shading makes these folds
+legible with target tint off. There are no painted black muscle lines or new textures.
+The supplied front/posing/back photographs guide the final proportions: pectorals
+form a broad, smoothly rounded fan below the clavicles instead of isolated bumps;
+abdominal bellies have flattened rounded-rectangular centres. Warm skin with softer
+specular highlights makes the actual surface contours visible while moving.
+The same shorts-shell topology is shortened to upper-thigh training trunks so the
+quadriceps remain visible. Waist/groin coverage is retained and cloth support is
+rebound to the actual body surface (`short-training-hems-v2`).
+
+The sculpt tapers at tendon/joint ends, keeps anterior shins restrained and excludes
+the neutral lumbar strip from added posterior torso mass. Source joints, topology,
+hand/grip references, retargeting and the single animation clock remain unchanged.
+The same pinned CC0 inputs reproduce positions, normals, masks, clothing support
+and shading together. Shape coefficients are authoring controls rather than real
+muscle-volume measurements. Target tint indicates the intended exercise region;
+it does not measure force or activation. Pro mode still hides contraction theory.

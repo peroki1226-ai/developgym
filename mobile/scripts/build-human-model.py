@@ -59,9 +59,10 @@ for group,poly in faces:
     if group in ['body','helper-tights']: sculptable[poly]=True
 for side in ['L','R']:
     for prefix,start_bone,end_bone,amount in [
-        ('upperarm','upperarm01','lowerarm01',.30),
-        ('upperleg','upperleg01','lowerleg01',.14),
-        ('lowerleg','lowerleg01','foot',.11),
+        ('upperarm','upperarm01','lowerarm01',.60),
+        ('lowerarm','lowerarm01','wrist',.16),
+        ('upperleg','upperleg01','lowerleg01',.36),
+        ('lowerleg','lowerleg01','foot',.30),
     ]:
         h=joint(start_bone+'.'+side,'head'); tail=joint(end_bone+'.'+side,'head')
         axis=tail-h; length=np.linalg.norm(axis); axis/=length
@@ -72,7 +73,27 @@ for side in ['L','R']:
             if name.startswith(prefix) and name.endswith('.'+side):
                 for vertex,value in entries: region_weight[vertex]+=value
         window=np.sin(np.pi*np.clip((t-.08)/.84,0,1))**2
-        factor=amount*window*np.clip(region_weight,0,1)*sculptable
+        # Preserve the front tibial ridge; most calf mass belongs posteriorly.
+        radius=np.maximum(np.linalg.norm(radial,axis=1),1e-8)
+        facing=np.clip(radial[:,2]/radius,-1,1)
+        shaping=.35+.65*np.clip(-facing,0,1) if prefix=='lowerleg' else 1
+        factor=amount*window*np.clip(region_weight,0,1)*sculptable*shaping
+        if prefix=='upperarm':
+            # Separate biceps/triceps lobes and an outer deltoid cap. These are
+            # smooth surface volumes with tendon taper, never detached overlays.
+            factor*=1+.30*facing*facing
+            outward=np.clip(radial[:,0]*(1 if side=='L' else -1)/radius,0,1)
+            cap=.24*np.sin(np.pi*np.clip(t/.42,0,1))**2*outward
+            factor+=cap*np.clip(region_weight,0,1)*sculptable
+            factor-=.065*window*np.exp(-((t-.36)/.055)**2)*outward*np.clip(region_weight,0,1)*sculptable
+        if prefix=='upperleg':
+            # Broad quadriceps/hamstring bellies with a shallow frontal division.
+            outer=radial[:,0]*(1 if side=='L' else -1)/radius
+            factor*=1+.28*np.clip(facing,0,1)*np.cos(outer*4.5)
+            factor+=.10*window*np.exp(-((t-.72)/.14)**2)*np.clip(-outer,0,1)*np.clip(facing+.3,0,1)*np.clip(region_weight,0,1)*sculptable
+        if prefix=='lowerleg':
+            outer=radial[:,0]/radius
+            factor*=1-.12*np.exp(-(outer/.22)**2)*np.clip(-facing,0,1)
         verts+=radial*factor[:,None]
 # Surface-only anatomy refinement: broad upper pectorals and paired rectus
 # bellies, with shallow actual tendon grooves. Never move joint helper points.
@@ -83,26 +104,42 @@ x=np.abs(verts[:,0]); y=verts[:,1]; z=verts[:,2]
 clavicle=joint('clavicle.L','head')[1]
 front=np.clip((z-.4)/.5,0,1)*skin
 gauss=lambda cx,cy,sx,sy: np.exp(-((x-cx)/sx)**2-((y-cy)/sy)**2)
-# Clavicular belly above a shallow oblique pectoral division; stay below the
-# collarbone and taper at sternum/axilla instead of inflating the whole ribcage.
-relief=-.21*gauss(.78,clavicle-1.48,.62,.42)+.32*gauss(.85,clavicle-.72,.7,.43)
-relief+=.20*gauss(.80,clavicle-.37,.65,.25)
-relief-=.035*gauss(.10,clavicle-.90,.065,.65)
-for level in [3.85,3.05,2.3]: relief+=.10*gauss(.38,level,.28,.32)
+# Photo-reference chest: a broad anterior muscle plate, tapering into the
+# humeral insertion. Local spherical bumps produced an unnatural pointed chest.
+# A broad, softly rounded fan follows the source chest instead of replacing it
+# with a flat shelf. Fourth-power falloff keeps the belly broad and rounds every
+# edge continuously; the lower border rises toward the humeral attachment.
+shoulder=abs(joint('upperarm01.L','head')[0])
+fan_centre=clavicle-.78+.14*(x/shoulder)**2
+chest_blend=.85*np.exp(-((x-.75)/1.05)**4-((y-fan_centre)/.72)**4)*front
+plate=1.55-.09*(x/1.7)**2-.12*((y-fan_centre)/.72)**2
+plate-=.08*np.exp(-(x/.14)**2)
+verts[:,2]+=(plate-z)*chest_blend
+# Flattened, rounded-rectangular abdominal bellies follow the ribcage to pelvis,
+# rather than a row of spherical beads. The underlying authored surface remains.
+relief=-.04*gauss(.78,clavicle-1.48,.62,.42)
+relief-=.025*gauss(.85,clavicle-.64+.08*x,.70,.085)
+for level in [4.0,3.2,2.4]: relief+=.11*np.exp(-((x-.38)/.32)**4-((y-level)/.28)**4)
 ab_window=np.clip((y-1.7)/.25,0,1)*np.clip((4.25-y)/.25,0,1)
-relief-=.028*np.exp(-(x/.085)**2)*ab_window
-for level in [3.45,2.67]: relief-=.018*gauss(.35,level,.7,.08)
+relief-=.025*np.exp(-(x/.085)**2)*ab_window
+for level in [3.6,2.8]: relief-=.020*gauss(.35,level,.7,.08)
+# External oblique volume tapers toward the waist below the rib cage.
+relief+=.055*gauss(1.03,3.25,.30,.9)
 verts[:,2]+=relief*front
 # Distinct posterior muscle bellies. Keep all additions lateral to the neutral
 # lumbar strip and below the neck, so extra back thickness never changes posture.
 posterior=np.clip((-z-.25)/.55,0,1)*skin
 lateral=np.clip((x-.40)/.35,0,1)
-back_relief=.30*gauss(1.30,3.9,.70,1.10) # broad latissimus belly
-back_relief+=.20*gauss(.75,5.35,.50,.60) # scapular / mid-back mass
-back_relief-=.045*gauss(1.00,4.65,.52,.12) # shallow scapular/lat boundary
+back_relief=.56*gauss(1.30,3.9,.70,1.10) # broad latissimus belly
+back_relief+=.36*gauss(.75,5.35,.50,.60) # scapular / mid-back mass
+back_relief-=.065*gauss(1.00,4.65,.52,.12) # shallow scapular/lat boundary
 verts[:,2]-=back_relief*posterior*lateral
 # Lat width tapers into the waist and armpit; never touches resting hands.
-verts[:,0]+=np.sign(verts[:,0])*.13*gauss(1.65,3.9,.55,.95)*posterior*lateral
+verts[:,0]+=np.sign(verts[:,0])*.26*gauss(1.65,3.9,.55,.95)*posterior*lateral
+# Upper trapezius stays above the neutral lumbar/rib-depth test region and below
+# the neck. Exclude face, hands and skeletal helper vertices explicitly.
+trap_window=np.clip((y-5.35)/.2,0,1)*np.clip((6.45-y)/.2,0,1)
+verts[:,2]-=.20*gauss(.48,6.0,.55,.45)*posterior*trap_window*np.clip((x-.18)/.2,0,1)
 # Retain a modest lumbar curve instead of the highly cinched teaching silhouette.
 # Only the body surface changes; source joints, hands and feet remain authored.
 lumbar=np.exp(-((y-2.7)/.85)**2)*np.exp(-(x/1.2)**4)*skin
@@ -244,6 +281,9 @@ cloth_edges=np.concatenate([cloth_triangles[:,[0,1]],cloth_triangles[:,[1,2]],cl
 cloth_edges,edge_count=np.unique(np.sort(cloth_edges,axis=1),axis=0,return_counts=True)
 hem_vertices=np.unique(cloth_edges[edge_count==1])
 positions[hem_vertices,1]=np.where(positions[hem_vertices,1]>0,1.5,-1.5)
+# Short training trunks expose the quadriceps without changing body topology or
+# the modest coverage at the waist/groin. Bind cloth to the new surface below.
+positions[materials==1,1]=1.5+(positions[materials==1,1]-1.5)*(2/3)
 tri=positions[indices.reshape(-1,3)]; fn=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])
 for k in range(3): np.add.at(normal,indices.reshape(-1,3)[:,k],fn)
 normal/=np.maximum(np.linalg.norm(normal,axis=1)[:,None],1e-9)
@@ -280,7 +320,7 @@ neighbours/=counts[:,None]
 edge_lengths=np.linalg.norm(positions[edges[:,0]]-positions[edges[:,1]],axis=1)
 local_size=np.maximum(np.bincount(edges[:,0],weights=edge_lengths,minlength=len(positions))/counts,1e-6)
 cavity=np.maximum(0,np.sum((neighbours-positions)*normal,axis=1)/local_size)
-occlusion=np.round((1-.28*np.clip(cavity*3,0,1)) * 255).astype(np.uint8)
+occlusion=np.round((1-.28*np.clip(cavity*4.2,0,1)) * 255).astype(np.uint8)
 occlusion[materials!=0]=255
 order=np.argsort(ww,axis=1)[:,-4:]; small=np.take_along_axis(ww,order,axis=1)
 small/=np.maximum(small.sum(axis=1)[:,None],1e-9)
@@ -325,8 +365,8 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'defined-athletic-adult-v6','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
-out['garmentRevision']='level-hems-v1'
+out={'version':1,'profile':'bodybuilder-anatomy-v7','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out['garmentRevision']='short-training-hems-v2'
 out['garmentBindings']=garment_bindings
 output=a.output
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')

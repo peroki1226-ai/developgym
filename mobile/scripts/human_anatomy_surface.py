@@ -249,3 +249,56 @@ def shape_pectoral_fan(positions, triangles, materials, rest):
             mean = np.bincount(edges[:,0],weights=positions[edges[:,1],2],minlength=len(positions))/count
             positions[:,2] += (mean-positions[:,2])*amount*guard
     return positions
+
+
+def smooth_lower_pectoral(positions, normal, occlusion, triangles, materials, rest):
+    """Local quadratic skin patches remove the corrugated lower rim only.
+
+    Keep the approved crown/clavicular surface and every other region exactly.
+    Fit a smooth height field, including its analytic normal, over nearby skin.
+    This is offline; the mesh, rig and runtime work remain unchanged.
+    """
+    x, y, z = np.abs(positions[:,0]), positions[:,1], positions[:,2]
+    bottom, top, shoulder = pectoral_borders(x, rest)
+    t = (y-bottom)/np.maximum(top-bottom,.25)
+    smooth = lambda v: np.clip(v,0,1)**2*(3-2*np.clip(v,0,1))
+    influence = smooth((.30-t)/.12)*smooth((t+.25)/.18)
+    influence *= smooth((x-.04)/.24)*smooth((shoulder*.99-x)/.24)
+    influence *= smooth((z-.45)/.45)*smooth((y-4.18)/.10)*(materials==0)
+    changed = np.flatnonzero(influence>0)
+    support = np.flatnonzero((materials==0)&(z>.40)&(x<shoulder*1.08)&(y>3.95)&(y<6.1))
+    original = positions.copy()
+    fitted_normal = normal.copy()
+    radius = .36
+    for vertex in changed:
+        delta = (original[support,:2]-original[vertex,:2])/radius
+        distance = (delta*delta).sum(axis=1)
+        local = distance<1
+        if local.sum()<10:
+            continue
+        dx,dy = delta[local].T
+        weight = np.exp(-distance[local]/.40)*(1-distance[local])**2
+        basis = np.stack([np.ones(len(dx)),dx,dy,dx*dx,dx*dy,dy*dy],axis=1)
+        design = basis*np.sqrt(weight[:,None])
+        values = original[support[local],2]*np.sqrt(weight)
+        coefficients = np.linalg.lstsq(design,values,rcond=1e-6)[0]
+        amount = influence[vertex]*.85
+        correction = np.clip(coefficients[0]-original[vertex,2],-.06,.06)
+        positions[vertex,2] += amount*correction
+        direction = np.array([-coefficients[1]/radius,-coefficients[2]/radius,1.])
+        direction /= np.linalg.norm(direction)
+        fitted_normal[vertex] = normal[vertex]*(1-amount)+direction*amount
+        fitted_normal[vertex] /= np.linalg.norm(fitted_normal[vertex])
+    # Derive cavity shading from the corrected surface, retaining untouched AO.
+    edges = np.concatenate([triangles[:,[0,1]],triangles[:,[1,2]],triangles[:,[2,0]]])
+    edges = np.concatenate([edges,edges[:,::-1]])
+    count = np.maximum(np.bincount(edges[:,0],minlength=len(positions)),1)
+    mean = np.zeros_like(positions)
+    np.add.at(mean,edges[:,0],positions[edges[:,1]])
+    mean /= count[:,None]
+    lengths = np.linalg.norm(positions[edges[:,0]]-positions[edges[:,1]],axis=1)
+    scale = np.maximum(np.bincount(edges[:,0],weights=lengths,minlength=len(positions))/count,1e-6)
+    cavity = np.maximum(0,((mean-positions)*fitted_normal).sum(axis=1)/scale)
+    shade = (1-.16*np.clip(cavity*3,0,1))*255
+    result_ao = np.round(occlusion*(1-influence)+shade*influence).astype(np.uint8)
+    return positions, fitted_normal, result_ao

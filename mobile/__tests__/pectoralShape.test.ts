@@ -2,6 +2,44 @@ import asset from "../src/data/human/makehuman.json";
 const {createHash}=require("node:crypto");
 const bytes=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const raw=bytes(asset.positions),p=new Float32Array(raw.buffer),m=bytes(asset.materials),indices=new Uint16Array(bytes(asset.indices).buffer);
+const normalBytes=bytes(asset.normals),n=new Float32Array(normalBytes.buffer),ao=bytes(asset.surfaceOcclusion);
+function chestFraction(v:number){
+ const x=Math.abs(p[v*3]),collar=asset.rest["clavicle.L"].head[1],shoulder=Math.abs(asset.rest["upperarm.L"].head[0]);
+ const u=Math.min(1,x/shoulder),bottom=collar-1.14-.34*Math.sin(Math.PI*u)+.50*u*u+.16*Math.exp(-((x/.32)**2));
+ return (p[v*3+1]-bottom)/Math.max(collar-.055-.18*u-bottom,.25);
+}
+
+test("the user-approved upper/middle chest and all regions outside the lower rim retain their surface, normals and shading",()=>{
+ const h=createHash("sha256"),protectedVertices:number[]=[];
+ for(let v=0;v<asset.vertexCount;v++){
+  const x=Math.abs(p[v*3]),t=chestFraction(v);
+  if(m[v]!==0||t>=1/3||t<-.26||x<=.04||x>=Math.abs(asset.rest["upperarm.L"].head[0])*.99||p[v*3+2]<=.4||p[v*3+1]<=4.18)protectedVertices.push(v);
+ }
+ for(const [data,stride]of [[raw,12],[normalBytes,12],[ao,1]] as const)for(const v of protectedVertices)h.update(data.subarray(v*stride,(v+1)*stride));
+ expect(protectedVertices.length).toBe(23488);
+ expect(h.digest("hex")).toBe("bf2f7577572225c3a497457a8c725babd4736b5e330e50c569bb5901d2d77f6a");
+});
+
+test("the lower rim normal field is smooth without changing the broad rounded chest contour",()=>{
+ const core=new Map<number,Set<number>>();
+ for(let v=0;v<asset.vertexCount;v++){
+  const x=Math.abs(p[v*3]),t=chestFraction(v);
+  if(m[v]===0&&t>-.05&&t<.18&&x>.35&&x<1.7&&p[v*3+2]>.65)core.set(v,new Set());
+ }
+ for(let i=0;i<indices.length;i+=3)for(let k=0;k<3;k++){
+  const v=indices[i+k],neighbors=core.get(v);
+  if(neighbors){neighbors.add(indices[i+(k+1)%3]);neighbors.add(indices[i+(k+2)%3]);}
+ }
+ const residuals=[...core].map(([v,neighbors])=>{
+  const mean=[0,0,0];for(const j of neighbors)for(let k=0;k<3;k++)mean[k]+=n[j*3+k]/neighbors.size;
+  return Math.hypot(n[v*3]-mean[0],n[v*3+1]-mean[1],n[v*3+2]-mean[2]);
+ });
+ expect(residuals.length).toBeGreaterThan(100);
+ // v10: mean .07185 / max .16789. Measure the actual neighboring normals,
+ // independently of the quadratic-fit implementation and target colours.
+ expect(residuals.reduce((a,b)=>a+b,0)/residuals.length).toBeLessThan(.05);
+ expect(Math.max(...residuals)).toBeLessThan(.13);
+});
 
 test("the chest-only correction preserves all topology, authored weights, bones, grips and garment bindings",()=>{
  const h=createHash("sha256");

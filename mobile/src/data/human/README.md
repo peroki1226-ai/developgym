@@ -267,3 +267,23 @@ lighting, material, animation deformation and pectoral fibre cues retained.
 This is a shape correction to the training mannequin, not a photographic scan.
 Visual acceptance must compare the actual uncoloured model with the supplied
 reference in front, oblique, side and moving poses. Tests do not grant visual LGTM.
+
+
+## Lower pectoral smoothing (v11; user accepts v10 upper/middle chest)
+
+`photo-pectoral-lower-smooth-v11` keeps v10's approved upper and middle chest.
+Only the lower rim and its immediate ribcage transition use local quadratic
+surface fits. A compact feathered window ends before the chest crown. Fits
+correct depth by at most 0.051 authored units and supply continuous analytic
+normals; cavity shading is refreshed within that same window. No X/Y coordinate,
+triangle, weight, bone, grip or garment binding changes. The protected 23,488
+vertices retain position/normal/AO bytes exactly; the upper-chest mask is also
+unchanged. The whole-chest mask changes by at most one byte at six protected
+vertices through its existing neighbouring-mask smoothing, with no visible
+anatomical-boundary change. Lower-region arm/shoulder masks are refreshed normally.
+
+The lower-rim normal residual falls from 0.07185 to 0.03165 in the inspection
+sample. This is a rendering continuity metric, not an anatomical or force
+measurement and not a substitute for visual acceptance. Vertex/triangle counts,
+lighting, materials, active contraction, frame cost and storage schemas remain
+unchanged. The generator performs the fit offline with NumPy only.

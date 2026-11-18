@@ -15,7 +15,7 @@ test("the balanced body profile is reproducible and garment rings keep level edg
   const b=bytes(asset[key]),n=key==="skinIndices"?1:4;
   for(let i=0;i<m.length;i++)if(m[i]!==1)h.update(b.slice(i*size*n,(i+1)*size*n));
  }
- expect(h.digest("hex")).toBe("f80c00d8d59503485e8f1311555375f1254d31a9ba8f4e96f8d51cf5e8caa835");
+ expect(h.digest("hex")).toBe("c2f0fc8294d5bdf996c7bcd4ed90c6a56e65a5ada034934964bd0ca156fc60c7");
  expect(asset.garmentRevision).toBe("short-training-hems-v2");
  const edges=new Map<string,number>(),indices=new Uint16Array(bytes(asset.indices).buffer);
  for(let i=0;i<indices.length;i+=3){const tri=Array.from(indices.slice(i,i+3));if(!tri.every(i=>m[i]===1))continue;for(let j=0;j<3;j++){const key=[tri[j],tri[(j+1)%3]].sort((a,b)=>a-b).join("/");edges.set(key,(edges.get(key)??0)+1);}}

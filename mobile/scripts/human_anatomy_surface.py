@@ -4,6 +4,7 @@ Preserve the authored grip/face/foot vertices and skeletal helper references.
 New edge samples inherit skin weights; all incident triangles share the sample.
 """
 import numpy as np
+from human_pectoral_masks import pectoral_borders
 
 
 def normals(positions, triangles):
@@ -192,4 +193,59 @@ def fair_surface(positions, triangles, materials, weights, bones, rest):
             np.add.at(neighbour,edges[:,0],positions[edges[:,1]])
             neighbour/=count[:,None]
             positions[allowed]+=(neighbour[allowed]-positions[allowed])*amount
+    return positions
+
+
+def shape_pectoral_fan(positions, triangles, materials, rest):
+    """A broad sternal fan sweeps into the axilla, not two hanging domes.
+
+    Reconstruct depth only in the anterior chest. Preserve X/Y, surface topology,
+    authored weights and all other regions. Run after fairing so the shared
+    tessellation and the accepted limb/abdominal surfaces stay identical.
+    """
+    x, y, z = np.abs(positions[:, 0]), positions[:, 1], positions[:, 2]
+    collar = (rest['clavicle.L']['head'][1]+rest['clavicle.R']['head'][1])/2
+    shoulder = (abs(rest['upperarm.L']['head'][0])+abs(rest['upperarm.R']['head'][0]))/2
+    smooth = lambda v: np.clip(v, 0, 1)**2*(3-2*np.clip(v, 0, 1))
+    lateral = x/shoulder
+    # Photo reference: the sternal end stops higher, the lower belly rounds
+    # down, then the border sweeps up into the anterior axillary fold.
+    bottom, top, _ = pectoral_borders(x, rest)
+    height = np.maximum(top-bottom,.25)
+    t = (y-bottom)/height
+    v = np.clip(t,0,1)
+    # A rounded lower-third crown and a long, shallow clavicular slope.
+    peak = 1.4/(1.4+2.7)
+    belly = v**1.4*(1-v)**2.7/(peak**1.4*(1-peak)**2.7)
+    medial = smooth(x/.32)
+    tendon = smooth((shoulder*1.02-x)/.40)
+    fan = .30*medial*tendon*belly
+    # An oval thorax underlies the muscle. No constant-depth flat shelf and no
+    # extra spherical lobe under the sternal end.
+    ribs = 1.42*np.sqrt(np.maximum(.12,1-(x/(shoulder*1.11))**2))
+    ribs *= 1-.08*smooth((y-(collar-.30))/.30)
+    ribs += .045*np.exp(-(x/.22)**2)
+    target = ribs+fan
+    # A shallow clavicular transition; never a detached upper-chest strip.
+    divide = collar-.63+.13*np.clip(lateral,0,1)
+    target -= .008*np.exp(-((y-divide)/.13)**2)*medial*tendon
+    # Blend across the subpectoral ribcage as well; stopping exactly on the
+    # lower fold leaves a corrugated rim from the previous stacked sculpts.
+    guard = smooth((y-(collar-1.72))/.35)*smooth((collar+.09-y)/.22)
+    # The sternal attachment remains on its authored surface. Raising a strip
+    # down the midline creates a false round pit where that strip ends.
+    guard *= smooth((x-.04)/.30)
+    guard *= smooth((shoulder*1.07-x)/.28)*smooth((z-.45)/.60)
+    guard *= materials==0
+    positions[:,2] += (target-z)*guard
+    # Fair only chest depth at the feathered edge. Do not move attachment X/Y
+    # or pull the accepted abdomen, shoulders or limbs into the chest patch.
+    edges = np.concatenate([triangles[:,[0,1]],triangles[:,[1,2]],triangles[:,[2,0]]])
+    edges = np.unique(np.sort(edges,axis=1),axis=0)
+    edges = np.concatenate([edges,edges[:,::-1]])
+    count = np.maximum(np.bincount(edges[:,0],minlength=len(positions)),1)
+    for _ in range(4):
+        for amount in [.35,-.36]:
+            mean = np.bincount(edges[:,0],weights=positions[edges[:,1],2],minlength=len(positions))/count
+            positions[:,2] += (mean-positions[:,2])*amount*guard
     return positions

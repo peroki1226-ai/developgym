@@ -11,6 +11,16 @@ from pathlib import Path
 import numpy as np
 
 
+def pectoral_borders(x, rest):
+    """Shared photo-reference silhouette for the surface and learning masks."""
+    clavicle = (rest['clavicle.R']['head'][1]+rest['clavicle.L']['head'][1])/2
+    shoulder = (abs(rest['upperarm.R']['head'][0])+abs(rest['upperarm.L']['head'][0]))/2
+    lateral = np.clip(np.abs(x)/shoulder,0,1)
+    bottom = clavicle-1.14-.34*np.sin(np.pi*lateral)+.50*lateral*lateral+.16*np.exp(-(np.abs(x)/.32)**2)
+    top = clavicle-.055-.18*lateral
+    return bottom, top, shoulder
+
+
 def pectoral_masks(positions, normals, materials, rest, indices):
     positions = np.asarray(positions, dtype=np.float32)
     normals = np.asarray(normals, dtype=np.float32)
@@ -19,11 +29,9 @@ def pectoral_masks(positions, normals, materials, rest, indices):
     shoulder = (abs(rest['upperarm.R']['head'][0]) + abs(rest['upperarm.L']['head'][0])) / 2
     torso = rest['neck']['head'][1] - rest['spine05']['head'][1]
     lateral = np.clip(x / shoulder, 0, 1)
-    # The lower sternal fibres sweep up to the axilla; the clavicular edge stays
-    # below the collarbone. Do not use morph displacement magnitude: its maximum
-    # describes the lower chest bulge, not the full anatomical muscle boundary.
-    bottom = clavicle - torso * .245 + torso * .12 * lateral ** 1.8
-    top = clavicle - torso * (.012 + .024 * lateral)
+    # Follow the same rounded lower fan as the actual sculpt, so target colour
+    # cannot extend below its sternal end or omit the low central belly.
+    bottom, top, _ = pectoral_borders(x, rest)
     fade = torso * .035
     soft = lambda value, width: np.clip(value / width, 0, 1)
     region = np.minimum(soft(y - bottom, fade), soft(top - y, fade))

@@ -86,7 +86,7 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">見た目 再レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">胸筋 再レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -164,7 +164,7 @@
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-052：大会級の筋量と自然な部位の分離が見える人体模型。<a class="underline" href="docs/BODYBUILDER_ANATOMY.md">造形・保持項目と確認手順</a></p>
-    <p class="text-xs text-neutral-400 px-1">TASK-053：ユーザー指摘により再オープン。全身の筋腹・谷をv9曲面で再造形し、着色OFFの見た目を再受入。<a class="underline" href="docs/ANATOMICAL_SURFACE_REWORK.md">実表示の比較と再レビュー手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-053：ユーザー再提示の写真に合わせて胸筋の輪郭を再修正。<a class="underline" href="docs/PECTORAL_PHOTO_SHAPE.md">着色OFFの比較と写真に基づく再レビュー</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-051：本格専用の負荷位置・追い込み支援とメイン/ドロップ記録。<a class="underline" href="docs/ADVANCED_WORKOUT.md">記録・指標と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-050：本格モードの筋収縮・伸長解説を非表示。<a class="underline" href="docs/PRO_MODE_SIMPLIFICATION.md">表示変更と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-049：胸8種目の座面高とインクライン角度による狙い。<a class="underline" href="docs/CHEST_PRESS_SEAT_GUIDE.md">比較図・説明と確認手順</a></p>
@@ -751,10 +751,10 @@
       }
 
       ,{
-        id: "TASK-053", title: "ユーザー再修正：写真を参考に全身の筋肉を立体で識別可能に",
-        category: "Muscle Region Definition", assignee: "Codex", status: "DONE", rating: "LGTM",
-        desc: "24,000頂点の曲面v9人体へ再造形。胸/肩腕/腹/背中/脚の筋腹と谷を立体化し、着色OFFでも各筋がくっきり見える自然な陰影を付与。握り・骨格・全28種目を保持。",
-        review: "【LGTM / DONE 再受入完了】全63スイート/772テスト・型検査・リリース監査全合格。v9曲面メッシュ24,000頂点・全身筋腹と谷の解剖学的再造形・着色OFF立体陰影・手3,094頂点握り/骨格/全28種目完全維持の実動検証完了。52/54完了（96%）。"
+        id: "TASK-053", title: "ユーザー再修正：写真に合わせた胸筋の輪郭",
+        category: "Photo Pectoral Shape", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "v10胸筋：鎖骨下の広がり・中央の溝・丸い下縁・脇への移行を再造形。胸骨/他部位/全X・Y/骨格/握り/衣服接点を保持。",
+        review: "【IN REVIEW / 写真再提示による再修正】v10胸筋、全64スイート777テスト・型/監査・両OSローカルバンドル・日英192表示合格。旧LGTMは履歴保全。写真と着色OFF・多方向・動作中の模型で形状を再判定。テストだけで合格にしない。"
       }
 
       ,{

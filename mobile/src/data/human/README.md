@@ -243,3 +243,27 @@ not on automated tests or identification colours alone.
 The refined neutral view uses softer cavity shading, a low frontal bounce light
 and a skin roughness of 0.54. Inspection mode fades equipment further so pads
 do not obscure muscle contours. The existing dual-quaternion skinning and its animation clock are retained.
+
+
+## Photo-reference pectoral fan (v10; further user correction to TASK-053)
+
+`photo-pectoral-fan-v10` replaces the stacked chest relief with a continuous
+anterior fan over an oval ribcage. The supplied 2026-11-18 front photograph guides
+the broad clavicular slope, narrow sternal separation, rounded lower belly and
+rising axillary end. The crown lies lower at mid-width than at either end.
+The source sternum stays fixed. Depth alone changes in the anterior chest and
+its subpectoral transition; every X/Y coordinate, topology, authored weight,
+bone, grip and garment binding is retained byte-for-byte from v9. Model counts
+remain 24,000 vertices / 47,910 triangles in one mesh, using the same 23 CC0 inputs.
+
+`shape_pectoral_fan` runs after garment bindings so the chest change cannot alter
+a distant garment neighbour chosen from equal-distance candidates. Four pairs
+of local, depth-only fairing smooth the patch edge without moving attachments.
+The surface and chest masks use the same `pectoral_borders` silhouette. Chest,
+upper-chest and the three neighbouring arm/shoulder learning masks are refreshed;
+other masks remain unchanged. Normal/AO data are regenerated, with existing
+lighting, material, animation deformation and pectoral fibre cues retained.
+
+This is a shape correction to the training mannequin, not a photographic scan.
+Visual acceptance must compare the actual uncoloured model with the supplied
+reference in front, oblique, side and moving poses. Tests do not grant visual LGTM.

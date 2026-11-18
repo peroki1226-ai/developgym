@@ -324,7 +324,7 @@ export function createRealisticHuman(parent: THREE.Group) {
     shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 50.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.10;" + DEFINITION_FRAGMENT);
     shader.fragmentShader = shader.fragmentShader.replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = vSurfaceKind > 1.5 ? 0.28 : vSurfaceKind > 0.5 ? 0.95 : roughnessFactor;");
   };
-  material.customProgramCacheKey = () => "makehuman-anatomical-surface-v9";
+  material.customProgramCacheKey = () => "makehuman-photo-pectoral-fan-v10";
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "human-surface";
   mesh.castShadow = mesh.receiveShadow = true;

@@ -5,7 +5,7 @@ import argparse, base64, hashlib, json, subprocess
 from pathlib import Path
 import numpy as np
 from human_pectoral_masks import pectoral_masks
-from human_anatomy_surface import refine_surface, sculpt_anatomy, fair_surface, shape_pectoral_fan, smooth_lower_pectoral
+from human_anatomy_surface import refine_surface, sculpt_anatomy, fair_surface, shape_pectoral_fan, smooth_lower_pectoral, bridge_subpectoral_wall
 
 PIN = 'a8bc2d54ff0ac92e78ff71431b1023eda42bf482'
 p = argparse.ArgumentParser()
@@ -342,6 +342,7 @@ cavity=np.maximum(0,np.sum((neighbours-positions)*normal,axis=1)/local_size)
 occlusion=np.round((1-.16*np.clip(cavity*3.0,0,1)) * 255).astype(np.uint8)
 occlusion[materials!=0]=255
 positions,normal,occlusion=smooth_lower_pectoral(positions,normal,occlusion,triangles,materials,rest)
+positions,normal,occlusion=bridge_subpectoral_wall(positions,normal,occlusion,triangles,materials,rest)
 order=np.argsort(ww,axis=1)[:,-4:]; small=np.take_along_axis(ww,order,axis=1)
 small/=np.maximum(small.sum(axis=1)[:,None],1e-9)
 missing=small.sum(axis=1)<.1; order[missing]=bones.index('hip'); small[missing]=[1,0,0,0]
@@ -385,7 +386,7 @@ for side in ['R','L']:
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'photo-pectoral-lower-smooth-v11','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'photo-subpectoral-bridge-v12','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 out['surfaceRefinement']={'baseVertexCount':base_vertex_count,'addedVertices':n-base_vertex_count,'method':'conforming-point-normal-edges','maxVertexCount':24000}
 out['garmentRevision']='short-training-hems-v2'
 out['garmentBindings']=garment_bindings

@@ -1,5 +1,5 @@
 import { chestContractionEmphasis } from "../domain/chestLessons";
-import { humanDefinition, CHEST_REGION_COLOURS, DEFINITION_FRAGMENT } from "./humanDefinition";
+import { humanDefinition, lowerPectoralContractionScale, CHEST_REGION_COLOURS, DEFINITION_FRAGMENT } from "./humanDefinition";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
 import { HandGripSurface } from "./handGrip";
@@ -302,6 +302,7 @@ export type HumanMuscleState = {
   colouredVertices: number;
 };
 export function createRealisticHuman(parent: THREE.Group) {
+  const lowerContractionScale = lowerPectoralContractionScale(base,clothes);
   const geometry = new THREE.BufferGeometry();
   geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   const positions = new Float32Array(base.length),
@@ -324,7 +325,7 @@ export function createRealisticHuman(parent: THREE.Group) {
     shader.fragmentShader = shader.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nfloat fibre = 0.5 + 0.5 * sin(vFibre.y * 50.0 + sin(vFibre.x * 12.0) * 0.2); diffuseColor.rgb *= 1.0 - vTint * fibre * 0.10;" + DEFINITION_FRAGMENT);
     shader.fragmentShader = shader.fragmentShader.replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = vSurfaceKind > 1.5 ? 0.28 : vSurfaceKind > 0.5 ? 0.95 : roughnessFactor;");
   };
-  material.customProgramCacheKey = () => "makehuman-photo-pectoral-lower-smooth-v11";
+  material.customProgramCacheKey = () => "makehuman-photo-subpectoral-bridge-v12";
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = "human-surface";
   mesh.castShadow = mesh.receiveShadow = true;
@@ -426,8 +427,9 @@ export function createRealisticHuman(parent: THREE.Group) {
         const pectoral = ["chest", "upperChest"].includes(muscleNames[m]);
         // Make the belly change readable at phone scale while keeping sternum,
         // tendon ends, skeleton and hand contact targets anchored.
-        const bulge = (Math.sqrt(1 / (1 - amount)) - 1) * (pectoral ? 2.2 * chestContractionEmphasis(frame.type) : .9) * strength[i] * window;
-        const axial = (0.5 - sourceT[i]) * amount * .35 * (pectoral ? chestContractionEmphasis(frame.type) : 1) * strength[i] * window;
+        const attachment = pectoral ? lowerContractionScale[i] : 1;
+        const bulge = (Math.sqrt(1 / (1 - amount)) - 1) * (pectoral ? 2.2 * chestContractionEmphasis(frame.type) : .9) * strength[i] * window * attachment;
+        const axial = (0.5 - sourceT[i]) * amount * .35 * (pectoral ? chestContractionEmphasis(frame.type) : 1) * strength[i] * window * attachment;
         sourcePoint.set(base[k] + normals[k] * bulge + axes[k] * axial, base[k + 1] + normals[k + 1] * bulge + axes[k + 1] * axial, base[k + 2] + normals[k + 2] * bulge + axes[k + 2] * axial);
         sourceNormal.set(normals[k], normals[k + 1], normals[k + 2]);
         const side = handSide[i], grip = side < 0 ? undefined : handGrips[side];

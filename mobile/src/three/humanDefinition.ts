@@ -9,6 +9,22 @@ export function chestDivisionHeight(x: number) {
   const lateral = Math.min(1, Math.abs(x / asset.rest["upperarm.L"].head[0]));
   return collar - torso * (.115 - .025 * lateral);
 }
+/** Keep the lower attachment from ballooning away from the thoracic wall.
+ * The middle/upper fan retains its accepted contraction, including emphasis.
+ * This is a display deformation scale, never an activation or force estimate.
+ */
+export function lowerPectoralContractionScale(positions: Float32Array, materials: Uint8Array) {
+  const result = new Float32Array(materials.length).fill(1);
+  const collar = asset.rest["clavicle.L"].head[1], shoulder = Math.abs(asset.rest["upperarm.L"].head[0]);
+  for (let i=0;i<result.length;i++) {
+    if (materials[i]!==0) continue;
+    const x=Math.abs(positions[i*3]), u=Math.min(1,x/shoulder);
+    const bottom=collar-1.14-.34*Math.sin(Math.PI*u)+.50*u*u+.16*Math.exp(-((x/.32)**2));
+    const top=collar-.055-.18*u, t=(positions[i*3+1]-bottom)/Math.max(top-bottom,.25);
+    result[i]=.15+.85*THREE.MathUtils.smoothstep(t,0,1/3);
+  }
+  return result;
+}
 /** Rest-surface fields interpolate with the same mesh as the moving skin.
  * x: signed clavicular/sternocostal distance; y: anterior chest coverage;
  * z: soft boundary of the other regional learning masks. No screen-space lines.

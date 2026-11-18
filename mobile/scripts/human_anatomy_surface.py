@@ -265,8 +265,16 @@ def smooth_lower_pectoral(positions, normal, occlusion, triangles, materials, re
     influence = smooth((.30-t)/.12)*smooth((t+.25)/.18)
     influence *= smooth((x-.04)/.24)*smooth((shoulder*.99-x)/.24)
     influence *= smooth((z-.45)/.45)*smooth((y-4.18)/.10)*(materials==0)
+    return _fit_skin_patch(positions,normal,occlusion,triangles,materials,rest,influence)
+
+
+def _fit_skin_patch(positions, normal, occlusion, triangles, materials, rest, influence,
+                    min_y=3.95, adjust_depth=True, normal_passes=0):
+    x,y,z = np.abs(positions[:,0]),positions[:,1],positions[:,2]
+    shoulder = abs(rest['upperarm.L']['head'][0])
     changed = np.flatnonzero(influence>0)
-    support = np.flatnonzero((materials==0)&(z>.40)&(x<shoulder*1.08)&(y>3.95)&(y<6.1))
+    front = (z>.40) if adjust_depth else (normal[:,2]>0)
+    support = np.flatnonzero((materials==0)&front&(x<shoulder*1.08)&(y>min_y)&(y<6.1))
     original = positions.copy()
     fitted_normal = normal.copy()
     radius = .36
@@ -284,7 +292,8 @@ def smooth_lower_pectoral(positions, normal, occlusion, triangles, materials, re
         coefficients = np.linalg.lstsq(design,values,rcond=1e-6)[0]
         amount = influence[vertex]*.85
         correction = np.clip(coefficients[0]-original[vertex,2],-.06,.06)
-        positions[vertex,2] += amount*correction
+        if adjust_depth:
+            positions[vertex,2] += amount*correction
         direction = np.array([-coefficients[1]/radius,-coefficients[2]/radius,1.])
         direction /= np.linalg.norm(direction)
         fitted_normal[vertex] = normal[vertex]*(1-amount)+direction*amount
@@ -293,6 +302,14 @@ def smooth_lower_pectoral(positions, normal, occlusion, triangles, materials, re
     edges = np.concatenate([triangles[:,[0,1]],triangles[:,[1,2]],triangles[:,[2,0]]])
     edges = np.concatenate([edges,edges[:,::-1]])
     count = np.maximum(np.bincount(edges[:,0],minlength=len(positions)),1)
+    for _ in range(normal_passes):
+        neighbors = np.zeros_like(fitted_normal)
+        np.add.at(neighbors,edges[:,0],fitted_normal[edges[:,1]])
+        neighbors /= count[:,None]
+        neighbors /= np.maximum(np.linalg.norm(neighbors,axis=1)[:,None],1e-9)
+        amount = .55*influence[changed,None]
+        blend = fitted_normal[changed]*(1-amount)+neighbors[changed]*amount
+        fitted_normal[changed] = blend/np.maximum(np.linalg.norm(blend,axis=1)[:,None],1e-9)
     mean = np.zeros_like(positions)
     np.add.at(mean,edges[:,0],positions[edges[:,1]])
     mean /= count[:,None]
@@ -302,3 +319,52 @@ def smooth_lower_pectoral(positions, normal, occlusion, triangles, materials, re
     shade = (1-.16*np.clip(cavity*3,0,1))*255
     result_ao = np.round(occlusion*(1-influence)+shade*influence).astype(np.uint8)
     return positions, fitted_normal, result_ao
+
+
+def bridge_subpectoral_wall(positions, normal, occlusion, triangles, materials, rest):
+    """Fill the hollow below the coloured chest into a continuous torso wall.
+
+    Boundary depths come from the existing chest and upper abdomen. A monotone,
+    outward curve between them removes the undercut; it never excavates skin.
+    The approved upper/middle pectoral surface remains fixed.
+    """
+    p = positions.copy()
+    x,y = p[:,0],p[:,1]
+    shoulder = abs(rest['upperarm.L']['head'][0])
+    smooth = lambda v: np.clip(v,0,1)**2*(3-2*np.clip(v,0,1))
+    grid = np.linspace(-shoulder*1.03,shoulder*1.03,161)
+    bottom,top,_ = pectoral_borders(grid,rest)
+    upper_y = bottom+.20*(top-bottom)*smooth(np.abs(grid)/.30)
+    lower_y = 3.90-.18*(grid/shoulder)**2
+    # Intersect the anterior skin, including the lateral wall where Z is small.
+    valid = np.all((materials[triangles]==0)&(p[triangles,1]>3.0)&(p[triangles,1]<6.2),axis=1)
+    a,b,c = [p[triangles[valid,k]] for k in range(3)]
+    determinant = (b[:,1]-c[:,1])*(a[:,0]-c[:,0])+(c[:,0]-b[:,0])*(a[:,1]-c[:,1])
+    usable = np.abs(determinant)>1e-10
+    denominator = np.where(usable,determinant,1)
+    def depth(px,py):
+        u = ((b[:,1]-c[:,1])*(px-c[:,0])+(c[:,0]-b[:,0])*(py-c[:,1]))/denominator
+        v = ((c[:,1]-a[:,1])*(px-c[:,0])+(a[:,0]-c[:,0])*(py-c[:,1]))/denominator
+        hit = usable&(u>=-1e-6)&(v>=-1e-6)&(1-u-v>=-1e-6)
+        return np.max((u*a[:,2]+v*b[:,2]+(1-u-v)*c[:,2])[hit]) if hit.any() else np.nan
+    def boundary(heights):
+        values = np.array([depth(px,py) for px,py in zip(grid,heights)])
+        finite = np.isfinite(values)
+        values = np.interp(grid,grid[finite],values[finite])
+        # Remove triangle-scale variation from the control curve only.
+        padded = np.pad(values,(2,2),mode='edge')
+        return np.convolve(padded,np.array([1,4,6,4,1])/16,mode='valid')
+    lower_z,upper_z = boundary(lower_y),boundary(upper_y)
+    y0 = np.interp(x,grid,lower_y); y1 = np.interp(x,grid,upper_y)
+    z0 = np.interp(x,grid,lower_z); z1 = np.interp(x,grid,upper_z)
+    t = np.clip((y-y0)/np.maximum(y1-y0,.3),0,1)
+    roundness = .40+.60*smooth(np.abs(x)/(shoulder*.80))
+    outward = t+roundness*t*(1-t)
+    target = z0+(z1-z0)*outward
+    influence = smooth((y-y0)/.28)*smooth((y1-y)/.20)
+    influence *= smooth((shoulder*1.02-np.abs(x))/.24)
+    influence *= smooth(normal[:,2]/.20)*(materials==0)
+    lift = np.clip(target-p[:,2],0,.65)
+    positions[:,2] += lift*influence
+    return _fit_skin_patch(positions,normal,occlusion,triangles,materials,rest,influence,
+                           min_y=3.1,adjust_depth=False,normal_passes=3)

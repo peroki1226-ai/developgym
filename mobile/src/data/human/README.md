@@ -287,3 +287,37 @@ sample. This is a rendering continuity metric, not an anatomical or force
 measurement and not a substitute for visual acceptance. Vertex/triangle counts,
 lighting, materials, active contraction, frame cost and storage schemas remain
 unchanged. The generator performs the fit offline with NumPy only.
+
+
+## Subpectoral torso bridge (v12; user correction below the coloured chest)
+
+`photo-subpectoral-bridge-v12` repairs the broad hollow between the pectoral
+fan and upper abdomen that rim-only smoothing left behind. Boundary heights are
+sampled from the existing skin at the lower chest and upper abdominal wall.
+An outward, monotone interpolation fills the depression with a feathered join;
+it never lowers a source vertex. The lower boundary follows the upper abdominal
+curve so the remaining abdominal definition is retained. The source is not
+recoloured or relit to conceal the hollow.
+
+Only anterior depth below the lower fifth of the fan changes. All X/Y, topology,
+weights, bones, grips and garment bindings remain fixed. Upper/middle pectoral
+positions, normals and AO are unchanged; 22,798 protected vertices keep the same
+position/normal/AO bytes as v11. The modified region now includes the upper
+abdominal transition, which was outside the previous narrow-rim correction.
+Normal fields use the same local quadratic fit, with three normal-fairing passes
+for the bridge; both fitting and shading updates run offline. The original v11
+rim fit uses its original support and depth behaviour.
+
+Geometry regressions bound the undercut below the coloured chest and prevent
+an artificial central pit. Runtime deformation also feathers the lower attachment:
+its chest-only contraction scale rises smoothly from 0.15 at the lower boundary
+to 1 at one third of fan height. Upper/middle contraction remains exactly unchanged;
+other muscles retain their existing deformation. A single precomputed CPU array
+supplies two scalar weights in the existing deformation loop, with no additional
+frame loop, clock, scene node or storage schema.
+
+Posed regressions cover press, fly and dip at start, midpoint and end, plus exact
+upper/middle deformation preservation. Review must inspect target colouring on
+and off in the actual app through the movement. Lighting, materials and model
+vertex/triangle counts are unchanged. A reference photograph cannot serve as a
+clinical model or a measured activation/force map.

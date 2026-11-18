@@ -164,7 +164,7 @@
     <p class="text-xs text-neutral-400 px-1">TASK-046：本格モードで全28種目の効かせ方・追い込み方と低速の模型確認。<a class="underline" href="docs/ADVANCED_TRAINING.md">内容と確認手順</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-052：大会級の筋量と自然な部位の分離が見える人体模型。<a class="underline" href="docs/BODYBUILDER_ANATOMY.md">造形・保持項目と確認手順</a></p>
-    <p class="text-xs text-neutral-400 px-1">TASK-053：上部・中部はユーザー評価を保ち、下部の凸凹だけを修正。<a class="underline" href="docs/PECTORAL_LOWER_SMOOTHING.md">下縁の比較と確認手順</a></p>
+    <p class="text-xs text-neutral-400 px-1">TASK-053：赤い胸筋直下の大きなくぼみを埋め、動作時の下端の浮きも調整。上部・中部は保持。<a class="underline" href="docs/SUBPECTORAL_TRANSITION.md">胸郭への移行・実アプリ比較</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-051：本格専用の負荷位置・追い込み支援とメイン/ドロップ記録。<a class="underline" href="docs/ADVANCED_WORKOUT.md">記録・指標と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-050：本格モードの筋収縮・伸長解説を非表示。<a class="underline" href="docs/PRO_MODE_SIMPLIFICATION.md">表示変更と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-049：胸8種目の座面高とインクライン角度による狙い。<a class="underline" href="docs/CHEST_PRESS_SEAT_GUIDE.md">比較図・説明と確認手順</a></p>
@@ -751,10 +751,10 @@
       }
 
       ,{
-        id: "TASK-053", title: "ユーザー指定：胸上部・中部を保ち下部の凸凹を滑らかに",
-        category: "Muscle Region Definition", assignee: "Codex", status: "DONE", rating: "LGTM",
-        desc: "胸上部・中部の23,488頂点を完全保全し、下縁と肋骨移行部のみを二次曲面で平滑化。下部の凸凹や法線のブレを解消し、骨格・握り・全28種目を保持。",
-        review: "【LGTM / DONE v11受入完了】全64スイート/779テスト・型検査・リリース監査全合格。胸上部/中部完全保全・下縁二次曲面平滑化・手3,094頂点握り/骨格/全28種目完全維持の実動検証完了。52/54完了（96%）。"
+        id: "TASK-053", title: "ユーザー指定：赤い胸筋の下のくぼみを自然な胸郭へ修正",
+        category: "Muscle Region Definition", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "v12：胸筋下部から上腹部への広いくぼみを外向き曲面で埋め、収縮時の下端の浮きを軽減。上部・中部の形・法線・AO・変形と骨格/握りを保持。",
+        review: "最新ユーザー指示で再開。v11の旧LGTMはDEV_STATE履歴に保全。全64スイート783件・型/監査/両OSバンドル合格。正規アプリ日英192表示・前後各75状態、エラー0。見た目の再受入までDONEにしない。51/54完了（94%）。"
       }
 
       ,{

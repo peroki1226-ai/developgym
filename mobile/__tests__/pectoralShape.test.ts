@@ -1,3 +1,4 @@
+import { outsideArmBack } from "../test-utils/armBackBaseline";
 import asset from "../src/data/human/makehuman.json";
 import * as THREE from "three";
 import { createRealisticHuman } from "../src/three/realisticHuman";
@@ -14,15 +15,15 @@ function chestFraction(v:number){
 }
 function protectedSurface(v:number){
  const x=Math.abs(p[v*3]),y=p[v*3+1];
- return m[v]!==0||chestFraction(v)>=1/3||x>=2.06||y<=3.8||y>=6||n[v*3+2]<=0||(x<=.04&&y>=4.95);
+ return outsideArmBack(v)&&(m[v]!==0||chestFraction(v)>=1/3||x>=2.06||y<=3.8||y>=6||n[v*3+2]<=0||(x<=.04&&y>=4.95));
 }
 
-test("the approved upper/middle chest and body outside the subpectoral correction retain surface, normals and shading",()=>{
+test("the approved upper/middle chest and body outside the subpectoral and arm/back corrections retain surface, normals and shading",()=>{
  const h=createHash("sha256"),protectedVertices:number[]=[];
  for(let v=0;v<asset.vertexCount;v++)if(protectedSurface(v))protectedVertices.push(v);
  for(const [data,stride]of [[raw,12],[normalBytes,12],[ao,1]] as const)for(const v of protectedVertices)h.update(data.subarray(v*stride,(v+1)*stride));
- expect(protectedVertices.length).toBe(22798);
- expect(h.digest("hex")).toBe("ef318d7002ac9ba1e6b5704efb4242372c04572b244b4cf5caaa0c131a708c1b");
+ expect(protectedVertices.length).toBe(17731);
+ expect(h.digest("hex")).toBe("04d51b08d7f6a99a7b37e335d677f163ccfbc4ed395c81ac66870a2f5edddf79");
 });
 
 test("the lower rim normal field is smooth without changing the broad rounded chest contour",()=>{
@@ -51,8 +52,8 @@ test("the chest-only correction preserves all topology, authored weights, bones,
  for(const k of ["indices","materials","skinIndices","skinWeights"] as const)h.update(asset[k]);
  for(const k of ["bones","rest","grips","garmentBindings"] as const)h.update(JSON.stringify(asset[k]));
  expect(h.digest("hex")).toBe("8989ea6626484c300efd901c41ce43338d2903731c1b77398774ce19a612d57b");
- const xy=createHash("sha256");for(let v=0;v<asset.vertexCount;v++)xy.update(raw.subarray(v*12,v*12+8));
- expect(xy.digest("hex")).toBe("a0f13c3a43b789a007a75cb6c5ee0cea634463bd7e1536d6e4a36f8f04b03e74");
+ const xy=createHash("sha256");for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v))xy.update(raw.subarray(v*12,v*12+8));
+ expect(xy.digest("hex")).toBe("d612117a8f465695ecde4f0e182f7f88771bfedf97604773886c089b842d1282");
 });
 
 test("the upper sternal cleft and geometry outside the subpectoral bridge remain unchanged",()=>{
@@ -60,7 +61,7 @@ test("the upper sternal cleft and geometry outside the subpectoral bridge remain
  for(let v=0;v<asset.vertexCount;v++){
   if(protectedSurface(v))h.update(raw.subarray(v*12,v*12+12));
  }
- expect(h.digest("hex")).toBe("9fd7b4e53ac6e20c1f210467110dcec1fa7176a07ee9cedd40e93e71237801a9");
+ expect(h.digest("hex")).toBe("3f0b38184aab19a21d7217556bd4c94492f5da2cd55adf01c7a59c080e7ae87e");
 });
 
 // Intersect actual skin triangles, rather than testing the sculpt's formula,

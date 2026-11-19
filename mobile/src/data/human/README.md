@@ -321,3 +321,26 @@ upper/middle deformation preservation. Review must inspect target colouring on
 and off in the actual app through the movement. Lighting, materials and model
 vertex/triangle counts are unchanged. A reference photograph cannot serve as a
 clinical model or a measured activation/force map.
+
+## Natural arm/back surface (v13; TASK-058)
+
+`photo-natural-arm-back-v13` removes small knotted ridges in the upper arms,
+forearms and posterior torso while retaining broad deltoid, biceps, triceps,
+scapular and latissimus volumes. `human_arm_back_surface.py` runs after the
+accepted v12 sculpt/masks: three local quadratic-fit passes, feathered by skin
+weights and surface orientation, followed by bounded normal/AO fairing. A local
+face-orientation backtrack prevents inverted scapular triangles. A shared elbow
+window also protects joint geometry where upper-arm/forearm weights overlap;
+the accepted elbow taper remains unchanged. This is an
+offline asset change, with no extra runtime meshes, textures or frame loops.
+
+18,901 vertices outside the authorised region keep their v12 position, normal
+and AO bytes. All topology, bones, skin weights, grip references, muscle masks,
+garment bindings, chest shape and movement paths remain unchanged. Frozen v12
+indices/positions in the test fixture define this authorised edit independently
+of the replacement asset. Older whole-body hash assertions now scope to those
+protected vertices; expected values were calculated from accepted commit
+`759003b`, not from the new surface. Numerical tests also retain broad extents,
+limit displacement and check triangle orientation and neighbouring-normal
+variation. These checks support, rather than replace, front/side/rear visual
+review in the actual app with target colouring both on and off.

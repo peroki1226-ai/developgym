@@ -1,3 +1,4 @@
+import { outsideArmBack } from "../test-utils/armBackBaseline";
 import * as THREE from "three";
 const { createHash } = require("node:crypto");
 import asset from "../src/data/human/makehuman.json";
@@ -9,13 +10,13 @@ import { trainingFrame3d } from "../src/domain/training3d";
 const bytes=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const base=new Float32Array(bytes(asset.positions).buffer),m=bytes(asset.materials);
 
-test("the balanced body profile is reproducible and garment rings keep level edges",()=>{
+test("the body outside the authorised arm/back refinement is reproducible and garment rings keep level edges",()=>{
  const h=createHash("sha256");
  for(const [key,size] of [["positions",3],["normals",3],["skinIndices",4],["skinWeights",4]] as const){
   const b=bytes(asset[key]),n=key==="skinIndices"?1:4;
-  for(let i=0;i<m.length;i++)if(m[i]!==1)h.update(b.slice(i*size*n,(i+1)*size*n));
+  for(let i=0;i<m.length;i++)if(m[i]!==1&&outsideArmBack(i))h.update(b.slice(i*size*n,(i+1)*size*n));
  }
- expect(h.digest("hex")).toBe("b97be0796207437d5d1ea7bfb2524a0fbf0c9c7269959dd8fbcba740bbb0b2cd");
+ expect(h.digest("hex")).toBe("f6605beef5664c5f4a866bc32949a980b1c660ea11291d086177a2ed5a077824");
  expect(asset.garmentRevision).toBe("short-training-hems-v2");
  const edges=new Map<string,number>(),indices=new Uint16Array(bytes(asset.indices).buffer);
  for(let i=0;i<indices.length;i+=3){const tri=Array.from(indices.slice(i,i+3));if(!tri.every(i=>m[i]===1))continue;for(let j=0;j<3;j++){const key=[tri[j],tri[(j+1)%3]].sort((a,b)=>a-b).join("/");edges.set(key,(edges.get(key)??0)+1);}}

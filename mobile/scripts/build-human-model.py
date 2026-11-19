@@ -5,6 +5,7 @@ import argparse, base64, hashlib, json, subprocess
 from pathlib import Path
 import numpy as np
 from human_pectoral_masks import pectoral_masks
+from human_arm_back_surface import naturalise_arm_back
 from human_anatomy_surface import refine_surface, sculpt_anatomy, fair_surface, shape_pectoral_fan, smooth_lower_pectoral, bridge_subpectoral_wall
 
 PIN = 'a8bc2d54ff0ac92e78ff71431b1023eda42bf482'
@@ -383,10 +384,13 @@ for side in ['R','L']:
                 visible = np.maximum(facing, surface_front*soft(-sign*radial[:,0]-.05,.35)*.65) if muscle=='adductors' else facing
                 mask=region_weight*band(t,-.05,.8,.15)*visible
                 masks[muscle]=np.maximum(masks.get(muscle,np.zeros(n,dtype=np.uint8)),np.round(mask*base*255).astype(np.uint8))
+# Finish arm/back skin after the established masks/garment bindings are built.
+# The anatomical labels follow the same topology; do not reassign other regions.
+positions,normal,occlusion=naturalise_arm_back(positions,normal,occlusion,triangles,materials,order,small,bones,rest)
 # Compact binary fields are decoded without platform-specific loaders or network requests.
 def pack(v,dtype):return base64.b64encode(np.asarray(v,dtype=dtype).tobytes()).decode()
 subprocess.check_call(['git','-C',str(a.source_root),'diff','--quiet','HEAD','--',*['makehuman/data/'+f['file'] for f in used]])
-out={'version':1,'profile':'photo-subpectoral-bridge-v12','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
+out={'version':1,'profile':'photo-natural-arm-back-v13','source':{'project':'MakeHuman','commit':PIN,'license':'CC0-1.0','copyright':weights['copyright'],'files':used},'bones':bones,'rest':rest,'grips':grips,'vertexCount':n,'positions':pack(positions,'<f4'),'normals':pack(normal,'<f4'),'indices':pack(indices,'<u2'),'skinIndices':pack(order,'u1'),'skinWeights':pack(small,'<f4'),'materials':pack(materials,'u1'),'surfaceOcclusion':pack(occlusion,'u1'),'muscleMasks':{k:pack(v,'u1') for k,v in masks.items()}}
 out['surfaceRefinement']={'baseVertexCount':base_vertex_count,'addedVertices':n-base_vertex_count,'method':'conforming-point-normal-edges','maxVertexCount':24000}
 out['garmentRevision']='short-training-hems-v2'
 out['garmentBindings']=garment_bindings

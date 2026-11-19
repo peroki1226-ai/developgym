@@ -1,3 +1,4 @@
+import { outsideArmBack } from "../test-utils/armBackBaseline";
 import { surfaceAreas } from "../test-utils/surfaceAreas";
 import * as THREE from "three";
 const { createHash } = require("node:crypto");
@@ -40,10 +41,13 @@ test("the clavicular portion is above the whole-muscle centroid and stays inside
   expect(weightedHeight(masks.upperChest)).toBeGreaterThan(weightedHeight(masks.chest) + .2);
   masks.upperChest.forEach((value, i) => expect(value).toBeLessThanOrEqual(masks.chest[i]));
 });
-test("the mask-refresh baseline pins the intentionally resculpted muscular teaching adult surface and other regions", () => {
+test("the accepted v12 surface outside the authorised arms/back and all other muscle masks remain pinned", () => {
   const digest = createHash('sha256');
-  for (const field of ['positions', 'normals', 'indices', 'skinIndices', 'skinWeights', 'materials'] as const) digest.update(asset[field]);
-  expect(digest.digest('hex')).toBe('5c64a1e3dabff9e418f80478bbe41fb3af8fdb7c46f6031a31894ca7b80ee7c0');
+  for (const field of ['positions', 'normals'] as const) {
+    const raw=bytes(asset[field]);for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v))digest.update(raw.subarray(v*12,(v+1)*12));
+  }
+  for (const field of ['indices', 'skinIndices', 'skinWeights', 'materials'] as const) digest.update(asset[field]);
+  expect(digest.digest('hex')).toBe('f52a411f7710e4da1fcac6a881dab7166dc7752102018cf1b185c6eaab27aab7');
   const otherMasks = createHash('sha256');
   for (const key of Object.keys(asset.muscleMasks).filter(k => !['chest','upperChest'].includes(k)).sort()) otherMasks.update(key).update(asset.muscleMasks[key as keyof typeof asset.muscleMasks]);
   expect(otherMasks.digest('hex')).toBe('aa3e3690ab395b2e19c24048cbd231c2760a18b4b7ff640ea7ebf374abd5921d');

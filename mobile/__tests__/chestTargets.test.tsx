@@ -25,13 +25,13 @@ test("three smooth bilateral rest-surface regions form a partition on skin witho
   expect(w.reduce((a,b)=>a+b,0)).toBeCloseTo(materials[i]===0?1:0,6);
  }
 });
-test("the colour-only feature preserves v12 positions, normals, grips and all nine exercise poses exactly",()=>{
+test("the colour-only feature preserves v12 positions, normals and grips outside the user-requested dip revision",()=>{
  const h=createRealisticHuman(new THREE.Group()),digest=createHash('sha256');
- try{for(const l of CHEST_LESSONS)for(const p of [0,.5,1]){
+ try{for(const l of CHEST_LESSONS.filter(l=>l.id!=="chest-dip"))for(const p of [0,.5,1]){
   h.draw(trainingFrame3d(l.id,p),true);for(const key of ['position','normal'])digest.update(new Uint8Array(h.mesh.geometry.attributes[key].array.buffer));
   for(const g of h.mesh.userData.handContacts)expect(g.error).toBeLessThan(1e-6);
  }}finally{h.dispose();}
- expect(digest.digest('hex')).toBe('0a1dca671a4b51d209d933ac852b1c6e24d74a5163732262ebfa8caa814a9b14');
+ expect(digest.digest('hex')).toBe('c26549bd14e2a91823209888fa2076819f8e6e74f12fd90a07b1e4496656aa49');
 });
 test.each(CHEST_LESSONS)("$id: actual vertex colours emphasize the intended region throughout motion, without a stale palette after switching",lesson=>{
  const h=createRealisticHuman(new THREE.Group());

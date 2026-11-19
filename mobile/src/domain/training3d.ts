@@ -253,7 +253,13 @@ function addedChestBody(base: Body3,type: string,p: number): Body3 {
   const legs=[-1,1].map(side=>solveBone3(add3(hip,[side*5.2,0,0]),[side*8,2,cable?(side===-1?12:-7):19],20,21,[0,.3,1]));
   return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,right:[1,0,0],forward};
 }
-export const DIP_FINISH = Object.freeze({ bottomY:43, topY:57.8, maxUpperBackDegrees:8 });
+/** Entry side is positive Z, beside the existing access step. */
+export const DIP_SETUP = Object.freeze({ gripHalfWidth:13, gripY:50, gripZ:15, hipZ:3, barFrontZ:20, barRearZ:-26, frontSupportZ:-14, ankleCrossX:2.2, ankleDepthStagger:3.2 });
+export const DIP_FINISH = Object.freeze({ bottomY:43, topY:57.8, maxUpperBackDegrees:12, openChestDegrees:4 });
+export function dipOpenAmount(value: number) {
+  const t=clampProgress(clampProgress(value)/.55);
+  return 1-t*t*(3-2*t);
+}
 export function dipFinishAmount(value: number) {
   const t=clampProgress((clampProgress(value)-.65)/.35);
   return t*t*(3-2*t);
@@ -263,9 +269,9 @@ function chestLessonBody(base: Body3, type: string, p: number): Body3 {
   const dip = type === "chest-dip", dumbbell = type === "dumbbell-heavy";
   const angle = (dip ? 75 : dumbbell ? 30 : 70) * Math.PI / 180;
   const up: V3 = [0, Math.sin(angle), (dip ? 1 : -1) * Math.cos(angle)];
-  const hip: V3 = dip ? [0, DIP_FINISH.bottomY + (DIP_FINISH.topY-DIP_FINISH.bottomY)*p, -4] : [0, dumbbell ? 24 : 30, 0];
+  const hip: V3 = dip ? [0, DIP_FINISH.bottomY + (DIP_FINISH.topY-DIP_FINISH.bottomY)*p, DIP_SETUP.hipZ] : [0, dumbbell ? 24 : 30, 0];
   const finish=dip?dipFinishAmount(p):0;
-  const upperAngle=angle-finish*DIP_FINISH.maxUpperBackDegrees*Math.PI/180;
+  const upperAngle=angle+(dip ? dipOpenAmount(p)*DIP_FINISH.openChestDegrees-finish*DIP_FINISH.maxUpperBackDegrees : 0)*Math.PI/180;
   const upperUp:V3=dip?[0,Math.sin(upperAngle),Math.cos(upperAngle)]:up;
   const middle=add3(hip,mul3(up,HUMAN_SEGMENTS.torso*.5));
   const shoulder=dip?add3(middle,mul3(upperUp,HUMAN_SEGMENTS.torso*.5)):add3(hip,mul3(up,HUMAN_SEGMENTS.torso));
@@ -277,14 +283,16 @@ function chestLessonBody(base: Body3, type: string, p: number): Body3 {
       const elbow = add3(root, mul3(direction, HUMAN_SEGMENTS.upperArm));
       return [root, elbow, add3(elbow, [0, HUMAN_SEGMENTS.forearmGrip, 0])] as Bone3;
     }
-    return solveBone3(root, dip ? [side * 13, 50, 8] : inclineHammerGrip(side, p),
+    return solveBone3(root, dip ? [side * DIP_SETUP.gripHalfWidth, DIP_SETUP.gripY, DIP_SETUP.gripZ] : inclineHammerGrip(side, p),
       HUMAN_SEGMENTS.upperArm, HUMAN_SEGMENTS.forearmGrip, dip ? [side * .4, 0, -1] : [side * .3, -1, 0]);
   });
   const legs = [-1, 1].map(side => {
     const root = add3(hip, [side * 5.2, 0, 0]);
     if (dip) {
-      const knee = add3(root, [0, -19, -Math.sqrt(39)]);
-      return [root, knee, add3(knee, [0, Math.sqrt(39), -Math.sqrt(402)])] as Bone3;
+      // Cross at the ankles, with depth/height separation instead of placing
+      // both shins and feet through the same plane. No leg swing through a rep.
+      const ankle=add3(hip,[-side*DIP_SETUP.ankleCrossX,-12.7+side,-27+side*DIP_SETUP.ankleDepthStagger]);
+      return solveBone3(root,ankle,HUMAN_SEGMENTS.thigh,HUMAN_SEGMENTS.shin,[side*.4,-1,.3]);
     }
     return solveBone3(root, [side * 8, 2, dumbbell ? 19 : 20], 20, 21, [0, .3, 1]);
   });
@@ -872,14 +880,14 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
     }
     case "chest-dip": {
       for (const side of [-1, 1]) {
-        const x = side * 13;
-        beam("dip-front-post" + side, [x, 2, 16], [x, 50, 16], 2.4);
-        beam("dip-back-post" + side, [x, 2, -10], [x, 50, -10], 2.4);
-        beam("dip-parallel-bar" + side, [x, 50, -10], [x, 50, 20], 1.05, "chrome");
-        handle("dip-grip" + side, [x, 50, 8], [0, 0, 1]);
-        beam("dip-diagonal" + side, [x, 3, -10], [x, 38, 16], 1.6);
+        const x = side * DIP_SETUP.gripHalfWidth;
+        beam("dip-front-post" + side, [x, 2, DIP_SETUP.frontSupportZ], [x, 50, DIP_SETUP.frontSupportZ], 2.4);
+        beam("dip-back-post" + side, [x, 2, DIP_SETUP.barRearZ], [x, 50, DIP_SETUP.barRearZ], 2.4);
+        beam("dip-parallel-bar" + side, [x, 50, DIP_SETUP.barRearZ], [x, 50, DIP_SETUP.barFrontZ], 1.05, "chrome");
+        handle("dip-grip" + side, [x, DIP_SETUP.gripY, DIP_SETUP.gripZ], [0, 0, 1]);
+        beam("dip-diagonal" + side, [x, 3, DIP_SETUP.barRearZ], [x, 38, DIP_SETUP.frontSupportZ], 1.6);
       }
-      floorFrame("dip-base", 4, 40, 44);
+      floorFrame("dip-base", -2, 40, 58);
       box("dip-entry-step", [0, 10, 23], [17, 3, 8], "rubber");
       break;
     }

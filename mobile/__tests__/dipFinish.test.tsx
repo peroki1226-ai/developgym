@@ -1,7 +1,7 @@
 import React from "react";
 import * as THREE from "three";
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { DIP_FINISH, dipFinishAmount, trainingFrame3d, sub3, length3, dot3, unit3, HUMAN_SEGMENTS } from "../src/domain/training3d";
+import { DIP_FINISH, dipFinishAmount, dipOpenAmount, trainingFrame3d, sub3, length3, dot3, unit3, HUMAN_SEGMENTS } from "../src/domain/training3d";
 import { createRealisticHuman } from "../src/three/realisticHuman";
 import { createPectoralFibres } from "../src/three/pectoralFibres";
 import { ExerciseDiagram } from "../src/components/ExerciseDiagram";
@@ -43,7 +43,7 @@ test("finishing motion smoothly bends only the upper spine, leaving the lower sp
     expect(lower).toEqual(reference[1].map((n, j) => expect.closeTo(n - reference[0][j], 7)));
     expect(length3(lower)).toBeCloseTo(13, 7); expect(length3(upper)).toBeCloseTo(13, 7);
     const degrees = Math.acos(Math.min(1, dot3(unit3(lower), unit3(upper)))) * 180 / Math.PI;
-    expect(degrees).toBeCloseTo(amount * DIP_FINISH.maxUpperBackDegrees, 5);
+    expect(degrees).toBeCloseTo(Math.abs(amount * DIP_FINISH.maxUpperBackDegrees-dipOpenAmount(i/100)*DIP_FINISH.openChestDegrees), 5);
   }
 });
 

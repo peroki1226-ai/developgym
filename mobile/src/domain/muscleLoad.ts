@@ -10,6 +10,7 @@ export const LOAD_SOURCES: Record<
   "incline-hammer-press": "gravity",
   "chest-press": "machine",
   "pec-fly": "machine",
+  "super-fly": "machine",
   "incline-smith": "gravity",
   "cable-machine": "cable",
   "lat-pulldown": "cable",

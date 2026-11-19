@@ -11,6 +11,7 @@ export const MUSCLE_SPECS: Record<MotionType, MuscleSpec> = {
   "incline-hammer-press": { primary: ["upperChest"], focus: "upperChest" },
   "chest-press": { primary: ["chest"], focus: "chest" },
   "pec-fly": { primary: ["chest"], focus: "chest" },
+  "super-fly": { primary: ["chest"], focus: "chest" },
   "incline-smith": { primary: ["upperChest"], focus: "upperChest" },
   "cable-machine": { primary: ["chest"], focus: "chest" },
   "lat-pulldown": { primary: ["lats"], focus: "lats" },

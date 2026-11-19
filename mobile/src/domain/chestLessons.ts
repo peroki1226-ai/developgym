@@ -6,6 +6,7 @@ export const CHEST_LESSONS: readonly ChestLesson[] = [
   { id: "dumbbell-heavy", prefix: "chest.db", emphasis: "upper" },
   { id: "chest-press", prefix: "chest.press", emphasis: "whole" },
   { id: "pec-fly", prefix: "chest.fly", emphasis: "whole" },
+  { id: "super-fly", prefix: "chest.superFly", emphasis: "whole" },
   { id: "chest-dip", prefix: "chest.dip", emphasis: "lower" },
   { id: "incline-hammer-press", prefix: "chest.hammer", emphasis: "upper" },
   { id: "incline-bench-press", prefix: "chest.inclineSmith", emphasis: "upper" },
@@ -18,7 +19,7 @@ export const chestLesson = (id: string) => CHEST_LESSONS.find(lesson => lesson.i
 // bench press is performed in a rack, but must open a press rather than squat.
 export const CHEST_MENU_GUIDES: Readonly<Record<string,string>> = {
   "m-bench":"barbell-bench-press", "m-incline-db":"dumbbell-heavy",
-  "m-pec-fly":"pec-fly", "m-cable-cross":"cable-machine",
+  "m-super-fly":"super-fly", "m-pec-fly":"pec-fly", "m-cable-cross":"cable-machine",
   "m-incline-bench":"incline-bench-press", "m-incline-smith":"incline-bench-press", "m-incline-hammer":"incline-hammer-press",
 };
 

@@ -8,7 +8,7 @@ export const PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [1, 0.5, 0.25];
 export const MOTION_FRAME_COUNT = 41;
 export const MOTION_CYCLE_MS = 5100;
 export const MOTION_TYPES = [
-  "chest-press", "pec-fly", "incline-smith", "cable-machine",
+  "chest-press", "pec-fly", "super-fly", "incline-smith", "cable-machine",
   "lat-pulldown", "seated-row", "shoulder-press", "dumbbell-heavy",
   "leg-press", "hack-squat", "power-rack", "abdominal-crunch",
   "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction",
@@ -55,6 +55,7 @@ export function inspectionFrame(value: number): { frame: MotionFrame; elapsed: n
 export const motionAction: Record<MotionType, string> = {
   "incline-bench-press":"motion.push", "barbell-bench-press":"motion.push",
   "chest-dip": "motion.push", "incline-hammer-press": "motion.push",
+  "super-fly": "motion.close",
   "chest-press": "motion.push", "pec-fly": "motion.close",
   "incline-smith": "motion.push", "cable-machine": "motion.close",
   "lat-pulldown": "motion.pull", "seated-row": "motion.pull",
@@ -107,6 +108,7 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
       arms = [solveLimb(shoulder, hand, 20, 19)];
       break;
     }
+    case "super-fly":
     case "pec-fly":
     case "cable-machine":
     case "rear-delt-fly": {

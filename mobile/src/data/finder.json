@@ -31,6 +31,12 @@
       "reqEquip": "pec-fly"
     },
     {
+      "id": "m-super-fly",
+      "name": "chest.superFly.name",
+      "part": "chest-mid",
+      "reqEquip": "super-fly"
+    },
+    {
       "id": "m-deadlift",
       "name": "Barbell Deadlift & Rack Pull",
       "part": "back-thick",
@@ -244,6 +250,12 @@
       "id": "incline-hammer-press",
       "name": "chest.inventory.hammer",
       "brand": "chest.inventory.unknownBrand",
+      "bodyPart": "chest"
+    },
+    {
+      "id": "super-fly",
+      "name": "chest.superFly.name",
+      "brand": "Hammer Strength",
       "bodyPart": "chest"
     }
   ],

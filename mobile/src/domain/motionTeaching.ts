@@ -14,6 +14,7 @@ export const MOTION_TEACHING: Record<MotionType, TeachingSpec> = {
     "returnCue": "上腕を後ろへ引きすぎず、グリップを胸の方向へゆっくり戻します。",
     "holdCue": "肘を伸ばしきらず、静かに切り返します。"
   },
+  "super-fly": { fixedLabel:"chest.superFly.fixed", movingLabel:"グリップの軌道", jointLabel:"肩から腕を開く動き", workCue:"chest.superFly.work", returnCue:"chest.superFly.return", holdCue:"chest.superFly.hold" },
   "pec-fly": {
     "fixedLabel": "安定させる肩の位置",
     "movingLabel": "グリップの軌道",

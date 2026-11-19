@@ -76,17 +76,17 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">95%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">51</span> / <span id="stat-total" class="text-neutral-500">54</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">52</span> / <span id="stat-total" class="text-neutral-500">55</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">胸下部 再レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">スーパーフライ レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">51 / 54 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">52 / 55 TASKS COMPLETED (95%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
       </div>
     </div>
 
@@ -170,6 +170,8 @@
     <p class="text-xs text-neutral-400 px-1">TASK-049：胸8種目の座面高とインクライン角度による狙い。<a class="underline" href="docs/CHEST_PRESS_SEAT_GUIDE.md">比較図・説明と確認手順</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-048：胸上部・腕・背中・広背筋の輪郭と厚み。<a class="underline" href="docs/MUSCLE_DEFINITION_REVIEW.md">変更点と実表示の比較</a></p>
     <p class="text-xs text-neutral-400 px-1">TASK-047：人体の質感と器具を握る手の密着を修正。<a class="underline" href="docs/BODY_BALANCE_REVIEW.md">全方向の体型再修正・確認手順</a></p>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-055：ハンマーストレングスの仰向けスーパーフライを胸コースへ追加。<a class="underline" href="docs/SUPER_FLY_GUIDE.md">動作・説明・実アプリ画像と確認手順</a></p>
 
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -762,6 +764,13 @@
         category: "Camera Zoom Range", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "縮小下限を100%から50%へ広げ、ボタン/ピンチ/描画の制限を統一。上限250%、初期115%、全体表示100%と焦点位置を維持。",
         review: "【LGTM / DONE 受入完了】カメラ関連7テスト・型検査・リリース監査全合格。縮小下限50%〜上限250%統一、ボタン/ピンチ両対応、初期115%/全体復帰100%/フォーム焦点維持の実動検証完了。52/54完了（96%）。"
+      }
+
+      ,{
+        id: "TASK-055", title: "ユーザー指定：スーパーフライを胸の種目へ追加",
+        category: "Chest Training", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "ハンマーストレングスの仰向けフライ。胸全体の狙い、水平ベンチ上の動作・握り、日英教材、記録、検索メニューへ統合。",
+        review: "全体65スイート803件を実行し、旧件数表示テスト1件の期待値更新後に該当4件再合格。型/監査/両OS・日英36表示成功。見た目の受入・実機反映は未実施。配布保留。"
       }
 
     ];

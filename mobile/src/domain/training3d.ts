@@ -220,7 +220,23 @@ export function freeBenchGrip(type: string, side: number, value: number): V3 {
   }
   return [side*20,root[1]+12+15.6*p,root[2]+9*(1-p)];
 }
+/** User-described supine machine fly. Fixed pad/feet and a constant elbow bend;
+ * this teaching mechanism is not manufacturer CAD or a verified model number. */
+export const SUPER_FLY = Object.freeze({ startDegrees: 97, endDegrees: 3, elbowBendDegrees: 30 });
+function superFlyBody(base: Body3, p: number): Body3 {
+  const hip:V3=[0,24,0], shoulder:V3=[0,24,-26], up:V3=[0,0,-1];
+  const arms=[-1,1].map(side=>{
+    const root=add3(shoulder,[side*9,.4,4.8]);
+    const angle=(SUPER_FLY.startDegrees+(SUPER_FLY.endDegrees-SUPER_FLY.startDegrees)*p)*Math.PI/180;
+    const direction=(a:number):V3=>[side*Math.sin(a),Math.cos(a),0];
+    const elbow=add3(root,mul3(direction(angle),HUMAN_SEGMENTS.upperArm));
+    return [root,elbow,add3(elbow,mul3(direction(angle-SUPER_FLY.elbowBendDegrees*Math.PI/180),HUMAN_SEGMENTS.forearmGrip))] as Bone3;
+  });
+  const legs=[-1,1].map(side=>solveBone3(add3(hip,[side*5.2,0,0]),[side*8,2,19],20,21,[0,.3,1]));
+  return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,right:[1,0,0],forward:[0,1,0]};
+}
 function addedChestBody(base: Body3,type: string,p: number): Body3 {
+  if(type === "super-fly") return superFlyBody(base,p);
   const bar=["incline-bench-press","barbell-bench-press"].includes(type),cable=type==="cable-machine";
   if(!bar&&!cable)return base;
   const angle=(cable?82:type==="incline-bench-press"?30:0)*Math.PI/180;
@@ -582,7 +598,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
     if (!(type === "leg-press" && variant === "seated")) floorFrame("bench", hip[2]);
   }
   const cabinetZ = hip[2] - 18;
-  if (!["incline-bench-press", "barbell-bench-press", "chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
+  if (!["super-fly", "incline-bench-press", "barbell-bench-press", "chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
   switch (type) {
     case "chest-press": {
       const reference = body3d(type, 0);
@@ -809,6 +825,33 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
         floorFrame("rack-base", z, 70, 40);
         break;
       }
+    case "super-fly": {
+      pad("super-fly-bench",FLAT_BENCH.foot,[0,FLAT_BENCH.head[1],-39],14,4,false);
+      beam("super-fly-bench-spine",[0,FLAT_BENCH.frameY,8],[0,FLAT_BENCH.frameY,-39],1.6);
+      for(const z of [-29,7])beam("super-fly-bench-post"+z,[0,2,z],[0,FLAT_BENCH.frameY,z],2);
+      floorFrame("super-fly-base",-13,82,70);
+      // A covered resistance unit and paired rigid lever arms communicate the
+      // machine's support/path without claiming a specific Hammer model's CAD.
+      photoStack("super-fly-resistance",-51,-33,65,p*8);
+      beam("super-fly-rear-cross",[-51,3,-45],[20,3,-45],2,"satin");
+      for(const side of [-1,1]){
+        const i=side===-1?0:1,root=body.arms[i][0],hand=hands[i];
+        const axle:V3=[root[0],root[1],root[2]-10];
+        const rearHand:V3=[hand[0],hand[1],axle[2]];
+        beam("super-fly-bearing-post"+side,[root[0],2,axle[2]],axle,2,"satin");
+        pivot("super-fly-axis"+side,axle,[0,0,1]);
+        beam("super-fly-lever"+side,axle,rearHand,1.6);
+        beam("super-fly-grip-link"+side,rearHand,add3(hand,[0,0,-3]),.85,"chrome");
+        handle("super-fly-grip"+side,hand,[0,0,1]);
+        axial("super-fly-cam"+side,"pulley",add3(axle,[0,0,-2]),[0,0,1],3.8,1.2);
+        beam("super-fly-back-brace"+side,[side*20,2,-45],axle,1.5,"satin");
+        const rear:V3=[root[0],root[1],-45];
+        pulley("super-fly-cable-pulley"+side,rear,[0,0,1]);
+        cable("super-fly-drive"+side,add3(axle,[0,0,-3]),rear);
+        cable("super-fly-return-cable"+side,rear,[-51,62,-32]);
+      }
+      break;
+    }
     case "barbell-bench-press": {
       const top=freeBenchGrip(type,1,1),bottom=freeBenchGrip(type,1,0);
       pad("free-bench-back",FLAT_BENCH.foot,FLAT_BENCH.head,14,4,false);

@@ -11,8 +11,8 @@ import { defaultSearch,decodeSearch,SEARCH_STORAGE_KEY } from "../src/domain/dis
 import { FITNESS_STORAGE_KEY } from "../src/domain/fitnessStorage";
 import { translate } from "../src/i18n";
 jest.mock("react-native-safe-area-context",()=>require("react-native-safe-area-context/jest/mock").default);
-test("eight chest lessons include all four requested names without duplicate cable or Hammer guides",()=>{
- expect(CHEST_LESSONS).toHaveLength(8);expect(new Set(CHEST_LESSONS.map(e=>e.id)).size).toBe(8);
+test("nine chest lessons retain previous names and add the distinct supine Super Fly",()=>{
+ expect(CHEST_LESSONS).toHaveLength(9);expect(new Set(CHEST_LESSONS.map(e=>e.id)).size).toBe(9);
  for(const id of ["barbell-bench-press","incline-bench-press","cable-machine","incline-hammer-press"])expect(EQUIPMENTS.filter(e=>e.id===id)).toHaveLength(1);
  expect(CHEST_MENU_GUIDES["m-bench"]).toBe("barbell-bench-press");
  expect(CHEST_MENU_GUIDES["m-cable-cross"]).toBe("cable-machine");

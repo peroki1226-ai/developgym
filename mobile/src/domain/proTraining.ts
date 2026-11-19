@@ -11,6 +11,7 @@ const guide = (type: MotionType, method: FinishMethod, compound = false, guard =
 export const PRO_TRAINING = {
   "chest-press": guide("chest-press", "drop", true),
   "pec-fly": guide("pec-fly", "drop"),
+  "super-fly": guide("super-fly", "backoff"),
   "incline-smith": guide("incline-smith", "backoff", true, "pro.guard.smith"),
   "cable-machine": guide("cable-machine", "drop"),
   "lat-pulldown": guide("lat-pulldown", "backoff", true),

@@ -1,3 +1,4 @@
+import {outsideUpperArm} from "../test-utils/upperArmBaseline";
 import * as THREE from 'three';
 import asset from '../src/data/human/makehuman.json';
 import { armBackBaseline as baseline, outsideArmBack } from '../test-utils/armBackBaseline';
@@ -43,7 +44,9 @@ test.each(Object.entries(baseline.cores))('%s: broad muscle bulk remains while s
  const previous={rightArm:.05012728,leftArm:.05078046,back:.04494705}[name]!;
  expect(mean(residuals)).toBeLessThan(previous*.65);
  residuals.sort((a,b)=>a-b);expect(residuals[Math.floor(residuals.length*.95)]).toBeLessThan(.065);
- const distances=core.map(v=>Math.hypot(...[0,1,2].map(k=>p[v*3+k]-original[v*3+k])));
+ // The user has now resculpted the upper arm in TASK-059; its v13-relative
+ // bounds are tested separately. Keep the v12 bounds on the other vertices.
+ const distances=core.filter(outsideUpperArm).map(v=>Math.hypot(...[0,1,2].map(k=>p[v*3+k]-original[v*3+k])));
  expect(mean(distances)).toBeLessThan(.025);expect(Math.max(...distances)).toBeLessThan(.13);
  // Broad extents must survive the removal of small ridges; a thin smooth tube
  // or a flattened back is not a valid fix for a muscular teaching model.

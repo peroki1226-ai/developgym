@@ -26,15 +26,15 @@ test("three smooth bilateral rest-surface regions form a partition on skin witho
   expect(w.reduce((a,b)=>a+b,0)).toBeCloseTo(materials[i]===0?1:0,6);
  }
 });
-test("the v12 posed positions/normals outside the authorised arms/back and dip revisions retain the accepted geometry and grips",()=>{
+test("the v12 posed positions/normals outside the authorised arms/back and dip / photo Super Fly revisions retain the accepted geometry and grips",()=>{
  const h=createRealisticHuman(new THREE.Group()),digest=createHash('sha256');
- try{for(const l of CHEST_LESSONS.filter(l=>l.id!=="chest-dip"))for(const p of [0,.5,1]){
+ try{for(const l of CHEST_LESSONS.filter(l=>!["chest-dip","super-fly"].includes(l.id)))for(const p of [0,.5,1]){
   h.draw(trainingFrame3d(l.id,p),true);for(const key of ['position','normal']){
    const a=h.mesh.geometry.attributes[key].array;for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v))digest.update(new Uint8Array(a.buffer,v*12,12));
   }
   for(const g of h.mesh.userData.handContacts)expect(g.error).toBeLessThan(1e-6);
  }}finally{h.dispose();}
- expect(digest.digest('hex')).toBe('a8e5564e42083b3959eba6ead8c14a7a70335edfee5e366054b354082b774a48');
+ expect(digest.digest('hex')).toBe('4d666ff4dde15866ab7a3b0876214fc9d23f17330f366606c7b314d78f6031e6');
 });
 test.each(CHEST_LESSONS)("$id: actual vertex colours emphasize the intended region throughout motion, without a stale palette after switching",lesson=>{
  const h=createRealisticHuman(new THREE.Group());

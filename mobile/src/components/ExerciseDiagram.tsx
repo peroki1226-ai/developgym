@@ -80,7 +80,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     muscleSpec(type).focus,
   );
   const [mode, setMode] = useState<"spatial" | "diagram">("spatial");
-  const [view, setView] = useState<View3>(type === "super-fly" ? "above" : "front");
+  const [view, setView] = useState<View3>("front");
   const [orbit,setOrbit]=useState<Orbit>();
   const [zoom,setZoom]=useState(DEFAULT_GUIDE_ZOOM);
   const [rotating,setRotating]=useState(false);
@@ -107,7 +107,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   }, [mode, ready, fail]);
   useEffect(() => {
     setFocus("whole");
-    setView(type === "super-fly" ? "above" : "front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);
+    setView("front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);
     setSelectedMuscle(muscleSpec(type).focus);
     setLessonDirection("work");
     setMechanismOpen(false);
@@ -117,12 +117,12 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     motion.seek(type === "chest-dip" ? 1 : 0, "work");
     if (chestLesson(type)) motion.setSpeed(.5);
     setLearningStep("posture"); setAdvanced(false);
-    setFocus("whole"); setView(type === "super-fly" ? "above" : "front"); setTransparent(false);
+    setFocus("whole"); setView("front"); setTransparent(false);
   }, [type, beginner]);
   const chooseLearningStep = (step: LearningStep) => {
     motion.seek(type === "chest-dip" && step !== "move" ? 1 : 0, "work"); setLearningStep(step);
     setFocus(step === "hands" ? "hands" : step === "feet" ? "feet" : "whole");
-    setView(type === "super-fly" ? step === "feet" ? "side" : "above" : (step === "posture" || step === "move") && !["super-fly","incline-bench-press","barbell-bench-press","cable-machine"].includes(type) ? "side" : "front");
+    setView((step === "posture" || step === "move") && !["super-fly","incline-bench-press","barbell-bench-press","cable-machine"].includes(type) ? "side" : "front");
     setTransparent(false);
   };
   const inspectLesson = (direction: "work" | "return") => {
@@ -154,7 +154,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const guidedChest = beginner && !advanced && !!lesson;
   const focusChest = () => {
     if (focus === "muscles") { setFocus("whole"); setTransparent(false); }
-    else { setSelectedMuscle(muscleSpec(type).focus); setFocus("muscles"); setView(["super-fly","barbell-bench-press","incline-bench-press","dumbbell-heavy","incline-smith"].includes(type) ? "above" : "front");setOrbit(undefined); setTransparent(true); }
+    else { setSelectedMuscle(muscleSpec(type).focus); setFocus("muscles"); setView(["barbell-bench-press","incline-bench-press","dumbbell-heavy","incline-smith"].includes(type) ? "above" : "front");setOrbit(undefined); setTransparent(true); }
   };
   const prepareChestMotion = () => {
     if (learningStep !== "move") {
@@ -258,7 +258,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
       {mode === "spatial" && <GuideCameraControls type={type} view={view} orbit={orbit} zoom={zoom} rotating={rotating}
         onView={chooseView} onOrbit={setOrbit} onZoom={setZoom} onRotate={()=>setRotating(v=>!v)}
         onFit={()=>{setZoom(1);setFocus("whole");setTransparent(false);}}
-        onReset={()=>{setView(type === "super-fly" ? "above" : "front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);setTransparent(focus === "muscles");}}/>}
+        onReset={()=>{setView("front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);setTransparent(focus === "muscles");}}/>}
       {guidedChest && <View style={styles.speeds}>
         <Button title={t(focus === "muscles" ? "anatomy.showWhole" : "anatomy.inspect")} variant="quiet" onPress={focusChest}/>
       </View>}
@@ -325,7 +325,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
           {([['upperChest', 'regions.chestUpper', colors.border], ['chest', 'regions.chestLower', colors.border]] as const).map(([region, key, colour]) => <Pressable key={region} accessibilityRole="button" accessibilityLabel={t(key)} aria-pressed={focus === "muscles" && selectedMuscle === region} accessibilityState={{ selected: focus === "muscles" && selectedMuscle === region }} onPress={() => {
             selectMuscle(region); setOrbit(undefined);
-            setView(["super-fly", "barbell-bench-press", "incline-bench-press", "dumbbell-heavy", "incline-smith"].includes(type) ? "above" : "front");
+            setView(["barbell-bench-press", "incline-bench-press", "dumbbell-heavy", "incline-smith"].includes(type) ? "above" : "front");
           }} style={{ minHeight: 48, justifyContent: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: colour, borderRadius: 10 }}>
             <Text style={styles.note}>{t(key)}</Text>
           </Pressable>)}

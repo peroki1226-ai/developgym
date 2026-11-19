@@ -220,20 +220,26 @@ export function freeBenchGrip(type: string, side: number, value: number): V3 {
   }
   return [side*20,root[1]+12+15.6*p,root[2]+9*(1-p)];
 }
-/** User-described supine machine fly. Fixed pad/feet and a constant elbow bend;
- * this teaching mechanism is not manufacturer CAD or a verified model number. */
-export const SUPER_FLY = Object.freeze({ startDegrees: 97, endDegrees: 3, elbowBendDegrees: 30 });
-function superFlyBody(base: Body3, p: number): Body3 {
-  const hip:V3=[0,24,0], shoulder:V3=[0,24,-26], up:V3=[0,0,-1];
-  const arms=[-1,1].map(side=>{
-    const root=add3(shoulder,[side*9,.4,4.8]);
-    const angle=(SUPER_FLY.startDegrees+(SUPER_FLY.endDegrees-SUPER_FLY.startDegrees)*p)*Math.PI/180;
-    const direction=(a:number):V3=>[side*Math.sin(a),Math.cos(a),0];
-    const elbow=add3(root,mul3(direction(angle),HUMAN_SEGMENTS.upperArm));
-    return [root,elbow,add3(elbow,mul3(direction(angle-SUPER_FLY.elbowBendDegrees*Math.PI/180),HUMAN_SEGMENTS.forearmGrip))] as Bone3;
-  });
-  const legs=[-1,1].map(side=>solveBone3(add3(hip,[side*5.2,0,0]),[side*8,2,19],20,21,[0,.3,1]));
-  return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,right:[1,0,0],forward:[0,1,0]};
+/** User photo: plate-loaded Super Fly, reclined split backrest and seated pelvis.
+ * Proportions are authored from the image, rather than manufacturer CAD. */
+export const SUPER_FLY = Object.freeze({ startDegrees:97, endDegrees:3, elbowBendDegrees:30, backDegrees:60, hip:[0,30,8] as V3 });
+export function superFlyArm(side:number,value:number) {
+  const p=clampProgress(value),a=SUPER_FLY.backDegrees*Math.PI/180;
+  const up:V3=[0,Math.sin(a),-Math.cos(a)],forward:V3=[0,Math.cos(a),Math.sin(a)];
+  const shoulder=add3(SUPER_FLY.hip,mul3(up,26));
+  const root=add3(add3(shoulder,[side*9,0,0]),add3(mul3(up,-4.8),mul3(forward,.4)));
+  const angle=(SUPER_FLY.startDegrees+(SUPER_FLY.endDegrees-SUPER_FLY.startDegrees)*p)*Math.PI/180;
+  const direction=(theta:number):V3=>add3([side*Math.sin(theta),0,0],mul3(forward,Math.cos(theta)));
+  const radial=direction(angle),tangent=add3([side*Math.cos(angle),0,0],mul3(forward,-Math.sin(angle)));
+  const elbow=add3(root,mul3(radial,HUMAN_SEGMENTS.upperArm));
+  const hand=add3(elbow,mul3(direction(angle-SUPER_FLY.elbowBendDegrees*Math.PI/180),HUMAN_SEGMENTS.forearmGrip));
+  return {up,forward,root,elbow,hand,radial,tangent,pivot:add3(root,mul3(up,-17))};
+}
+function superFlyBody(base:Body3,p:number):Body3 {
+  const {up,forward}=superFlyArm(1,p),hip=SUPER_FLY.hip,shoulder=add3(hip,mul3(up,26));
+  const arms=[-1,1].map(side=>{const a=superFlyArm(side,p);return [a.root,a.elbow,a.hand] as Bone3;});
+  const legs=[-1,1].map(side=>solveBone3(add3(hip,[side*5.2,0,0]),[side*9,2,34],20,21,[0,.3,1]));
+  return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,right:[1,0,0],forward};
 }
 function addedChestBody(base: Body3,type: string,p: number): Body3 {
   if(type === "super-fly") return superFlyBody(base,p);
@@ -834,30 +840,43 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
         break;
       }
     case "super-fly": {
-      pad("super-fly-bench",FLAT_BENCH.foot,[0,FLAT_BENCH.head[1],-39],14,4,false);
-      beam("super-fly-bench-spine",[0,FLAT_BENCH.frameY,8],[0,FLAT_BENCH.frameY,-39],1.6);
-      for(const z of [-29,7])beam("super-fly-bench-post"+z,[0,2,z],[0,FLAT_BENCH.frameY,z],2);
-      floorFrame("super-fly-base",-13,82,70);
-      // A covered resistance unit and paired rigid lever arms communicate the
-      // machine's support/path without claiming a specific Hammer model's CAD.
-      photoStack("super-fly-resistance",-51,-33,65,p*8);
-      beam("super-fly-rear-cross",[-51,3,-45],[20,3,-45],2,"satin");
-      for(const side of [-1,1]){
-        const i=side===-1?0:1,root=body.arms[i][0],hand=hands[i];
-        const axle:V3=[root[0],root[1],root[2]-10];
-        const rearHand:V3=[hand[0],hand[1],axle[2]];
-        beam("super-fly-bearing-post"+side,[root[0],2,axle[2]],axle,2,"satin");
-        pivot("super-fly-axis"+side,axle,[0,0,1]);
-        beam("super-fly-lever"+side,axle,rearHand,1.6);
-        beam("super-fly-grip-link"+side,rearHand,add3(hand,[0,0,-3]),.85,"chrome");
-        handle("super-fly-grip"+side,hand,[0,0,1]);
-        axial("super-fly-cam"+side,"pulley",add3(axle,[0,0,-2]),[0,0,1],3.8,1.2);
-        beam("super-fly-back-brace"+side,[side*20,2,-45],axle,1.5,"satin");
-        const rear:V3=[root[0],root[1],-45];
-        pulley("super-fly-cable-pulley"+side,rear,[0,0,1]);
-        cable("super-fly-drive"+side,add3(axle,[0,0,-3]),rear);
-        cable("super-fly-return-cable"+side,rear,[-51,62,-32]);
+      // Four separate upholstery panels, with the same recline as the body.
+      const backOrigin=add3(hip,mul3(forward,-7.2));
+      for(const side of [-1,1])for(const [j,lo,hi]of [[0,2,16.5],[1,17.3,35.5]]){
+        const base=add3(backOrigin,[side*4.65,0,0]);
+        pad("super-fly-back-panel"+side+"-"+j,add3(base,mul3(up,lo)),add3(base,mul3(up,hi)),8.7,4,false);
       }
+      pad("super-fly-bench",[0,hip[1]-6,hip[2]-3],[0,hip[1]-6,hip[2]+13],20,4,false);
+      beam("super-fly-back-spine",add3(backOrigin,mul3(up,-4)),add3(backOrigin,mul3(up,34)),2,"satin");
+      beam("super-fly-seat-post",[0,2,hip[2]+4],[0,hip[1]-8,hip[2]+4],2.3,"satin");
+      axial("super-fly-seat-knob","cylinder",[4,hip[1]-11,hip[2]+5],right,1.1,2.4,"rubber");
+      beam("super-fly-centre-base",[0,2,-23],[0,2,51],2.3,"satin");
+      for(const side of [-1,1]){
+        curve("super-fly-base-wing"+side,[0,0,0],[[0,3,7],[side*26,3,-9],[side*43,3,-9]],4,"satin");
+        box("super-fly-base-foot"+side,[side*43,1,-9],[7,2,10],"rubber");
+        curve("super-fly-back-brace"+side,[0,0,0],[[side*13,3,-15],[side*13,12,-17],[side*11,45,-10],[side*8,54,-8]],3.4,"satin");
+        const arm=superFlyArm(side,p),{pivot:axle}=arm;
+        beam("super-fly-bearing-post"+side,[side*25,3,-9],axle,2,"satin");
+        pivot("super-fly-axis"+side,axle,up);
+        const knee=add3(add3(axle,mul3(arm.radial,15)),mul3(up,-5));
+        const underGrip=add3(arm.hand,mul3(up,-7));
+        beam("super-fly-lever"+side,axle,knee,2);
+        beam("super-fly-grip-link"+side,knee,underGrip,1.7);
+        beam("super-fly-grip-stem"+side,underGrip,add3(arm.hand,mul3(up,-3)),1,"chrome");
+        handle("super-fly-grip"+side,arm.hand,up);
+        const horn=add3(add3(axle,mul3(arm.radial,24)),mul3(up,-13));
+        beam("super-fly-loading-arm"+side,knee,horn,1.8);
+        axial("super-fly-loading-horn"+side,"cylinder",horn,arm.tangent,.9,13,"chrome");
+        axial("super-fly-collar"+side,"cylinder",add3(horn,mul3(arm.tangent,5.2)),arm.tangent,1.6,.5,"metal");
+        for(let plateIndex=0;plateIndex<2;plateIndex++){
+          const centre=add3(horn,mul3(arm.tangent,2+plateIndex*1.9));
+          axial("super-fly-weight"+side+"-"+plateIndex,"plate",centre,arm.tangent,9.5,1.7,"rubber");
+          axial("super-fly-weight-hub"+side+"-"+plateIndex,"cylinder",centre,arm.tangent,1.4,2,"chrome");
+        }
+      }
+      beam("super-fly-step-post",[0,2,46],[0,9,46],2,"satin");
+      box("super-fly-front-step",[0,10,46],[29,2.5,13],"rubber");
+      for(const x of [-13,13])beam("super-fly-front-step-edge"+x,[x,10,40],[x,10,52],.7,"satin");
       break;
     }
     case "barbell-bench-press": {

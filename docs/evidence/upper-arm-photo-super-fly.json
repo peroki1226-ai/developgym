@@ -1,0 +1,1242 @@
+{
+  "task": "TASK-059",
+  "status": "IN REVIEW",
+  "baselineCommit": "b7ed778",
+  "profile": "photo-upper-arm-envelope-v14",
+  "sourceHash": "a4bb091a9a5933599e114e3383d1a22b9ffce75277e59d59ae15eb070e332f43",
+  "assetSha256": "9d0dc3066f97f7e4d5e7653a0b7715766564c4bc2a868b6b1c18ec2017f92489",
+  "human": {
+    "protectedVertices": 22692,
+    "protectedSurfaceHash": "172e2afcd9e3cfe97c5cc4402703ffde44d3851b59b9789ca652319d2d6dc7e9",
+    "changedVertices": 1308,
+    "vertices": 24000,
+    "triangles": 47910,
+    "bones": 22,
+    "meshes": 1,
+    "faceInversions": 0,
+    "meanGeometryResidual": {
+      "left": {
+        "before": 0.01323012,
+        "after": 0.01273659
+      },
+      "right": {
+        "before": 0.01305037,
+        "after": 0.01249929
+      }
+    },
+    "meanNormalVariation": {
+      "left": {
+        "before": 0.03068396,
+        "after": 0.02140957
+      },
+      "right": {
+        "before": 0.02893974,
+        "after": 0.02075182
+      }
+    },
+    "regenerationExact": true,
+    "pectoralMaskCheck": true
+  },
+  "machine": {
+    "reference": "User-supplied Hammer Strength Super Fly photo; visual reconstruction, not measured CAD",
+    "splitBackPads": 4,
+    "independentPlateLevers": 2,
+    "plateCount": 4,
+    "frontAccessStep": true,
+    "selectorStack": false,
+    "fixedHipAndLegs": true,
+    "rigidLevers": true,
+    "gripsFollowMachine": true
+  },
+  "checks": {
+    "jest": {
+      "suites": 69,
+      "tests": 836,
+      "command": "npm --prefix mobile test -- --testTimeout=15000",
+      "result": "passed"
+    },
+    "typecheck": "passed",
+    "releaseCheck": "passed",
+    "iosLocalHermes": "passed",
+    "androidLocalHermes": "passed"
+  },
+  "labViews": {
+    "before": 21,
+    "after": 51,
+    "errors": []
+  },
+  "actualApp": {
+    "sourceHash": "a4bb091a9a5933599e114e3383d1a22b9ffce75277e59d59ae15eb070e332f43",
+    "states": [
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "width": 390,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": false,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "super-fly",
+        "tint": true,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": false,
+        "pose": "end",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "start",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "middle",
+        "view": "below"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "back"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "right"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "width": 320,
+        "type": "preacher-curl",
+        "tint": true,
+        "pose": "end",
+        "view": "below"
+      }
+    ],
+    "errors": [],
+    "language": [
+      "ja",
+      "en"
+    ],
+    "playback": [
+      {
+        "lang": "ja",
+        "speed": 0.25
+      },
+      {
+        "lang": "en",
+        "speed": 0.25
+      }
+    ]
+  },
+  "physicalIPhone": "not updated or verified",
+  "distribution": "EAS, signing, TestFlight and external distribution remain on hold"
+}

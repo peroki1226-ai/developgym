@@ -344,3 +344,21 @@ protected vertices; expected values were calculated from accepted commit
 limit displacement and check triangle orientation and neighbouring-normal
 variation. These checks support, rather than replace, front/side/rear visual
 review in the actual app with target colouring both on and off.
+
+
+## Upper-arm envelope (v14; TASK-059)
+
+`photo-upper-arm-envelope-v14` finishes the v13 surface with a broad upper-arm
+envelope. A cubic longitudinal fit with two angular harmonics retains separate
+anterior/posterior muscle bellies while removing smaller sculpt knots. Joint
+ends and chest skin stay pinned; a feathered join and shrinkage-limiting fairing
+keep the shoulder transition continuous. Final normals are faired in that same
+window. This runs offline in `human_upper_arm.py`; runtime topology, skinning,
+clocks, grip references and muscle masks remain unchanged.
+
+The frozen v13 fixture protects position, normal and AO bytes at 22,692 vertices
+outside the upper-arm window. New regressions compare actual geometric surface
+residuals, normal variation, broad radius and face orientation against v13. The
+older v12 displacement bounds now apply to vertices outside this newly authored
+upper arm; its unchanged normal and volume checks continue to run. Exact elbow
+radius and grip-surface regressions retain their accepted values.

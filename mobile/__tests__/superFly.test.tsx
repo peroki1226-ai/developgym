@@ -7,7 +7,7 @@ import { CHEST_LESSONS, CHEST_MENU_GUIDES } from "../src/domain/chestLessons";
 import { calculateMatch, equipment, gyms, menus } from "../src/domain/matching";
 import { defaultSearch, decodeSearch, SEARCH_STORAGE_KEY } from "../src/domain/discovery";
 import { FITNESS_STORAGE_KEY } from "../src/domain/fitnessStorage";
-import { trainingFrame3d, sub3, dot3, length3, FLAT_BENCH, HUMAN_SEGMENTS } from "../src/domain/training3d";
+import { trainingFrame3d, sub3, dot3, length3, SUPER_FLY, HUMAN_SEGMENTS, mul3, add3, unit3 } from "../src/domain/training3d";
 import { guidePose, projectPhotoChest } from "../src/domain/photoChestProjection";
 import { proTraining } from "../src/domain/proTraining";
 import { translate } from "../src/i18n";
@@ -35,24 +35,26 @@ test("a pec deck or chest press does not falsely count as a Super Fly installati
   expect(available.missing).toHaveLength(0);
 });
 
-test("the supine fly closes through a rigid arc with constant elbow bend, grip contact and fixed supports", () => {
+test("the photo-reference reclined fly closes through a rigid arc with constant elbow bend, grip contact and fixed supports", () => {
   const start = trainingFrame3d("super-fly", 0), radius = start.body.arms.map(a => length3(sub3(a[2], a[0])));
   let previousWidth = Infinity;
   for (let i = 0; i <= 40; i++) {
     const f = trainingFrame3d("super-fly", i / 40), b = f.body;
     expect(b.hip).toEqual(start.body.hip); expect(b.shoulder).toEqual(start.body.shoulder); expect(b.legs).toEqual(start.body.legs);
-    expect(b.shoulder[1]).toBe(b.hip[1]); expect(b.forward).toEqual([0, 1, 0]);
+    expect(b.shoulder[1]-b.hip[1]).toBeCloseTo(26*Math.sin(Math.PI/3),7);
+    expect(b.forward[1]).toBeCloseTo(.5,7);
+    const up=unit3(sub3(b.shoulder,b.hip));
     const bench = f.equipment.find(e => e.id === "super-fly-bench")!;
-    expect(bench.a[1]).toBe(FLAT_BENCH.head[1]); expect(bench.axes![1][1]).toBe(0);
+    expect(bench.a[1]).toBe(SUPER_FLY.hip[1]-6); expect(bench.axes![1][1]).toBe(0);
     expect(bench).toEqual(start.equipment.find(e => e.id === bench.id));
     for (const [j, arm] of b.arms.entries()) {
       const side = j === 0 ? -1 : 1, a = sub3(arm[0], arm[1]), c = sub3(arm[2], arm[1]);
       expect(length3(a)).toBeCloseTo(HUMAN_SEGMENTS.upperArm, 7); expect(length3(c)).toBeCloseTo(HUMAN_SEGMENTS.forearmGrip, 7);
       expect(Math.acos(dot3(a, c) / (length3(a) * length3(c))) * 180 / Math.PI).toBeCloseTo(150, 7);
       expect(length3(sub3(arm[2], arm[0]))).toBeCloseTo(radius[j], 7);
-      expect(f.grips[j].centre).toEqual(arm[2]); expect(f.grips[j].axis).toEqual([0, 0, 1]);
-      expect(f.equipment.find(e => e.id === "super-fly-grip" + side)!.a).toEqual([arm[2][0], arm[2][1], arm[2][2] - 3]);
-      expect(f.equipment.find(e => e.id === "super-fly-grip-link" + side)!.b).toEqual([arm[2][0], arm[2][1], arm[2][2] - 3]);
+      expect(f.grips[j].centre).toEqual(arm[2]); expect(dot3(f.grips[j].axis,up)).toBeCloseTo(1,7);
+      expect(f.equipment.find(e => e.id === "super-fly-grip" + side)!.a).toEqual(add3(arm[2],mul3(up,-3)));
+      expect(f.equipment.find(e => e.id === "super-fly-grip-stem" + side)!.b).toEqual(add3(arm[2],mul3(up,-3)));
     }
     const width = b.arms[1][2][0] - b.arms[0][2][0]; expect(width).toBeGreaterThan(0); expect(width).toBeLessThanOrEqual(previousWidth); previousWidth = width;
     expect(f.muscles).toEqual(["chest"]);
@@ -60,7 +62,7 @@ test("the supine fly closes through a rigid arc with constant elbow bend, grip c
     expect(f.equipment.some(e => /barbell|fly-hanger|smith/.test(e.id))).toBe(false);
   }
   const end = trainingFrame3d("super-fly", 1);
-  expect(end.body.arms[0][2][1]).toBeGreaterThan(start.body.arms[0][2][1] + 20);
+  expect(end.body.arms[0][2][1]).toBeGreaterThan(start.body.arms[0][2][1] + 10);
   expect(start.body.arms[1][2][0] - start.body.arms[0][2][0]).toBeGreaterThan(70);
   expect(previousWidth).toBeLessThan(5);
 });

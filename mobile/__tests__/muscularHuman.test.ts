@@ -36,7 +36,7 @@ test.each([
   expect(current).toBeLessThan(previous*maximum); // Muscle bellies, not swollen joints.
 });
 test("the muscular profile retains pinned CC0 source data including its new regional morphs", () => {
-  expect(asset.profile).toBe('photo-natural-arm-back-v13');
+  expect(asset.profile).toBe('photo-upper-arm-envelope-v14');
   const files=asset.source.files.map(f=>f.file);
   expect(files).toEqual(expect.arrayContaining([
     'targets/armslegs/l-upperarm-shoulder-muscle-incr.target',

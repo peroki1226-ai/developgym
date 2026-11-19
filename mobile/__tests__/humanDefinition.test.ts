@@ -12,7 +12,7 @@ test('the oblique chest division stays under the clavicle, above the abdomen, an
  expect(outer).toBeLessThan(asset.rest['clavicle.L'].head[1]-.3);
  expect(chestDivisionHeight(-1.6)).toBe(outer);
 });
-test.each(['chest-press','incline-smith','pec-fly','chest-dip','barbell-bench-press'])('%s: moving chest exposes distinct upper/lower identification colours without moving the hands or uncoloured body',type=>{
+test.each(['chest-press','incline-smith','pec-fly','chest-dip','barbell-bench-press'])('%s: moving chest exposes exercise-specific upper/lower target colours without moving the hands or uncoloured body',type=>{
  const human=createRealisticHuman(new THREE.Group());
  try{
   const fields=human.mesh.geometry.getAttribute('anatomyDefinition');
@@ -28,7 +28,10 @@ test.each(['chest-press','incline-smith','pec-fly','chest-dip','barbell-bench-pr
     if(fields.getX(i)<-.13)lower.push(coloured.getY(i)/coloured.getX(i));
    }
    expect(upper.length).toBeGreaterThan(5);expect(lower.length).toBeGreaterThan(5);
-   expect(upper.reduce((a,b)=>a+b)/upper.length).toBeGreaterThan(lower.reduce((a,b)=>a+b)/lower.length+.12);
+   const upperRatio=upper.reduce((a,b)=>a+b)/upper.length,lowerRatio=lower.reduce((a,b)=>a+b)/lower.length;
+   if(type==='incline-smith')expect(lowerRatio-upperRatio).toBeGreaterThan(.12);
+   else if(type==='pec-fly')expect(Math.abs(upperRatio-lowerRatio)).toBeLessThan(.1);
+   else expect(upperRatio-lowerRatio).toBeGreaterThan(.08);
    expect(human.mesh.geometry.getAttribute('position').array).toEqual(positions);
    for(const contact of human.mesh.userData.handContacts)expect(contact.error).toBeLessThan(1e-6);
    human.draw(frame,false);expect(human.mesh.geometry.getAttribute('color').array).toEqual(neutral);

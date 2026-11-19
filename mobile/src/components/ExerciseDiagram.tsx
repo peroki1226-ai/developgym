@@ -1,4 +1,4 @@
-import { CHEST_REGION_COLOURS } from "../domain/muscleRegionColours";
+import { ChestRegionTargets } from "./ChestRegionTargets";
 import { GuideCameraControls } from "./GuideCameraControls";
 import { OrbitGesture } from "./OrbitGesture";
 import { Orbit, DEFAULT_GUIDE_ZOOM, orbitForView } from "../domain/guideCamera";
@@ -321,12 +321,13 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </View>}
       </View>
         {mode === "spatial" && anatomy && !!lesson && <View testID="chest-region-legend" style={{ gap: 4, paddingHorizontal: 8 }}>
+        <ChestRegionTargets type={type} detailed={showMuscleExplanations}/>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
-          {([['upperChest', 'regions.chestUpper', CHEST_REGION_COLOURS.upper], ['chest', 'regions.chestLower', CHEST_REGION_COLOURS.sternocostal]] as const).map(([region, key, colour]) => <Pressable key={region} accessibilityRole="button" accessibilityLabel={t(key)} aria-pressed={focus === "muscles" && selectedMuscle === region} accessibilityState={{ selected: focus === "muscles" && selectedMuscle === region }} onPress={() => {
+          {([['upperChest', 'regions.chestUpper', colors.border], ['chest', 'regions.chestLower', colors.border]] as const).map(([region, key, colour]) => <Pressable key={region} accessibilityRole="button" accessibilityLabel={t(key)} aria-pressed={focus === "muscles" && selectedMuscle === region} accessibilityState={{ selected: focus === "muscles" && selectedMuscle === region }} onPress={() => {
             selectMuscle(region); setOrbit(undefined);
             setView(["super-fly", "barbell-bench-press", "incline-bench-press", "dumbbell-heavy", "incline-smith"].includes(type) ? "above" : "front");
           }} style={{ minHeight: 48, justifyContent: "center", paddingHorizontal: 10, borderWidth: 1, borderColor: colour, borderRadius: 10 }}>
-            <Text style={styles.note}><Text style={{ color: colour }}>● </Text>{t(key)}</Text>
+            <Text style={styles.note}>{t(key)}</Text>
           </Pressable>)}
         </View>
         <Text style={styles.note}>{t("regions.identification")}</Text>

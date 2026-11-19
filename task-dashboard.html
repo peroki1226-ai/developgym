@@ -81,12 +81,12 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">52</span> / <span id="stat-total" class="text-neutral-500">55</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">53</span> / <span id="stat-total" class="text-neutral-500">56</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">スーパーフライ レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">胸の部位別表示 レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">53 / 55 TASKS COMPLETED (95%)</span>
+        <span class="font-num text-white">53 / 56 TASKS COMPLETED (95%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
@@ -172,6 +172,8 @@
     <p class="text-xs text-neutral-400 px-1">TASK-047：人体の質感と器具を握る手の密着を修正。<a class="underline" href="docs/BODY_BALANCE_REVIEW.md">全方向の体型再修正・確認手順</a></p>
 
     <p class="text-xs text-neutral-400 px-1">TASK-055：ハンマーストレングスの仰向けスーパーフライを胸コースへ追加。<a class="underline" href="docs/SUPER_FLY_GUIDE.md">動作・説明・実アプリ画像と確認手順</a></p>
+
+    <p class="text-xs text-neutral-400 px-1">TASK-056：胸の上部・中部・下部を種目別の狙いで表示し、インクラインのフォーム説明を具体化。<a class="underline" href="docs/CHEST_EXERCISE_TARGETS.md">実アプリ比較と確認手順</a></p>
 
     <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -771,6 +773,13 @@
         category: "Super Fly Guide", assignee: "Codex", status: "DONE", rating: "LGTM",
         desc: "仰向けマシンフライを胸9種目目/全29種目目に追加。専用3D模型、肘角度維持軌道、日英教材、記録、専用設備判定を統合。",
         review: "【LGTM / DONE 受入完了】全65スイート/803テスト・型検査・リリース監査全合格。仰向けスーパーフライ専用3D模型・一定肘角度軌道・大胸筋全体日英教材・記録・専用設備判定の実動検証完了。53/55完了（96%）。"
+      }
+
+      ,{
+        id: "TASK-056", title: "ユーザー指定：胸種目ごとの上部・中部・下部の狙いを視覚化",
+        category: "Chest Targets", assignee: "Codex", status: "IN REVIEW", rating: "PENDING",
+        desc: "インクラインは胸上部、通常プレスは中部、ディップスは下部を教材色で強調。日英のフォーム説明と模型・図解を統合。実測負荷とは区別。",
+        review: "全体817件実行：1件タイムアウト後、該当6件を無変更で再合格。関連35件・型/監査/両OS・日英108表示成功。形/握り/保存維持。見た目受入・実機は未確認、配布保留。"
       }
 
     ];

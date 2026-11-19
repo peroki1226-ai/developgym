@@ -1,5 +1,6 @@
+import { chestTargetColour } from "../domain/chestTargets";
 import React from "react";
-import { ClipPath, Defs, G, Path } from "react-native-svg";
+import { ClipPath, Defs, G, Path, LinearGradient, Stop } from "react-native-svg";
 import { ExercisePose } from "../domain/exerciseMotion";
 import { articulatedSurface } from "../domain/articulatedSurface";
 import { bodyContour } from "../domain/humanFigure";
@@ -45,6 +46,7 @@ export function MuscleOverlay({
     "abs",
     "erectors",
   ];
+  const chestContext=coloured&&muscleSpec(type).primary.some(m=>m==="chest"||m==="upperChest");
   const targets = selectedMuscle ? [selectedMuscle] : muscleSpec(type).primary;
   const matches = (muscle: Muscle) =>
     targets.includes(muscle) ||
@@ -56,6 +58,11 @@ export function MuscleOverlay({
   return (
     <G testID={coloured ? "muscle-overlay" : "anatomy-neutral"}>
       <Defs>
+        <LinearGradient id={`${prefix}-chest-targets`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={chestTargetColour(type,"upper")}/>
+          <Stop offset="0.45" stopColor={chestTargetColour(type,"middle")}/>
+          <Stop offset="1" stopColor={chestTargetColour(type,"lower")}/>
+        </LinearGradient>
         <ClipPath id={`${prefix}-torso`}>
           <Path d={bodyContour(pose).path} />
         </ClipPath>
@@ -102,7 +109,7 @@ export function MuscleOverlay({
               <G transform={`translate(${inset} 0)`}>
                 <Path
                   d={`M 0,0 C ${span * 0.2},${-r} ${span * 0.7},${-r} ${span},0 C ${span * 0.7},${r} ${span * fan},${r} 0,0 Z`}
-                  fill={on ? "#b95749" : "#c2c2c2"}
+                  fill={chestContext && region.muscle === "upperChest" ? chestTargetColour(type,"upper") : chestContext && region.muscle === "chest" ? `url(#${prefix}-chest-targets)` : on ? "#b95749" : "#c2c2c2"}
                   stroke={on ? "#7d3d35" : "#969696"}
                   strokeWidth={0.3}
                 />

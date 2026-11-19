@@ -1,5 +1,6 @@
+import { CHEST_REGIONS, CHEST_TARGET_COLOURS, chestTargets } from "../domain/chestTargets";
 import { chestContractionEmphasis } from "../domain/chestLessons";
-import { humanDefinition, lowerPectoralContractionScale, CHEST_REGION_COLOURS, DEFINITION_FRAGMENT } from "./humanDefinition";
+import { humanDefinition, lowerPectoralContractionScale, chestRegionWeights, DEFINITION_FRAGMENT } from "./humanDefinition";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
 import { HandGripSurface } from "./handGrip";
@@ -38,6 +39,7 @@ const clothes = decode(asset.materials);
 const surfaceOcclusion = decode(asset.surfaceOcclusion);
 const masks = Object.fromEntries(muscleNames.map(name => [name, decode((asset.muscleMasks as Record<string, string>)[name])])) as Record<Muscle, Uint8Array>;
 const definition = humanDefinition(base, clothes, masks);
+const regionWeights = chestRegionWeights(base, clothes);
 const as3 = (p: readonly number[]) => p as V3;
 const gripSurfaces = [new HandGripSurface(asset.grips.R), new HandGripSurface(asset.grips.L)];
 const handSide = new Int8Array(asset.vertexCount).fill(-1);
@@ -336,7 +338,18 @@ export function createRealisticHuman(parent: THREE.Group) {
     axes = new Float32Array(base.length);
   const skinner = new VolumeSkinner(asset.bones.length, SCALE);
   const neutralColours = humanSurfaceColours(base,clothes);
-  const red = new THREE.Color("#b94b3e"), upperChestColour = new THREE.Color(CHEST_REGION_COLOURS.upper), lowerChestColour = new THREE.Color(CHEST_REGION_COLOURS.sternocostal), chestColour = new THREE.Color();
+  const red = new THREE.Color("#b94b3e"), chestColour = new THREE.Color();
+  const regionalColours = new Float32Array(base.length);
+  let regionalType = "";
+  function bindChestColours(type: string) {
+    if(regionalType===type)return;
+    const targets=chestTargets(type),palette=CHEST_REGIONS.map(r=>new THREE.Color(CHEST_TARGET_COLOURS[targets[r]]));
+    for(let i=0;i<asset.vertexCount;i++)for(let channel=0;channel<3;channel++){
+      const component=channel===0?"r":channel===1?"g":"b",k=i*3;
+      regionalColours[k+channel]=palette.reduce((sum,c,r)=>sum+c[component]*regionWeights[k+r],0);
+    }
+    regionalType=type;
+  }
   function bindActiveMuscles(active: readonly Muscle[]) {
     dominant.fill(255);
     for (let i = 0; i < asset.vertexCount; i++) {
@@ -389,6 +402,7 @@ export function createRealisticHuman(parent: THREE.Group) {
       const key = frame.muscles.join("/");
       if (activeKey !== key) { bindActiveMuscles(frame.muscles); activeKey = key; (geometry.attributes.muscleCoord as THREE.BufferAttribute).needsUpdate = true; }
       const chestContext = anatomy && frame.muscles.some(m => m === "chest" || m === "upperChest");
+      if(chestContext)bindChestColours(frame.type);
       const transforms = targets(frame),
         ref = reference(frame.type, frame.variant);
       const handGrips = ["R", "L"].map(side => {
@@ -454,11 +468,10 @@ export function createRealisticHuman(parent: THREE.Group) {
         colour.fromArray(neutralColours,k);
         if (clothes[i] !== 2) colour.lerp(red, tint[i]);
         if (chestContext && definition[k + 1] > 0) {
-          const upper = THREE.MathUtils.smoothstep(definition[k], -.07, .07);
-          chestColour.copy(lowerChestColour).lerp(upperChestColour, upper);
-          // Both anatomical parts are identifiable; active masks alone still
-          // control shortening/tint attributes. The context is not workload.
-          colour.fromArray(neutralColours,k).lerp(chestColour, Math.max(tint[i], definition[k + 1] * .70));
+          chestColour.fromArray(regionalColours,k);
+          // Target colours are selected by exercise, independent of measured
+          // force and of the masks that still control the accepted deformation.
+          colour.fromArray(neutralColours,k).lerp(chestColour, definition[k + 1] * .92);
         }
         colour.multiplyScalar(surfaceOcclusion[i] / 255);
         colours[k] = colour.r;

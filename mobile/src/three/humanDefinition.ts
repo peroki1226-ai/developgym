@@ -51,3 +51,19 @@ float chestDivision = (1.0 - smoothstep(0.025, 0.13, abs(vDefinition.x))) * vDef
 float regionalCavity = max(chestDivision * 0.04, vDefinition.z * 0.02);
 diffuseColor.rgb *= 1.0 - regionalCavity;
 `;
+
+/** Smooth, rest-skin coordinates: clavicular / central sternocostal / lower
+ * sternocostal. They follow the same vertices through every pose, not screen Y. */
+export function chestRegionWeights(positions: Float32Array, materials: Uint8Array) {
+  const result=new Float32Array(materials.length*3),collar=asset.rest["clavicle.L"].head[1],shoulder=Math.abs(asset.rest["upperarm.L"].head[0]);
+  for(let i=0;i<materials.length;i++){
+    if(materials[i]!==0)continue;
+    const x=Math.abs(positions[i*3]),y=positions[i*3+1],u=Math.min(1,x/shoulder);
+    const bottom=collar-1.14-.34*Math.sin(Math.PI*u)+.50*u*u+.16*Math.exp(-((x/.32)**2));
+    const division=chestDivisionHeight(x),lowerDivision=bottom+.40*(division-bottom);
+    const upper=THREE.MathUtils.smoothstep(y-division,-.07,.07);
+    const lower=(1-upper)*(1-THREE.MathUtils.smoothstep(y-lowerDivision,-.055,.055));
+    result.set([upper,1-upper-lower,lower],i*3);
+  }
+  return result;
+}

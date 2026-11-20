@@ -82,7 +82,15 @@ export const SMITH_PRESS = {
   guideZ: 11
 };
 /** Photo-reference Smith: about 30-degree bench, fixed vertical bar plane. */
-export const SMITH_INCLINE = Object.freeze({ startY:47, travelY:18, gripHalfWidth:24, guideZ:-9.16, hipY:29, hipZ:6 });
+export const SMITH_INCLINE = Object.freeze((()=>{
+  const gripHalfWidth=21.5,guideZ=-9.16,hipY=29,hipZ=6;
+  const rootY=hipY+21.2*.5+.4*Math.cos(Math.PI/6);
+  const rootZ=hipZ-21.2*Math.cos(Math.PI/6)+.4*.5;
+  // With fixed limb lengths, a ninety-degree elbow requires this shoulder-to-
+  // grip distance. Narrowing alone would fold the elbow more deeply.
+  const startY=rootY+Math.sqrt(HUMAN_SEGMENTS.upperArm**2+HUMAN_SEGMENTS.forearmGrip**2-(gripHalfWidth-9)**2-(guideZ-rootZ)**2);
+  return {startY,travelY:65-startY,gripHalfWidth,guideZ,hipY,hipZ};
+})());
 export const smithInclineGrip = (side:number,value:number):V3 => [side*SMITH_INCLINE.gripHalfWidth,SMITH_INCLINE.startY+SMITH_INCLINE.travelY*clampProgress(value),SMITH_INCLINE.guideZ];
 function chestPressArc(shoulder: V3, progress: number) {
   // The supplied selectorised press has its lever bearings near the floor.

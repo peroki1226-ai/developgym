@@ -4,7 +4,7 @@ import { Alert } from "react-native";
 import { fireEvent,render,screen,waitFor } from "@testing-library/react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import App from "../App";
-import { SMITH_INCLINE,trainingFrame3d,sub3,length3,HUMAN_SEGMENTS } from "../src/domain/training3d";
+import { SMITH_INCLINE,trainingFrame3d,sub3,length3,dot3,HUMAN_SEGMENTS } from "../src/domain/training3d";
 import { CHEST_LESSONS,CHEST_MENU_GUIDES } from "../src/domain/chestLessons";
 import { calculateMatch,gyms,menus } from "../src/domain/matching";
 import { FITNESS_STORAGE_KEY,initialFitnessData,decodeFitnessData } from "../src/domain/fitnessStorage";
@@ -65,4 +65,16 @@ test.each(["ja","en"] as const)("%s: save a Smith press with its own name while 
  expect(screen.getByRole("image",{name:t("guide.diagramLabel",{0:name})})).toBeTruthy();await fireEvent.changeText(screen.getByLabelText(t("重量kg")),"25");await fireEvent.press(screen.getByRole("button",{name:t("ジムトレーニングを記録")}));
  await waitFor(async()=>{const saved=JSON.parse((await AsyncStorage.getItem(FITNESS_STORAGE_KEY))!);expect(saved.logs).toHaveLength(2);expect(saved.logs.find((l:any)=>l.id===old.id)).toEqual(old);expect(saved.logs.find((l:any)=>l.id!==old.id)).toMatchObject({name:"chest.inclineSmith.name",weight:25,location:"gym"});});
  expect(t("chest.inclineBench.name")).not.toBe(name);
+});
+
+
+test("the incline grip is narrower and both bottom elbows form a right angle with wrists above elbows",()=>{
+ expect(SMITH_INCLINE.gripHalfWidth).toBeLessThan(24);
+ const f=trainingFrame3d('incline-bench-press',0);
+ for(const arm of f.body.arms){
+  const a=sub3(arm[0],arm[1]),b=sub3(arm[2],arm[1]);
+  expect(Math.acos(dot3(a,b)/(length3(a)*length3(b)))*180/Math.PI).toBeCloseTo(90,6);
+  expect(b[1]/length3(b)).toBeGreaterThan(.98);
+ }
+ expect(SMITH_INCLINE.startY+SMITH_INCLINE.travelY).toBeCloseTo(65,8);
 });

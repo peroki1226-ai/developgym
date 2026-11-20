@@ -81,12 +81,12 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">59</span> / <span id="stat-total" class="text-neutral-500">62</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">60</span> / <span id="stat-total" class="text-neutral-500">63</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">お手本再生ボタン配置 レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">インクラインの握り幅 レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">60 / 62 TASKS COMPLETED (97%)</span>
+        <span class="font-num text-white">60 / 63 TASKS COMPLETED (95%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
@@ -820,6 +820,7 @@
         desc: "お手本再生ボタンを3D模型キャンバスの直下（間隔8px）へ移動。ChestLiveLesson側の重複を防止し、操作性を向上。",
         review: "【LGTM / DONE 受入完了】関連4スイート/29テスト・型検査・リリース監査全合格。お手本再生ボタンの模型直下配置と二重表示防止、全操作・記録機能保持の実動検証完了。60/62完了（97%）。"
       }
+      ,{id:"TASK-063",title:"インクラインベンチの狭い握りと下端肘90度",category:"Incline grip",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"握りを約10%狭め、下端を肘90度に合わせる。骨長・把持・バー上端とレールは維持。",review:"関連4スイート/67テスト・型/監査/両OSバンドル・日英12表示合格。全体843件の再実行は未実施。60/63 DONE（95%）。実機・配布保留。"}
     ];
 
     function renderKanban() {

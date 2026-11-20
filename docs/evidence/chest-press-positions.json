@@ -1,0 +1,237 @@
+{
+  "task": "TASK-060",
+  "status": "IN REVIEW",
+  "baselineCommit": "5e9b764",
+  "checks": {
+    "suites": 70,
+    "tests": 842,
+    "command": "npm --prefix mobile test -- --testTimeout=15000",
+    "typecheck": "passed",
+    "release": "passed",
+    "iosLocalExport": "passed",
+    "androidLocalExport": "passed"
+  },
+  "app": {
+    "sourceHash": "d9f75acada6895a2c82c604244bdd9e6afa343ebe659839a1bb26d3d2d741fdf",
+    "states": [
+      {
+        "lang": "ja",
+        "variant": "upper",
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "variant": "upper",
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "variant": "upper",
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "variant": "upper",
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "variant": "upper",
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "variant": "upper",
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "variant": "middle",
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "variant": "middle",
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "variant": "middle",
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "variant": "middle",
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "variant": "middle",
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "variant": "middle",
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "variant": "lower",
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "variant": "lower",
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "variant": "lower",
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "ja",
+        "variant": "lower",
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "ja",
+        "variant": "lower",
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "ja",
+        "variant": "lower",
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "variant": "upper",
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "variant": "upper",
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "variant": "upper",
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "variant": "upper",
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "variant": "upper",
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "variant": "upper",
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "variant": "middle",
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "variant": "middle",
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "variant": "middle",
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "variant": "middle",
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "variant": "middle",
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "variant": "middle",
+        "pose": "end",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "variant": "lower",
+        "pose": "start",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "variant": "lower",
+        "pose": "start",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "variant": "lower",
+        "pose": "start",
+        "view": "above"
+      },
+      {
+        "lang": "en",
+        "variant": "lower",
+        "pose": "end",
+        "view": "front"
+      },
+      {
+        "lang": "en",
+        "variant": "lower",
+        "pose": "end",
+        "view": "side"
+      },
+      {
+        "lang": "en",
+        "variant": "lower",
+        "pose": "end",
+        "view": "above"
+      }
+    ],
+    "errors": []
+  },
+  "distribution": "No EAS, signing, TestFlight or external distribution. Physical device unverified."
+}

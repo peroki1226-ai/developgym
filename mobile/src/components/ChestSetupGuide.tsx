@@ -1,3 +1,4 @@
+import {ChestPressVariant} from "../domain/training3d";
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, G, Line, Path } from "react-native-svg";
@@ -52,7 +53,7 @@ function BenchAngleComparison({ angle, onSelect }: { angle: Angle; onSelect: (va
   </View>;
 }
 
-function EquipmentSetup({ type }: { type: string }) {
+function EquipmentSetup({ type,pressVariant,onPressVariant }: { type: string;pressVariant?:ChestPressVariant;onPressVariant?:(v:ChestPressVariant)=>void }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [selectedAngle, setSelectedAngle] = useState<Angle>(angles[1]);
@@ -77,8 +78,8 @@ function EquipmentSetup({ type }: { type: string }) {
   </View>;
 }
 
-export function ChestSetupGuide({ type }: { type: string }) {
-  if (type === "chest-press") return <ChestPressSeatGuide/>;
+export function ChestSetupGuide({ type,pressVariant,onPressVariant }: { type: string;pressVariant?:ChestPressVariant;onPressVariant?:(v:ChestPressVariant)=>void }) {
+  if (type === "chest-press") return <ChestPressSeatGuide variant={pressVariant} onVariant={onPressVariant}/>;
   if (!chestLesson(type)) return null;
   return <EquipmentSetup key={type} type={type}/>;
 }

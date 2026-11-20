@@ -8,6 +8,9 @@ export type View3 = "front" | "side" | "back" | "right" | "above" | "below";
 export const benchViews = (_type: string): readonly View3[] => ["front", "side", "back", "right", "above", "below"];
 export type Focus3 = "whole" | "hands" | "feet" | "muscles";
 export type LegPressVariant = "incline" | "seated";
+export type ChestPressVariant = "upper" | "middle" | "lower";
+export type GuideVariant = LegPressVariant | ChestPressVariant;
+export const isChestPressVariant=(v?:string):v is ChestPressVariant=>["upper","middle","lower"].includes(v??"");
 export type HandGrip3 = { centre: V3; axis: V3; radius: number };
 export const add3 = (a: V3, b: V3): V3 => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 export const sub3 = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -59,7 +62,7 @@ export interface TrainingFrame3 {
   contacts: Contact3[];
   muscles: readonly Muscle[];
   grips: HandGrip3[];
-  variant?: LegPressVariant;
+  variant?: GuideVariant;
 }
 
 // Approximate segment dimensions of the bundled adult reference mesh at its
@@ -305,7 +308,7 @@ function chestLessonBody(base: Body3, type: string, p: number): Body3 {
   return { ...base, hip, shoulder, head: add3(shoulder, mul3(upperUp, 8.4)), spine: dip ? [hip,middle,shoulder] : [hip, shoulder],
     arms, legs, right: [1, 0, 0], forward };
 }
-function photoLegBody(base: Body3, type: string, p: number, variant?: LegPressVariant): Body3 {
+function photoLegBody(base: Body3, type: string, p: number, variant?: GuideVariant): Body3 {
   if (type !== "leg-press" && type !== "leg-extension" && type !== "hip-adduction") return base;
   const seated = type === "leg-press" && variant === "seated";
   const hip: V3 = type === "leg-press" ? seated ? [0, 30 + 2 * p, 12 - 10 * p] : [0, 21, 0] : type === "leg-extension" ? [0, 29, 0] : [0, 32, 0];
@@ -330,7 +333,20 @@ function photoLegBody(base: Body3, type: string, p: number, variant?: LegPressVa
   });
   return { ...base, hip, shoulder, head: add3(shoulder, mul3(up, 8.4)), spine: [hip, shoulder], arms, legs, right: [1, 0, 0], forward };
 }
-export function body3d(raw: string, value: number, variant?: LegPressVariant): Body3 {
+export function chestPressPosition(base:Body3,variant:ChestPressVariant):Body3 {
+  const shift=variant==='lower'?4:variant==='upper'?-3:0,lean=variant==='upper'?4*Math.PI/180:0;
+  const hip=add3(base.hip,[0,shift,0]);
+  const oldUp=unit3(sub3(base.shoulder,base.hip)),up=add3(mul3(oldUp,Math.cos(lean)),mul3(base.forward,Math.sin(lean)));
+  const shoulder=add3(hip,mul3(up,26)),forward=unit3(cross3(base.right,up));
+  const arms=base.arms.map((arm,i)=>{
+    const root=add3(add3(shoulder,[i===0?-9:9,0,0]),add3(mul3(up,-4.8),mul3(forward,.4)));
+    return solveBone3(root,arm[2],HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,[i===0?-.8:.8,-.5,-.2]);
+  });
+  const legs=base.legs.map((leg,i)=>solveBone3(add3(hip,[i===0?-5.2:5.2,0,0]),leg[2],20,21,[0,.3,1]));
+  return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,forward};
+}
+export function body3d(raw: string, value: number, variant?: GuideVariant): Body3 {
+  if(motionType(raw)==="chest-press"&&isChestPressVariant(variant))return chestPressPosition(body3d(raw,clampProgress(value)*.9),variant);
   const type = motionType(raw),
     p = clampProgress(value),
     pose = exercisePose(type, p);
@@ -425,7 +441,7 @@ export function body3d(raw: string, value: number, variant?: LegPressVariant): B
     facing
   }, type, p), type, p), type, p), type, p, variant);
 }
-export function feet3d(type: string, body: Body3, variant?: LegPressVariant): Foot3[] {
+export function feet3d(type: string, body: Body3, variant?: GuideVariant): Foot3[] {
   return body.legs.map(([, knee, ankle]) => {
     let up: V3 = [0, 1, 0],
       toe: V3 = [0, 0, body.facing];
@@ -470,10 +486,10 @@ export function feet3d(type: string, body: Body3, variant?: LegPressVariant): Fo
 }
 
 /** Full equipment is generated around explicit contact surfaces, not placed behind a flat picture. */
-export function trainingFrame3d(raw: string, progress: number, variant?: LegPressVariant): TrainingFrame3 {
+export function trainingFrame3d(raw: string, progress: number, variant?: GuideVariant): TrainingFrame3 {
   const type = motionType(raw),
-    p = clampProgress(progress),
-    body = body3d(type, p, variant),
+    p = clampProgress(progress)*(type==="chest-press"&&isChestPressVariant(variant)?.9:1),
+    body = body3d(type, p, type==="chest-press"?undefined:variant),
     feet = feet3d(type, body, variant),
     equipment: Primitive3[] = [];
   const {
@@ -1128,24 +1144,33 @@ export function trainingFrame3d(raw: string, progress: number, variant?: LegPres
         break;
       }
   }
+  const posed=type==='chest-press'&&isChestPressVariant(variant)?chestPressPosition(body,variant):body;
+  if(posed!==body){
+    const dy=posed.hip[1]-body.hip[1];
+    for(const part of equipment){
+      if(['seat','seat-undertray','seat-adjustment-knob'].includes(part.id))part.a=add3(part.a,[0,dy,0]);
+      if(part.id==='seat-post'&&part.b)part.b=add3(part.b,[0,dy,0]);
+    }
+  }
+  const posedFeet=feet3d(type,posed,variant);
   return {
     type,
     variant,
     grips,
-    body,
-    feet,
+    body:posed,
+    feet:posedFeet,
     equipment,
     contacts: [{
       key: "seat",
-      points: [body.hip, body.shoulder]
+      points: [posed.hip, posed.shoulder]
     }, {
       key: "hands",
       points: hands
     }, {
       key: "feet",
-      points: ["assisted-pull-up", "assisted-dip"].includes(type) ? body.legs.map(l => l[1]) : feet.map(f => f.contact)
+      points: ["assisted-pull-up", "assisted-dip"].includes(type) ? body.legs.map(l => l[1]) : posedFeet.map(f => f.contact)
     }],
-    muscles: muscleSpec(type).primary
+    muscles: type==='chest-press'&&variant==='upper'?['upperChest']:muscleSpec(type).primary
   };
 }
 export function camera3d(frame: TrainingFrame3, view: View3, focus: Focus3, orbit?: Orbit) {

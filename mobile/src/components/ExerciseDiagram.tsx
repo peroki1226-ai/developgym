@@ -32,7 +32,7 @@ import { MotionJointDetail } from "./MotionJointDetail";
 import { MuscleContractionPanel } from "./MuscleContractionPanel";
 import { MuscleLengthCoach } from "./MuscleLengthCoach";
 import { Motion3DView } from "./Motion3DView";
-import { Focus3, View3, LegPressVariant, dipFinishAmount } from "../domain/training3d";
+import { Focus3, View3, LegPressVariant, ChestPressVariant, dipFinishAmount } from "../domain/training3d";
 import { MuscleQuickCue } from "./MuscleQuickCue";
 import { Muscle, muscleSpec } from "../domain/muscleMotion";
 import { rearMuscles } from "../domain/muscleLoad";
@@ -93,6 +93,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const [advanced, setAdvanced] = useState(false);
   const controlsVisible = !beginner || advanced;
   const [legPressVariant, setLegPressVariant] = useState<LegPressVariant>("seated");
+  const [pressVariant,setPressVariant]=useState<ChestPressVariant>("middle");
+  const modelVariant=type==="chest-press"?pressVariant:type==="leg-press"?legPressVariant:undefined;
   const fail = useCallback(() => {
     setFailed(true);
     setRotating(false);
@@ -136,7 +138,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     setView(rearMuscles.includes(muscle) ? "back" : "front");
   };
   const [trackWidth, setTrackWidth] = useState(1);
-  const pose = guidePose(type, motion.progress, legPressVariant);
+  const pose = guidePose(type, motion.progress, modelVariant);
   const lesson = chestLesson(type);
   const teaching = motionTeaching(type, pose);
   const footHint = ["assisted-pull-up", "assisted-dip"].includes(type) ? "scene.kneeHint"
@@ -262,6 +264,14 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
       {guidedChest && <View style={styles.speeds}>
         <Button title={t(focus === "muscles" ? "anatomy.showWhole" : "anatomy.inspect")} variant="quiet" onPress={focusChest}/>
       </View>}
+      {type==='chest-press'&&<View testID="press-position-controls" style={{gap:8}}>
+       <Text style={styles.detailTitle}>{t('press.variant.title')}</Text>
+       <View accessibilityRole="radiogroup" accessibilityLabel={t('press.variant.title')} style={styles.speeds}>
+         {(['upper','middle','lower'] as const).map(value=><Pressable key={value} accessibilityRole="radio" accessibilityLabel={t('press.variant.'+value)} accessibilityState={{checked:pressVariant===value}} aria-checked={pressVariant===value} style={[styles.speedButton,pressVariant===value&&styles.selectedSpeed]} onPress={()=>{motion.seek(0);setPressVariant(value);setSelectedMuscle(value==='upper'?'upperChest':'chest');setAnatomy(true);setView('side');setOrbit(undefined);}}><Text style={styles.note}>{t('press.variant.'+value)}</Text></Pressable>)}
+       </View>
+       <Text testID="press-position-cue" style={styles.note}>{t('press.variant.'+pressVariant+'.cue')}</Text>
+       <Text style={styles.note}>{t('press.variant.limit')}</Text>
+     </View>}
       <View
         style={[styles.canvas, mode === "spatial" && styles.spatialCanvas]}
         accessible={!rotating}
@@ -274,7 +284,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <OrbitGesture enabled={rotating} orbit={orbit??orbitForView(view)} zoom={zoom} onOrbit={setOrbit} onZoom={setZoom}>
             <Motion3DView
               type={type}
-              variant={type === "leg-press" ? legPressVariant : undefined}
+              variant={modelVariant}
               guidance={guidedChest && learningStep === "move"}
               returning={motion.phase === "return"}
               progress={motion.progress}
@@ -299,7 +309,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Svg viewBox="0 0 120 96" style={styles.svg}>
             <ExerciseMotionScene
               type={type}
-              variant={type === "leg-press" ? legPressVariant : undefined}
+              variant={modelVariant}
               progress={motion.progress}
               details={details}
               guidance={guidedChest && learningStep === "move"}
@@ -310,7 +320,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           </Svg>
         )}
         {showMuscleExplanations && guidedChest && lesson && anatomy && <View testID="chest-anatomy-overlay" pointerEvents="none" style={anatomyStyles.overlay}>
-          <Text style={anatomyStyles.target}>{t("anatomy.target",{0:t(`${lesson.prefix}.target`)})}</Text>
+          <Text style={anatomyStyles.target}>{t("anatomy.target",{0:type==="chest-press"?t("targets.region."+pressVariant):t(`${lesson.prefix}.target`)})}</Text>
           <Text testID="chest-anatomy-state" style={anatomyStyles.state}>{t(motion.progress < .03 ? "anatomy.long" : motion.progress > .97 ? "anatomy.short" : motion.phase === "return" ? "anatomy.lengthening" : "anatomy.shortening")}</Text>
           {type === "chest-dip" && dipFinishAmount(motion.progress)>.05 && motion.phase !== "return" && <Text testID="dip-attention-caption" style={styles.note}>{t("dip.finish.marker")}</Text>}
         </View>}
@@ -321,7 +331,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </View>}
       </View>
         {mode === "spatial" && anatomy && !!lesson && <View testID="chest-region-legend" style={{ gap: 4, paddingHorizontal: 8 }}>
-        <ChestRegionTargets type={type} detailed={showMuscleExplanations}/>
+        <ChestRegionTargets type={type} variant={modelVariant} detailed={showMuscleExplanations}/>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
           {([['upperChest', 'regions.chestUpper', colors.border], ['chest', 'regions.chestLower', colors.border]] as const).map(([region, key, colour]) => <Pressable key={region} accessibilityRole="button" accessibilityLabel={t(key)} aria-pressed={focus === "muscles" && selectedMuscle === region} accessibilityState={{ selected: focus === "muscles" && selectedMuscle === region }} onPress={() => {
             selectMuscle(region); setOrbit(undefined);
@@ -332,7 +342,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </View>
         <Text style={styles.note}>{t("regions.identification")}</Text>
       </View>}
-      <ChestSetupGuide type={type}/>
+      <ChestSetupGuide type={type} pressVariant={pressVariant} onPressVariant={value=>{motion.seek(0);setPressVariant(value);setSelectedMuscle(value==="upper"?"upperChest":"chest");setAnatomy(true);setView("side");setOrbit(undefined);}}/>
       {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}

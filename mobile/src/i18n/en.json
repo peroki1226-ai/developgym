@@ -1855,7 +1855,7 @@
   "press.seat.high.image": "Relative-height diagram: the seat and body move up while fixed handles align closer to the mid-to-lower chest. Mid-to-lower chest highlighted.",
   "press.seat.limit": "Load distribution also depends on the machine path, backrest angle and your build. Seat height alone does not isolate the upper or lower chest.",
   "press.seat.check": "Adjust only when the weights are at rest, then check the seat is locked. Use a light setting to check both feet, back and hips stay supported and your shoulders feel comfortable. Avoid painful positions and ask staff about an unfamiliar machine.",
-  "press.seat.model": "This is a relative-position diagram. The moving model demonstrates the basic height. Highlighting indicates a region, not measured muscle load.",
+  "press.seat.model": "Use the target selector on the moving model to link seat, posture and colouring. The comparison is schematic and red marks a teaching target.",
   "chest.settings.basic": "Basic setup",
   "chest.settings.emphasis": "How setup affects emphasis",
   "chest.settings.model": "This panel explains setup comparisons. The moving model demonstrates the basic setup for this exercise; comparison choices do not change its movement or equipment. Highlighting indicates a region.",
@@ -2083,5 +2083,13 @@
   "targets.role.assisting": "Works alongside",
   "targets.role.context": "Other involvement",
   "targets.note": "Red marks the intended emphasis; softer colours show other involvement. Middle and lower are teaching subdivisions of the continuous sternocostal portion, not separate muscles. Angle, posture and anatomy change involvement; colours are not measured loading.",
-  "targets.shortNote": "Colours indicate intended emphasis, not measured loading."
+  "targets.shortNote": "Colours indicate intended emphasis, not measured loading.",
+  "press.variant.title": "Chest press: target and seat position",
+  "press.variant.upper": "Upper • lower seat",
+  "press.variant.middle": "Middle • standard seat",
+  "press.variant.lower": "Lower • higher seat",
+  "press.variant.upper.cue": "Lower the seat until the grips align just below the clavicles. The model adds a small forward lean. Keep the spine steady and shoulders down, and press within a pain-free range.",
+  "press.variant.middle.cue": "Use the standard seat height with the grips near mid-chest. Align the forearms with the pressing direction and keep the elbows slightly below shoulder height.",
+  "press.variant.lower.cue": "Raise the seat until the grips are around the nipple line or slightly lower on the chest. Keep both feet planted and press without shrugging.",
+  "press.variant.limit": "Red highlights the selected teaching target. Seat height alone does not determine loading: machine path, body proportions and arm angle also matter. Do not force a clavicle-height grip or lean far away from the support."
 }

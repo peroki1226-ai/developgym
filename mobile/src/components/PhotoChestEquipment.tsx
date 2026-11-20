@@ -1,11 +1,11 @@
 import React from "react";
 import { Circle, G, Line, Polygon, Polyline, Rect } from "react-native-svg";
 import { projectPhotoChest } from "../domain/photoChestProjection";
-import { V3, LegPressVariant, trainingFrame3d, add3, mul3 } from "../domain/training3d";
+import { V3, GuideVariant, trainingFrame3d, add3, mul3 } from "../domain/training3d";
 
 const colours = { metal: "#53585d", satin: "#a3a9ae", chrome: "#c6cbd0", rubber: "#292c30", pad: "#292c30" };
 
-export function PhotoChestEquipment({ type, progress, variant }: { type: string; progress: number; variant?: LegPressVariant }) {
+export function PhotoChestEquipment({ type, progress, variant }: { type: string; progress: number; variant?: GuideVariant }) {
   const frame = trainingFrame3d(type, progress, variant), project = (p: V3) => projectPhotoChest(type, p);
   return <G testID="photo-chest-equipment">{frame.equipment.map(item => {
     const [x, y] = project(item.a), fill = colours[item.color];

@@ -2,7 +2,7 @@ import React from "react";
 import { Circle, Ellipse, G, Line, Path, Polygon, Rect } from "react-native-svg";
 import { ExercisePose, motionType, Point } from "../domain/exerciseMotion";
 import { beamSurface, boxSurface, polygonPoints } from "../domain/equipmentSurface";
-import { LegPressVariant } from "../domain/training3d";
+import { GuideVariant } from "../domain/training3d";
 import { PhotoChestEquipment } from "./PhotoChestEquipment";
 
 const machine = "#686868", frame = "#a8a8a8", person = "#666666";
@@ -101,7 +101,7 @@ export function EquipmentGrips({ type, pose }: { type: string; pose: ExercisePos
     </G>;
   })}</G>;
 }
-export function ExerciseEquipment({ type: raw, pose, progress: p, variant }: { type: string; pose: ExercisePose; progress: number; variant?: LegPressVariant }) {
+export function ExerciseEquipment({ type: raw, pose, progress: p, variant }: { type: string; pose: ExercisePose; progress: number; variant?: GuideVariant }) {
   const type = motionType(raw), hand = pose.grips[0], foot = pose.legs[0]?.[2] ?? [0, 0];
   if (["super-fly", "incline-bench-press", "barbell-bench-press", "cable-machine", "dumbbell-heavy", "chest-dip", "incline-hammer-press", "leg-press", "leg-extension", "hip-adduction"].includes(type)) return <PhotoChestEquipment type={type} progress={p} variant={variant} />;
   switch (type) {

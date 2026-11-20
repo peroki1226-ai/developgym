@@ -186,7 +186,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
         }
       });
     }
-    if (input.guidance) chestMotionPaths(frame.type,input.progress,!!input.returning).forEach((path,index)=>{
+    if (input.guidance) chestMotionPaths(frame.type,input.progress,!!input.returning,input.variant).forEach((path,index)=>{
       const line = (id: string, a: V3, b: V3, radius: number, mat: THREE.Material) => {
         const node = mesh(id,"beam",mat), direction=v(sub3(b,a));
         node.position.copy(v(mix3(a,b,.5)));node.quaternion.setFromUnitVectors(yAxis,direction.clone().normalize());

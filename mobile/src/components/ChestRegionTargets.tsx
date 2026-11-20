@@ -3,12 +3,12 @@ import { StyleSheet, Text, View } from "react-native";
 import { CHEST_REGIONS, chestTargets, chestTargetColour } from "../domain/chestTargets";
 import { useI18n } from "../i18n";
 import { colors } from "./ui";
-export function ChestRegionTargets({ type, detailed = true }: { type: string; detailed?: boolean }) {
-  const { t } = useI18n(), targets = chestTargets(type);
+export function ChestRegionTargets({ type, variant, detailed = true }: { type: string; variant?: string; detailed?: boolean }) {
+  const { t } = useI18n(), targets = chestTargets(type,variant);
   return <View testID="chest-target-profile" style={styles.panel}>
     <Text style={styles.title}>{t("targets.title")}</Text>
-    <View style={styles.rows}>{CHEST_REGIONS.map(region => <View key={region} testID={`target-${region}`} style={[styles.region,{borderColor:chestTargetColour(type,region)}]}>
-      <View style={[styles.dot,{backgroundColor:chestTargetColour(type,region)}]}/>
+    <View style={styles.rows}>{CHEST_REGIONS.map(region => <View key={region} testID={`target-${region}`} style={[styles.region,{borderColor:chestTargetColour(type,region,variant)}]}>
+      <View style={[styles.dot,{backgroundColor:chestTargetColour(type,region,variant)}]}/>
       <Text style={styles.label}>{t(`targets.region.${region}`)}</Text>
       <Text style={styles.role}>{t(`targets.role.${targets[region]}`)}</Text>
     </View>)}</View>

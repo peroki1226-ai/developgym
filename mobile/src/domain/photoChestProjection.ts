@@ -1,5 +1,5 @@
 import { ExercisePose, Limb, Point, exercisePose } from "./exerciseMotion";
-import { V3, LegPressVariant, body3d } from "./training3d";
+import { V3, GuideVariant, body3d } from "./training3d";
 
 export const isPhotoGuide = (type: string) => ["super-fly", "incline-bench-press", "barbell-bench-press", "cable-machine", "dumbbell-heavy", "chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-press", "leg-extension", "hip-adduction"].includes(type);
 
@@ -11,7 +11,7 @@ export function projectPhotoChest(type: string, p: V3): Point {
     : [38 + .85 * p[2] + .25 * p[0], 88 - .88 * p[1] - .03 * p[0]];
 }
 
-export function guidePose(type: string, progress: number, variant?: LegPressVariant): ExercisePose {
+export function guidePose(type: string, progress: number, variant?: GuideVariant): ExercisePose {
   if (!isPhotoGuide(type)) return exercisePose(type, progress);
   const body = body3d(type, progress, variant), project = (p: V3) => projectPhotoChest(type, p);
   const arms = body.arms.map(a => a.map(project) as unknown as Limb);

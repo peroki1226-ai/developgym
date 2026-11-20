@@ -1,6 +1,6 @@
 import { clampProgress, MotionFrame } from "./exerciseMotion";
 import { chestLesson } from "./chestLessons";
-import { body3d, add3, sub3, mul3, unit3, V3 } from "./training3d";
+import { body3d, add3, sub3, mul3, unit3, V3, GuideVariant } from "./training3d";
 
 /** Position within a complete repetition, including the return. Dips begin at the top. */
 export function chestCyclePosition(type: string, frame: MotionFrame, completed = false) {
@@ -18,16 +18,16 @@ const trajectoryCache = new Map<string, V3[][]>();
 
 /** Blue arrows show the movement of the hands, or body for fixed-grip dips.
  * They indicate direction, not measured forces. The equipment and hands stay unchanged. */
-export function chestMotionPaths(type: string, progress: number, returning: boolean) {
+export function chestMotionPaths(type: string, progress: number, returning: boolean, variant?:GuideVariant) {
   if (!chestLesson(type)) return [];
   const point = (p: number, side: number): V3 => {
-    const b = body3d(type,p), target = type === "chest-dip" ? b.shoulder : b.arms[side === -1 ? 0 : 1][2];
+    const b = body3d(type,p,variant), target = type === "chest-dip" ? b.shoulder : b.arms[side === -1 ? 0 : 1][2];
     return add3(target, [side * (type === "chest-dip" ? 22 : 9), 0, 0]);
   };
-  let trajectories = trajectoryCache.get(type);
+  let trajectories = trajectoryCache.get(type+"/"+(variant??""));
   if (!trajectories) {
     trajectories = [-1,1].map(side=>Array.from({length:17},(_,i)=>point(i/16,side)));
-    trajectoryCache.set(type,trajectories);
+    trajectoryCache.set(type+"/"+(variant??""),trajectories);
   }
   return [-1,1].map((side,index) => {
     const p = clampProgress(progress), before = point(Math.max(0,p-.04),side), after = point(Math.min(1,p+.04),side);

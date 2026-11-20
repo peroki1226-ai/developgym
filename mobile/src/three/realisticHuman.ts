@@ -341,14 +341,14 @@ export function createRealisticHuman(parent: THREE.Group) {
   const red = new THREE.Color("#b94b3e"), chestColour = new THREE.Color();
   const regionalColours = new Float32Array(base.length);
   let regionalType = "";
-  function bindChestColours(type: string) {
-    if(regionalType===type)return;
-    const targets=chestTargets(type),palette=CHEST_REGIONS.map(r=>new THREE.Color(CHEST_TARGET_COLOURS[targets[r]]));
+  function bindChestColours(type: string,variant?:string) {
+    const key=type+"/"+(variant??"");if(regionalType===key)return;
+    const targets=chestTargets(type,variant),palette=CHEST_REGIONS.map(r=>new THREE.Color(CHEST_TARGET_COLOURS[targets[r]]));
     for(let i=0;i<asset.vertexCount;i++)for(let channel=0;channel<3;channel++){
       const component=channel===0?"r":channel===1?"g":"b",k=i*3;
       regionalColours[k+channel]=palette.reduce((sum,c,r)=>sum+c[component]*regionWeights[k+r],0);
     }
-    regionalType=type;
+    regionalType=key;
   }
   function bindActiveMuscles(active: readonly Muscle[]) {
     dominant.fill(255);
@@ -402,7 +402,7 @@ export function createRealisticHuman(parent: THREE.Group) {
       const key = frame.muscles.join("/");
       if (activeKey !== key) { bindActiveMuscles(frame.muscles); activeKey = key; (geometry.attributes.muscleCoord as THREE.BufferAttribute).needsUpdate = true; }
       const chestContext = anatomy && frame.muscles.some(m => m === "chest" || m === "upperChest");
-      if(chestContext)bindChestColours(frame.type);
+      if(chestContext)bindChestColours(frame.type,frame.variant);
       const transforms = targets(frame),
         ref = reference(frame.type, frame.variant);
       const handGrips = ["R", "L"].map(side => {

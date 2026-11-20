@@ -1,3 +1,4 @@
+import {ChestPressVariant} from "../domain/training3d";
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, G, Line, Path, Rect } from "react-native-svg";
@@ -40,10 +41,11 @@ function SeatComparison({ height }: { height: Height }) {
   </View>;
 }
 
-export function ChestPressSeatGuide() {
+export function ChestPressSeatGuide({variant,onVariant}:{variant?:ChestPressVariant;onVariant?:(v:ChestPressVariant)=>void}={}) {
   const { t } = useI18n();
   const [open,setOpen] = useState(false);
-  const [height,setHeight] = useState<Height>("standard");
+  const [localHeight,setHeight] = useState<Height>("standard");
+  const height=variant?(variant==="upper"?"low":variant==="lower"?"high":"standard"):localHeight;
   return <View testID="chest-press-seat-guide" style={styles.panel}>
     <Pressable accessibilityRole="button" accessibilityLabel={t("press.seat.title")}
       accessibilityState={{ expanded: open }} aria-expanded={open} onPress={() => setOpen(!open)} style={styles.heading}>
@@ -53,7 +55,7 @@ export function ChestPressSeatGuide() {
     {open && <View style={styles.content}>
       <View accessibilityRole="radiogroup" accessibilityLabel={t("press.seat.compare")} style={styles.options}>
         {heights.map(value => <Pressable key={value} accessibilityRole="radio" accessibilityLabel={t(`press.seat.${value}.label`)}
-          accessibilityState={{ checked: height === value }} aria-checked={height === value} onPress={() => setHeight(value)}
+          accessibilityState={{ checked: height === value }} aria-checked={height === value} onPress={() => {setHeight(value);onVariant?.(value==="low"?"upper":value==="high"?"lower":"middle");}}
           style={[styles.option,height === value && styles.selected]}><Text style={styles.optionText}>{t(`press.seat.${value}.label`)}</Text></Pressable>)}
       </View>
       <SeatComparison height={height}/>

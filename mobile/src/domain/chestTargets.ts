@@ -11,10 +11,11 @@ const upper: ChestTargets = { upper: "primary", middle: "assisting", lower: "con
 const middle: ChestTargets = { upper: "assisting", middle: "primary", lower: "assisting" };
 const lower: ChestTargets = { upper: "context", middle: "assisting", lower: "primary" };
 const whole: ChestTargets = { upper: "primary", middle: "primary", lower: "primary" };
-export function chestTargets(type: string): ChestTargets {
+export function chestTargets(type: string, variant?: string): ChestTargets {
+  if(type==="chest-press"&&["upper","middle","lower"].includes(variant??""))return {upper:variant==="upper"?"primary":"context",middle:variant==="middle"?"primary":"context",lower:variant==="lower"?"primary":"context"};
   if (["incline-bench-press","incline-hammer-press","incline-smith","dumbbell-heavy"].includes(type)) return upper;
   if (["barbell-bench-press","chest-press"].includes(type)) return middle;
   if (["chest-dip","assisted-dip"].includes(type)) return lower;
   return whole;
 }
-export const chestTargetColour = (type: string, region: ChestRegion) => CHEST_TARGET_COLOURS[chestTargets(type)[region]];
+export const chestTargetColour = (type: string, region: ChestRegion, variant?: string) => CHEST_TARGET_COLOURS[chestTargets(type,variant)[region]];

@@ -1,13 +1,15 @@
+import {trainingFrame3d,add3,mul3,sub3,unit3} from "../domain/training3d";
+import {CHEST_REGIONS,chestTargetColour} from "../domain/chestTargets";
 import { chestMotionPaths } from "../domain/chestMotion";
 import { projectPhotoChest } from "../domain/photoChestProjection";
 import React, { useMemo } from "react";
 import { Muscle } from "../domain/muscleMotion";
-import { Circle, Ellipse, G, Line, Path, Polyline, Text as SvgText } from "react-native-svg";
+import { Circle, Ellipse, G, Line, Path, Polyline, Polygon, Text as SvgText } from "react-native-svg";
 import { ExercisePose, motionContact, Point } from "../domain/exerciseMotion";
 import { motionTeaching } from "../domain/motionTeaching";
 import { EquipmentContacts, EquipmentGrips, EquipmentRearFrame, ExerciseEquipment } from "./ExerciseEquipment";
 import { HumanFigure } from "./HumanFigure";
-import { LegPressVariant } from "../domain/training3d";
+import { GuideVariant } from "../domain/training3d";
 import { guidePose } from "../domain/photoChestProjection";
 
 const frame = "#bcbcbc", person = "#666666";
@@ -23,7 +25,7 @@ function Marker({ point, number, offset }: { point: Point; number: 1 | 2; offset
     <SvgText x={x} y={y + 1.5} fontSize={4.5} textAnchor="middle" fontWeight="bold" fill={color}>{number}</SvgText>
   </G>;
 }
-export function ExerciseMotionScene({ type, progress, details = false, returning = false, guidance = false, anatomy = true, selectedMuscle, variant }: { type: string; variant?: LegPressVariant; progress: number; details?: boolean; returning?: boolean; guidance?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
+export function ExerciseMotionScene({ type, progress, details = false, returning = false, guidance = false, anatomy = true, selectedMuscle, variant }: { type: string; variant?: GuideVariant; progress: number; details?: boolean; returning?: boolean; guidance?: boolean; anatomy?: boolean; selectedMuscle?: Muscle }) {
   const pose = guidePose(type, progress, variant);
   const { start, trace, trajectory } = useMemo(() => {
     const contact = (p: ExercisePose) => motionContact(type, p);
@@ -51,8 +53,15 @@ export function ExerciseMotionScene({ type, progress, details = false, returning
     <Polyline points={trajectory} stroke={person} strokeWidth={0.8} strokeDasharray="1 2" fill="none" opacity={0.45} />
     {details && <Polyline points={points(partial)} stroke={person} strokeWidth={1.5} fill="none" opacity={0.75} />}
     <HumanFigure type={type} pose={pose} progress={progress} anatomy={anatomy} selectedMuscle={selectedMuscle} />
+    {type==='chest-press'&&variant&&anatomy&&(()=>{
+      const body=trainingFrame3d(type,progress,variant).body,up=unit3(sub3(body.shoulder,body.hip));
+      return <G testID="press-svg-targets">{CHEST_REGIONS.map((region,i)=>{
+        const points=[[-5,-6-i*2],[5,-6-i*2],[5,-7.8-i*2],[-5,-7.8-i*2]].map(([x,y])=>projectPhotoChest(type,add3(add3(body.shoulder,[x,0,0]),add3(mul3(up,y),mul3(body.forward,6.5)))).join(',')).join(' ');
+        return <Polygon key={region} testID={'press-svg-'+region} points={points} fill={chestTargetColour(type,region,variant)} opacity={.9}/>;
+      })}</G>;
+    })()}
     <EquipmentContacts type={type} pose={pose} />
-    {guidance && chestMotionPaths(type,progress,returning).map((path,index)=>{
+    {guidance && chestMotionPaths(type,progress,returning,variant).map((path,index)=>{
       const a=projectPhotoChest(type,path.tail), b=projectPhotoChest(type,path.tip), angle=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;
       return <G key={index}><Polyline points={points(path.points.map(p=>projectPhotoChest(type,p)))} stroke="#879aa8" strokeWidth={.45} strokeDasharray="1 1" fill="none"/>
         <Line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#254f70" strokeWidth={1.1}/>

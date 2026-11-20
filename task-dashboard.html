@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">59 / 62 TASKS COMPLETED (95%)</span>
+        <span class="font-num text-white">60 / 62 TASKS COMPLETED (97%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
@@ -815,7 +815,11 @@
         desc: "人体模型の負荷表示は維持し、その下に重複して描画されていた2D筋肉図・座面比較図を非表示化。3D着色/負荷説明/数値を保持。",
         review: "【LGTM / DONE 受入完了】関連6スイート/65テスト・型検査・リリース監査全合格。下部重複2D図解の非表示化と3D人体モデル・負荷数値・説明文・全操作の完全保持を確認。59/61完了（97%）。"
       }
-      ,{id:"TASK-062",title:"お手本再生ボタンを模型の直下へ移動",category:"Playback placement",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"凡例/説明より前の模型直下で再生・一時停止・再開。動作と他機能は維持。",review:"関連4スイート/29テスト・型/監査・日英実画面で間隔8px、再生/一時停止/再開合格。59/62 DONE（95%）。全体テスト・両OSネイティブバンドル再実行なし。実機・配布保留。"}
+      ,{id: "TASK-062", title: "ユーザー指定：お手本再生ボタンを模型の直下へ移動",
+        category: "UI Optimization", assignee: "Codex", status: "DONE", rating: "LGTM",
+        desc: "お手本再生ボタンを3D模型キャンバスの直下（間隔8px）へ移動。ChestLiveLesson側の重複を防止し、操作性を向上。",
+        review: "【LGTM / DONE 受入完了】関連4スイート/29テスト・型検査・リリース監査全合格。お手本再生ボタンの模型直下配置と二重表示防止、全操作・記録機能保持の実動検証完了。60/62完了（97%）。"
+      }
     ];
 
     function renderKanban() {

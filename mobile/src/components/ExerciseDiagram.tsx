@@ -330,6 +330,9 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
+      {showMuscleExplanations && guidedChest && lesson && <View testID="model-example-playback">
+        <Button title={t(motion.running?"chest.live.pause":chestCyclePosition(type,motion,motion.completedRepetition)>0&&chestCyclePosition(type,motion,motion.completedRepetition)<1?"chest.live.resume":"chest.live.play")} onPress={playChest} disabled={!motion.canPlay}/>
+      </View>}
         {mode === "spatial" && anatomy && !!lesson && <View testID="chest-region-legend" style={{ gap: 4, paddingHorizontal: 8 }}>
         <ChestRegionTargets type={type} variant={modelVariant} detailed={showMuscleExplanations}/>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
@@ -343,7 +346,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         <Text style={styles.note}>{t("regions.identification")}</Text>
       </View>}
       <ChestSetupGuide showIllustrations={false} type={type} pressVariant={pressVariant} onPressVariant={value=>{motion.seek(0);setPressVariant(value);setSelectedMuscle(value==="upper"?"upperChest":"chest");setAnatomy(true);setView("side");setOrbit(undefined);}}/>
-      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson showIllustrations={false} lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
+      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson externalPlayback showIllustrations={false} lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
         onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}

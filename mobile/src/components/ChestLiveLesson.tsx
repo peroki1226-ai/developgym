@@ -9,7 +9,7 @@ import { useI18n } from "../i18n";
 import { MotionScrubber } from "./MotionScrubber";
 import { Button, colors } from "./ui";
 
-type Props={showIllustrations?:boolean;lesson:ChestLesson;frame:MotionFrame;position:number;running:boolean;canPlay:boolean;completed:boolean;reduced:boolean;
+type Props={externalPlayback?:boolean;showIllustrations?:boolean;lesson:ChestLesson;frame:MotionFrame;position:number;running:boolean;canPlay:boolean;completed:boolean;reduced:boolean;
   speed:PlaybackSpeed;view:View3;spatial?:boolean;externalCamera?:boolean;focused:boolean;onPlay:()=>void;onRestart:()=>void;onSeek:(value:number)=>void;
   onSpeed:(speed:PlaybackSpeed)=>void;onView:(view:View3)=>void;onFocus:()=>void};
 export function ChestLiveLesson(p:Props) {
@@ -19,7 +19,7 @@ export function ChestLiveLesson(p:Props) {
   const gradientId=React.useId().replace(/:/g, "");
   return <View testID="chest-live-lesson" style={styles.panel}>
     <Text style={styles.title}>{t("chest.live.title")}</Text>
-    <Button title={t(p.running?"chest.live.pause":p.position>0&&p.position<1?"chest.live.resume":"chest.live.play")} onPress={p.onPlay} disabled={!p.canPlay}/>
+    {!p.externalPlayback && <Button title={t(p.running?"chest.live.pause":p.position>0&&p.position<1?"chest.live.resume":"chest.live.play")} onPress={p.onPlay} disabled={!p.canPlay}/>}
     <View style={styles.row}>
       <Button title={t("anatomy.inspectLong")} variant="quiet" onPress={()=>p.onSeek(p.lesson.id === "chest-dip" ? .5 : 0)}/>
       <Button title={t("anatomy.inspectShort")} variant="quiet" onPress={()=>p.onSeek(p.lesson.id === "chest-dip" ? 0 : .5)}/>

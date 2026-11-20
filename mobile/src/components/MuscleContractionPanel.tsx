@@ -15,6 +15,7 @@ import { useI18n } from "../i18n";
 import { Button, colors } from "./ui";
 
 type Props = {
+  showIllustrations?:boolean;
   type: string;
   progress: number;
   phase: MotionPhase;
@@ -170,6 +171,7 @@ export function MuscleLiveInset({
 }
 
 export function MuscleContractionPanel({
+  showIllustrations = true,
   type,
   progress,
   phase,
@@ -228,14 +230,14 @@ export function MuscleContractionPanel({
         {t("load.body")}：{t(lesson.action)}
       </Text>
       <View
-        accessible
-        accessibilityRole="image"
+        accessible={showIllustrations}
+        accessibilityRole={showIllustrations ? "image" : undefined}
         accessibilityLabel={t("muscle.diagram", {
           0: t(`muscle.${selected}`),
           1: t(frame.label),
         })}
       >
-        <Svg viewBox="0 0 260 132" style={styles.svg}>
+        {showIllustrations && (<Svg viewBox="0 0 260 132" style={styles.svg}>
           <SvgText
             x={130}
             y={18}
@@ -284,7 +286,7 @@ export function MuscleContractionPanel({
           >
             {t("load.pull")}
           </SvgText>
-        </Svg>
+        </Svg>)}
       </View>
       <Text style={styles.explanation}>{t(lesson.explanation)}</Text>
       {lesson.state === "lengthening" && (
@@ -339,13 +341,13 @@ export function MuscleContractionPanel({
                           : "load.longCard",
                     )}
                   </Text>
-                  <Svg viewBox="0 0 260 100" style={styles.smallSvg}>
+                  {showIllustrations && (<Svg viewBox="0 0 260 100" style={styles.smallSvg}>
                     <Bundle
                       length={f.length * 1.5}
                       radius={f.radius * 1.8}
                       y={50}
                     />
-                  </Svg>
+                  </Svg>)}
                 </Pressable>
               );
             })}
@@ -376,7 +378,7 @@ export function MuscleContractionPanel({
       {detail && (
         <View>
           <Text style={styles.note}>{t("muscle.sarcomere")}</Text>
-          <Svg viewBox="0 0 180 72" style={styles.detailSvg}>
+          {showIllustrations && (<Svg viewBox="0 0 180 72" style={styles.detailSvg}>
             <Rect
               x={8}
               y={3}
@@ -435,7 +437,7 @@ export function MuscleContractionPanel({
                 />
               ))}
             </G>
-          </Svg>
+          </Svg>)}
           <Text style={styles.note}>{t("muscle.filamentLegend")}</Text>
           <Text style={styles.note}>
             {t(frame.isometric ? "muscle.isoHint" : "load.detailHint")}

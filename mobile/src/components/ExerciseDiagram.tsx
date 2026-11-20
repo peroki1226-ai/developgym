@@ -342,8 +342,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </View>
         <Text style={styles.note}>{t("regions.identification")}</Text>
       </View>}
-      <ChestSetupGuide type={type} pressVariant={pressVariant} onPressVariant={value=>{motion.seek(0);setPressVariant(value);setSelectedMuscle(value==="upper"?"upperChest":"chest");setAnatomy(true);setView("side");setOrbit(undefined);}}/>
-      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
+      <ChestSetupGuide showIllustrations={false} type={type} pressVariant={pressVariant} onPressVariant={value=>{motion.seek(0);setPressVariant(value);setSelectedMuscle(value==="upper"?"upperChest":"chest");setAnatomy(true);setView("side");setOrbit(undefined);}}/>
+      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson showIllustrations={false} lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
         onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}
@@ -368,7 +368,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         onInspect={direction => { setAnatomy(true); selectMuscle(muscleSpec(type).focus); setLessonDirection(direction); motion.playSegment(direction); }}
         onPause={motion.toggle} />}
       {showMuscleExplanations && anatomy && controlsVisible && (
-        <MuscleLengthCoach
+        <MuscleLengthCoach showIllustrations={false}
           type={type}
           progress={motion.progress}
           phase={motion.phase}
@@ -603,7 +603,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </Pressable>
       )}
       {showMuscleExplanations && anatomy && mechanismOpen && (
-        <MuscleContractionPanel
+        <MuscleContractionPanel showIllustrations={false}
           key={type}
           type={type}
           progress={motion.progress}

@@ -41,7 +41,7 @@ function SeatComparison({ height }: { height: Height }) {
   </View>;
 }
 
-export function ChestPressSeatGuide({variant,onVariant}:{variant?:ChestPressVariant;onVariant?:(v:ChestPressVariant)=>void}={}) {
+export function ChestPressSeatGuide({variant,onVariant,showIllustrations=true}:{showIllustrations?:boolean;variant?:ChestPressVariant;onVariant?:(v:ChestPressVariant)=>void}={}) {
   const { t } = useI18n();
   const [open,setOpen] = useState(false);
   const [localHeight,setHeight] = useState<Height>("standard");
@@ -58,7 +58,7 @@ export function ChestPressSeatGuide({variant,onVariant}:{variant?:ChestPressVari
           accessibilityState={{ checked: height === value }} aria-checked={height === value} onPress={() => {setHeight(value);onVariant?.(value==="low"?"upper":value==="high"?"lower":"middle");}}
           style={[styles.option,height === value && styles.selected]}><Text style={styles.optionText}>{t(`press.seat.${value}.label`)}</Text></Pressable>)}
       </View>
-      <SeatComparison height={height}/>
+      {showIllustrations && <SeatComparison height={height}/>}
       <View accessibilityLiveRegion="polite" style={styles.content}>
         <Text style={styles.title}>{t(`press.seat.${height}.position`)}</Text>
         <Text style={styles.text}>{t(`press.seat.${height}.effect`)}</Text>

@@ -118,6 +118,7 @@ function Picture({
   );
 }
 type Props = {
+  showIllustrations?: boolean;
   type: string;
   progress: number;
   phase: MotionPhase;
@@ -131,6 +132,7 @@ type Props = {
   canPlay: boolean;
 };
 export function MuscleLengthCoach({
+  showIllustrations = true,
   type,
   progress,
   phase,
@@ -220,7 +222,7 @@ export function MuscleLengthCoach({
                     : "coach.short",
               )}
             </Text>
-            <Picture progress={d === "work" ? 0 : 1} stabilizing={iso} />
+            {showIllustrations && <Picture progress={d === "work" ? 0 : 1} stabilizing={iso} />}
             <Text style={styles.cardHint}>
               {t(
                 iso
@@ -239,12 +241,13 @@ export function MuscleLengthCoach({
         {t(label)}
       </Text>
       <View
-        accessible
-        accessibilityRole="image"
+        accessible={showIllustrations}
+        accessibilityRole={showIllustrations ? "image" : undefined}
         accessibilityLabel={t(iso ? "coach.same" : "coach.lookEnds")}
       >
-        <Picture progress={progress} stabilizing={iso} live />
+        {showIllustrations && <Picture progress={progress} stabilizing={iso} live />}
       </View>
+      {showIllustrations && <>
       <Text style={styles.distance}>
         {t(
           iso
@@ -255,6 +258,7 @@ export function MuscleLengthCoach({
         )}
       </Text>
       <Text style={styles.note}>{t("coach.exaggerated")}</Text>
+      </>}
       <Button
         title={t(
           running

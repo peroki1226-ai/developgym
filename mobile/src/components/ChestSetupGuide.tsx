@@ -53,7 +53,7 @@ function BenchAngleComparison({ angle, onSelect }: { angle: Angle; onSelect: (va
   </View>;
 }
 
-function EquipmentSetup({ type,pressVariant,onPressVariant }: { type: string;pressVariant?:ChestPressVariant;onPressVariant?:(v:ChestPressVariant)=>void }) {
+function EquipmentSetup({ type,pressVariant,onPressVariant,showIllustrations=true }: { type: string;showIllustrations?:boolean;pressVariant?:ChestPressVariant;onPressVariant?:(v:ChestPressVariant)=>void }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [selectedAngle, setSelectedAngle] = useState<Angle>(angles[1]);
@@ -78,8 +78,8 @@ function EquipmentSetup({ type,pressVariant,onPressVariant }: { type: string;pre
   </View>;
 }
 
-export function ChestSetupGuide({ type,pressVariant,onPressVariant }: { type: string;pressVariant?:ChestPressVariant;onPressVariant?:(v:ChestPressVariant)=>void }) {
-  if (type === "chest-press") return <ChestPressSeatGuide variant={pressVariant} onVariant={onPressVariant}/>;
+export function ChestSetupGuide({ type,pressVariant,onPressVariant,showIllustrations=true }: { type: string;showIllustrations?:boolean;pressVariant?:ChestPressVariant;onPressVariant?:(v:ChestPressVariant)=>void }) {
+  if (type === "chest-press") return <ChestPressSeatGuide showIllustrations={showIllustrations} variant={pressVariant} onVariant={onPressVariant}/>;
   if (!chestLesson(type)) return null;
   return <EquipmentSetup key={type} type={type}/>;
 }

@@ -9,7 +9,7 @@ import { useI18n } from "../i18n";
 import { MotionScrubber } from "./MotionScrubber";
 import { Button, colors } from "./ui";
 
-type Props={lesson:ChestLesson;frame:MotionFrame;position:number;running:boolean;canPlay:boolean;completed:boolean;reduced:boolean;
+type Props={showIllustrations?:boolean;lesson:ChestLesson;frame:MotionFrame;position:number;running:boolean;canPlay:boolean;completed:boolean;reduced:boolean;
   speed:PlaybackSpeed;view:View3;spatial?:boolean;externalCamera?:boolean;focused:boolean;onPlay:()=>void;onRestart:()=>void;onSeek:(value:number)=>void;
   onSpeed:(speed:PlaybackSpeed)=>void;onView:(view:View3)=>void;onFocus:()=>void};
 export function ChestLiveLesson(p:Props) {
@@ -44,7 +44,7 @@ export function ChestLiveLesson(p:Props) {
     <Button title={t(p.focused?"chest.live.whole":"chest.live.focus")} variant="quiet" onPress={p.onFocus}/>
     <View testID="chest-live-muscle" style={styles.muscle}>
       <Text style={styles.muscleTitle}>{t(p.completed?"chest.live.complete":`chest.live.${p.frame.phase}`)}</Text>
-      <Svg viewBox="0 0 320 106" height={110} width="100%" accessibilityElementsHidden>
+      {p.showIllustrations !== false && (<Svg viewBox="0 0 320 106" height={110} width="100%" accessibilityElementsHidden>
         <Defs><LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor={chestTargetColour(p.lesson.id,"upper")}/><Stop offset="0.30" stopColor={chestTargetColour(p.lesson.id,"upper")}/>
           <Stop offset="0.45" stopColor={chestTargetColour(p.lesson.id,"middle")}/><Stop offset="0.65" stopColor={chestTargetColour(p.lesson.id,"middle")}/>
@@ -61,7 +61,7 @@ export function ChestLiveLesson(p:Props) {
             {[-1,1].map(end=>{const x=160+side*30+end*10,sign=(returning?1:-1)*end;return <Path key={end} d={`M${x-sign*5} 49 H${x+sign*5} M${x+sign} 45 L${x+sign*5} 49 L${x+sign} 53`} fill="none" stroke="#fff" strokeWidth={2}/>})}
           </G>;
         })}
-      </Svg>
+      </Svg>)}
       <Text testID="chest-live-cue" style={styles.text}>{t(`${p.lesson.prefix}.${returning?"returnCue":"moveCue"}`)}</Text>
       {p.lesson.id === "barbell-bench-press" && <View testID="bench-form-coaching" style={styles.dipCue}>
         <Text testID="bench-form-phase" style={styles.muscleTitle}>{t(returning ? "bench.form.lower" : progress < .08 ? "bench.form.bottom" : progress > .92 ? "bench.form.top" : "bench.form.press")}</Text>

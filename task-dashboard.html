@@ -81,12 +81,12 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">57</span> / <span id="stat-total" class="text-neutral-500">60</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">58</span> / <span id="stat-total" class="text-neutral-500">61</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">チェストプレス3高さ レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">模型下の2D図非表示 レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">58 / 60 TASKS COMPLETED (97%)</span>
+        <span class="font-num text-white">58 / 61 TASKS COMPLETED (95%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
@@ -810,6 +810,7 @@
         desc: "チェストプレスの3高さ（上部/中部/下部）を追加。座面・人体・胸3領域着色・比較図・矢印・SVGを連動。固定軌道/骨長/握り/足を保持。",
         review: "【LGTM / DONE 受入完了】全70スイート/842テスト・型検査・リリース監査全合格。3座面高さ・人体逆運動学把持・胸3領域動的着色・比較図/矢印/SVG双方向連動の実動検証完了。58/60完了（97%）。"
       }
+      ,{id:"TASK-061",title:"模型下の重複する2D負荷図を非表示",category:"Guide presentation",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"3D人体の負荷表示・数値・説明・操作を残し、下部の筋肉/座面比較の2D図だけ非表示。",review:"関連6スイート/65テスト・型/監査/両OSバンドル・日英画面合格。全842件の再実行は未実施。58/61 DONE（95%）。実機・配布保留。"}
     ];
 
     function renderKanban() {

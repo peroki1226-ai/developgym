@@ -48,9 +48,13 @@ test("the real guide exposes the comparison in beginner and advanced modes only 
   await fireEvent.press(screen.getByRole("button",{name:t("guide.changeMachine")}));
   await fireEvent.press(screen.getByRole("button",{name:t("chest.press.name")}));
   expect(screen.getByTestId("beginner-machine-lesson")).toBeTruthy();
+  expect(screen.queryByTestId("chest-live-fiber")).toBeNull();
+  expect(screen.getByTestId("chest-target-profile")).toBeTruthy();
   await fireEvent.press(screen.getByRole("button",{name:t("press.seat.title")}));
   await fireEvent.press(screen.getByRole("radio",{name:t("press.seat.high.label")}));
+  expect(screen.queryByTestId("press-seat-pad")).toBeNull();
   await fireEvent.press(screen.getByRole("button",{name:t("learn.advanced")}));
+  expect(screen.queryByTestId("coach-muscle-shape")).toBeNull();
   expect(within(screen.getByTestId("chest-press-seat-guide")).getByRole("radio",{name:t("press.seat.high.label")}).props.accessibilityState.checked).toBe(true);
   await fireEvent.press(screen.getByRole("button",{name:t("chest.fly.name")}));
   expect(screen.queryByTestId("chest-press-seat-guide")).toBeNull();

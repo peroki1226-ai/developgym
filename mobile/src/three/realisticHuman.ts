@@ -3,6 +3,7 @@ import { chestContractionEmphasis } from "../domain/chestLessons";
 import { humanDefinition, lowerPectoralContractionScale, chestRegionWeights, DEFINITION_FRAGMENT } from "./humanDefinition";
 import { HUMAN_SURFACE, humanSurfaceColours } from "./humanSurface";
 import { VolumeSkinner } from "./volumeSkinning";
+import { refineGripSkin } from "./gripTopology";
 import { HandGripSurface } from "./handGrip";
 import { torsoRetarget } from "./torsoRetarget";
 import * as THREE from "three";
@@ -30,21 +31,21 @@ function decode(text: string) {
   }
   return out;
 }
-const base = new Float32Array(decode(asset.positions).buffer);
-const normals = new Float32Array(decode(asset.normals).buffer);
-const indices = new Uint16Array(decode(asset.indices).buffer);
-const boneIds = decode(asset.skinIndices);
-const weights = new Float32Array(decode(asset.skinWeights).buffer);
-const clothes = decode(asset.materials);
-const surfaceOcclusion = decode(asset.surfaceOcclusion);
-const masks = Object.fromEntries(muscleNames.map(name => [name, decode((asset.muscleMasks as Record<string, string>)[name])])) as Record<Muscle, Uint8Array>;
+const {base,normals,indices,boneIds,weights,clothes,surfaceOcclusion,masks:refinedMasks}=refineGripSkin({
+ base:new Float32Array(decode(asset.positions).buffer), normals:new Float32Array(decode(asset.normals).buffer),
+ indices:new Uint16Array(decode(asset.indices).buffer),boneIds:decode(asset.skinIndices),weights:new Float32Array(decode(asset.skinWeights).buffer),
+ clothes:decode(asset.materials),surfaceOcclusion:decode(asset.surfaceOcclusion),
+ masks:Object.fromEntries(muscleNames.map(name=>[name,decode((asset.muscleMasks as Record<string,string>)[name])]))
+},asset.bones);
+const masks=refinedMasks as Record<Muscle,Uint8Array>;
+const vertexCount=base.length/3;
 const definition = humanDefinition(base, clothes, masks);
 const regionWeights = chestRegionWeights(base, clothes);
 const as3 = (p: readonly number[]) => p as V3;
 const gripSurfaces = [new HandGripSurface(asset.grips.R), new HandGripSurface(asset.grips.L)];
-const handSide = new Int8Array(asset.vertexCount).fill(-1);
-const contactSkin = new Uint8Array(asset.vertexCount);
-for (let i = 0; i < asset.vertexCount; i++) for (const [side, name] of ["hand.R", "hand.L"].entries()) {
+const handSide = new Int8Array(vertexCount).fill(-1);
+const contactSkin = new Uint8Array(vertexCount);
+for (let i = 0; i < vertexCount; i++) for (const [side, name] of ["hand.R", "hand.L"].entries()) {
   let influence = 0;
   for (let j = 0; j < 4; j++) if (asset.bones[boneIds[i * 4 + j]] === name) influence += weights[i * 4 + j];
   if (influence > .95) {
@@ -91,7 +92,7 @@ const soleSamples = new Map<number, number[]>();
 for (const side of ["R", "L"]) {
   const bone = asset.bones.indexOf("foot." + side),
     samples: number[] = [];
-  for (let i = 0; i < asset.vertexCount; i++) {
+  for (let i = 0; i < vertexCount; i++) {
     let weight = 0;
     for (let j = 0; j < 4; j++) if (boneIds[i * 4 + j] === bone) weight += weights[i * 4 + j];
     if (weight > .95 && clothes[i] === 0 && base[i * 3 + 1] < rest["foot." + side].head[1] - .2) samples.push(i);
@@ -310,8 +311,8 @@ export function createRealisticHuman(parent: THREE.Group) {
   const positions = new Float32Array(base.length),
     posedNormals = new Float32Array(normals.length),
     colours = new Float32Array(base.length);
-  const fibres = new Float32Array(asset.vertexCount * 2),
-    tint = new Float32Array(asset.vertexCount);
+  const fibres = new Float32Array(vertexCount * 2),
+    tint = new Float32Array(vertexCount);
   for (const [name, data, size] of [["position", positions, 3], ["normal", posedNormals, 3], ["color", colours, 3], ["muscleCoord", fibres, 2], ["muscleTint", tint, 1]] as const) geometry.setAttribute(name, new THREE.BufferAttribute(data, size).setUsage(THREE.DynamicDrawUsage));
   geometry.setAttribute("anatomyDefinition", new THREE.BufferAttribute(definition, 3));
   geometry.setAttribute("surfaceKind", new THREE.BufferAttribute(Float32Array.from(clothes), 1));
@@ -332,9 +333,9 @@ export function createRealisticHuman(parent: THREE.Group) {
   mesh.name = "human-surface";
   mesh.castShadow = mesh.receiveShadow = true;
   parent.add(mesh);
-  const dominant = new Uint8Array(asset.vertexCount).fill(255),
-    strength = new Float32Array(asset.vertexCount),
-    sourceT = new Float32Array(asset.vertexCount),
+  const dominant = new Uint8Array(vertexCount).fill(255),
+    strength = new Float32Array(vertexCount),
+    sourceT = new Float32Array(vertexCount),
     axes = new Float32Array(base.length);
   const skinner = new VolumeSkinner(asset.bones.length, SCALE);
   const neutralColours = humanSurfaceColours(base,clothes);
@@ -344,7 +345,7 @@ export function createRealisticHuman(parent: THREE.Group) {
   function bindChestColours(type: string,variant?:string) {
     const key=type+"/"+(variant??"");if(regionalType===key)return;
     const targets=chestTargets(type,variant),palette=CHEST_REGIONS.map(r=>new THREE.Color(CHEST_TARGET_COLOURS[targets[r]]));
-    for(let i=0;i<asset.vertexCount;i++)for(let channel=0;channel<3;channel++){
+    for(let i=0;i<vertexCount;i++)for(let channel=0;channel<3;channel++){
       const component=channel===0?"r":channel===1?"g":"b",k=i*3;
       regionalColours[k+channel]=palette.reduce((sum,c,r)=>sum+c[component]*regionWeights[k+r],0);
     }
@@ -352,7 +353,7 @@ export function createRealisticHuman(parent: THREE.Group) {
   }
   function bindActiveMuscles(active: readonly Muscle[]) {
     dominant.fill(255);
-    for (let i = 0; i < asset.vertexCount; i++) {
+    for (let i = 0; i < vertexCount; i++) {
     let best = 0;
     for (let m = 0; m < muscleNames.length; m++) if (active.includes(muscleNames[m]) && masks[muscleNames[m]][i] > best) {
       best = masks[muscleNames[m]][i];
@@ -433,7 +434,7 @@ export function createRealisticHuman(parent: THREE.Group) {
         point = new THREE.Vector3(),
         n = new THREE.Vector3(),
         colour = new THREE.Color();
-      for (let i = 0; i < asset.vertexCount; i++) {
+      for (let i = 0; i < vertexCount; i++) {
         const k = i * 3,
           m = dominant[i],
           amount = m === 255 ? 0 : states[m].shortening,
@@ -502,7 +503,7 @@ export function createRealisticHuman(parent: THREE.Group) {
     },
     stats: () => ({
       objects: disposed ? 0 : 1,
-      vertices: disposed ? 0 : asset.vertexCount,
+      vertices: disposed ? 0 : vertexCount,
       triangles: indices.length / 3,
       bones: asset.bones.length,
       source: asset.source.project,

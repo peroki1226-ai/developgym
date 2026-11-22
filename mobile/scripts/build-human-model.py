@@ -11,6 +11,7 @@ from human_anatomy_surface import refine_surface, sculpt_anatomy, fair_surface, 
 
 PIN = 'a8bc2d54ff0ac92e78ff71431b1023eda42bf482'
 p = argparse.ArgumentParser()
+p.add_argument('--hands-only-from',type=Path,help='Preserve an accepted body asset; replace only authored hand skin and grip references')
 p.add_argument('--source-root', required=True, type=Path)
 p.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1]/'src/data/human/makehuman.json')
 a = p.parse_args()
@@ -209,6 +210,39 @@ for side in ['R', 'L']:
     centre = mcp + along*fit[0] + palm*fit[1]
     approach = wrist-centre; approach -= across*np.dot(approach,across); approach /= np.linalg.norm(approach)
     grips[side] = {'centre':centre.tolist(),'axis':across.tolist(),'approach':approach.tolist(),'wrist':wrist.tolist()}
+# Pose each finger around one shared bar channel. Equal curl angles gave the
+# short little finger a much smaller hole than the middle finger and made a
+# subsequent radial projection tear the palm. Preserve every phalanx length.
+for side in ['R','L']:
+    grip=grips[side]; axis=np.array(grip['axis']); approach=np.array(grip['approach'])
+    curl=1 if side=='R' else -1
+    tangent=np.cross(axis,approach); centre=np.array(grip['centre'])+approach*.10-tangent*.05*curl
+    grip['centre']=centre.tolist();grip['contactRadius']=.14
+    wrist=np.array(grip['wrist']); approach=wrist-centre; approach-=axis*(approach@axis); approach/=np.linalg.norm(approach)
+    tangent=np.cross(axis,approach); grip['approach']=approach.tolist()
+    for finger in [2,3,4,5]:
+        names=['finger%d-%d.%s'%(finger,k,side) for k in [1,2,3]]
+        original=[bind_joint(names[0],'head')]+[bind_joint(n,'tail') for n in names]
+        lengths=[np.linalg.norm(original[k+1]-original[k]) for k in range(3)]
+        base=original[0]; axial=(base-centre)@axis
+        uv=np.array([(base-centre)@approach,(base-centre)@tangent]); distance=np.linalg.norm(uv)
+        radius=max(.235, max(lengths[1:])*.505)
+        radius=max(radius,abs(distance-lengths[0])+.005)
+        theta=np.arctan2(uv[1],uv[0])
+        theta+=curl*np.arccos(np.clip((distance*distance+radius*radius-lengths[0]**2)/(2*distance*radius),-1,1))
+        chain=[base]
+        for k in range(3):
+            if k:theta+=curl*2*np.arcsin(np.clip(lengths[k]/(2*radius),0,1))
+            chain.append(centre+axis*axial+radius*(approach*np.cos(theta)+tangent*np.sin(theta)))
+        assert np.allclose([np.linalg.norm(chain[j+1]-chain[j]) for j in range(3)],lengths,atol=1e-8)
+        for j,name in enumerate(names):
+            v=original[j+1]-original[j]; w=chain[j+1]-chain[j];v/=np.linalg.norm(v);w/=np.linalg.norm(w)
+            source_side=axis-v*(axis@v);source_side/=np.linalg.norm(source_side)
+            target_side=axis-w*(axis@w);target_side/=np.linalg.norm(target_side)
+            source_frame=np.c_[source_side,v,np.cross(source_side,v)]
+            target_frame=np.c_[target_side,w,np.cross(target_side,w)]
+            turn=np.eye(4);turn[:3,:3]=target_frame@source_frame.T
+            turn[:3,3]=chain[j]-turn[:3,:3]@original[j];finger_matrices[name]=turn
 # Oppose the thumb toward the closed index finger instead of leaving it dangling.
 # CCD preserves each authored phalanx length; this is an offline reference pose.
 for side in ['R', 'L']:
@@ -216,7 +250,9 @@ for side in ['R', 'L']:
     original = [(finger_matrices[names[0]] @ np.r_[bind_joint(names[0],'head'),1])[:3]] + [(finger_matrices[n] @ np.r_[bind_joint(n,'tail'),1])[:3] for n in names]
     chain = [v.copy() for v in original]
     index = [(finger_matrices['finger2-'+str(k)+'.'+side] @ np.r_[bind_joint('finger2-'+str(k)+'.'+side,'tail'),1])[:3] for k in [1,2]]
-    target = (index[0]+index[1])*.5 + np.array(grips[side]['axis'])*.18
+    target = (index[0]+index[1])*.5
+    grip_axis=np.array(grips[side]['axis']); radial=target-np.array(grips[side]['centre']);radial-=grip_axis*(radial@grip_axis);radial/=np.linalg.norm(radial)
+    target += grip_axis*.13+radial*.07
     for iteration in range(12):
         for j in [2,1,0]:
             v = chain[-1]-chain[j]; w = target-chain[j]
@@ -226,6 +262,7 @@ for side in ['R', 'L']:
             angle = min(np.arctan2(sine,np.clip(v@w,-1,1)),np.deg2rad(18))
             turn = rotation(axis,angle)
             for k in range(j+1,4): chain[k] = chain[j]+turn@(chain[k]-chain[j])
+    assert np.linalg.norm(chain[-1]-target)<.002, 'Thumb opposition did not converge'
     for j,name in enumerate(names):
         v = original[j+1]-original[j]; w = chain[j+1]-chain[j]
         v /= np.linalg.norm(v); w /= np.linalg.norm(w); axis=np.cross(v,w)
@@ -397,5 +434,14 @@ out['surfaceRefinement']={'baseVertexCount':base_vertex_count,'addedVertices':n-
 out['garmentRevision']='short-training-hems-v2'
 out['garmentBindings']=garment_bindings
 output=a.output
+if a.hands_only_from:
+    accepted=json.loads(a.hands_only_from.read_text())
+    assert accepted['vertexCount']==n and accepted['indices']==out['indices'] and accepted['bones']==bones
+    allowed=(small*np.isin(order,[i for i,name in enumerate(bones) if name.startswith('hand.')])).sum(axis=1)>.95
+    for key,dtype,stride in [('positions','<f4',3),('normals','<f4',3),('surfaceOcclusion','u1',1)]:
+        original=np.frombuffer(base64.b64decode(accepted[key]),dtype=dtype).copy().reshape(n,stride)
+        revised=np.frombuffer(base64.b64decode(out[key]),dtype=dtype).reshape(n,stride)
+        original[allowed]=revised[allowed];accepted[key]=pack(original,dtype)
+    accepted['grips']=grips;accepted['handRevision']='full-palm-wrap-v2';out=accepted
 output.write_text(json.dumps(out,separators=(',',':'))+'\n')
 print(json.dumps({'output':str(output),'vertices':n,'triangles':len(indices)//3,'bones':len(bones),'muscles':{k:int(np.sum(v>0)) for k,v in masks.items()},'bytes':output.stat().st_size},indent=2))

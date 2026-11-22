@@ -1,3 +1,4 @@
+import {outsideGrip} from "../test-utils/gripBaseline";
 import { outsideArmBack } from "../test-utils/armBackBaseline";
 import * as THREE from "three";
 const { createHash } = require("node:crypto");
@@ -14,9 +15,9 @@ test("the body outside the authorised arm/back refinement is reproducible and ga
  const h=createHash("sha256");
  for(const [key,size] of [["positions",3],["normals",3],["skinIndices",4],["skinWeights",4]] as const){
   const b=bytes(asset[key]),n=key==="skinIndices"?1:4;
-  for(let i=0;i<m.length;i++)if(m[i]!==1&&outsideArmBack(i))h.update(b.slice(i*size*n,(i+1)*size*n));
+  for(let i=0;i<m.length;i++)if(m[i]!==1&&outsideArmBack(i)&&outsideGrip(i))h.update(b.slice(i*size*n,(i+1)*size*n));
  }
- expect(h.digest("hex")).toBe("f6605beef5664c5f4a866bc32949a980b1c660ea11291d086177a2ed5a077824");
+ expect(h.digest("hex")).toBe("fd8fedec63e728c4499ac03dd53b8741d20823cd03988028db9687232d7fb199");
  expect(asset.garmentRevision).toBe("short-training-hems-v2");
  const edges=new Map<string,number>(),indices=new Uint16Array(bytes(asset.indices).buffer);
  for(let i=0;i<indices.length;i+=3){const tri=Array.from(indices.slice(i,i+3));if(!tri.every(i=>m[i]===1))continue;for(let j=0;j<3;j++){const key=[tri[j],tri[(j+1)%3]].sort((a,b)=>a-b).join("/");edges.set(key,(edges.get(key)??0)+1);}}

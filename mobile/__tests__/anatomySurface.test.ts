@@ -1,3 +1,4 @@
+import {outsideGrip} from "../test-utils/gripBaseline";
 import asset from "../src/data/human/makehuman.json";
 const {createHash}=require('node:crypto');
 const bytes=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
@@ -15,15 +16,15 @@ test('the refined skin is conforming, bounded, and leaves no open edge around ad
  }
  expect(edges.size).toBeGreaterThan(10000);for(const count of edges.values())expect(count).toBe(2);
 });
-test('authored face, eyes, hands and feet keep their vertices, weights and protected triangles',()=>{
+test('authored face, eyes and feet outside the requested hand revision keep their vertices, weights and protected triangles',()=>{
  const protectedVertex:boolean[]=[],h=createHash('sha256');
  for(let v=0;v<asset.vertexCount;v++){
   let influence=0;for(let k=0;k<4;k++)if(/^(head|hand\.|foot\.)/.test(asset.bones[ids[v*4+k]]))influence+=w[v*4+k];
-  protectedVertex[v]=influence>.95||m[v]===2;
+  protectedVertex[v]=(influence>.95||m[v]===2)&&outsideGrip(v);
   if(protectedVertex[v]){h.update(new Uint8Array(p.buffer,v*12,12));h.update(ids.slice(v*4,v*4+4));h.update(new Uint8Array(w.buffer,v*16,16));}
  }
  for(let t=0;t<i.length;t+=3)if([0,1,2].every(k=>protectedVertex[i[t+k]]))h.update(new Uint8Array(i.buffer,t*2,6));
- expect(h.digest('hex')).toBe('30dd2dc635d533154ccb8e853b356aa90b84ada7acd35d92fc371d33a946446c');
+ expect(h.digest('hex')).toBe('293ae3dcc92333df01f5a43bccb799dfe1dd63b80995e5e262cec2b3728cc8ba');
 });
 function anteriorAt(x:number,y:number){
  let front=-Infinity;

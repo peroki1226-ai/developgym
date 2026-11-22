@@ -1,3 +1,4 @@
+import {outsideGrip} from "../test-utils/gripBaseline";
 import {outsideUpperArm} from "../test-utils/upperArmBaseline";
 import * as THREE from 'three';
 import asset from '../src/data/human/makehuman.json';
@@ -12,14 +13,14 @@ const saved=new Float32Array(bytes(baseline.originalPositions).buffer);
 baseline.allowedVertices.forEach((v,i)=>original.set(saved.subarray(i*3,i*3+3),v*3));
 const mean=(a:number[])=>a.reduce((x,y)=>x+y,0)/a.length;
 
-test('the accepted chest, head, hands, legs and clothing keep their exact v12 position, normal and AO bytes',()=>{
+test('the accepted chest, head, legs and clothing outside the requested grip revision keep their exact v12 position, normal and AO bytes',()=>{
  const digest=createHash('sha256');let count=0;
  for(const [key,stride]of [['positions',12],['normals',12],['surfaceOcclusion',1]]as const){
-  const raw=bytes(asset[key]);for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v)){
+  const raw=bytes(asset[key]);for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v)&&outsideGrip(v)){
    digest.update(raw.subarray(v*stride,(v+1)*stride));if(key==='positions')count++;
   }
  }
- expect(count).toBe(18901);expect(digest.digest('hex')).toBe(baseline.protectedSurfaceHash);
+ expect(count).toBe(15807);expect(digest.digest('hex')).toBe('66e705a9cbb0815e684787cc4261e188a0cd392b7a04d494537537da5e854a27');
  expect(asset.vertexCount).toBe(24000);expect(indices.length/3).toBe(47910);expect(asset.bones).toHaveLength(22);
 });
 

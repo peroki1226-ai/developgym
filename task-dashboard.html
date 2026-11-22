@@ -76,17 +76,17 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">95%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">60</span> / <span id="stat-total" class="text-neutral-500">63</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">60</span> / <span id="stat-total" class="text-neutral-500">64</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">インクラインの握り幅 レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">バーを握る手 レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">60 / 63 TASKS COMPLETED (95%)</span>
+        <span class="font-num text-white">60 / 64 TASKS COMPLETED (94%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
       </div>
     </div>
 
@@ -821,6 +821,7 @@
         review: "【LGTM / DONE 受入完了】関連4スイート/29テスト・型検査・リリース監査全合格。お手本再生ボタンの模型直下配置と二重表示防止、全操作・記録機能保持の実動検証完了。60/62完了（97%）。"
       }
       ,{id:"TASK-063",title:"インクラインベンチの狭い握りと下端肘90度",category:"Incline grip",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"握りを約10%狭め、下端を肘90度に合わせる。骨長・把持・バー上端とレールは維持。",review:"関連4スイート/67テスト・型/監査/両OSバンドル・日英12表示合格。全体843件の再実行は未実施。60/63 DONE（95%）。実機・配布保留。"}
+      ,{id:"TASK-064",title:"バーを握る手の自然な形と接触",category:"Hand grip",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"各指の長さに合わせた握りと親指の対向、実際の金属バー径、手首への滑らかな追従を調整。",review:"関連9スイート/95件、型検査/監査/両OSローカルバンドル、日英16表示と再生合格。手以外の20,906頂点を保持。60/64 DONE（94%）。見た目・実機は受入待ち。配布保留。"}
     ];
 
     function renderKanban() {

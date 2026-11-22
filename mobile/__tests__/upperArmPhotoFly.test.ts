@@ -1,3 +1,4 @@
+import {outsideGrip} from "../test-utils/gripBaseline";
 import React from "react";
 import {render} from "@testing-library/react-native";
 import {PhotoChestEquipment} from "../src/components/PhotoChestEquipment";
@@ -16,8 +17,8 @@ const mean=(a:number[])=>a.reduce((s,x)=>s+x,0)/a.length;
 
 test('only the authorised upper-arm surface changes from v13; chest, hands, joints and the other regions retain their accepted bytes',()=>{
  const h=createHash('sha256');let count=0;
- for(const[key,stride]of [['positions',12],['normals',12],['surfaceOcclusion',1]]as const){const raw=bytes(asset[key]);for(let v=0;v<asset.vertexCount;v++)if(outsideUpperArm(v)){h.update(raw.subarray(v*stride,(v+1)*stride));if(key==='positions')count++;}}
- expect(count).toBe(22692);expect(h.digest('hex')).toBe('172e2afcd9e3cfe97c5cc4402703ffde44d3851b59b9789ca652319d2d6dc7e9');
+ for(const[key,stride]of [['positions',12],['normals',12],['surfaceOcclusion',1]]as const){const raw=bytes(asset[key]);for(let v=0;v<asset.vertexCount;v++)if(outsideUpperArm(v)&&outsideGrip(v)){h.update(raw.subarray(v*stride,(v+1)*stride));if(key==='positions')count++;}}
+ expect(count).toBe(19598);expect(h.digest('hex')).toBe('c0aeb4ffb9d794358326567c58f0fe1a3fe1d6bdaa9f19d9cf1c25ab7a2012c7');
 });
 
 test.each(Object.entries(baseline.cores))('%s: the upper-arm surface itself is smoother, with a broad muscular belly', (side,core)=>{

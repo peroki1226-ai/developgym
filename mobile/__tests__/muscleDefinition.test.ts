@@ -41,14 +41,14 @@ test.each(["upperarm.L","upperarm.R"] as const)("%s: fuller muscle belly preserv
   expect(radius(.25,.7)).toBeLessThan(.7883228763*1.35);
   expect(radius(.94,1.03)).toBeCloseTo(.4581622631,6);
 });
-test("muscle enlargement leaves the accepted real hand positions unchanged", () => {
+test("the authored full-palm-wrap-v2 hand pose remains deterministic", () => {
   const hash=createHash('sha256'); let count=0;
   for(const i of skinPoints){
     let hand=0; for(let j=0;j<4;j++) if(asset.bones[ids[i*4+j]].startsWith('hand.')) hand+=weights[i*4+j];
     if(hand>.95){hash.update(new Uint8Array(positions.buffer,i*12,12));count++;}
   }
   expect(count).toBe(3094);
-  expect(hash.digest('hex')).toBe('e949da1d609a6c73f1dfbbcc8bd8512a3511af50e1fc4eaec3303fedc817070f');
+  expect(hash.digest('hex')).toBe('87a6f38d20a439506aa369b877782e42d6e394b7c1b34544eeb830ac63aca4a4');
 });
 test("regional surfaces and masks remain bilateral and keep chest above the abdomen", () => {
   for(const name of ['upperChest','biceps','triceps','lats','midBack'] as const){

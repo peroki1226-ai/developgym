@@ -16,7 +16,7 @@ test.each(['chest-press','incline-smith','pec-fly','chest-dip','barbell-bench-pr
  const human=createRealisticHuman(new THREE.Group());
  try{
   const fields=human.mesh.geometry.getAttribute('anatomyDefinition');
-  expect(fields.count).toBe(asset.vertexCount);expect(Array.from(fields.array).every(Number.isFinite)).toBe(true);
+  expect(fields.count).toBe(human.mesh.geometry.getAttribute('position').count);expect(Array.from(fields.array).every(Number.isFinite)).toBe(true);
   for(let i=0;i<fields.count;i++)if(material[i]!==0){expect(fields.getY(i)).toBe(0);expect(fields.getZ(i)).toBe(0);}
   for(const progress of [0,.5,1]){
    const frame=trainingFrame3d(type,progress);human.draw(frame,false);

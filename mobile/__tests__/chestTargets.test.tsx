@@ -12,6 +12,9 @@ import { LocaleProvider, translate } from "../src/i18n";
 import asset from "../src/data/human/makehuman.json";
 const {createHash}=require("node:crypto");
 const bytes=(s:string)=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const boneIds=bytes(asset.skinIndices),skinWeights=new Float32Array(bytes(asset.skinWeights).buffer);
+// Hand fitting is the requested edit. Keep the accepted non-hand surface locked.
+const outsideHand=(v:number)=>{for(let j=0;j<4;j++)if(/^(hand|forearm)\./.test(asset.bones[boneIds[v*4+j]])&&skinWeights[v*4+j]>0)return false;return true;};
 const rest=new Float32Array(bytes(asset.positions).buffer),materials=bytes(asset.materials),weights=chestRegionWeights(rest,materials);
 
 test("all incline variants prioritize clavicular chest, flat presses the middle and dips the lower portion",()=>{
@@ -26,15 +29,15 @@ test("three smooth bilateral rest-surface regions form a partition on skin witho
   expect(w.reduce((a,b)=>a+b,0)).toBeCloseTo(materials[i]===0?1:0,6);
  }
 });
-test("the v12 posed positions/normals outside the authorised arms/back and dip / photo Super Fly / incline-grip revisions retain the accepted geometry and grips",()=>{
+test("the v12 posed positions/normals outside the authorised arms/back and dip / photo Super Fly / incline-grip revisions retain the accepted geometry outside the requested hand fit",()=>{
  const h=createRealisticHuman(new THREE.Group()),digest=createHash('sha256');
  try{for(const l of CHEST_LESSONS.filter(l=>!["chest-dip","super-fly","incline-bench-press"].includes(l.id)))for(const p of [0,.5,1]){
   h.draw(trainingFrame3d(l.id,p),true);for(const key of ['position','normal']){
-   const a=h.mesh.geometry.attributes[key].array;for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v))digest.update(new Uint8Array(a.buffer,v*12,12));
+   const a=h.mesh.geometry.attributes[key].array;for(let v=0;v<asset.vertexCount;v++)if(outsideArmBack(v)&&outsideHand(v))digest.update(new Uint8Array(a.buffer,v*12,12));
   }
   for(const g of h.mesh.userData.handContacts)expect(g.error).toBeLessThan(1e-6);
  }}finally{h.dispose();}
- expect(digest.digest('hex')).toBe('c6d2cab8317c8c623fde8391fcaa706073833e4aa9cd579b3143e7f49642bf6f');
+ expect(digest.digest('hex')).toBe('a978e1518221bd9ec036d70ff34b4cb73c59697bcbd11f494319dc5a2c080382');
 });
 test.each(CHEST_LESSONS)("$id: actual vertex colours emphasize the intended region throughout motion, without a stale palette after switching",lesson=>{
  const h=createRealisticHuman(new THREE.Group());

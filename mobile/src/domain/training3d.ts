@@ -601,12 +601,18 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
   };
   const cable = (id: string, a: V3, b: V3) => beam(id, a, b, 0.18, "rubber");
   const handle = (id: string, hand: V3, axis: V3 = right) => {
-    grips.push({ centre: hand, axis: unit3(axis), radius: 1.09 }); // Outer knurl/rib envelope.
-    const a = add3(hand, mul3(axis, -3)),
-      b = add3(hand, mul3(axis, 3));
+    // A continuous lifting bar has no rubber sleeve or chrome stops under the
+    // fingers. Match the actual .65-radius shaft instead of the machine grip.
+    const bar = id.startsWith("smith-bar-grip") || id.startsWith("free-bar-grip");
+    grips.push({ centre: hand, axis: unit3(axis), radius: bar ? .65 : 1.09 });
+    if (bar) return;
+    // The full authored palm spans ~6.8 units; keep end caps outside its skin.
+    const halfLength = 3.8;
+    const a = add3(hand, mul3(axis, -halfLength)),
+      b = add3(hand, mul3(axis, halfLength));
     beam(id, a, b, 1.05, "rubber");
     for (let i = -2; i <= 2; i++) axial(id + "-rib" + i, "cylinder", add3(hand, mul3(axis, i)), axis, 1.09, .12, "rubber");
-    for (const end of [-1, 1]) axial(id + "-end" + end, "cylinder", add3(hand, mul3(axis, end * 3)), axis, 1.15, .25, "chrome");
+    for (const end of [-1, 1]) axial(id + "-end" + end, "cylinder", add3(hand, mul3(axis, end * halfLength)), axis, 1.15, .25, "chrome");
   };
   const pivot = (id: string, a: V3, axis: V3 = right) => {
     axial(id, "cylinder", a, axis, 2.6, 3.4);

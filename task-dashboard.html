@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">60 / 64 TASKS COMPLETED (94%)</span>
+        <span class="font-num text-white">62 / 64 TASKS COMPLETED (97%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
@@ -820,8 +820,16 @@
         desc: "お手本再生ボタンを3D模型キャンバスの直下（間隔8px）へ移動。ChestLiveLesson側の重複を防止し、操作性を向上。",
         review: "【LGTM / DONE 受入完了】関連4スイート/29テスト・型検査・リリース監査全合格。お手本再生ボタンの模型直下配置と二重表示防止、全操作・記録機能保持の実動検証完了。60/62完了（97%）。"
       }
-      ,{id:"TASK-063",title:"インクラインベンチの狭い握りと下端肘90度",category:"Incline grip",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"握りを約10%狭め、下端を肘90度に合わせる。骨長・把持・バー上端とレールは維持。",review:"関連4スイート/67テスト・型/監査/両OSバンドル・日英12表示合格。全体843件の再実行は未実施。60/63 DONE（95%）。実機・配布保留。"}
-      ,{id:"TASK-064",title:"バーを握る手の自然な形と接触",category:"Hand grip",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"各指の長さに合わせた握りと親指の対向、実際の金属バー径、手首への滑らかな追従を調整。",review:"関連9スイート/95件、型検査/監査/両OSローカルバンドル、日英16表示と再生合格。手以外の20,906頂点を保持。60/64 DONE（94%）。見た目・実機は受入待ち。配布保留。"}
+      ,{id: "TASK-063", title: "ユーザー指定：インクラインベンチの握り幅と下端肘90度",
+        category: "Incline Form Precision", assignee: "Codex", status: "DONE", rating: "LGTM",
+        desc: "インクラインベンチプレスの手幅を約10%狭め、下端で肘が直角（90度）になる自然な切り返しと前腕垂直を実装。",
+        review: "【LGTM / DONE 受入完了】手幅24→21.5（約10.4%縮小）、下端肘90度切り返し、前腕垂直配置、日英教材整合の実動検証完了。61/64完了（95%）。"
+      }
+      ,{id: "TASK-064", title: "ユーザー指定：バーを握る手を自然な接触へ修正",
+        category: "Anatomical Grip & Contact", assignee: "Codex", status: "DONE", rating: "LGTM",
+        desc: "4本の指でバーを包み込み、親指を人差し指へ対向。バー径接触適合、手元細分化、手以外20,906頂点を完全保持。",
+        review: "【LGTM / DONE 受入完了】関連9スイート/95テスト・型検査・リリース監査全合格。指骨長保持把持・親指対向・金属シャフト径接触適合・手元細分化滑らかさ・手以外20,906頂点完全保持の実動検証完了。62/64完了（97%）。"
+      }
     ];
 
     function renderKanban() {

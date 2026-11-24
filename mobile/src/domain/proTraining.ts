@@ -9,6 +9,7 @@ const guide = (type: MotionType, method: FinishMethod, compound = false, guard =
 });
 /** Methods suit the equipment and stable posture; failure does not unlock extra reps. */
 export const PRO_TRAINING = {
+  "smith-squat":guide("smith-squat","backoff",true,"pro.guard.smith"),
   "chest-press": guide("chest-press", "drop", true),
   "pec-fly": guide("pec-fly", "drop"),
   "super-fly": guide("super-fly", "backoff"),

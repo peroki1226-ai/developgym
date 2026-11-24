@@ -29,7 +29,7 @@ test.each(MOTION_TYPES)("%s has specific form/return/compensation cues and compl
   }
 });
 test("finish methods distinguish free loads, lower-body compounds and assistance; unknown IDs do not get an invented prescription", () => {
-  expect(Object.keys(PRO_TRAINING)).toHaveLength(29);
+  expect(Object.keys(PRO_TRAINING)).toHaveLength(30);
   for (const id of ["barbell-bench-press", "power-rack", "dumbbell-heavy", "leg-press", "hack-squat"]) expect(proTraining(id)!.method).toBe("backoff");
   for (const id of ["chest-dip", "assisted-dip", "assisted-pull-up"]) expect(proTraining(id)!.method).toBe("assist");
   expect(proTraining("pec-fly")!.method).toBe("drop");

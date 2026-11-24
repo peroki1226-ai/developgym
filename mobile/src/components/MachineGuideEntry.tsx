@@ -50,6 +50,10 @@ export function MachineGuideEntry() {
     <Pressable accessibilityRole="button" accessibilityLabel={t("chest.course.open")} onPress={() => d.openGuide("dumbbell-heavy")}
       style={{ minHeight: 50, padding: 14, borderRadius: 10, backgroundColor: "#edf3f5", justifyContent: "center" }}>
       <Text style={{ color: colors.primary, fontSize: 14, fontWeight: "600" }}>{t("chest.course.open")} →</Text>
+    </Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel={t("leg.course.open")} onPress={()=>d.openGuide("power-rack")}
+      style={{minHeight:50,padding:14,borderRadius:10,backgroundColor:colors.surface,justifyContent:"center",borderWidth:1,borderColor:colors.border}}>
+      <Text style={{color:colors.primary,fontSize:14,fontWeight:"600"}}>{t("leg.course.open")} →</Text>
     </Pressable></View>
   );
 }

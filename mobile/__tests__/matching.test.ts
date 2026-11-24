@@ -47,7 +47,7 @@ test("part coverage preserves per-exercise weights, and fully missing results ke
       partIds: ["quads"],
       requiredDumbbellKg: 40,
     }).percent,
-  ).toBe(93);
+  ).toBe(92); // Added leg-extension menu participates in quadriceps coverage.
   const noEquipment = { ...anytime, installed: [], maxDumbbellKg: 0 };
   const result = calculateMatch(noEquipment, {
     ...all,

@@ -353,7 +353,24 @@ export function chestPressPosition(base:Body3,variant:ChestPressVariant):Body3 {
   const legs=base.legs.map((leg,i)=>solveBone3(add3(hip,[i===0?-5.2:5.2,0,0]),leg[2],20,21,[0,.3,1]));
   return {...base,hip,shoulder,head:add3(shoulder,mul3(up,8.4)),spine:[hip,shoulder],arms,legs,forward};
 }
+/** Guided squat: fixed feet, a vertical bar, and hips/knees solved to the same
+ * adult limb lengths as the other models. This is a generic vertical-rail unit. */
+export const SMITH_SQUAT = Object.freeze({guideZ:-4,gripHalfWidth:24,railHalfWidth:33});
+function smithSquatBody(value:number):Body3 {
+ const p=clampProgress(value),base=body3d("power-rack",p),up=unit3([0,26,7*(1-p)]);
+ const z=-up[2]*HUMAN_SEGMENTS.torso;
+ const feet=body3d("power-rack",1).legs.map(l=>l[2]);
+ const maxY=Math.min(...feet.map((f,i)=>f[1]+Math.sqrt((HUMAN_SEGMENTS.thigh+HUMAN_SEGMENTS.shin-.05)**2-(f[0]-(i===0?-5.2:5.2))**2-(f[2]-z)**2)));
+ const hip:V3=[0,Math.min(base.hip[1],maxY),z],shoulder=add3(hip,mul3(up,HUMAN_SEGMENTS.torso)),forward=unit3(cross3([1,0,0],up));
+ const arms=[-1,1].map(side=>{
+  const root=add3(add3(shoulder,[side*9,0,0]),add3(mul3(up,-4.8),mul3(forward,.4)));
+  return solveBone3(root,[side*SMITH_SQUAT.gripHalfWidth,shoulder[1]-1,SMITH_SQUAT.guideZ],HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,[side*.4,-1,.4]);
+ });
+ const legs=feet.map((foot,i)=>solveBone3(add3(hip,[i===0?-5.2:5.2,0,0]),foot,HUMAN_SEGMENTS.thigh,HUMAN_SEGMENTS.shin,[0,.2,1]));
+ return {...base,hip,shoulder,head:add3(shoulder,mul3(up,HUMAN_SEGMENTS.headOffset)),spine:[hip,shoulder],arms,legs,forward,right:[1,0,0],facing:1};
+}
 export function body3d(raw: string, value: number, variant?: GuideVariant): Body3 {
+  if(raw==="smith-squat")return smithSquatBody(value);
   if(motionType(raw)==="chest-press"&&isChestPressVariant(variant))return chestPressPosition(body3d(raw,clampProgress(value)*.9),variant);
   const type = motionType(raw),
     p = clampProgress(value),
@@ -642,7 +659,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
     if (!(type === "leg-press" && variant === "seated")) floorFrame("bench", hip[2]);
   }
   const cabinetZ = hip[2] - 18;
-  if (!["super-fly", "incline-bench-press", "barbell-bench-press", "chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
+  if (!["super-fly", "incline-bench-press", "barbell-bench-press", "chest-dip", "incline-hammer-press", "chest-press", "pec-fly", "leg-extension", "hip-adduction", "cable-machine", "power-rack", "smith-squat", "incline-smith", "dumbbell-heavy", "hack-squat", "leg-press", "back-extension", "assisted-pull-up", "assisted-dip"].includes(type)) stack("stack", 26, cabinetZ);
   switch (type) {
     case "chest-press": {
       const reference = body3d(type, 0);
@@ -850,6 +867,27 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
         }
         break;
       }
+    case "smith-squat": {
+      const centre=average3(hands),z=SMITH_SQUAT.guideZ;
+      const stopY=average3(body3d(type,0).arms.map(a=>a[2]))[1]-3;
+      for(const side of [-1,1]){
+        const x=side*SMITH_SQUAT.railHalfWidth;
+        beam("smith-squat-upright"+side,[side*38,2,z],[side*38,99,z],2.7,"satin");
+        beam("smith-squat-guide"+side,[x,6,z],[x,96,z],.75,"chrome");
+        box("smith-squat-carriage"+side,[x,centre[1],z],[4,7,4],"satin");
+        box("smith-squat-stop"+side,[x,stopY,z],[5,3,5],"rubber");
+        for(let y=25;y<=91;y+=6)box("smith-squat-catch"+side+y,[side*37,y,z-2],[3,1,4],"chrome");
+        beam("smith-squat-foot"+side,[side*38,2,z-22],[side*38,2,z+24],2.5);
+        beam("smith-squat-hook"+side,[x,centre[1],z],[side*37,centre[1],z-2],.9,"chrome");
+        handle("smith-bar-grip"+side,hands[side===-1?0:1]);
+        beam("smith-squat-sleeve"+side,[side*35,centre[1],z],[side*51,centre[1],z],1.1,"chrome");
+        for(let i=0;i<2;i++)plate("smith-squat-plate"+side+i,[side*(41+i*1.8),centre[1],z],8,1.6);
+      }
+      beam("smith-squat-top",[-38,99,z],[38,99,z],2.7,"satin");
+      beam("smith-squat-cross",[-38,3,z-22],[38,3,z-22],2.4);
+      beam("smith-squat-bar",[-52,centre[1],z],[52,centre[1],z],.65,"chrome");
+      break;
+    }
     case "power-rack":
       {
         const z = average3(hands)[2],
@@ -863,6 +901,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
         const centre = average3(hands);
         beam("barbell", add3(centre, [-42, 0, 0]), add3(centre, [42, 0, 0]), 0.65, "chrome");
         for (const s of [-1, 1]) {
+          handle("free-bar-grip"+s,hands[s===-1?0:1]);
           box("j-hook" + s, [s * 34, centre[1] - 2, z], [3, 3, 4], "rubber");
           for (let i = 0; i < 3; i++) plate("plate" + s + i, add3(centre, [s * (33 + i * 1.6), 0, 0]), 8, 1.5);
         }

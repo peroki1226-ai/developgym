@@ -1,3 +1,4 @@
+import { LEG_MENU_GUIDES } from "../domain/legLessons";
 import { CHEST_MENU_GUIDES } from "../domain/chestLessons";
 import React, { useContext, useMemo, useState } from "react";
 import { Alert, Linking, Text, View } from "react-native";
@@ -131,7 +132,7 @@ export function SearchMenuScreen() {
       </Card>
       <Heading>{t("travel.availableMenus")}</Heading>
       {filtered.map((m) => {
-        const guide = EQUIPMENTS.find(e => e.id === CHEST_MENU_GUIDES[m.id]);
+        const guide = EQUIPMENTS.find(e => e.id === (CHEST_MENU_GUIDES[m.id] ?? LEG_MENU_GUIDES[m.id]));
         return <View key={m.id} style={{gap:4}}>
           <Button title={t(m.name)} selected={d.profile.menuIds.includes(m.id)}
             onPress={() => d.update({menuIds:toggle(d.profile.menuIds,m.id)})}/>

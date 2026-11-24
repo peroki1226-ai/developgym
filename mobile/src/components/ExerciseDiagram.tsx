@@ -1,3 +1,4 @@
+import { legLesson, legCyclePose, legCyclePosition } from "../domain/legLessons";
 import { ChestRegionTargets } from "./ChestRegionTargets";
 import { GuideCameraControls } from "./GuideCameraControls";
 import { OrbitGesture } from "./OrbitGesture";
@@ -69,6 +70,9 @@ export function ExerciseDiagram(props: Props) {
 }
 function MotionDiagram({ type, muscleTag, label, active = true, beginner = false, beginnerGuide, showMuscleExplanations = true, showProCoach = true }: Props) {
   const { t, language } = useI18n();
+  const leg = legLesson(type);
+  const startProgress = leg?.startsStanding ? 1 : 0;
+  const initialView:View3 = type === "seated-calf-raise" ? "side" : "front";
   const { width, fontScale } = useWindowDimensions();
   const motion = useExerciseMotion(active, type, false);
   const [details, setDetails] = useState(true);
@@ -81,7 +85,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     muscleSpec(type).focus,
   );
   const [mode, setMode] = useState<"spatial" | "diagram">("spatial");
-  const [view, setView] = useState<View3>("front");
+  const [view, setView] = useState<View3>(initialView);
   const [orbit,setOrbit]=useState<Orbit>();
   const [zoom,setZoom]=useState(DEFAULT_GUIDE_ZOOM);
   const [rotating,setRotating]=useState(false);
@@ -110,20 +114,20 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   }, [mode, ready, fail]);
   useEffect(() => {
     setFocus("whole");
-    setView("front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);
+    setView(initialView);setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);
     setSelectedMuscle(muscleSpec(type).focus);
     setLessonDirection("work");
     setMechanismOpen(false);
   }, [type]);
   useEffect(() => {
-    if (!beginner) return;
-    motion.seek(type === "chest-dip" ? 1 : 0, "work");
-    if (chestLesson(type)) motion.setSpeed(.5);
+    if (!beginner) { if(leg)motion.seek(startProgress,"work"); return; }
+    motion.seek(type === "chest-dip" ? 1 : startProgress, "work");
+    if (chestLesson(type) || leg) motion.setSpeed(.5);
     setLearningStep("posture"); setAdvanced(false);
-    setFocus("whole"); setView("front"); setTransparent(false);
+    setFocus("whole"); setView(initialView); setTransparent(false);
   }, [type, beginner]);
   const chooseLearningStep = (step: LearningStep) => {
-    motion.seek(type === "chest-dip" && step !== "move" ? 1 : 0, "work"); setLearningStep(step);
+    motion.seek(type === "chest-dip" && step !== "move" ? 1 : startProgress, "work"); setLearningStep(step);
     setFocus(step === "hands" ? "hands" : step === "feet" ? "feet" : "whole");
     setView((step === "posture" || step === "move") && !["super-fly","incline-bench-press","barbell-bench-press","cable-machine"].includes(type) ? "side" : "front");
     setTransparent(false);
@@ -151,10 +155,27 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const phaseStep = motion.phase === "start" ? 0 : motion.phase === "return" ? 2 : 1;
   const phaseInstruction = motion.phase === "hold" ? (lesson ? `${lesson.prefix}.hold` : teaching.holdCue)
     : beginnerGuide?.beginnerSteps[phaseStep] ?? (motion.phase === "start" ? "teaching.start" : motion.phase === "return" ? teaching.returnCue : teaching.workCue);
-  const learningHint = learningStep === "posture" ? t("learn.setup", { 0: t(beginnerGuide?.seatSetup ?? "learn.postureHint") })
+  const learningHint = leg && learningStep === "hands" ? t(`${leg.prefix}.hands`)
+    : leg && learningStep === "feet" ? t(`${leg.prefix}.feet`)
+    : learningStep === "posture" ? t("learn.setup", { 0: t(beginnerGuide?.seatSetup ?? "learn.postureHint") })
     : learningStep === "hands" ? t(lesson ? `${lesson.prefix}.hands` : type === "back-extension" ? "scene.crossHandsHint" : "learn.handsHint")
     : learningStep === "feet" ? t(lesson ? `${lesson.prefix}.feet` : footHint) : t(phaseInstruction);
   const guidedChest = beginner && !advanced && !!lesson;
+  const guidedLeg = beginner && !advanced && !!leg;
+  const legPosition = leg ? legCyclePosition(type,motion,motion.completedRepetition) : 0;
+  const legPhase = legPosition<.001||legPosition>.999 ? "start" : Math.abs(legPosition-.5)<.001 ? "hold" : legPosition<.5 ? leg?.startsStanding?"return":"work" : leg?.startsStanding?"work":"return";
+  const prepareLegMotion=()=>{
+    if(learningStep!=="move"){chooseLearningStep("move");setView(view);}
+    setAnatomy(true);
+  };
+  const playLeg=()=>{
+    prepareLegMotion();
+    if(motion.running||motion.repetitionActive)motion.toggle();
+    else motion.playRepetition(leg?.startsStanding??false);
+  };
+  const inspectLeg=(value:number)=>{
+    prepareLegMotion();const pose=legCyclePose(type,value);setLessonDirection(pose.direction);motion.inspectRepetition(pose.progress,pose.direction,pose.completed);
+  };
   const focusChest = () => {
     if (focus === "muscles") { setFocus("whole"); setTransparent(false); }
     else { setSelectedMuscle(muscleSpec(type).focus); setFocus("muscles"); setView(["barbell-bench-press","incline-bench-press","dumbbell-heavy","incline-smith"].includes(type) ? "above" : "front");setOrbit(undefined); setTransparent(true); }
@@ -177,7 +198,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
     const pose = chestCyclePose(type, position);
     motion.inspectRepetition(pose.progress, pose.direction, pose.completed);
   };
-  const breathing = t(`learn.breath.${motion.phase}`);
+  const breathing = leg ? legPhase==="start" ? t("learn.breath.start") : legPhase==="hold" ? t("learn.breath.hold") : t(legPhase==="return"?"leg.breathe.return":"leg.breathe.work") : t(`learn.breath.${motion.phase}`);
   const phaseLabel =
     motion.phase === "work"
       ? motionAction[motionType(type)]
@@ -261,7 +282,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
       {mode === "spatial" && <GuideCameraControls type={type} view={view} orbit={orbit} zoom={zoom} rotating={rotating}
         onView={chooseView} onOrbit={setOrbit} onZoom={setZoom} onRotate={()=>setRotating(v=>!v)}
         onFit={()=>{setZoom(1);setFocus("whole");setTransparent(false);}}
-        onReset={()=>{setView("front");setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);setTransparent(focus === "muscles");}}/>}
+        onReset={()=>{setView(initialView);setOrbit(undefined);setZoom(DEFAULT_GUIDE_ZOOM);setRotating(false);setTransparent(focus === "muscles");}}/>}
       {guidedChest && <View style={styles.speeds}>
         <Button title={t(focus === "muscles" ? "anatomy.showWhole" : "anatomy.inspect")} variant="quiet" onPress={focusChest}/>
       </View>}
@@ -327,10 +348,26 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         </View>}
         {showMuscleExplanations && anatomy && ["leg-press", "leg-extension", "hip-adduction"].includes(type) && <MuscleQuickCue muscle={selectedMuscle} progress={motion.progress} returning={motion.phase === "return"} />}
         {beginner && !advanced && learningStep === "move" && <View pointerEvents="none" testID="beginner-phase-overlay" style={styles.phaseOverlay}>
-          <Text style={styles.detailTitle}>{t(`learn.phase.${motion.phase}`)}</Text>
+          <Text testID={leg?"leg-phase-caption":undefined} style={styles.detailTitle}>{t(`learn.phase.${leg?legPhase:motion.phase}`)}</Text>
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
+      {showMuscleExplanations && guidedLeg && leg && <View testID="leg-model-manual-scrubber" style={{gap:8}}>
+        <Text style={styles.detailTitle}>{t("leg.live.title")}</Text>
+        <Text style={styles.note}>{t(`${leg.prefix}.target`)}</Text>
+        <MotionScrubber value={legCyclePosition(type,motion,motion.completedRepetition)} label={t("leg.live.scrub")} onChange={inspectLeg}/>
+        <Text style={styles.note}>{t("leg.live.drag")}</Text>
+        <Button title={t(motion.running?"leg.live.pause":legCyclePosition(type,motion,motion.completedRepetition)>0&&legCyclePosition(type,motion,motion.completedRepetition)<1?"leg.live.resume":"leg.live.play")} onPress={playLeg} disabled={!motion.canPlay}/>
+        <View style={styles.controls}>
+          <Button title={t("leg.live.previous")} variant="quiet" onPress={()=>inspectLeg(Math.max(0,legCyclePosition(type,motion,motion.completedRepetition)-.05))}/>
+          <Text style={styles.note}>{Math.round(legCyclePosition(type,motion,motion.completedRepetition)*100)}%</Text>
+          <Button title={t("leg.live.next")} variant="quiet" onPress={()=>inspectLeg(Math.min(1,legCyclePosition(type,motion,motion.completedRepetition)+.05))}/>
+        </View>
+        <View accessibilityRole="radiogroup" accessibilityLabel={t("leg.live.speed")} style={styles.speeds}>
+          {PLAYBACK_SPEEDS.map(speed=><Pressable key={speed} accessibilityRole="radio" accessibilityLabel={t(`leg.live.speed.${speed}`)} accessibilityState={{checked:motion.speed===speed}} aria-checked={motion.speed===speed} onPress={()=>motion.setSpeed(speed)} style={[styles.speedButton,motion.speed===speed&&styles.selectedSpeed]}><Text style={styles.speedText}>{t(`leg.live.speed.${speed}`)}</Text></Pressable>)}
+        </View>
+        <Text style={styles.note}>{t("leg.live.note")}</Text>
+      </View>}
       {showMuscleExplanations && guidedChest && lesson && <View testID="model-manual-scrubber" style={{ gap: 4 }}>
         <Text style={styles.detailTitle}>{t("chest.live.title")}</Text>
         <MotionScrubber value={chestCyclePosition(type,motion,motion.completedRepetition)} label={t("chest.live.scrub")} onChange={inspectChest}/>
@@ -366,8 +403,8 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Button title={t(motion.running ? "learn.pause" : "learn.playWork")} disabled={!motion.canPlay} onPress={() => motion.running ? motion.toggle() : motion.playSegment("work")} />
           <Button title={t("learn.playReturn")} disabled={!motion.canPlay || motion.running} variant="quiet" onPress={() => motion.playSegment("return")} />
           <View style={styles.controls}>
-            <Button title={t("motion.startPose")} variant="quiet" onPress={() => motion.seek(0, "work")} />
-            <Button title={t("motion.endPose")} variant="quiet" onPress={() => motion.seek(1, "work")} />
+            <Button title={t("motion.startPose")} variant="quiet" onPress={() => motion.seek(startProgress, "work")} />
+            <Button title={t("motion.endPose")} variant="quiet" onPress={() => motion.seek(1-startProgress, "work")} />
           </View>
           {motion.reduced && !guidedChest && <Text style={styles.note}>{t("motion.reducedHint")}</Text>}
         </>}
@@ -577,12 +614,12 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
       <View style={styles.controls}>
         <Button
           title={t("motion.startPose")}
-          onPress={() => motion.seek(0, "work")}
+          onPress={() => motion.seek(startProgress, "work")}
           variant="quiet"
         />
         <Button
           title={t("motion.endPose")}
-          onPress={() => motion.seek(1, "work")}
+          onPress={() => motion.seek(1-startProgress, "work")}
           variant="quiet"
         />
       </View>

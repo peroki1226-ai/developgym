@@ -2,6 +2,7 @@ import { ExercisePose, Limb, MotionType, motionContact, motionType, Point } from
 
 export interface TeachingSpec { fixedLabel: string; movingLabel: string; jointLabel: string; workCue: string; returnCue: string; holdCue: string; }
 export const MOTION_TEACHING: Record<MotionType, TeachingSpec> = {
+  "smith-squat":{fixedLabel:"leg.fixed",movingLabel:"leg.bar",jointLabel:"leg.joint",workCue:"leg.smith.work",returnCue:"leg.smith.return",holdCue:"leg.smith.hold"},
   "incline-bench-press": {fixedLabel:"座席につけた骨盤",movingLabel:"バーの軌道",jointLabel:"肘の曲げ伸ばし",workCue:"chest.inclineSmith.work",returnCue:"chest.inclineSmith.return",holdCue:"chest.inclineSmith.hold"},
   "barbell-bench-press": {fixedLabel:"座席につけた骨盤",movingLabel:"バーの軌道",jointLabel:"肘の曲げ伸ばし",workCue:"chest.bench.work",returnCue:"chest.bench.return",holdCue:"chest.bench.hold"},
   "chest-dip": { fixedLabel: "握ったままのグリップ", movingLabel: "上体の動き", jointLabel: "肘の曲げ伸ばし", workCue: "chest.dip.work", returnCue: "chest.dip.return", holdCue: "chest.dip.hold" },
@@ -209,7 +210,7 @@ export function motionTeaching(rawType: string, pose: ExercisePose) {
     fixed = pose.arms[0][0]; joint = [pose.hip, fixed, pose.arms[0][1]];
   } else if (["leg-extension", "seated-leg-curl"].includes(type)) {
     fixed = pose.legs[0][1]; joint = pose.legs[0];
-  } else if (["leg-press", "hack-squat", "power-rack"].includes(type)) {
+  } else if (["leg-press", "hack-squat", "power-rack", "smith-squat"].includes(type)) {
     fixed = type === "leg-press" ? pose.hip : pose.legs[0][2]; joint = pose.legs[0];
   } else if (["hip-abduction", "hip-adduction"].includes(type)) {
     joint = [pose.shoulder, pose.legs[0][0], pose.legs[0][1]];

@@ -1,3 +1,5 @@
+import { LegCoursePicker, LegCoachingPanel } from "../components/LegCoaching";
+import { legLesson } from "../domain/legLessons";
 import { AdvancedWorkoutLogger } from "../components/AdvancedWorkoutLogger";
 import { ProTrainingCoach } from "../components/ProTrainingCoach";
 import { ChestCoursePicker, ChestCoachingPanel } from "../components/ChestCoaching";
@@ -35,6 +37,7 @@ export function TrainingScreen({
   const [sets, setSets] = useState("3");
   const { addLog } = useFitness();
   const lesson = chestLesson(selected.id);
+  const leg = legLesson(selected.id);
   function selectEquipment(id: string) {
     const next = EQUIPMENTS.find(e => e.id === id);
     if (next && next.id !== selected.id) { setSelected(next); setWeight(id === "chest-dip" ? "0" : ""); setProModelOpen(false); }
@@ -179,6 +182,7 @@ export function TrainingScreen({
         </View>
 
         {!pro && <ChestCoursePicker selected={selected.id} onSelect={selectEquipment} />}
+        {!pro && <LegCoursePicker selected={selected.id} onSelect={selectEquipment} />}
         {pro && equipmentSelector}
         <Heading>{t(selected.name)}</Heading>
         {pro && <ProTrainingCoach key={`coach:${selected.id}`} type={selected.svgType} phase="start" canPlay={false} running={false} advancedOnly/>}
@@ -194,6 +198,7 @@ export function TrainingScreen({
         />}
 
         {!pro && lesson && <ChestCoachingPanel key={lesson.id} lesson={lesson} onAssisted={() => selectEquipment("assisted-dip")} />}
+        {!pro && leg && <LegCoachingPanel key={leg.id} lesson={leg} />}
         {/* Beginner setup and ordinary instructions */}
         {!pro && <Card>
           <View style={styles.titleRow}>

@@ -19,6 +19,7 @@ export const LOAD_SOURCES: Record<
   "dumbbell-heavy": "gravity",
   "leg-press": "machine",
   "hack-squat": "machine",
+  "smith-squat": "gravity",
   "power-rack": "gravity",
   "abdominal-crunch": "machine",
   "leg-extension": "machine",

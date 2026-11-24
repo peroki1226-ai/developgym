@@ -74,19 +74,19 @@
     },
     {
       "id": "m-squat",
-      "name": "Barbell Back Squat",
+      "name": "leg.squat.name",
       "part": "quads",
       "reqEquip": "power-rack"
     },
     {
       "id": "m-hack-squat",
-      "name": "45° Linear Hack Squat",
+      "name": "leg.hack.name",
       "part": "quads",
       "reqEquip": "hack-squat"
     },
     {
       "id": "m-leg-press",
-      "name": "45° Sled Leg Press",
+      "name": "leg.press.name",
       "part": "quads",
       "reqEquip": "leg-press"
     },
@@ -113,6 +113,30 @@
       "name": "chest.hammer.name",
       "part": "chest-upper",
       "reqEquip": "incline-hammer-press"
+    },
+    {
+      "id": "m-smith-squat",
+      "name": "leg.smith.name",
+      "part": "quads",
+      "reqEquip": "incline-smith"
+    },
+    {
+      "id": "m-leg-extension",
+      "name": "leg.extension.name",
+      "part": "quads",
+      "reqEquip": "leg-extension"
+    },
+    {
+      "id": "m-calf-raise",
+      "name": "leg.calf.name",
+      "part": "calves",
+      "reqEquip": "seated-calf-raise"
+    },
+    {
+      "id": "m-adduction",
+      "name": "leg.adduction.name",
+      "part": "adductors",
+      "reqEquip": "hip-adduction"
     }
   ],
   "parts": [
@@ -165,6 +189,16 @@
       "id": "abs-core",
       "name": "Abdominals & Obliques",
       "group": "abs"
+    },
+    {
+      "id": "adductors",
+      "name": "leg.adduction.region",
+      "group": "legs"
+    },
+    {
+      "id": "calves",
+      "name": "leg.calf.region",
+      "group": "legs"
     }
   ],
   "equipment": [
@@ -257,6 +291,24 @@
       "name": "chest.superFly.name",
       "brand": "Hammer Strength",
       "bodyPart": "chest"
+    },
+    {
+      "id": "leg-extension",
+      "name": "leg.extension.name",
+      "brand": "leg.equipment.generic",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "seated-calf-raise",
+      "name": "leg.calf.name",
+      "brand": "leg.equipment.generic",
+      "bodyPart": "legs"
+    },
+    {
+      "id": "hip-adduction",
+      "name": "leg.adduction.name",
+      "brand": "leg.equipment.generic",
+      "bodyPart": "legs"
     }
   ],
   "gyms": [

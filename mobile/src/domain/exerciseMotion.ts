@@ -10,7 +10,7 @@ export const MOTION_CYCLE_MS = 5100;
 export const MOTION_TYPES = [
   "chest-press", "pec-fly", "super-fly", "incline-smith", "cable-machine",
   "lat-pulldown", "seated-row", "shoulder-press", "dumbbell-heavy",
-  "leg-press", "hack-squat", "power-rack", "abdominal-crunch",
+  "leg-press", "hack-squat", "power-rack", "smith-squat", "abdominal-crunch",
   "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction",
   "seated-calf-raise", "lateral-raise", "preacher-curl", "triceps-pushdown",
   "assisted-pull-up", "assisted-dip", "back-extension", "rear-delt-fly",
@@ -61,6 +61,7 @@ export const motionAction: Record<MotionType, string> = {
   "lat-pulldown": "motion.pull", "seated-row": "motion.pull",
   "shoulder-press": "motion.push", "dumbbell-heavy": "motion.push",
   "leg-press": "motion.push", "hack-squat": "motion.stand",
+  "smith-squat": "motion.stand",
   "power-rack": "motion.stand", "abdominal-crunch": "motion.curl",
   "leg-extension": "motion.extendKnees", "seated-leg-curl": "motion.bendKnees",
   "hip-abduction": "motion.openLegs", "hip-adduction": "motion.closeLegs",
@@ -155,6 +156,7 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
       arms = [solveLimb(shoulder, offset(shoulder, -9, 9), 15, 14)];
       legs = [solveLimb(hip, [34, 80], 24, 25, 1)];
       break;
+    case "smith-squat":
     case "power-rack":
       camera = "front"; hip = [60, 66 - 27 * p]; shoulder = offset(hip, 0, -20); head = offset(shoulder, 0, -11);
       arms = [solveLimb(offset(shoulder, -9, 0), [36, shoulder[1] - 3], 14, 14, -1), solveLimb(offset(shoulder, 9, 0), [84, shoulder[1] - 3], 14, 14, 1)];
@@ -233,7 +235,7 @@ export function exercisePose(rawType: string, rawProgress: number): ExercisePose
     }
   }
   const highlight: ExercisePose["highlight"] = type === "seated-calf-raise" ? [legs[0][1], legs[0][2]]
-    : ["leg-press", "hack-squat", "power-rack", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)
+    : ["leg-press", "hack-squat", "power-rack", "smith-squat", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)
     ? [legs[0][0], legs[0][1]]
     : ["preacher-curl", "triceps-pushdown", "assisted-dip", "lateral-raise"].includes(type) ? [arms[0][0], arms[0][1]]
     : ["lat-pulldown", "seated-row", "abdominal-crunch", "back-extension", "assisted-pull-up"].includes(type)
@@ -247,6 +249,6 @@ export function motionContact(type: string, pose: ExercisePose): Point {
   if (type === "lateral-raise") return pose.arms[0][1];
   if (["leg-press", "leg-extension", "seated-leg-curl", "seated-calf-raise"].includes(type)) return pose.legs[0][2];
   if (["hip-abduction", "hip-adduction"].includes(type)) return pose.legs[0][1];
-  if (["hack-squat", "power-rack", "assisted-pull-up", "assisted-dip", "chest-dip", "back-extension"].includes(type)) return pose.shoulder;
+  if (["hack-squat", "power-rack", "smith-squat", "assisted-pull-up", "assisted-dip", "chest-dip", "back-extension"].includes(type)) return pose.shoulder;
   return pose.grips[0];
 }

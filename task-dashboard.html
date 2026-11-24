@@ -76,17 +76,17 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">95%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">96%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">63</span> / <span id="stat-total" class="text-neutral-500">66</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">64</span> / <span id="stat-total" class="text-neutral-500">67</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">手動バーの模型直下配置 レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">脚7種目のフォームコース レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">64 / 66 TASKS COMPLETED (97%)</span>
+        <span class="font-num text-white">64 / 67 TASKS COMPLETED (96%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 96%"></div>
       </div>
     </div>
 
@@ -840,6 +840,7 @@
         desc: "「自分で動かして覚える」手動バーを3D模型直下へ配置し、その次にお手本再生を配置。旧位置との重複を解消。",
         review: "【LGTM / DONE 受入完了】関連3スイート/32テスト・型検査・リリース監査全合格。模型直下への手動操作バー配置、二重表示防止、シーク・再生・全操作・記録機能保持の実動検証完了。64/66完了（97%）。"
       }
+      ,{id:"TASK-067",title:"胸に加えて脚7種目のフォームガイドを追加",category:"Leg training",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"脚7種目のコース・教材・手動/低速再生、スミススクワットの独立模型、メニュー/記録連携。",review:"胸と既存IDを保持。関連14スイート分割検証、最終6スイート136件・専用13件再確認・型/監査/両OSローカルバンドル合格。日英7種目・端点・メニュー・保存確認。64/67 DONE（96%）。実機・配布保留。"}
     ];
 
     function renderKanban() {

@@ -1,7 +1,7 @@
 import React from "react";
 import * as THREE from "three";
 import { AccessibilityInfo, AppState } from "react-native";
-import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, within } from "@testing-library/react-native";
 import { ExerciseDiagram } from "../src/components/ExerciseDiagram";
 import { EQUIPMENTS } from "../src/data/equipment";
 import { CHEST_LESSONS } from "../src/domain/chestLessons";
@@ -45,6 +45,10 @@ test.each(["ja","en"] as const)("%s: all chest models move, pause/resume without
  for(const lesson of CHEST_LESSONS){
   const app=await render(renderLesson(lesson.id,language));
   expect(queue.size).toBe(0);
+  const manual=screen.getByTestId("model-manual-scrubber");
+  expect(within(manual).getByRole("adjustable",{name:t("chest.live.scrub")})).toBeTruthy();
+  expect(screen.getAllByRole("adjustable",{name:t("chest.live.scrub")})).toHaveLength(1);
+  expect(within(screen.getByTestId("chest-live-lesson")).queryByRole("adjustable",{name:t("chest.live.scrub")})).toBeNull();
   await press(t("chest.live.watch"));expect(model.guidance).toBe(true);
   expect(model.progress).toBe(lesson.id==="chest-dip"?1:0);
   await frames(28);const moved=model.progress;

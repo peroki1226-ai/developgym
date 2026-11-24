@@ -81,12 +81,12 @@
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">62</span> / <span id="stat-total" class="text-neutral-500">65</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">63</span> / <span id="stat-total" class="text-neutral-500">66</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">下部2D人体図の削除 レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">手動バーの模型直下配置 レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">63 / 65 TASKS COMPLETED (97%)</span>
+        <span class="font-num text-white">63 / 66 TASKS COMPLETED (95%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
@@ -835,6 +835,7 @@
         desc: "ChestCoachingPanel内の「狙う部位」2D人体図と注記を削除。部位説明を全幅表示へ最適化し、3D模型・解説を保持。",
         review: "【LGTM / DONE 受入完了】関連24テスト・型検査・リリース監査全合格。下部2D人体図と注記の完全削除、全幅テキスト表示、3D人体着色・負荷数値・全操作の完全保持を確認。63/65完了（97%）。"
       }
+      ,{id:"TASK-066",title:"手動操作バーを模型の直下へ移動",category:"UI Optimization",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"模型→手動バー→お手本再生の順に配置。既存のシーク・模型/器具/筋肉連動・操作を維持。",review:"関連3スイート32件・型検査/監査合格。日英スマホ幅で模型下端からブロック8px/バー領域32px、単一表示・タッチ/キー操作・再生を確認。63/66 DONE（95%）。実機・配布保留。"}
     ];
 
     function renderKanban() {

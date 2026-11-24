@@ -2,6 +2,7 @@ import { ChestRegionTargets } from "./ChestRegionTargets";
 import { GuideCameraControls } from "./GuideCameraControls";
 import { OrbitGesture } from "./OrbitGesture";
 import { Orbit, DEFAULT_GUIDE_ZOOM, orbitForView } from "../domain/guideCamera";
+import { MotionScrubber } from "./MotionScrubber";
 import { ChestLiveLesson } from "./ChestLiveLesson";
 import { ChestSetupGuide } from "./ChestSetupGuide";
 import { ProTrainingCoach } from "./ProTrainingCoach";
@@ -330,6 +331,11 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
           <Text style={styles.note}>{breathing}</Text>
         </View>}
       </View>
+      {showMuscleExplanations && guidedChest && lesson && <View testID="model-manual-scrubber" style={{ gap: 4 }}>
+        <Text style={styles.detailTitle}>{t("chest.live.title")}</Text>
+        <MotionScrubber value={chestCyclePosition(type,motion,motion.completedRepetition)} label={t("chest.live.scrub")} onChange={inspectChest}/>
+        <Text style={styles.note}>{t("chest.live.drag")}</Text>
+      </View>}
       {showMuscleExplanations && guidedChest && lesson && <View testID="model-example-playback">
         <Button title={t(motion.running?"chest.live.pause":chestCyclePosition(type,motion,motion.completedRepetition)>0&&chestCyclePosition(type,motion,motion.completedRepetition)<1?"chest.live.resume":"chest.live.play")} onPress={playChest} disabled={!motion.canPlay}/>
       </View>}
@@ -346,7 +352,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
         <Text style={styles.note}>{t("regions.identification")}</Text>
       </View>}
       <ChestSetupGuide showIllustrations={false} type={type} pressVariant={pressVariant} onPressVariant={value=>{motion.seek(0);setPressVariant(value);setSelectedMuscle(value==="upper"?"upperChest":"chest");setAnatomy(true);setView("side");setOrbit(undefined);}}/>
-      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson externalPlayback showIllustrations={false} lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
+      {showMuscleExplanations && guidedChest && lesson && <ChestLiveLesson externalPlayback externalScrubber showIllustrations={false} lesson={lesson} frame={motion} position={chestCyclePosition(type,motion,motion.completedRepetition)}
         running={motion.running} canPlay={motion.canPlay} completed={motion.completedRepetition} reduced={motion.reduced} speed={motion.speed} view={view} externalCamera spatial={mode === "spatial"} focused={focus === "muscles"}
         onPlay={playChest} onSeek={inspectChest} onSpeed={motion.setSpeed}
         onRestart={() => {prepareChestMotion();motion.seek(type === "chest-dip" ? 1 : 0,"work");motion.playRepetition(type === "chest-dip");}}

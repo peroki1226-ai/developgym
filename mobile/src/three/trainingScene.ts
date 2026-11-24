@@ -64,6 +64,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
     metal: material("#474c51", 0.65, 0.4),
     satin: material("#989fa6", 0.65, 0.42),
     pad: material("#202326", 0.02, 0.72),
+    orangePad: material("#df681c", 0.02, 0.66),
     rubber: material("#25282b", 0.01, 0.86),
     chrome: material("#c5cbd0", 0.9, 0.2),
     pin: material("#fff", 0, 0.45),
@@ -134,7 +135,7 @@ export function createTrainingScene(renderer: THREE.WebGLRenderer, width: number
       currentType = modelKey;
     }
     nodes.forEach(n => n.visible = false);
-    for (const mat of [materials.metal, materials.satin, materials.pad, materials.rubber, materials.chrome]) {
+    for (const mat of [materials.metal, materials.satin, materials.pad, materials.orangePad, materials.rubber, materials.chrome]) {
       if (mat.transparent !== input.transparent) mat.needsUpdate = true;
       mat.transparent = input.transparent;
       mat.opacity = input.transparent ? (input.focus === "muscles" ? .12 : .26) : 1;

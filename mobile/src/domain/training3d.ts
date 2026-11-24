@@ -49,7 +49,7 @@ export type Primitive3 = {
   a: V3;
   b?: V3;
   size: V3;
-  color: "metal" | "satin" | "pad" | "rubber" | "chrome";
+  color: "metal" | "satin" | "pad" | "rubber" | "chrome" | "orangePad";
   axes?: readonly [V3, V3, V3];
   points?: readonly V3[];
   section?: number;
@@ -320,7 +320,7 @@ function photoLegBody(base: Body3, type: string, p: number, variant?: GuideVaria
   if (type !== "leg-press" && type !== "leg-extension" && type !== "hip-adduction") return base;
   const seated = type === "leg-press" && variant === "seated";
   const hip: V3 = type === "leg-press" ? seated ? [0, 30 + 2 * p, 12 - 10 * p] : [0, 21, 0] : type === "leg-extension" ? [0, 29, 0] : [0, 32, 0];
-  const up = type === "hip-adduction" ? [0, 1, 0] as V3 : type === "leg-press" && !seated ? unit3([0, 1, -.7]) : unit3([0, 1, -.28]);
+  const up = type === "hip-adduction" ? [0, 1, 0] as V3 : type === "leg-press" && !seated ? [0,Math.sin(40*Math.PI/180),-Math.cos(40*Math.PI/180)] as V3 : unit3([0, 1, -.28]);
   const shoulder = add3(hip, mul3(up, HUMAN_SEGMENTS.torso));
   const forward = unit3(cross3([1, 0, 0], up));
   const legs = [-1, 1].map(side => {
@@ -355,17 +355,30 @@ export function chestPressPosition(base:Body3,variant:ChestPressVariant):Body3 {
 }
 /** Guided squat: fixed feet, a vertical bar, and hips/knees solved to the same
  * adult limb lengths as the other models. This is a generic vertical-rail unit. */
-export const SMITH_SQUAT = Object.freeze({guideZ:-4,gripHalfWidth:24,railHalfWidth:33});
+export const SQUAT_GRIP = Object.freeze({halfWidth:14,barBehindShoulder:5.5,heightOffset:-1});
+export const SMITH_SQUAT = Object.freeze({guideZ:-SQUAT_GRIP.barBehindShoulder,gripHalfWidth:SQUAT_GRIP.halfWidth,railHalfWidth:33});
+/** Solve the elbow in the plane normal to the bar: elbow and grip share X.
+ * The two real bone lengths determine the bend; never stretch an arm to force it. */
+function squatArms(body:Body3,barZ=body.shoulder[2]-SQUAT_GRIP.barBehindShoulder):Bone3[]{
+ const up=unit3(sub3(body.shoulder,body.hip));
+ return [-1,1].map(side=>{
+  const root=add3(add3(body.shoulder,[side*9,0,0]),add3(mul3(up,-4.8),mul3(body.forward,.4)));
+  const hand:V3=[side*SQUAT_GRIP.halfWidth,body.shoulder[1]+SQUAT_GRIP.heightOffset,barZ];
+  const dx=hand[0]-root[0],radiusSquared=HUMAN_SEGMENTS.upperArm**2-dx*dx;
+  const dy=hand[1]-root[1],dz=hand[2]-root[2],d=Math.hypot(dy,dz),uy=dy/d,uz=dz/d;
+  const along=(radiusSquared-HUMAN_SEGMENTS.forearmGrip**2+d*d)/(2*d),height=Math.sqrt(Math.max(0,radiusSquared-along*along));
+  const candidates=[-1,1].map(sign=>[hand[0],root[1]+uy*along-sign*uz*height,root[2]+uz*along+sign*uy*height] as V3);
+  const elbow=candidates[0][1]<candidates[1][1]?candidates[0]:candidates[1];
+  return [root,elbow,hand];
+ });
+}
 function smithSquatBody(value:number):Body3 {
  const p=clampProgress(value),base=body3d("power-rack",p),up=unit3([0,26,7*(1-p)]);
  const z=-up[2]*HUMAN_SEGMENTS.torso;
  const feet=body3d("power-rack",1).legs.map(l=>l[2]);
  const maxY=Math.min(...feet.map((f,i)=>f[1]+Math.sqrt((HUMAN_SEGMENTS.thigh+HUMAN_SEGMENTS.shin-.05)**2-(f[0]-(i===0?-5.2:5.2))**2-(f[2]-z)**2)));
  const hip:V3=[0,Math.min(base.hip[1],maxY),z],shoulder=add3(hip,mul3(up,HUMAN_SEGMENTS.torso)),forward=unit3(cross3([1,0,0],up));
- const arms=[-1,1].map(side=>{
-  const root=add3(add3(shoulder,[side*9,0,0]),add3(mul3(up,-4.8),mul3(forward,.4)));
-  return solveBone3(root,[side*SMITH_SQUAT.gripHalfWidth,shoulder[1]-1,SMITH_SQUAT.guideZ],HUMAN_SEGMENTS.upperArm,HUMAN_SEGMENTS.forearmGrip,[side*.4,-1,.4]);
- });
+ const arms=squatArms({...base,hip,shoulder,forward},SMITH_SQUAT.guideZ);
  const legs=feet.map((foot,i)=>solveBone3(add3(hip,[i===0?-5.2:5.2,0,0]),foot,HUMAN_SEGMENTS.thigh,HUMAN_SEGMENTS.shin,[0,.2,1]));
  return {...base,hip,shoulder,head:add3(shoulder,mul3(up,HUMAN_SEGMENTS.headOffset)),spine:[hip,shoulder],arms,legs,forward,right:[1,0,0],facing:1};
 }
@@ -454,7 +467,7 @@ export function body3d(raw: string, value: number, variant?: GuideVariant): Body
   if (type === "leg-extension" || type === "seated-leg-curl") legs = legs.map(([a, b, c]) => [a, add3(b, [0, 1.2, 0]), add3(c, [0, 1.2, 0])]);
   const right: V3 = [facing, 0, 0],
     forward = unit3(cross3(right, unit3(sub3(shoulder, hip))));
-  return photoLegBody(addedChestBody(chestLessonBody(proportionedBody({
+  const posedBody = photoLegBody(addedChestBody(chestLessonBody(proportionedBody({
     head,
     shoulder,
     hip,
@@ -465,6 +478,7 @@ export function body3d(raw: string, value: number, variant?: GuideVariant): Body
     forward,
     facing
   }, type, p), type, p), type, p), type, p, variant);
+  return type === "power-rack" ? {...posedBody,arms:squatArms(posedBody)} : posedBody;
 }
 export function feet3d(type: string, body: Body3, variant?: GuideVariant): Foot3[] {
   return body.legs.map(([, knee, ankle]) => {
@@ -527,7 +541,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
   const grips: HandGrip3[] = [];
   const box = (id: string, a: V3, size: V3, color: Primitive3["color"] = "metal", axes?: Primitive3["axes"]) => equipment.push({
     id,
-    kind: color === "pad" ? "pad" : "box",
+    kind: color === "pad" || color === "orangePad" ? "pad" : "box",
     a,
     size,
     color,
@@ -541,6 +555,11 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
     size: color === "metal" || color === "satin" ? [r * 2, r * 2, r * 2] : [r, r, r],
     color
   });
+  const rectBeam=(id:string,a:V3,b:V3,width:number,depth=width,colour:Primitive3["color"]="metal")=>{
+    const along=unit3(sub3(b,a));
+    const across=unit3(cross3(along,Math.abs(along[2])<.9?[0,0,1]:[0,1,0]));
+    box(id,mix3(a,b,.5),[width,length3(sub3(b,a)),depth],colour,[across,along,unit3(cross3(across,along))]);
+  };
   const axial = (id: string, kind: "cylinder" | "plate" | "pulley" | "bolt", a: V3, axis: V3, radius: number, thickness: number, color: Primitive3["color"] = "metal") => {
     const y = unit3(axis);
     const x = unit3(cross3(y, Math.abs(y[2]) < .9 ? [0, 0, 1] : [0, 1, 0]));
@@ -551,9 +570,9 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
     axial(id, "plate", centre, right, radius, thickness, "rubber");
     axial(id + "-hub", "cylinder", centre, right, radius * .14, thickness + .25, "chrome");
   };
-  const pad = (id: string, a: V3, b: V3, width = 25, thickness = 4, post = true) => {
+  const pad = (id: string, a: V3, b: V3, width = 25, thickness = 4, post = true, colour:Primitive3["color"] = "pad") => {
     const along = unit3(sub3(b, a));
-    box(id, mix3(a, b, 0.5), [width, length3(sub3(b, a)), thickness], "pad", [right, along, unit3(cross3(right, along))]);
+    box(id, mix3(a, b, 0.5), [width, length3(sub3(b, a)), thickness], colour, [right, along, unit3(cross3(right, along))]);
     // A shallow rear shell and edge piping give upholstery a visible depth.
     const normal = unit3(cross3(right, along));
     const outward = Math.abs(normal[1]) > .7 && normal[1] < 0 ? mul3(normal, -1) : normal;
@@ -653,7 +672,7 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
   const seated = ["incline-hammer-press", "chest-press", "pec-fly", "lat-pulldown", "seated-row", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction", "seated-calf-raise", "lateral-raise", "preacher-curl", "rear-delt-fly"].includes(type);
   if (seated) seat();
   if (["incline-hammer-press", "chest-press", "pec-fly", "lat-pulldown", "shoulder-press", "abdominal-crunch", "leg-extension", "seated-leg-curl", "hip-abduction", "hip-adduction"].includes(type)) back();
-  if (type === "incline-smith" || type === "dumbbell-heavy" || type === "leg-press") {
+  if (type === "incline-smith" || type === "dumbbell-heavy" || (type === "leg-press" && variant === "seated")) {
     back();
     pad("bench-seat", add3(hip, mul3(forward, -3)), add3(hip, mul3(forward, 10)), ["incline-smith", "dumbbell-heavy"].includes(type) ? 16 : 25, 4, !(type === "leg-press" && variant === "seated"));
     if (!(type === "leg-press" && variant === "seated")) floorFrame("bench", hip[2]);
@@ -870,22 +889,33 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
     case "smith-squat": {
       const centre=average3(hands),z=SMITH_SQUAT.guideZ;
       const stopY=average3(body3d(type,0).arms.map(a=>a[2]))[1]-3;
+      // Broad silver front columns and chrome guides, with a separate rear
+      // storage frame. Storage plates never travel with the working bar.
       for(const side of [-1,1]){
         const x=side*SMITH_SQUAT.railHalfWidth;
-        beam("smith-squat-upright"+side,[side*38,2,z],[side*38,99,z],2.7,"satin");
-        beam("smith-squat-guide"+side,[x,6,z],[x,96,z],.75,"chrome");
-        box("smith-squat-carriage"+side,[x,centre[1],z],[4,7,4],"satin");
-        box("smith-squat-stop"+side,[x,stopY,z],[5,3,5],"rubber");
-        for(let y=25;y<=91;y+=6)box("smith-squat-catch"+side+y,[side*37,y,z-2],[3,1,4],"chrome");
-        beam("smith-squat-foot"+side,[side*38,2,z-22],[side*38,2,z+24],2.5);
-        beam("smith-squat-hook"+side,[x,centre[1],z],[side*37,centre[1],z-2],.9,"chrome");
+        rectBeam("smith-squat-upright"+side,[side*38,2,z+2],[side*38,98,z-2],5.2,7,"satin");
+        beam("smith-squat-guide"+side,[x,6,z],[x,96,z],.85,"chrome");
+        rectBeam("smith-squat-rear-post"+side,[side*40,2,z-24],[side*40,94,z-24],5,5);
+        rectBeam("smith-squat-foot"+side,[side*38,2,z-30],[side*38,2,z+29],7,4,"satin");
+        rectBeam("smith-squat-brace"+side,[side*38,3,z-28],[side*38,72,z-5],3.6,4,"satin");
+        box("smith-squat-carriage"+side,[x,centre[1],z],[4.8,8,5],"satin");
+        for(const end of [-1,1])axial("smith-squat-bearing"+side+end,"cylinder",[x,centre[1]+end*4,z],[0,1,0],1.4,.5,"chrome");
+        box("smith-squat-stop"+side,[x,stopY,z],[5.5,3.2,5.5],"rubber");
+        for(let y=25;y<=91;y+=6)box("smith-squat-catch"+side+y,[side*36.7,y,z-2.6],[3,1.1,4],"chrome");
+        rectBeam("smith-squat-hook"+side,[x,centre[1],z],[side*37,centre[1],z-2],1.2,1.2,"chrome");
         handle("smith-bar-grip"+side,hands[side===-1?0:1]);
-        beam("smith-squat-sleeve"+side,[side*35,centre[1],z],[side*51,centre[1],z],1.1,"chrome");
-        for(let i=0;i<2;i++)plate("smith-squat-plate"+side+i,[side*(41+i*1.8),centre[1],z],8,1.6);
+        beam("smith-squat-sleeve"+side,[side*35,centre[1],z],[side*54,centre[1],z],1.1,"chrome");
+        for(let i=0;i<2;i++)plate("smith-squat-plate"+side+i,[side*(43+i*1.8),centre[1],z],9.5,1.6);
+        for(const y of [23,45,67]){
+          beam("smith-squat-storage-horn"+side+y,[side*40,y,z-24],[side*52,y,z-24],1.05,"chrome");
+          for(let i=0;i<2;i++)plate("smith-squat-storage-weight"+side+y+i,[side*(44+i*1.8),y,z-24],8.8,1.5);
+        }
+        for(const end of [-1,1])box("smith-squat-floor-pad"+side+end,[side*38,.7,z+(end<0?-30:29)],[9,1.4,9],"rubber");
       }
-      beam("smith-squat-top",[-38,99,z],[38,99,z],2.7,"satin");
-      beam("smith-squat-cross",[-38,3,z-22],[38,3,z-22],2.4);
-      beam("smith-squat-bar",[-52,centre[1],z],[52,centre[1],z],.65,"chrome");
+      rectBeam("smith-squat-top",[-38,98,z-2],[38,98,z-2],6,7,"satin");
+      rectBeam("smith-squat-rear-cross",[-40,94,z-24],[40,94,z-24],5,5);
+      rectBeam("smith-squat-cross",[-38,3,z-28],[38,3,z-28],6,5,"satin");
+      beam("smith-squat-bar",[-55,centre[1],z],[55,centre[1],z],.65,"chrome");
       break;
     }
     case "power-rack":
@@ -1013,6 +1043,47 @@ export function trainingFrame3d(raw: string, progress: number, variant?: GuideVa
     case "leg-press":
     case "hack-squat":
       {
+        if(type === "leg-press" && variant !== "seated"){
+          // Photo reference: fixed reclined seat and orange upholstery; the
+          // loaded carriage/footplate moves on two parallel 45-degree rails.
+          const normal=feet[0].up,toe=feet[0].toe,contact=average3(feet.map(f=>f.contact));
+          const railStart:V3=[0,5,-15],railEnd:V3=[0,69,49],direction=unit3(sub3(railEnd,railStart));
+          const slide=add3(railStart,mul3(direction,dot3(sub3(contact,railStart),direction)));
+          platform("footplate",contact,normal,toe,40,31);
+          rectBeam("incline-press-plate-frame",add3(contact,[-19,0,0]),add3(contact,[19,0,0]),3,5);
+          const backA=add3(add3(hip,mul3(up,2)),mul3(forward,-7.2));
+          const backB=add3(add3(shoulder,mul3(up,2)),mul3(forward,-7.2));
+          pad("backrest",backA,backB,24,4.2,false,"orangePad");
+          pad("incline-press-headrest",add3(backB,mul3(up,-1)),add3(backB,mul3(up,7)),19,4.4,false,"orangePad");
+          pad("bench-seat",add3(hip,[0,-6,-3]),add3(hip,[0,-6,12]),25,4,false,"orangePad");
+          rectBeam("incline-press-back-spine",add3(backA,mul3(forward,-4)),add3(backB,mul3(forward,-4)),4,4);
+          for(const side of [-1,1]){
+            const start=add3(railStart,[side*24,0,0]),end=add3(railEnd,[side*24,0,0]);
+            const bearing=add3(slide,[side*24,0,0]),carrier=add3(contact,mul3(direction,-7));
+            beam("sled-guide"+side,start,end,1,"chrome");
+            rectBeam("sled-rail"+side,add3(start,[0,-3,0]),add3(end,[0,-3,0]),5,5);
+            box("sled-bearing"+side,bearing,[5,14,5],"metal",[right,direction,unit3(cross3(right,direction))]);
+            for(const end of [-1,1])axial("incline-press-bearing-seal"+side+end,"cylinder",add3(bearing,mul3(direction,end*6.6)),direction,1.55,.5,"rubber");
+            rectBeam("sled-carriage"+side,add3(carrier,[side*15,0,0]),bearing,4,4);
+            rectBeam("incline-press-foot-base"+side,[side*30,2,-35],[side*30,2,50],6,4);
+            rectBeam("incline-press-rear-support"+side,[side*30,2,49],end,4,4);
+            rectBeam("incline-press-brace"+side,[side*30,2,15],add3(end,[0,-9,-9]),3.5,3.5);
+            const hub=add3(carrier,[side*29,0,0]);
+            beam("sled-loading-horn"+side,add3(hub,[-side*6,0,0]),add3(hub,[side*10,0,0]),1.1,"chrome");
+            for(let i=0;i<3;i++)plate("sled-weight"+side+i,add3(hub,[side*i*1.8,0,0]),11,1.7);
+            const stop=add3(start,mul3(direction,20));
+            box("incline-press-safety-stop"+side,stop,[7,4,6],"rubber",[right,direction,normal]);
+            rectBeam("incline-press-seat-leg"+side,[side*9,2,-7],[side*9,hip[1]-10,3],3.5,3.5);
+            rectBeam("incline-press-recline-support"+side,[side*10,3,-30],add3(backB,[side*10,-2,-4]),3.5,3.5);
+            beam("incline-press-release-lever"+side,add3(hip,[side*15,-6,0]),add3(hip,[side*15,2,8]),.7,"chrome");
+            const hand=hands[side===-1?0:1];
+            beam("incline-press-grip-bracket"+side,add3(hip,[side*15,2,8]),add3(hand,[side*3.8,0,0]),.8,"chrome");
+            handle("sled-seat-grip"+side,hand);
+          }
+          rectBeam("incline-press-front-cross",[-30,2,-35],[30,2,-35],5,4);
+          rectBeam("incline-press-rear-cross",[-30,2,49],[30,2,49],5,4);
+          break;
+        }
         if (type === "leg-press" && variant === "seated") {
           photoStack("seated-press-stack", -27, -15, 72, p * 7.8);
           const direction = unit3([0, -.2, 1]);

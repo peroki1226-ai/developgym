@@ -87,6 +87,8 @@ test("muscle arrows follow the legs, reverse on return, and disappear with muscl
 test.each(["ja", "en"] as const)("%s exposes both press types and a live thigh cue without changing the lesson ID", async language => {
   const t = (key: string) => translate(language, key);
   const view = await render(<LocaleProvider language={language} setLanguage={() => {}}><ExerciseDiagram type="leg-press" muscleTag="Quadriceps & Glutes" /></LocaleProvider>);
+  expect(view.getByRole("radio", { name: t("machine.incline") }).props.accessibilityState.checked).toBe(true);
+  await fireEvent.press(view.getByRole("radio", { name: t("machine.seated") }));
   expect(view.getByRole("radio", { name: t("machine.seated") }).props.accessibilityState.checked).toBe(true);
   await fireEvent.press(view.getByRole("radio", { name: t("machine.incline") }));
   expect(view.getByRole("radio", { name: t("machine.incline") }).props.accessibilityState.checked).toBe(true);

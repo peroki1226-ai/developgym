@@ -97,7 +97,7 @@ function MotionDiagram({ type, muscleTag, label, active = true, beginner = false
   const [learningStep, setLearningStep] = useState<LearningStep>("posture");
   const [advanced, setAdvanced] = useState(false);
   const controlsVisible = !beginner || advanced;
-  const [legPressVariant, setLegPressVariant] = useState<LegPressVariant>("seated");
+  const [legPressVariant, setLegPressVariant] = useState<LegPressVariant>("incline");
   const [pressVariant,setPressVariant]=useState<ChestPressVariant>("middle");
   const modelVariant=type==="chest-press"?pressVariant:type==="leg-press"?legPressVariant:undefined;
   const fail = useCallback(() => {

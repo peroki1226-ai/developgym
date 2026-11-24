@@ -3,7 +3,7 @@ import { Circle, G, Line, Polygon, Polyline, Rect } from "react-native-svg";
 import { projectPhotoChest } from "../domain/photoChestProjection";
 import { V3, GuideVariant, trainingFrame3d, add3, mul3 } from "../domain/training3d";
 
-const colours = { metal: "#53585d", satin: "#a3a9ae", chrome: "#c6cbd0", rubber: "#292c30", pad: "#292c30" };
+const colours = { metal: "#53585d", satin: "#a3a9ae", chrome: "#c6cbd0", rubber: "#292c30", pad: "#292c30", orangePad: "#df681c" };
 
 export function PhotoChestEquipment({ type, progress, variant }: { type: string; progress: number; variant?: GuideVariant }) {
   const frame = trainingFrame3d(type, progress, variant), project = (p: V3) => projectPhotoChest(type, p);
@@ -19,7 +19,7 @@ export function PhotoChestEquipment({ type, progress, variant }: { type: string;
       const width = item.size[0] * (item.kind === "tube" ? .84 : 1.68);
       return <Line key={item.id} testID={"photo-gear-" + item.id} x1={x} y1={y} x2={x2} y2={y2} stroke={fill} strokeWidth={width} strokeLinecap="round" />;
     }
-    if (item.axes && ["box", "pad"].includes(item.kind) && (["free-bench-back", "free-bench-back-shell"].includes(item.id) || item.id.startsWith("super-fly-") || item.id.startsWith("smith-"))) {
+    if (item.axes && ["box", "pad"].includes(item.kind) && (["free-bench-back", "free-bench-back-shell"].includes(item.id) || item.id.startsWith("super-fly-") || item.id.startsWith("smith-") || item.id.startsWith("incline-press-") || type === "leg-press")) {
       // Project the actual pad plane. An upright screen Rect discards its axes
       // and makes a horizontal bench look like a vertical/sloped backrest.
       const corner = (u: number, v: number, w: number) => project(add3(item.a, add3(

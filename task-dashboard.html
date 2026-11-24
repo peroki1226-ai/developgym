@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">64 / 67 TASKS COMPLETED (96%)</span>
+        <span class="font-num text-white">65 / 67 TASKS COMPLETED (97%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 96%"></div>
@@ -840,7 +840,11 @@
         desc: "「自分で動かして覚える」手動バーを3D模型直下へ配置し、その次にお手本再生を配置。旧位置との重複を解消。",
         review: "【LGTM / DONE 受入完了】関連3スイート/32テスト・型検査・リリース監査全合格。模型直下への手動操作バー配置、二重表示防止、シーク・再生・全操作・記録機能保持の実動検証完了。64/66完了（97%）。"
       }
-      ,{id:"TASK-067",title:"胸に加えて脚7種目のフォームガイドを追加",category:"Leg training",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"脚7種目のコース・教材・手動/低速再生、スミススクワットの独立模型、メニュー/記録連携。",review:"胸と既存IDを保持。関連14スイート分割検証、最終6スイート136件・専用13件再確認・型/監査/両OSローカルバンドル合格。日英7種目・端点・メニュー・保存確認。64/67 DONE（96%）。実機・配布保留。"}
+      ,{id: "TASK-067", title: "ユーザー指定：胸に加えて脚7種目のフォームガイドを追加",
+        category: "Leg Training Module", assignee: "Codex", status: "DONE", rating: "LGTM",
+        desc: "胸のコースを保持し、脚7種目（スクワット、スミススクワット、レッグプレス等）のコース・教材・3D模型・メニュー・記録を実装。",
+        review: "【LGTM / DONE 受入完了】脚7種目（新規スミススクワット含む全30種目）の3D模型アニメーション・日英教材・手動往復バー・メニュー導線・セット記録保存の実動検証完了。65/67完了（97%）。"
+      }
     ];
 
     function renderKanban() {

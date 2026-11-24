@@ -95,7 +95,7 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">62 / 65 TASKS COMPLETED (95%)</span>
+        <span class="font-num text-white">63 / 65 TASKS COMPLETED (97%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
         <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
@@ -830,7 +830,11 @@
         desc: "4本の指でバーを包み込み、親指を人差し指へ対向。バー径接触適合、手元細分化、手以外20,906頂点を完全保持。",
         review: "【LGTM / DONE 受入完了】関連9スイート/95テスト・型検査・リリース監査全合格。指骨長保持把持・親指対向・金属シャフト径接触適合・手元細分化滑らかさ・手以外20,906頂点完全保持の実動検証完了。62/64完了（97%）。"
       }
-      ,{id:"TASK-065",title:"下部「狙う部位」の2D人体図を削除",category:"UI Optimization",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"残存していた胸の2D負荷部位図と図専用の注記を削除。3D着色・負荷数値・部位説明・操作・記録を保持。",review:"関連24テスト・型/言語/リリース検証合格。日英実画面で2D図の不在、3D・説明・4タブ・再生/停止を確認。62/65 DONE（95%）。実機・配布保留。"}
+      ,{id: "TASK-065", title: "ユーザー指定：下部「狙う部位」の2D人体図を削除",
+        category: "UI Refinement", assignee: "Codex", status: "DONE", rating: "LGTM",
+        desc: "ChestCoachingPanel内の「狙う部位」2D人体図と注記を削除。部位説明を全幅表示へ最適化し、3D模型・解説を保持。",
+        review: "【LGTM / DONE 受入完了】関連24テスト・型検査・リリース監査全合格。下部2D人体図と注記の完全削除、全幅テキスト表示、3D人体着色・負荷数値・全操作の完全保持を確認。63/65完了（97%）。"
+      }
     ];
 
     function renderKanban() {

@@ -76,17 +76,17 @@
       <div class="flex items-center gap-4 sm:gap-6 bg-black/60 p-4 rounded-xl border border-white/10">
         <div class="text-center">
           <div class="text-xs text-neutral-400">進捗率</div>
-          <div class="font-num text-3xl font-bold text-white" id="stat-progress">94%</div>
+          <div class="font-num text-3xl font-bold text-white" id="stat-progress">95%</div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">完了 / 全タスク</div>
-          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">60</span> / <span id="stat-total" class="text-neutral-500">64</span></div>
+          <div class="font-num text-2xl font-bold text-white"><span id="stat-done" class="text-white">62</span> / <span id="stat-total" class="text-neutral-500">65</span></div>
         </div>
         <div class="h-10 w-[1px] bg-white/15"></div>
         <div class="text-center">
           <div class="text-xs text-neutral-400">直近判定</div>
-          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">バーを握る手 レビュー待ち</div>
+          <div class="text-sm font-bold text-amber-200 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">下部2D人体図の削除 レビュー待ち</div>
         </div>
       </div>
     </header>
@@ -95,10 +95,10 @@
     <div class="luxe-card rounded-xl p-4">
       <div class="flex justify-between text-xs text-neutral-400 mb-2">
         <span>全体ロードマップ達成度</span>
-        <span class="font-num text-white">62 / 64 TASKS COMPLETED (97%)</span>
+        <span class="font-num text-white">62 / 65 TASKS COMPLETED (95%)</span>
       </div>
       <div class="w-full bg-neutral-900 h-2.5 rounded-full overflow-hidden border border-white/10">
-        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 94%"></div>
+        <div class="bg-white h-full rounded-full transition-all duration-700" style="width: 95%"></div>
       </div>
     </div>
 
@@ -830,6 +830,7 @@
         desc: "4本の指でバーを包み込み、親指を人差し指へ対向。バー径接触適合、手元細分化、手以外20,906頂点を完全保持。",
         review: "【LGTM / DONE 受入完了】関連9スイート/95テスト・型検査・リリース監査全合格。指骨長保持把持・親指対向・金属シャフト径接触適合・手元細分化滑らかさ・手以外20,906頂点完全保持の実動検証完了。62/64完了（97%）。"
       }
+      ,{id:"TASK-065",title:"下部「狙う部位」の2D人体図を削除",category:"UI Optimization",assignee:"Codex",status:"IN REVIEW",rating:"レビュー待ち",desc:"残存していた胸の2D負荷部位図と図専用の注記を削除。3D着色・負荷数値・部位説明・操作・記録を保持。",review:"関連24テスト・型/言語/リリース検証合格。日英実画面で2D図の不在、3D・説明・4タブ・再生/停止を確認。62/65 DONE（95%）。実機・配布保留。"}
     ];
 
     function renderKanban() {

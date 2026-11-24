@@ -99,6 +99,8 @@ test.each(["ja","en"] as const)("%s: all chest lessons switch, show targets and 
     await fireEvent.press(screen.getByRole("radio",{name:t("chest.course.select",{0:t(`${lesson.prefix}.name`)})}));
     expect(screen.getByLabelText(t("重量kg")).props.value).toBe("4");
     expect(screen.getByRole("tab",{name:t("chest.tab.target")}).props.accessibilityState.selected).toBe(true);
+    expect(screen.queryByRole("image",{name:t("chest.map.label")})).toBeNull();
+    expect(screen.queryByText(t("chest.map.note"))).toBeNull();
     expect(screen.getByText(t(`${lesson.prefix}.why`))).toBeTruthy();
     for(const step of ["hands","feet"]) {
       await fireEvent.press(screen.getByRole("radio",{name:t(`learn.${step}`)}));

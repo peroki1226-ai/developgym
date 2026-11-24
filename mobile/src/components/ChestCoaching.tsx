@@ -1,7 +1,5 @@
-import { chestTargetColour } from "../domain/chestTargets";
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Svg, { Circle, Path, G } from "react-native-svg";
 import { CHEST_LESSONS, ChestLesson } from "../domain/chestLessons";
 import { useI18n } from "../i18n";
 import { Body, Button, Card, Heading, colors } from "./ui";
@@ -25,24 +23,6 @@ export function ChestCoursePicker({ selected, onSelect }: { selected: string; on
   </Card>;
 }
 
-// An overview map, separate from the animated anatomical model above it.
-function ChestTargetMap({ type }: { type: string }) {
-  const { t } = useI18n();
-
-  return <View accessibilityRole="image" accessibilityLabel={t("chest.map.label")} style={styles.map}>
-    <Svg viewBox="0 0 160 172" width={140} height={150} accessibilityElementsHidden>
-      <Circle cx={80} cy={18} r={13} fill="#d8c9bb" />
-      <Path d="M71 30 L70 39 Q50 39 42 48 L24 87 Q22 94 30 96 L50 67 L56 95 L54 151 L72 162 L80 131 L88 162 L106 151 L104 95 L110 67 L130 96 Q138 94 136 87 L118 48 Q110 39 90 39 L89 30Z" fill="#e8e0d8" stroke="#9b8c81" strokeWidth={1.5}/>
-      {[-1,1].map(side => <G key={side} transform={side === -1 ? "translate(160 0) scale(-1 1)" : undefined}>
-        <Path d="M82 45 Q100 41 111 50 L105 58 Q93 58 82 54Z" fill={chestTargetColour(type,"upper")}/>
-        <Path d="M82 56 Q96 60 105 58 Q104 71 83 76Z" fill={chestTargetColour(type,"middle")}/>
-        <Path d="M83 76 Q99 74 104 65 Q102 79 83 82Z" fill={chestTargetColour(type,"lower")}/>
-        {[0,1,2].map(i => <Path key={i} d={`M84 ${49+i*9} Q94 ${50+i*8} 104 56`} stroke="#fff" strokeWidth={.7} opacity={.6} fill="none"/>)}
-      </G>)}
-      <Path d="M80 45 L80 83 M71 90 L89 90 M70 101 L90 101 M71 112 L89 112 M80 87 L80 123" stroke="#beb1a5" strokeWidth={1.5} fill="none"/>
-    </Svg>
-  </View>;
-}
 const tabs = ["target", "focus", "cautions", "tips"] as const;
 export function ChestCoachingPanel({ lesson, onAssisted }: { lesson: ChestLesson; onAssisted: () => void }) {
   const { t } = useI18n();
@@ -56,13 +36,9 @@ export function ChestCoachingPanel({ lesson, onAssisted }: { lesson: ChestLesson
     </View>
     <View accessibilityLiveRegion="polite" style={styles.panel}>
       {tab === "target" && <>
-        <View style={styles.target}>
-          <ChestTargetMap type={lesson.id}/>
-          <View style={styles.targetText}><Text style={styles.eyebrow}>{t("chest.primary")}</Text><Heading>{text("target")}</Heading></View>
-        </View>
+        <View style={styles.targetText}><Text style={styles.eyebrow}>{t("chest.primary")}</Text><Heading>{text("target")}</Heading></View>
         <Body>{text("why")}</Body>
         <Text style={styles.eyebrow}>{t("chest.secondary")}</Text><Body>{text("secondary")}</Body>
-        <Text style={styles.note}>{t("chest.map.note")}</Text>
       </>}
       {tab === "focus" && [1,2,3].map(n => <View style={styles.cue} key={n}><Text style={styles.number}>{n}</Text><View style={styles.grow}><Body>{text(`focus${n}`)}</Body></View></View>)}
       {tab === "cautions" && <>
@@ -86,7 +62,7 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: "#edf3f5", borderColor: colors.primary }, lessonText: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 21 },
   number: { color: colors.primary, fontSize: 16, fontWeight: "600", minWidth: 18 }, tick: { color: colors.primary, fontSize: 19 },
   tabs: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, tab: { minHeight: 48, flexBasis: "46%", flexGrow: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 9, alignItems: "center", justifyContent: "center", padding: 8 }, tabText: { color: colors.text, fontSize: 13, textAlign: "center" },
-  panel: { gap: 10, marginTop: 12 }, target: { flexDirection: "row", alignItems: "center", gap: 8 }, map: { flexShrink: 1 }, targetText: { flex: 1, gap: 6 },
+  panel: { gap: 10, marginTop: 12 }, targetText: { gap: 6 },
   eyebrow: { color: colors.primary, fontSize: 12, fontWeight: "600" }, note: { fontSize: 12, lineHeight: 20, color: colors.muted, marginTop: 8 },
   cue: { flexDirection: "row", gap: 10, alignItems: "flex-start", paddingVertical: 5 }, grow: { flex: 1 },
   correction: { gap: 5, borderBottomWidth: 1, borderColor: colors.border, paddingBottom: 14 }, wrong: { color: "#8f4638", fontSize: 12, fontWeight: "600" }, correct: { color: colors.success, fontSize: 12, fontWeight: "600", marginTop: 5 },
